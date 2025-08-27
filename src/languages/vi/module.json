@@ -1,0 +1,79 @@
+{
+  "setting": {
+    "notFound": "Không tìm thấy cài đặt",
+    "valueNotAllowed": "Giá trị cài đặt không được phép"
+  },
+  "role": {
+    "notFound": "Không tìm thấy vai trò",
+    "exist": "Vai trò đã tồn tại",
+    "conflict": "Vai trò đang được sử dụng"
+  },
+  "user": {
+    "notFound": "Người dùng không tồn tại"
+  },
+  "member": {
+    "notFound": "Thành viên không tồn tại",
+    "conflict": "Thành viên đang được sử dụng",
+    "notTimeToCheckInYet": "Hiện chưa đến thời gian điểm danh",
+    "checkInFutureDate": "Ngày không được là ngày trong tương lai",
+    "canNotDeleteOthers": "Bạn không thể xóa tài nguyên thuộc về người khác",
+    "memberTierExpiresIn": "Hạng thành viên có hiệu lực đến {tierExpireDate}",
+    "memberPointExpiresIn": "{pointExpireValue} điểm có hiệu lực đến {pointExpireDate}"
+  },
+  "fact": {
+    "notFound": "Dữ liệu thực tế không tồn tại",
+    "requiredOne": "Cần ít nhất một bản ghi"
+  },
+  "wifi": {
+    "notFound": "Không tìm thấy Wifi",
+    "invalid": "Không thể kết nối với Wifi",
+    "conflict": "Wifi đang được sử dụng"
+  },
+  "supplier": {
+    "notFound": "Nhà cung cấp không tồn tại",
+    "conflict": "Loại nhà cung cấp đang được sử dụng"
+  },
+  "supplierType": {
+    "notFound": "Không tìm thấy loại",
+    "conflict": "Loại đang được sử dụng",
+    "used": "Loại nhà cung cấp đang được sử dụng"
+  },
+  "quote": {
+    "changesNotAllowed": "Báo giá này không thể chỉnh sửa"
+  },
+  "order": {
+    "notFound": "Đơn hàng không tồn tại",
+    "changesNotAllowed": "Đơn hàng này không thể chỉnh sửa",
+    "hasBeenProcessed": "Đơn hàng này đã được xử lý",
+    "quoteIsClosed": "Báo giá này đã bị đóng",
+    "quoteItemEmpty": "Không thể tạo đơn hàng mới. Hiện tại báo giá không có mặt hàng"
+  },
+  "task": {
+    "notFound": "Không tìm thấy nhiệm vụ",
+    "memberNotFound": "Không tìm thấy người phụ trách",
+    "orderAlreayAssigned": "Đã có nhiệm vụ được tạo từ đơn hàng này",
+    "changesNotAllowed": "Nhiệm vụ này không thể chỉnh sửa",
+    "abilityForbidden": "Bạn không có quyền thay đổi trạng thái nhiệm vụ"
+  },
+  "company": {
+    "notFound": "Công ty không tồn tại"
+  },
+  "unit": {
+    "notFound": "Đơn vị không tồn tại",
+    "conflict": "Đơn vị đang được sử dụng",
+    "used": "Đơn vị đang được sử dụng"
+  },
+  "product": {
+    "notFound": "Sản phẩm không tồn tại",
+    "conflict": "Mã sản phẩm đang được sử dụng"
+  },
+  "salary": {
+    "notFound": "Không tìm thấy bảng lương",
+    "conflict": "Thành viên này đã được đánh giá trong tháng này"
+  },
+  "customer": {
+    "notFound": "Khách hàng không tồn tại",
+    "deleteExistQuoteAddress": "Địa chỉ khách hàng này đã được liên kết với báo giá",
+    "deleteExistOrderAddress": "Địa chỉ khách hàng này đã được liên kết với đơn hàng"
+  }
+}

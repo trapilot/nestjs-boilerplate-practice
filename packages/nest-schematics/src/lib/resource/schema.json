@@ -1,0 +1,84 @@
+{
+  "$id": "SchematicsNestResource",
+  "title": "Nest Resource Options Schema",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the resource.",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What entity name would you like to use for this resource (e.g., \"user\")?"
+    },
+    "auth": {
+      "type": "boolean",
+      "description": "Flag to import authentication.",
+      "$default": {
+        "$source": "argv",
+        "index": 1
+      },
+      "x-prompt": "Do you want authentication for this resource?"
+    },
+    "authType": {
+      "type": "string",
+      "description": "Type of authentication to use",
+      "enum": [
+        "USER",
+        "MEMBER"
+      ],
+      "x-prompt": "Select the authentication type"
+    },
+    "path": {
+      "type": "string",
+      "format": "path",
+      "description": "The path to create the resource."
+    },
+    "sourceRoot": {
+      "type": "string",
+      "description": "Nest resource source root directory."
+    },
+    "language": {
+      "type": "string",
+      "description": "Application language (ts/js)."
+    },
+    "flat": {
+      "type": "boolean",
+      "default": false,
+      "description": "Flag to indicate if a directory is created."
+    },
+    "type": {
+      "type": "string",
+      "description": "The transport layer.",
+      "default": "rest",
+      "enum": [
+        "rest"
+      ]
+    },
+    "skipImport": {
+      "type": "boolean",
+      "description": "Flag to skip the module import.",
+      "default": true
+    }
+  },
+  "required": ["name", "auth"],
+  "if": {
+    "properties": {
+      "auth": { "const": true }
+    }
+  },
+  "then": {
+    "properties": {
+      "authType": {
+        "type": "string",
+        "description": "Type of authentication to use",
+        "enum": [
+          "USER",
+          "MEMBER"
+        ]
+      }
+    },
+    "required": ["authType"]
+  }
+}

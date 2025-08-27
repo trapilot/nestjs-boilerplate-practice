@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "plugins": ["@nestjs/swagger"],
+    "assets": [
+      {
+        "include": "languages/**/*",
+        "outDir": "dist"
+      },
+      {
+        "include": "templates/**",
+        "outDir": "dist"
+      }
+    ]
+  },
+  "projects": {
+    "nest-core": {
+      "type": "library",
+      "root": "libs/nest-core",
+      "entryFile": "index",
+      "sourceRoot": "libs/nest-core/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/nest-core/tsconfig.lib.json"
+      }
+    },
+    "nest-auth": {
+      "type": "library",
+      "root": "libs/nest-auth",
+      "entryFile": "index",
+      "sourceRoot": "libs/nest-auth/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/nest-auth/tsconfig.lib.json"
+      }
+    },
+    "nest-file": {
+      "type": "library",
+      "root": "libs/nest-file",
+      "entryFile": "index",
+      "sourceRoot": "libs/nest-file/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/nest-file/tsconfig.lib.json"
+      }
+    },
+    "nest-logger": {
+      "type": "library",
+      "root": "libs/nest-logger",
+      "entryFile": "index",
+      "sourceRoot": "libs/nest-logger/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/nest-logger/tsconfig.lib.json"
+      }
+    },
+    "nest-notifier": {
+      "type": "library",
+      "root": "libs/nest-notifier",
+      "entryFile": "index",
+      "sourceRoot": "libs/nest-notifier/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/nest-notifier/tsconfig.lib.json"
+      }
+    },
+    "nest-message": {
+      "type": "library",
+      "root": "libs/nest-message",
+      "entryFile": "index",
+      "sourceRoot": "libs/nest-message/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/nest-message/tsconfig.lib.json"
+      }
+    },
+    "nest-prisma": {
+      "type": "library",
+      "root": "libs/nest-prisma",
+      "entryFile": "index",
+      "sourceRoot": "libs/nest-prisma/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/nest-prisma/tsconfig.lib.json"
+      }
+    },
+    "nest-web": {
+      "type": "library",
+      "root": "libs/nest-web",
+      "entryFile": "index",
+      "sourceRoot": "libs/nest-web/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/nest-web/tsconfig.lib.json"
+      }
+    }
+  }
+}

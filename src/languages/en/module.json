@@ -1,0 +1,86 @@
+{
+  "setting": {
+    "notFound": "Setting not found",
+    "valueNotAllowed": "Setting value not allowed"
+  },
+  "role": {
+    "notFound": "Role not found",
+    "exist": "Role existed",
+    "conflict": "Role already in use"
+  },
+  "user": {
+    "notFound": "User does not exist"
+  },
+  "member": {
+    "notFound": "Member does not exist",
+    "conflict": "Member already in use",
+    "notTimeToCheckInYet": "It’s not time to check in yet",
+    "checkInFutureDate": "Date cannot be in the future",
+    "canNotDeleteOthers": "You cannot delete the resources belonging to other masters",
+    "memberTierExpiresIn": "Membership are valid until {tierExpireDate}",
+    "memberPointExpiresIn": "{pointExpireValue} points are valid until {pointExpireDate}",
+    "notEnoughPoint": "You haven't enough points to redeem"
+  },
+  "fact": {
+    "notFound": "Fact does not exist",
+    "requiredOne": "At least one record is required"
+  },
+  "cart": {
+    "notFound": "Cart does not exist",
+    "isEmpty": "Cart is empty",
+    "notFoundItem": "Cart item not found",
+    "versionChanged": "Your cart has been changed"
+  },
+  "wifi": {
+    "notFound": "Wifi does not exist",
+    "invalid": "Can not connect wifi",
+    "conflict": "Wifi already in use"
+  },
+  "supplier": {
+    "notFound": "Supplier does not exist",
+    "conflict": "Supplier already in use"
+  },
+  "supplierType": {
+    "notFound": "Type does not exist",
+    "conflict": "Type already in use",
+    "used": "Type already in use"
+  },
+  "quote": {
+    "changesNotAllowed": "This quote can not be edited"
+  },
+  "order": {
+    "notFound": "Order does not exist",
+    "changesNotAllowed": "This order can not be edited",
+    "hasBeenProcessed": "This order has been processed",
+    "quoteIsClosed": "This quotation has been closed",
+    "quoteItemEmpty": "Can not create new order. Currently your quote items are empty"
+  },
+  "task": {
+    "notFound": "Task does not exist",
+    "memberNotFound": "Master does not exist",
+    "orderAlreayAssigned": "One task has been created from this order",
+    "changesNotAllowed": "This task can not be edited",
+    "abilityForbidden": "You do not have ability to change task status"
+  },
+  "company": {
+    "notFound": "Company does not exist"
+  },
+  "unit": {
+    "notFound": "Unit does not exist",
+    "conflict": "Unit already in use",
+    "used": "Unit already in use"
+  },
+  "product": {
+    "notFound": "Product does not exist",
+    "conflict": "Product already in use"
+  },
+  "salary": {
+    "notFound": "Salary does not exist",
+    "conflict": "This member has already rated this month"
+  },
+  "customer": {
+    "notFound": "Customer does not exist",
+    "deleteExistQuoteAddress": "This customer address has already belong with a quotation",
+    "deleteExistOrderAddress": "This customer address has already belong with a order"
+  }
+}

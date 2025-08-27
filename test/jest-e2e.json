@@ -1,0 +1,32 @@
+{
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^src/(.*)$": "<rootDir>/../src/$1",
+    "lib/nest-core": "<rootDir>/../libs/nest-core/src",
+    "lib/nest-core/(.*)": "<rootDir>/../libs/nest-core/src/$1",
+    "lib/nest-auth": "<rootDir>/../libs/nest-auth/src",
+    "lib/nest-auth/(.*)": "<rootDir>/../libs/nest-auth/src/$1",
+    "lib/nest-file": "<rootDir>/../libs/nest-file/src",
+    "lib/nest-file/(.*)": "<rootDir>/../libs/nest-file/src/$1",
+    "lib/nest-logger": "<rootDir>/../libs/nest-logger/src",
+    "lib/nest-logger/(.*)": "<rootDir>/../libs/nest-logger/src/$1",
+    "lib/nest-notifier": "<rootDir>/../libs/nest-notifier/src",
+    "lib/nest-notifier/(.*)": "<rootDir>/../libs/nest-notifier/src/$1",
+    "lib/nest-message": "<rootDir>/../libs/nest-message/src",
+    "lib/nest-message/(.*)": "<rootDir>/../libs/nest-message/src/$1",
+    "lib/nest-prisma": "<rootDir>/../libs/nest-prisma/src",
+    "lib/nest-prisma/(.*)": "<rootDir>/../libs/nest-prisma/src/$1",
+    "lib/nest-web": "<rootDir>/../libs/nest-web/src",
+    "lib/nest-web/(.*)": "<rootDir>/../libs/nest-web/src/$1"
+  }
+}

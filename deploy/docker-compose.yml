@@ -1,0 +1,27 @@
+services:
+  api:
+    build: .
+    container_name: api
+    image: api-img:1.0.0
+    networks:
+      - app-network
+    ports:
+      - 3000:3000
+    volumes:
+      - ../logs:/app/logs
+      - ../public:/app/public
+      - ../resources:/app/resources
+    env_file:
+      - ../.env
+    restart: always
+    external_links:
+      - mysql:mysql-8.2
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+networks:
+  app-network:
+    external: true
+

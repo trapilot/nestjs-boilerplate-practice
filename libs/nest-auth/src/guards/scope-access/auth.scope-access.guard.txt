@@ -1,0 +1,29 @@
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
+import { Reflector } from '@nestjs/core'
+import { IRequestApp } from 'lib/nest-web'
+import { minimatch } from 'minimatch'
+import { AUTH_SCOPES_METADATA } from '../../constants'
+
+@Injectable()
+export class ScopeAccessGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const scopes = this.reflector.get<string[]>(AUTH_SCOPES_METADATA, context.getHandler())
+    if (!scopes) return true
+
+    const request = context.switchToHttp().getRequest<IRequestApp>()
+    const user = request.user
+    if (!user) return false
+
+    let authorized = false
+    for (const userScope of user.scopes) {
+      for (let scope of scopes) {
+        for (const key in request.params) scope = scope.replace(`{${key}}`, request.params[key])
+        authorized = authorized || minimatch(scope, userScope)
+        if (authorized) return true
+      }
+    }
+    return authorized
+  }
+}

@@ -1,0 +1,1302 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum ENUM_MEDIA_TYPE {
+  BANNER
+  SLIDER
+}
+
+enum ENUM_API_KEY_TYPE {
+  SYSTEM
+  CLIENT
+  DEFAULT
+}
+
+enum ENUM_APP_VERSION_PLATFORM {
+  IOS
+  AOS
+  WEB
+}
+
+enum ENUM_VERIFICATION_CHANNEL {
+  SMS
+  EMAIL
+}
+
+enum ENUM_VERIFICATION_TYPE {
+  SIGN_UP
+  RESET_PASSWORD
+  FORGOT_PASSWORD
+  CHANGE_PASSWORD
+}
+
+enum ENUM_NOTIFICATION_CHANNEL {
+  SMS
+  EMAIL
+  WHATAPP
+}
+
+enum ENUM_NOTIFICATION_TYPE {
+  TEXT
+  REFERRENCE
+}
+
+enum ENUM_PUSH_TYPE {
+  INSTANT
+  DATETIME
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum ENUM_PUSH_STATUS {
+  PENDING
+  PUSHING
+  COMPLETED
+  CANCELED
+}
+
+enum ENUM_ADDRESS_TYPE {
+  CONSTRUCTION
+}
+
+enum ENUM_MEMBER_TYPE {
+  STAFF
+  NORMAL
+  MASTER
+}
+
+enum ENUM_MEMBER_TIER {
+  STANDARD
+  BLUE
+  SILVER
+  GOLD
+  BLACK
+  PLATINUM
+  DIAMOND
+}
+
+enum ENUM_MEMBER_TIER_ACTION {
+  INITIAL
+  SYSTEM
+  UPGRADE
+  RENEWAL
+  DOWNGRADE
+}
+
+enum ENUM_REDEMPTION_SOURCE {
+  SYSTEM
+  ORDER
+  PROMOTION
+}
+
+enum ENUM_REDEMPTION_STATUS {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+  CANCELED
+  RESERVED
+  USED
+  FAILED
+}
+
+enum ENUM_POINT_TYPE {
+  INITIAL
+  IMPORT
+  SYSTEM
+  EXPIRY
+  REFUND
+  UPGRADE
+  RENEWAL
+  SHARE
+  PURCHASE
+  REWARD
+  REFER
+  WELCOME
+  REGISTER
+}
+
+enum ENUM_PRODUCT_TYPE {
+  SIMPLE
+  VIRTUAL
+  GROUPED
+  BUNDLE
+  CONFIGURABLE
+  DOWNLOADABLE
+}
+
+enum ENUM_PRODUCT_EXPIRY {
+  STATIC
+  DYNAMIC
+}
+
+enum ENUM_PROMOTION_RULE {
+  GTE
+  GT
+  LT
+  LTE
+}
+
+enum ENUM_PROMOTION_ACTION {
+  PERCENT_OF_PROUDCT
+  FIXED_AMOUNT_FOR_PRODUCT
+  FIXED_AMOUNT_FOR_WHOLE_CART
+  BUY_X_FIXED_AMOUNT_Y
+  BUY_X_PERCENT_Y
+}
+
+enum ENUM_POINT_SCHEMA_TYPE {
+  BRAND
+  SHOP
+  PRODUCT
+  PAYMENT
+  INVOICE
+  MONTHLY
+  WEEKLY
+  TIMESLOT
+  BIRTH_MONTH
+}
+
+enum ENUM_PAYMENT_STATUS {
+  PAID
+  CANCELED
+}
+
+enum ENUM_PAYMENT_METHOD {
+  CASH
+  CREDIT
+  PAYPAL
+  DEBIT
+}
+
+enum ENUM_ORDER_SOURCE {
+  SYSTEM
+  WEB
+  APP
+  POS
+}
+
+enum ENUM_ORDER_STATE {
+  LOCKED
+  UNLOCKED
+}
+
+enum ENUM_ORDER_STATUS {
+  PENDING
+  SHIPPED
+  DELIVERED
+  CANCELED
+}
+
+enum ENUM_INVOICE_STATUS {
+  PENDING
+  // SENT
+  // VIEWED
+  PARTIALLY_PAID
+  FULLY_PAID
+  OVERDUE
+  CANCELED
+  REFUNDED
+  FAILED
+  DISPUTED
+}
+
+enum ENUM_SLIP_TYPE {
+  ORDER
+  INVOICE
+}
+
+model Setting {
+  id          Int       @id @default(autoincrement())
+  type        String
+  name        String?
+  code        String
+  description String?
+  group       String    @default("SYSTEM")
+  value       String
+  refer       String?
+  isVisible   Boolean?  @default(true)
+  createdBy   Int?
+  updatedBy   Int?
+  deletedBy   Int?
+  deletedAt   DateTime?
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+
+  @@index([type])
+  @@map("settings")
+}
+
+model Media {
+  id        Int             @id @default(autoincrement())
+  type      ENUM_MEDIA_TYPE @default(BANNER)
+  url       String
+  mime      String?
+  title     Json?
+  brief     Json?
+  refType   String?
+  refValue  String?
+  startDate DateTime?       @default(now())
+  untilDate DateTime?
+  sorting   Int?            @default(0)
+  isActive  Boolean?        @default(true)
+  createdAt DateTime?       @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@map("medias")
+}
+
+model ApiKey {
+  id           Int               @id @default(autoincrement())
+  type         ENUM_API_KEY_TYPE @default(CLIENT)
+  name         String
+  key          String
+  hash         String
+  isDeprecated Boolean?          @default(false)
+  isActive     Boolean?          @default(true)
+  startDate    DateTime?
+  untilDate    DateTime?
+  createdAt    DateTime?         @default(now())
+  updatedAt    DateTime?         @updatedAt
+
+  @@map("api_keys")
+}
+
+model AppVersion {
+  id        Int                       @id @default(autoincrement())
+  type      ENUM_APP_VERSION_PLATFORM @unique @default(IOS)
+  name      String
+  version   String
+  url       String?
+  isForce   Boolean?                  @default(false)
+  isActive  Boolean?                  @default(true)
+  createdAt DateTime?                 @default(now())
+  updatedAt DateTime?                 @updatedAt
+
+  @@map("app_versions")
+}
+
+model Country {
+  id        Int       @id @default(autoincrement())
+  name      Json?
+  flag      String?
+  isActive  Boolean?  @default(true)
+  isVisible Boolean?  @default(true)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime  @updatedAt
+
+  members   Member[]
+  districts District[]
+
+  @@map("countries")
+}
+
+model District {
+  id        Int       @id @default(autoincrement())
+  countryId Int?
+  name      Json?
+  isActive  Boolean?  @default(true)
+  isVisible Boolean?  @default(true)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime  @updatedAt
+
+  country Country? @relation(fields: [countryId], references: [id])
+
+  members Member[]
+
+  @@map("districts")
+}
+
+model Notification {
+  id          Int                       @id @default(autoincrement())
+  refId       Int?
+  refType     String?
+  channel     ENUM_NOTIFICATION_CHANNEL @default(EMAIL)
+  type        ENUM_NOTIFICATION_TYPE    @default(TEXT)
+  title       Json
+  description Json?
+  content     Json?
+  isActive    Boolean                   @default(true)
+  createdAt   DateTime?                 @default(now())
+  updatedAt   DateTime?                 @updatedAt
+  createdBy   Int?
+  updatedBy   Int?
+
+  createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
+  updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
+
+  pushes      Push[]
+  pivotGroups PushGroupNotificationMixins[]
+
+  @@map("notifications")
+}
+
+model Push {
+  id             Int               @id @default(autoincrement())
+  notificationId Int
+  type           ENUM_PUSH_TYPE    @default(INSTANT)
+  status         ENUM_PUSH_STATUS? @default(PENDING)
+  executeTime    String?
+  executeDate    String?
+  hours          Int?
+  minutes        Int?
+  seconds        Int?
+  weekday        Int?
+  day            Int?
+  month          Int?
+  startDate      DateTime?
+  untilDate      DateTime?
+  retries        Int?              @default(0)
+  isActive       Boolean?          @default(true)
+  expiresAt      DateTime?
+  scheduledAt    DateTime?
+  createdAt      DateTime?         @default(now())
+  updatedAt      DateTime?         @updatedAt
+  createdBy      Int?
+  updatedBy      Int?
+
+  createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
+  updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
+
+  notification Notification  @relation(fields: [notificationId], references: [id])
+  histories    PushHistory[]
+
+  @@map("pushes")
+}
+
+model PushGroup {
+  id            Int       @id @default(autoincrement())
+  title         String?
+  tierIds       Json?
+  emails        Json?
+  phones        Json?
+  joinSinceDate DateTime?
+  joinUntilDate DateTime?
+
+  notifications PushGroupNotificationMixins[]
+
+  @@map("push_groups")
+}
+
+model PushGroupNotificationMixins {
+  groupId        Int
+  notificationId Int
+
+  group        PushGroup    @relation(fields: [groupId], references: [id])
+  notification Notification @relation(fields: [notificationId], references: [id])
+
+  @@id([groupId, notificationId])
+  @@map("_push_group_notification_mixins")
+}
+
+model PushHistory {
+  id             Int       @id @default(autoincrement())
+  pushId         Int
+  notificationId Int
+  totalDevice    Int?
+  createdAt      DateTime? @default(now())
+
+  push          Push                  @relation(fields: [pushId], references: [id])
+  notifications MemberNotifyHistory[]
+
+  @@map("push_histories")
+}
+
+model Role {
+  id          Int       @id @default(autoincrement())
+  level       Int?      @default(1)
+  title       String?
+  description String?
+  isActive    Boolean?  @default(true)
+  deletedAt   DateTime?
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
+  createdBy   Int?
+  updatedBy   Int?
+
+  pivotPermissions RolesPermissions[]
+  pivotUsers       UsersRoles[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id        Int       @id @default(autoincrement())
+  subject   String    @unique
+  context   String?
+  title     Json?
+  bitwise   Int?      @default(0)
+  sorting   Int?      @default(0)
+  isVisible Boolean?  @default(true)
+  isActive  Boolean?  @default(true)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  createdBy Int?
+  updatedBy Int?
+
+  createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
+  updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
+
+  pivotRoles RolesPermissions[]
+
+  @@map("permissions")
+}
+
+model RolesPermissions {
+  permissionId Int
+  roleId       Int
+  bitwise      Int?      @default(0)
+  assignedBy   Int?
+  assignedAt   DateTime? @default(now())
+
+  permission Permission @relation(fields: [permissionId], references: [id])
+  role       Role       @relation(fields: [roleId], references: [id])
+
+  @@id([permissionId, roleId])
+  @@map("_roles_permissions")
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  type            String?
+  level           Int?
+  email           String?   @unique
+  phone           String?
+  name            String?
+  avatar          String?
+  address         String?
+  phoneCountry    String?
+  phoneNumber     String?
+  loginToken      String?
+  loginDate       DateTime?
+  password        String
+  passwordConfirm String?
+  passwordAttempt Int?      @default(0)
+  passwordExpired DateTime?
+  signUpFrom      String?
+  isActive        Boolean?  @default(true)
+  isDeleted       Boolean?  @default(false)
+  isEmailVerified Boolean?  @default(true)
+  isPhoneVerified Boolean?  @default(true)
+  createdAt       DateTime? @default(now())
+  updatedAt       DateTime? @updatedAt
+  createdBy       Int?
+  updatedBy       Int?
+
+  createdPermissions   Permission[]           @relation("createdByUser")
+  updatedPermissions   Permission[]           @relation("updatedByUser")
+  createdNotifications Notification[]         @relation("createdByUser")
+  updatedNotifications Notification[]         @relation("updatedByUser")
+  createdPushes        Push[]                 @relation("createdByUser")
+  updatedPushes        Push[]                 @relation("updatedByUser")
+  createdFacts         Fact[]                 @relation("createdByUser")
+  updatedFacts         Fact[]                 @relation("updatedByUser")
+  createdMembers       Member[]               @relation("createdByUser")
+  updatedMembers       Member[]               @relation("updatedByUser")
+  deletedMembers       Member[]               @relation("deletedByUser")
+  createdProducts      Product[]              @relation("createdByUser")
+  updatedProducts      Product[]              @relation("updatedByUser")
+  deletedProducts      Product[]              @relation("deletedByUser")
+  createdPoints        MemberPointHistory[]   @relation("createdByUser")
+  updatedPoints        MemberPointHistory[]   @relation("updatedByUser")
+  createdRedeems       MemberProductHistory[] @relation("createdByUser")
+  updatedRedeems       MemberProductHistory[] @relation("updatedByUser")
+  createdPromotions    Promotion[]            @relation("createdByUser")
+  updatedPromotions    Promotion[]            @relation("updatedByUser")
+
+  loginHistories  UserLoginHistory[]
+  tokenHistories  UserTokenHistory[]
+  verifyHistories UserVerifyHistory[]
+  pivotRoles      UsersRoles[]
+
+  @@map("users")
+}
+
+model UserTokenHistory {
+  id             Int       @id @default(autoincrement())
+  userId         Int
+  userToken      String
+  refreshToken   String    @db.Text
+  refreshAttempt Int?      @default(1)
+  refreshExpired DateTime?
+  isActive       Boolean?  @default(true)
+  createdAt      DateTime? @default(now())
+  updatedAt      DateTime? @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, userToken])
+  @@map("user_token_histories")
+}
+
+model UserLoginHistory {
+  id              Int       @id @default(autoincrement())
+  userId          Int
+  ip              String?
+  hostname        String?
+  protocol        String?
+  originalUrl     String?
+  method          String?
+  userAgent       String?
+  xForwardedFor   String?
+  xForwardedHost  String?
+  xForwardedPorto String?
+  loginDate       DateTime?
+  createdAt       DateTime? @default(now())
+  updatedAt       DateTime? @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("user_login_histories")
+}
+
+model UserVerifyHistory {
+  id         Int                       @id @default(autoincrement())
+  channel    ENUM_VERIFICATION_CHANNEL
+  type       ENUM_VERIFICATION_TYPE
+  code       String
+  userId     Int?
+  phone      String?
+  email      String?
+  attempts   Int?                      @default(1)
+  isActive   Boolean?                  @default(true)
+  isVerified Boolean?                  @default(false)
+  verifiedAt DateTime?
+  isExpired  Boolean                   @default(false)
+  expiresAt  DateTime?
+  createdAt  DateTime?                 @default(now())
+  updatedAt  DateTime?                 @updatedAt
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("user_verify_histories")
+}
+
+model UsersRoles {
+  roleId     Int
+  userId     Int
+  assignedBy Int?
+  assignedAt DateTime? @default(now())
+
+  role Role @relation(fields: [roleId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@id([userId, roleId])
+  @@map("_users_roles")
+}
+
+model Member {
+  id                       Int               @id @default(autoincrement())
+  code                     String?
+  tierId                   Int?
+  minTierId                Int?
+  countryId                Int?
+  districtId               Int?
+  referralCode             String?           @unique
+  invitedCode              String?
+  type                     ENUM_MEMBER_TYPE? @default(NORMAL)
+  email                    String?
+  name                     String?
+  refId                    String?
+  cardId                   String?
+  appleId                  String?
+  facebookId               String?
+  facebookToken            String?
+  phone                    String?
+  locale                   String?
+  gender                   String?
+  address                  String?
+  avatar                   String?
+  birthDate                DateTime?
+  expiryDate               DateTime?
+  pointBalance             Int?              @default(0)
+  personalSpending         Float?            @default(0)
+  referralSpending         Float?            @default(0)
+  maximumSpending          Float?            @default(0)
+  phoneCountry             String?
+  phoneNumber              String?
+  birthYear                Int?
+  birthMonth               Int?
+  birthDay                 Int?
+  loginToken               String?
+  loginDate                DateTime?
+  password                 String?
+  passwordAttempt          Int?              @default(0)
+  passwordExpired          DateTime?
+  isActive                 Boolean?          @default(true)
+  isVisible                Boolean?          @default(true)
+  isDeleted                Boolean?          @default(false)
+  isNotifiable             Boolean?          @default(true)
+  isPromotable             Boolean?          @default(true)
+  isEmailVerified          Boolean?          @default(false)
+  isPhoneVerified          Boolean?          @default(false)
+  receivePromotionViaApp   Boolean?          @default(false)
+  receivePromotionViaEmail Boolean?          @default(false)
+  hasFirstPurchased        Boolean?          @default(false)
+  hasBirthPurchased        Boolean?          @default(false)
+  hasDiamondAchieved       Boolean?          @default(false)
+  hasFirstPurchasedAt      DateTime?
+  hasBirthPurchasedAt      DateTime?
+  hasDiamondAchievedAt     DateTime?
+  startedAt                DateTime?
+  deletedAt                DateTime?
+  createdAt                DateTime?         @default(now())
+  updatedAt                DateTime?         @updatedAt
+  deletedBy                Int?
+  createdBy                Int?
+  updatedBy                Int?
+
+  createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
+  updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
+  deletedByUser User? @relation("deletedByUser", fields: [deletedBy], references: [id])
+
+  tier     Tier?     @relation(fields: [tierId], references: [id])
+  district District? @relation(fields: [districtId], references: [id])
+  country  Country?  @relation(fields: [countryId], references: [id])
+
+  deleteReasons    MemberDeleteReason[]
+  deviceHistories  MemberDeviceHistory[]
+  verifyHistories  MemberVerifyHistory[]
+  notifyHistories  MemberNotifyHistory[]
+  tierHistories    MemberTierHistory[]
+  productHistories MemberProductHistory[]
+  pointHistories   MemberPointHistory[]   @relation(name: "member")
+  referralPoints   MemberPointHistory[]   @relation(name: "referee")
+  cart             Cart?
+  orders           Order[]
+  invoices         Invoice[]
+  wishlist         Wishlist[]
+
+  @@map("members")
+}
+
+model MemberDeleteReason {
+  id        Int       @id @default(autoincrement())
+  memberId  Int
+  title     String?
+  createdAt DateTime? @default(now())
+
+  member Member @relation(fields: [memberId], references: [id])
+
+  @@map("member_delete_reasons")
+}
+
+model MemberTokenHistory {
+  id             Int       @id @default(autoincrement())
+  memberId       Int
+  memberToken    String
+  refreshToken   String    @db.Text
+  refreshAttempt Int?      @default(1)
+  refreshExpired DateTime?
+  isActive       Boolean?  @default(true)
+  createdAt      DateTime? @default(now())
+  updatedAt      DateTime? @updatedAt
+
+  @@index([memberId, memberToken])
+  @@map("member_token_histories")
+}
+
+model MemberDeviceHistory {
+  id        Int       @id @default(autoincrement())
+  memberId  Int?
+  type      String?
+  model     String?
+  version   String?
+  token     String?
+  isActive  Boolean?  @default(true)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  member Member? @relation(fields: [memberId], references: [id])
+
+  @@unique([memberId, token])
+  @@map("member_device_histories")
+}
+
+model MemberVerifyHistory {
+  id         Int                       @id @default(autoincrement())
+  channel    ENUM_VERIFICATION_CHANNEL
+  type       ENUM_VERIFICATION_TYPE
+  code       String
+  memberId   Int?
+  phone      String?
+  email      String?
+  attempts   Int?                      @default(1)
+  isActive   Boolean?                  @default(true)
+  isVerified Boolean?                  @default(false)
+  verifiedAt DateTime?
+  isExpired  Boolean                   @default(false)
+  expiresAt  DateTime?
+  createdAt  DateTime?                 @default(now())
+  updatedAt  DateTime?                 @updatedAt
+
+  member Member? @relation(fields: [memberId], references: [id])
+
+  @@map("member_verify_histories")
+}
+
+model MemberNotifyHistory {
+  id            Int       @id @default(autoincrement())
+  memberId      Int
+  pushHistoryId Int
+  title         String?
+  description   String?
+  content       String?
+  refId         Int?
+  refType       String?
+  isActive      Boolean?  @default(true)
+  pushedAt      DateTime?
+  readAt        DateTime?
+  deletedAt     DateTime?
+  createdAt     DateTime? @default(now())
+
+  member      Member      @relation(fields: [memberId], references: [id])
+  pushHistory PushHistory @relation(fields: [pushHistoryId], references: [id])
+
+  @@map("member_notify_histories")
+}
+
+model MemberTierHistory {
+  id               Int                     @id @default(autoincrement())
+  memberId         Int
+  prevTierId       Int
+  currTierId       Int
+  minTierId        Int?
+  invoiceId        Int?
+  type             ENUM_MEMBER_TIER_ACTION @default(INITIAL)
+  personalSpending Float?                  @default(0)
+  referralSpending Float?                  @default(0)
+  excessSpending   Float?                  @default(0)
+  renewalSpending  Float?                  @default(0)
+  upgradeSpending  Float?                  @default(0)
+  isActive         Boolean?                @default(true)
+  isVisible        Boolean?                @default(true)
+  isDeleted        Boolean?                @default(false)
+  expiryDate       DateTime?
+  deletedAt        DateTime?
+  createdAt        DateTime?               @default(now())
+  updatedAt        DateTime                @updatedAt
+
+  prevTier Tier     @relation(name: "prevMemberTier", fields: [prevTierId], references: [id])
+  currTier Tier     @relation(name: "currMemberTier", fields: [currTierId], references: [id])
+  member   Member   @relation(fields: [memberId], references: [id])
+  invoice  Invoice? @relation(fields: [invoiceId], references: [id])
+
+  @@map("member_tier_histories")
+}
+
+model MemberPointHistory {
+  id            Int             @id @default(autoincrement())
+  memberId      Int
+  refereeId     Int?
+  tierId        Int?
+  invoiceId     Int?
+  invoiceAmount Float?
+  type          ENUM_POINT_TYPE @default(INITIAL)
+  multipleRatio Float?
+  ratioNote     Json?
+  point         Int?            @default(0)
+  pointBalance  Int?            @default(0)
+  remark        String?
+  isBirth       Boolean?        @default(false)
+  isFirst       Boolean?        @default(false)
+  isActive      Boolean?        @default(true)
+  isVisible     Boolean?        @default(true)
+  isPending     Boolean?        @default(false)
+  isDeleted     Boolean?        @default(false)
+  expiryDate    DateTime?
+  releaseDate   DateTime?
+  createdAt     DateTime?       @default(now())
+  updatedAt     DateTime        @updatedAt
+  createdBy     Int?
+  updatedBy     Int?
+
+  createdByUser User? @relation(name: "createdByUser", fields: [createdBy], references: [id])
+  updatedByUser User? @relation(name: "updatedByUser", fields: [updatedBy], references: [id])
+
+  member  Member   @relation(fields: [memberId], references: [id], name: "member")
+  referee Member?  @relation(fields: [refereeId], references: [id], name: "referee")
+  tier    Tier?    @relation(fields: [tierId], references: [id])
+  invoice Invoice? @relation(fields: [invoiceId], references: [id])
+
+  @@map("member_point_histories")
+}
+
+model MemberProductHistory {
+  id          Int                     @id @default(autoincrement())
+  memberId    Int
+  productId   Int
+  orderId     Int?
+  promotionId Int?
+  redeemPrice Float?                  @default(0)
+  redeemPoint Int?                    @default(0)
+  source      ENUM_REDEMPTION_SOURCE? @default(SYSTEM)
+  status      ENUM_REDEMPTION_STATUS? @default(PENDING)
+  isActive    Boolean?                @default(true)
+  startDate   DateTime?
+  untilDate   DateTime?
+  usedAt      DateTime?
+  issuedAt    DateTime?
+  deletedAt   DateTime?
+  createdAt   DateTime?               @default(now())
+  updatedAt   DateTime                @updatedAt
+  createdBy   Int?
+  updatedBy   Int?
+
+  createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
+  updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
+
+  member    Member     @relation(fields: [memberId], references: [id])
+  product   Product    @relation(fields: [productId], references: [id])
+  order     Order?     @relation(fields: [orderId], references: [id])
+  promotion Promotion? @relation(fields: [promotionId], references: [id])
+
+  @@index([memberId, productId])
+  @@map("member_product_histories")
+}
+
+model Tier {
+  id            Int       @id @default(autoincrement())
+  name          Json?
+  code          String?   @unique
+  level         Int?      @unique
+  alive         Boolean?  @default(true)
+  rewardPoint   Int?      @default(0)
+  limitSpending Float?    @default(0)
+  initialRate   Float?    @default(0)
+  personalRate  Float?    @default(0)
+  referralRate  Float?    @default(0)
+  birthdayRatio Float?    @default(0)
+  cardIcon      String?
+  cardImage     String?
+  cardCover     String?
+  startDate     DateTime?
+  untilDate     DateTime?
+  createdAt     DateTime? @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  members         Member[]
+  languages       TierLanguage[]
+  charts          TierChart[]          @relation(name: "currTier")
+  nexts           TierChart[]          @relation(name: "nextTier")
+  prevMemberTiers MemberTierHistory[]  @relation(name: "prevMemberTier")
+  currMemberTiers MemberTierHistory[]  @relation(name: "currMemberTier")
+  points          MemberPointHistory[]
+
+  @@map("tiers")
+}
+
+model TierLanguage {
+  id          Int    @id @default(autoincrement())
+  tierId      Int
+  language    String @db.Char(3)
+  description String @db.LongText()
+
+  tier Tier @relation(fields: [tierId], references: [id])
+
+  @@unique([tierId, language])
+  @@map("tier_languages")
+}
+
+model TierChart {
+  id              Int      @id @default(autoincrement())
+  currId          Int
+  nextId          Int
+  requireSpending Float?   @default(0)
+  isActive        Boolean? @default(false)
+
+  currTier Tier @relation(name: "currTier", fields: [currId], references: [id], onDelete: Cascade)
+  nextTier Tier @relation(name: "nextTier", fields: [nextId], references: [id], onDelete: Cascade)
+
+  @@unique([currId, nextId])
+  @@map("tier_charts")
+}
+
+model Cart {
+  id        Int       @id @default(autoincrement())
+  memberId  Int       @unique
+  version   Int       @default(1)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime  @updatedAt
+
+  member Member @relation(fields: [memberId], references: [id])
+
+  items CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id            Int       @id @default(autoincrement())
+  cartId        Int
+  productId     Int
+  offerId       Int?
+  bundleId      Int?
+  promotionId   Int?
+  quantity      Int?      @default(1)
+  vatPercentage Float?    @default(0)
+  unitPrice     Float?
+  unitPoint     Int?
+  discPrice     Float?    @default(0)
+  discPoint     Int?      @default(0)
+  finalPrice    Float?
+  finalPoint    Int?
+  createdAt     DateTime? @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  cart    Cart    @relation(fields: [cartId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+  @@map("cart_items")
+}
+
+model Promotion {
+  id        Int       @id @default(autoincrement())
+  code      String?   @unique
+  sorting   Int?      @default(0)
+  priority  Int?      @default(0)
+  isActive  Boolean?  @default(true)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy Int?
+  updatedBy Int?
+
+  createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
+  updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
+
+  redeems MemberProductHistory[]
+
+  @@map("promotions")
+}
+
+model Order {
+  id          Int               @id @default(autoincrement())
+  code        String?           @unique
+  memberId    Int
+  promotionId Int?
+  totalPrice  Float?            @default(0)
+  totalPoint  Int?              @default(0)
+  discPrice   Float?            @default(0)
+  discPoint   Int?              @default(0)
+  finalPrice  Float?            @default(0)
+  finalPoint  Int?              @default(0)
+  source      ENUM_ORDER_SOURCE @default(SYSTEM)
+  status      ENUM_ORDER_STATUS @default(PENDING)
+  note        String?
+  isBirth     Boolean?          @default(false)
+  issuedAt    DateTime?         @default(now())
+  createdAt   DateTime?         @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  member   Member                 @relation(fields: [memberId], references: [id])
+  invoice  Invoice?
+  shipment Shipment?
+  items    OrderItem[]
+  redeems  MemberProductHistory[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id          Int       @id @default(autoincrement())
+  orderId     Int
+  productId   Int
+  promotionId Int?
+  quantity    Int?      @default(1)
+  unitPrice   Float?
+  unitPoint   Int?
+  finalPrice  Float?
+  finalPoint  Int?
+  expiryDate  DateTime?
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Shipment {
+  id        Int       @id @default(autoincrement())
+  orderId   Int       @unique
+  address   String
+  phone     String
+  note      String?
+  createdAt DateTime? @default(now())
+  updatedAt DateTime  @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@map("shipments")
+}
+
+model Invoice {
+  id             Int                  @id @default(autoincrement())
+  code           String?              @unique
+  orderId        Int                  @unique
+  memberId       Int
+  promotionId    Int?
+  invoiceRef     String?              @unique()
+  invoicePath    String?
+  paidPrice      Float?               @default(0)
+  paidPoint      Int?                 @default(0)
+  finalPrice     Float?               @default(0)
+  finalPoint     Int?                 @default(0)
+  transactions   Json?
+  transactionIds Json?
+  isBirth        Boolean?             @default(false)
+  isEarned       Boolean?             @default(false)
+  status         ENUM_INVOICE_STATUS? @default(PENDING)
+  dueDate        DateTime?
+  issuedAt       DateTime?            @default(now())
+  createdAt      DateTime?            @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  member   Member               @relation(fields: [memberId], references: [id])
+  order    Order                @relation(fields: [orderId], references: [id])
+  payments InvoicePayment[]
+  points   MemberPointHistory[]
+  tiers    MemberTierHistory[]
+
+  @@index([status, isEarned, issuedAt, createdAt])
+  @@index([memberId, orderId, issuedAt])
+  @@map("invoices")
+}
+
+model InvoicePayment {
+  id        Int                  @id @default(autoincrement())
+  invoiceId Int
+  amount    Float?
+  method    ENUM_PAYMENT_METHOD? @default(CASH)
+  status    ENUM_PAYMENT_STATUS? @default(PAID)
+  issuedAt  DateTime?
+  createdAt DateTime?            @default(now())
+  updatedAt DateTime             @updatedAt
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+
+  @@map("invoice_payments")
+}
+
+model Payment {
+  id        Int       @id @default(autoincrement())
+  code      String?
+  name      Json?
+  thumbnail String?
+  sorting   Int?      @default(0)
+  isActive  Boolean?  @default(true)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@map("payments")
+}
+
+model Fact {
+  id        Int       @id @default(autoincrement())
+  type      String
+  title     Json?
+  content   Json?
+  thumbnail String?
+  sorting   Int?      @default(0)
+  isVisible Boolean?  @default(true)
+  isActive  Boolean?  @default(true)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+  createdBy Int?
+  updatedBy Int?
+
+  createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
+  updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
+
+  @@map("facts")
+}
+
+model Product {
+  id                Int                  @id @default(autoincrement())
+  brandId           Int?
+  categoryId        Int?
+  type              ENUM_PRODUCT_TYPE?   @default(SIMPLE)
+  sku               String?
+  name              Json?
+  thumbnail         String?
+  salePoint         Float?               @default(0)
+  salePrice         Float?               @default(0)
+  costPrice         Float?               @default(0)
+  stockQty          Int?                 @default(0)
+  unpaidQty         Int?                 @default(0)
+  paidQty           Int?                 @default(0)
+  sorting           Int?                 @default(0)
+  salePerPerson     Int?
+  duePaidDays       Int?                 @default(0)
+  expiryType        ENUM_PRODUCT_EXPIRY? @default(DYNAMIC)
+  dynamicExpiryDays Int?                 @default(0)
+  staticExpiryDate  DateTime?
+  hasShipment       Boolean?             @default(true)
+  hasInventory      Boolean?             @default(true)
+  hasExpiration     Boolean?             @default(true)
+  hasDuePayment     Boolean?             @default(true)
+  hasLimitPerson    Boolean?             @default(true)
+  isPopular         Boolean?             @default(false)
+  isBestSale        Boolean?             @default(false)
+  isFlashSale       Boolean?             @default(false)
+  isComingSoon      Boolean?             @default(false)
+  isNewArrival      Boolean?             @default(false)
+  isActive          Boolean?             @default(true)
+  isDeleted         Boolean              @default(false)
+  deletedBy         Int?
+  createdBy         Int?
+  updatedBy         Int?
+  deletedAt         DateTime?
+  createdAt         DateTime?            @default(now())
+  updatedAt         DateTime?            @updatedAt
+
+  createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
+  updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
+  deletedByUser User? @relation("deletedByUser", fields: [deletedBy], references: [id])
+
+  brand    ProductBrand?    @relation(fields: [brandId], references: [id])
+  category ProductCategory? @relation(fields: [categoryId], references: [id])
+
+  languages  ProductLanguage[]
+  medias     ProductMedia[]
+  reviews    ProductReview[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  redeems    MemberProductHistory[]
+  wishlist   Wishlist[]
+
+  @@map("products")
+}
+
+model ProductLanguage {
+  id          Int    @id @default(autoincrement())
+  productId   Int
+  language    String @db.Char(3)
+  content     String @db.LongText()
+  termAndCond String @db.LongText()
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([productId, language])
+  @@map("product_languages")
+}
+
+model ProductMedia {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  url       String
+  mime      String?
+  sorting   Int?    @default(0)
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("product_medias")
+}
+
+model ProductCategory {
+  id        Int       @id @default(autoincrement())
+  name      Json?
+  sorting   Int?      @default(0)
+  isActive  Boolean?  @default(true)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime  @updatedAt
+
+  products Product[]
+
+  @@map("product_categories")
+}
+
+model ProductBrand {
+  id        Int       @id @default(autoincrement())
+  name      Json?
+  latitude  Float?
+  longitude Float?
+  thumbnail String?
+  address   String?
+  sorting   Int?      @default(0)
+  isActive  Boolean?  @default(true)
+  createdAt DateTime? @default(now())
+  updatedAt DateTime  @updatedAt
+
+  products Product[]
+
+  @@map("product_brands")
+}
+
+model ProductReview {
+  id        Int       @id @default(autoincrement())
+  memberId  Int
+  productId Int
+  rating    Int?      @default(1)
+  comment   String    @db.LongText()
+  createdAt DateTime? @default(now())
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("product_reviews")
+}
+
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  memberId  Int
+  productId Int
+  addedAt   DateTime @default(now())
+
+  member  Member  @relation(fields: [memberId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([memberId, productId])
+  @@map("wishlist")
+}
+
+model SlipCounter {
+  id        Int            @id @default(autoincrement())
+  type      ENUM_SLIP_TYPE
+  key       String
+  sequence  Int
+  createdAt DateTime?      @default(now())
+
+  @@unique([type, key])
+  @@map("slip_counters")
+}
+
+model AuditLogHttp {
+  id              Int      @id @default(autoincrement())
+  pid             Int?
+  correlationId   String?
+  type            String?
+  level           String?
+  ip              String?
+  protocol        String?
+  hostname        String?
+  method          String?
+  url             String?
+  referrer        String?
+  message         String?
+  language        String?
+  headers         Json?
+  params          Json?
+  query           Json?
+  body            Json?
+  userAgent       String?
+  statusCode      Int?
+  responseHeaders Json?
+  responseTime    Float?
+  rawMetadata     Json?
+  rawRequest      Json?
+  rawResponse     Json?
+  createdAt       DateTime @default(now())
+
+  @@map("_audit_log_http")
+}
+

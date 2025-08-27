@@ -1,0 +1,6 @@
+export * from './member.earn-birth-purchased.task'
+export * from './member.earn-point.task'
+export * from './member.release-point.task'
+export * from './member.reset-birth-purchased.task'
+export * from './member.reset-point.task'
+export * from './member.reset-tier.task'

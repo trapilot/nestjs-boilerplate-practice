@@ -1,0 +1,5 @@
+export * from './role-permission.request.create.dto'
+export * from './role.request.create.dto'
+export * from './role.request.update.dto'
+export * from './role.response.detail.dto'
+export * from './role.response.permission.dto'

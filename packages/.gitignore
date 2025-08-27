@@ -1,0 +1,4 @@
+*
+!nest-schematics
+!nest-schematics/**
+!.gitignore

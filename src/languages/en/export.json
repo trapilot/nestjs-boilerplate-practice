@@ -1,0 +1,9 @@
+{
+  "id": "ID",
+  "createdAt": "Created At",
+  "updatedAt": "Updated At",
+  "deletedAt": "Deleted At",
+  "assignAt": "Assigned At",
+  "createdBy": "Uer Created",
+  "updatedBy": "User Updated"
+}

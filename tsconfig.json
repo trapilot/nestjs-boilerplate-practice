@@ -1,0 +1,87 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "useDefineForClassFields": false,
+    "target": "ESNext",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "allowJs": false,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "paths": {
+      "lib/nest-core": [
+        "libs/nest-core/src"
+      ],
+      "lib/nest-core/*": [
+        "libs/nest-core/src/*"
+      ],
+      "lib/nest-auth": [
+        "libs/nest-auth/src"
+      ],
+      "lib/nest-auth/*": [
+        "libs/nest-auth/src/*"
+      ],
+      "lib/nest-file": [
+        "libs/nest-file/src"
+      ],
+      "lib/nest-file/*": [
+        "libs/nest-file/src/*"
+      ],
+      "lib/nest-logger": [
+        "libs/nest-logger/src"
+      ],
+      "lib/nest-logger/*": [
+        "libs/nest-logger/src/*"
+      ],
+      "lib/nest-notifier": [
+        "libs/nest-notifier/src"
+      ],
+      "lib/nest-notifier/*": [
+        "libs/nest-notifier/src/*"
+      ],
+      "lib/nest-message": [
+        "libs/nest-message/src"
+      ],
+      "lib/nest-message/*": [
+        "libs/nest-message/src/*"
+      ],
+      "lib/nest-prisma": [
+        "libs/nest-prisma/src"
+      ],
+      "lib/nest-prisma/*": [
+        "libs/nest-prisma/src/*"
+      ],
+      "lib/nest-web": [
+        "libs/nest-web/src"
+      ],
+      "lib/nest-web/*": [
+        "libs/nest-web/src/*"
+      ]
+    }
+  },
+  "include": [
+    "src",
+    "libs",
+    "test"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "data",
+    "coverage",
+    "logs",
+    "docs",
+    "packages",
+    "resources",
+    "**/*spec.ts"
+  ]
+}

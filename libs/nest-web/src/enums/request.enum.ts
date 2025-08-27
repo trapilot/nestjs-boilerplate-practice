@@ -1,0 +1,43 @@
+export enum ENUM_REQUEST_METHOD {
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  PATCH = 'PATCH',
+  DELETE = 'DELETE',
+  OPTIONS = 'OPTIONS',
+  HEAD = 'HEAD',
+}
+
+export enum ENUM_REQUEST_BODY_TYPE {
+  JSON = 'JSON',
+  TEXT = 'TEXT',
+  FORM_DATA = 'FORM_DATA',
+  FORM_URLENCODED = 'FORM_URLENCODED',
+}
+
+export enum ENUM_REQUEST_ORDER_DIRECTION_TYPE {
+  ASC = 'asc',
+  DESC = 'desc',
+}
+
+export enum ENUM_REQUEST_SEARCH_TYPE {
+  IN = 'in',
+  EQUAL = 'equal',
+  BETWEEN = 'between',
+  CONTAINS = 'contains',
+}
+
+export enum ENUM_REQUEST_FILTER_CASE_OPTIONS {
+  UPPERCASE = 'UPPERCASE',
+  LOWERCASE = 'LOWERCASE',
+}
+
+export enum ENUM_REQUEST_FILTER_DATE_TIME_OPTIONS {
+  START_OF_DAY = 'START_OF_DAY',
+  END_OF_DAY = 'END_OF_DAY',
+}
+
+export enum ENUM_REQUEST_STATUS_CODE_ERROR {
+  VALIDATION = 5030,
+  TIMEOUT = 5031,
+}
