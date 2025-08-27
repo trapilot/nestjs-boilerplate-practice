@@ -41,4 +41,8 @@ export class NestContext {
   static apiVersion(): string {
     return this.current()?.apiVersion ?? APP_VERSION_NUMBER
   }
+
+  static isAdmin(): boolean {
+    return this.apiType() === ENUM_APP_API_TYPE.CMS
+  }
 }

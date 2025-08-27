@@ -50,7 +50,7 @@ Full structure of module
     ├── commands            // custom migrate/seed command
     ├── constants           // constant like static value, status code, etc
     ├── controllers         // business logic for rest api
-    ├── decorators          // warper decorator, custom decorator, etc
+    ├── decorators          // wrapper decorator, custom decorator, etc
     ├── dtos
     ├── graphql
             ├── inputs      // query inputs
