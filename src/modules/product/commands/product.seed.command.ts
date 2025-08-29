@@ -88,7 +88,7 @@ export class ProductSeedCommand extends CommandRunner {
       }
 
       await this.prisma.$queryRaw`ALTER TABLE products DISABLE KEYS;`
-      let products: Prisma.ProductUncheckedCreateInput[] = []
+      // let products: Prisma.ProductUncheckedCreateInput[] = []
       for (let i = 0; i < options.numbers; i++) {
         const costPrice = faker.number.int({ min: 0, max: 10_000 })
         const salePoint = faker.number.int({ min: 0, max: 1_000 })

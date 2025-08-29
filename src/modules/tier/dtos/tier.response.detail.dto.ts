@@ -116,12 +116,18 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 }
 
 export class TierResponseDetailDto extends IntersectionType(
-  ResponseDataDetailDto,
+  OmitType(ResponseDataDetailDto, [] as const),
   ResponseDataRelationDto,
 ) {}
 
 export class TierResponseListDto extends IntersectionType(
-  OmitType(ResponseDataDetailDto, [] as const),
+  OmitType(ResponseDataDetailDto, [
+    'cardCover',
+    'cardIcon',
+    'cardImage',
+    'createdAt',
+    'updatedAt',
+  ] as const),
   ResponseDataRelationDto,
 ) {}
 

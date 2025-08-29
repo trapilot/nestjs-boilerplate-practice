@@ -1,0 +1,59 @@
+{
+  "name": "nest-admin",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "homepage": "/admin",
+  "scripts": {
+    "dev": "vite --port 4000",
+    "build": "tsc && vite build",
+    "schema:download": "curl -o ./swagger.json http://localhost:3000/public/docs/swagger-admin.json",
+    "schema:generate": "npx openapi-typescript ./swagger.json -o ./src/types/api.d.ts",
+    "schema:update": "yarn schema:download && yarn schema:generate",
+    "lint": "eslint",
+    "lint:staged": "lint-staged",
+    "lint:fix": "eslint --fix",
+    "format": "prettier --write \"src/**/*.ts\"  \"src/**/*.tsx\"",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.28.9",
+    "axios": "^1.6.8",
+    "i18next": "^23.10.1",
+    "i18next-browser-languagedetector": "^7.2.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hot-toast": "^2.6.0",
+    "react-i18next": "^14.1.0",
+    "react-router-dom": "^6.22.3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@typescript-eslint/eslint-plugin": "^7.2.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.6",
+    "lint-staged": "^16.1.5",
+    "openapi-typescript": "^7.9.1",
+    "openapi-typescript-codegen": "^0.29.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.2.2",
+    "vite": "^5.2.0"
+  },
+  "lint-staged": {
+    "**/*.ts": [
+      "prettier --write '{src}/**/*.{ts,tsx,json,yml,yaml}'",
+      "eslint",
+      "stop-only --file",
+      "git add ."
+    ],
+    "*.{json,yaml}": [
+      "prettier --write"
+    ]
+  }
+}

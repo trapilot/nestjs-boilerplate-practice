@@ -23,6 +23,8 @@
     "app:seed": "yarn db:clear && yarn start:cli user:seed & yarn start:cli permission:seed && yarn start:cli role:seed && yarn start:cli tier:seed && yarn start:cli fact:seed",
     "app:migrate": "yarn start:cli role:migrate",
     "keys:generate": "npx ts-node scripts/generate-keys.ts",
+    "admin:install": "yarn --cwd ./packages/nest-admin install",
+    "admin:build": "yarn --cwd ./packages/nest-admin build && rm -rf public/admin && mv ./packages/nest-admin/dist public/admin",
     "schematics:install": "yarn --cwd ./packages/nest-schematics install",
     "schematics:build": "yarn --cwd ./packages/nest-schematics run build",
     "schematics:generate": "nest g -p modules -c ./packages/nest-schematics res",

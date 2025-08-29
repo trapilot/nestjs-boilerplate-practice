@@ -69,7 +69,7 @@ function generate(options: ResourceOptions): Source {
             return (
               path.includes('.create.') ||
               path.includes('.update.') ||
-              path.includes('.response.dto.')
+              path.includes('.detail.dto.')
             )
           }
           return !path.includes('.auth.')

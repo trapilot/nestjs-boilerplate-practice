@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Cron, CronExpression, CronOptions } from '@nestjs/schedule'
 import { ENUM_INVOICE_STATUS, ENUM_PAYMENT_METHOD } from '@prisma/client'
-import { APP_TIMEZONE, HelperDateService, NestHelper } from 'lib/nest-core'
+import { APP_TIMEZONE, HelperDateService } from 'lib/nest-core'
 import { LoggerService } from 'lib/nest-logger'
 import { InvoiceService } from '../services'
 
@@ -31,7 +31,9 @@ export class InvoiceExpireOverDueTask {
     await this.invoiceService.expireOverDue(dateNow)
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES, { disabled: !NestHelper.isDevelopment() })
+  @Cron(CronExpression.EVERY_10_MINUTES, {
+    disabled: process.env.INVOICE_AUTO_ADD_PAYMENT !== 'true',
+  })
   async cronToAddPayment(): Promise<void> {
     const dateNow = this.helperDateService.create()
     const methods = Object.values(ENUM_PAYMENT_METHOD)

@@ -8,7 +8,10 @@ import {
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
+import { ServeStaticModule } from '@nestjs/serve-static'
 import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler'
+import { ROOT_PATH } from 'lib/nest-core'
+import { join } from 'path'
 import { ResponseHeadersInterceptor, ResponseTimeoutInterceptor } from './interceptors'
 import {
   RequestBodyParserMiddleware,
@@ -82,6 +85,10 @@ export class NestWebModule implements NestModule {
         StartWithConstraint,
       ],
       imports: [
+        ServeStaticModule.forRoot({
+          rootPath: join(ROOT_PATH, 'public', 'admin'),
+          serveRoot: '/admin',
+        }),
         ThrottlerModule.forRootAsync({
           inject: [ConfigService],
           useFactory: (config: ConfigService): ThrottlerModuleOptions => [

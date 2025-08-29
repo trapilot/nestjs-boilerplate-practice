@@ -26,23 +26,16 @@ export class AppVersionSeedCommand extends CommandRunner {
       await this.appVersionService.create({
         name: ENUM_APP_VERSION_PLATFORM.AOS,
         type: ENUM_APP_VERSION_PLATFORM.AOS,
-        version: '0.0.1',
+        version: '0.0.0',
         isActive: true,
-        isForce: false,
+        isForce: true,
       })
       await this.appVersionService.create({
         name: ENUM_APP_VERSION_PLATFORM.IOS,
         type: ENUM_APP_VERSION_PLATFORM.IOS,
-        version: '0.0.1',
+        version: '0.0.0',
         isActive: true,
-        isForce: false,
-      })
-      await this.appVersionService.create({
-        name: ENUM_APP_VERSION_PLATFORM.WEB,
-        type: ENUM_APP_VERSION_PLATFORM.WEB,
-        version: '0.0.1',
-        isActive: true,
-        isForce: false,
+        isForce: true,
       })
     } catch (err: any) {}
     return

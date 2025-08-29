@@ -1,0 +1,92 @@
+{
+  "app_version": {
+    "title": "App Versions",
+    "fields": {
+      "id": "ID",
+      "type": "Platform",
+      "name": "Name",
+      "version": "Version",
+      "url": "Magic Link",
+      "isForce": "Force Updated",
+      "isActive": "Is Active",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard"
+  },
+  "fact": {
+    "title": "Facts"
+  },
+  "invoice": {
+    "title": "Invoices"
+  },
+  "media": {
+    "title": "Medias"
+  },
+  "member_notification": {
+    "title": "Member Notifications"
+  },
+  "member_point": {
+    "title": "Member Points"
+  },
+  "member_redemption": {
+    "title": "Member Redemptions"
+  },
+  "member": {
+    "title": "Members",
+    "fields": {
+      "id": "ID",
+      "tierId": "Tier ID",
+      "code": "Code",
+      "type": "Type",
+      "cardId": "Card ID",
+      "email": "Email",
+      "name": "Name",
+      "phone": "Phone",
+      "locale": "Locale",
+      "referralCode": "Referral Code",
+      "birthDate": "Birth Date",
+      "expiryDate": "Expiry Date",
+      "pointBalance": "Point Balance",
+      "personalSpending": "Personal Spending",
+      "referralSpending": "Referral Spending",
+      "hasFirstPurchased": "Has First Purchased",
+      "hasDiamondAchieved": "Has Diamond Achieved",
+      "isActive": "Is Active",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    }
+  },
+  "member_tier": {
+    "title": "Member Tiers"
+  },
+  "notification": {
+    "title": "Notifications"
+  },
+  "order": {
+    "title": "Orders"
+  },
+  "product_brand": {
+    "title": "Brands"
+  },
+  "product_category": {
+    "title": "Categories"
+  },
+  "product_review": {
+    "title": "Reviews"
+  },
+  "product": {
+    "title": "Products"
+  },
+  "role": {
+    "title": "Roles"
+  },
+  "tier": {
+    "title": "Tiers"
+  },
+  "user": {
+    "title": "Users"
+  }
+}

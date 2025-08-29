@@ -150,6 +150,7 @@ yarn start:cli app-version:seed
 # Seed example products and members
 yarn start:cli product:seed -i 100
 yarn start:cli member:seed -i 1000
+yarn start:cli cart:seed
 
 # Apply current permissions to system roles
 yarn app:migrate
@@ -165,6 +166,9 @@ yarn start:cli [command]
 
 # Generate a new module
 yarn schematics:generate
+
+# Build & generate an internal admin portal
+yarn admin:generate
 
 # Run Prisma Studio to explore and edit data
 yarn db:studio

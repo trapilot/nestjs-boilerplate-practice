@@ -178,7 +178,10 @@ export class MemberResponseListDto extends IntersectionType(
   ResponseDataRelationDto,
 ) {}
 
-export class MemberResponseBelongDto extends IntersectionType(
-  PickType(ResponseDataDetailDto, ['id', 'code', 'name', 'phone', 'avatar'] as const),
-  ResponseDataRelationDto,
-) {}
+export class MemberResponseBelongDto extends PickType(MemberResponseDetailDto, [
+  'id',
+  'code',
+  'name',
+  'phone',
+  'avatar',
+] as const) {}

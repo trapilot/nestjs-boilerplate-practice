@@ -217,9 +217,6 @@ export class <%= singular(classify(name)) %>AdminController {
         ],
       },
     },
-    response: {
-      messagePath: 'request.success.delete',
-    },
   })
   @Delete('/:id')
   async delete(

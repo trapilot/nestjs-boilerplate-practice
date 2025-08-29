@@ -14,6 +14,8 @@ import { ProductAdminController, ProductModule } from 'src/modules/product'
 import { ProductBrandAdminController, ProductBrandModule } from 'src/modules/product-brand'
 import { ProductCategoryAdminController, ProductCategoryModule } from 'src/modules/product-category'
 import { ProductHistoryAdminController, ProductHistoryModule } from 'src/modules/product-history'
+import { ProductReviewAdminController } from 'src/modules/product-review/controllers'
+import { ProductReviewModule } from 'src/modules/product-review/product-review.module'
 import { PushAdminController, PushModule } from 'src/modules/push'
 import { RoleAdminController, RoleModule } from 'src/modules/role'
 import { SettingAdminController, SettingModule } from 'src/modules/setting'
@@ -43,6 +45,7 @@ import {
     ProductAdminController,
     ProductBrandAdminController,
     ProductCategoryAdminController,
+    ProductReviewAdminController,
     FactAdminController,
     TierAdminController,
     OrderAdminController,
@@ -67,6 +70,7 @@ import {
     ProductModule,
     ProductBrandModule,
     ProductCategoryModule,
+    ProductReviewModule,
     FactModule,
     TierModule,
     OrderModule,

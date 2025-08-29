@@ -59,13 +59,17 @@ const docs = (
       documentBuilder.addBearerAuth(bearerAuth.options, bearerAuth.name),
     )
   }
+
+  const documentJsonFile = `public/docs/swagger-${documentOptions.prefix}.json`
+  documentBuilder.setDescription(
+    `Json Schema: <a target="_blank" href="${documentJsonFile}">click here</a>`,
+  )
   const documentBuild = documentBuilder.build()
   const document = SwaggerModule.createDocument(app, documentBuild, {
     deepScanRoutes: true,
     include: documentOptions.routes,
   })
 
-  const documentJsonFile = `public/docs/swagger-${documentOptions.prefix}.json`
   writeFileSync(documentJsonFile, JSON.stringify(document))
   SwaggerModule.setup(`${documentOptions.prefix}-docs`, app, document, {
     jsonDocumentUrl: documentJsonFile,

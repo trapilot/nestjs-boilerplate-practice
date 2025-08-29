@@ -50,7 +50,7 @@ export class FactResponseDetailDto extends IntersectionType(
 ) {}
 
 export class FactResponseListDto extends IntersectionType(
-  OmitType(ResponseDataDetailDto, ['thumbnail'] as const),
+  OmitType(ResponseDataDetailDto, ['content', 'thumbnail'] as const),
   ResponseUserBelongDto,
 ) {}
 

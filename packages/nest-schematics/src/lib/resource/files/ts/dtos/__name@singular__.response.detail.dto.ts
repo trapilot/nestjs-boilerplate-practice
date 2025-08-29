@@ -30,7 +30,7 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 }
 
 export class <%= singular(classify(name)) %>ResponseDetailDto extends IntersectionType(
-  ResponseDataDetailDto,
+  OmitType(ResponseDataDetailDto, [] as const),
   ResponseDataRelationDto,
 ) {}
 

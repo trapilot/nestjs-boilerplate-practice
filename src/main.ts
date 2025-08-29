@@ -41,7 +41,7 @@ async function bootstrap() {
 
   // Global
   app.setGlobalPrefix(globalPrefix, {
-    exclude: [{ path: 'admin/(.*)', method: RequestMethod.ALL }],
+    exclude: [{ path: '^admin/(.*)', method: RequestMethod.ALL }],
   })
 
   // Custom Validation
