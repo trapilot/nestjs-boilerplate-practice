@@ -84,6 +84,7 @@ export class UserAdminController {
     },
     response: {
       dto: UserResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -141,6 +142,7 @@ export class UserAdminController {
     },
     response: {
       dto: UserResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -176,6 +178,7 @@ export class UserAdminController {
     },
     response: {
       dto: UserResponseLoginHistoryDto,
+      docExpansion: true,
     },
   })
   @Get('/:id/login-histories')
@@ -234,6 +237,7 @@ export class UserAdminController {
     },
     response: {
       dto: UserResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -273,6 +277,7 @@ export class UserAdminController {
     },
     response: {
       dto: UserResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -340,6 +345,7 @@ export class UserAdminController {
     },
     response: {
       dto: UserResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/change-avatar')

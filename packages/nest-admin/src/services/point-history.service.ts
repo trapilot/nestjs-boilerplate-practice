@@ -6,7 +6,9 @@ type schemas = components['schemas']
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const pointHistoryService = {
-  list: async <T = any>(options?: RequestOptions): Promise<T> => {
+  list: async <T = schemas['PointHistoryResponseListDto'][]>(
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -22,7 +24,7 @@ export const pointHistoryService = {
     const data = await client.get(url, config)
     return data as T
   },
-  create: async <T = any>(
+  create: async <T = schemas['PointHistoryResponseDetailDto']>(
     body?: schemas['PointHistoryRequestCreateDto'],
     options?: RequestOptions,
   ): Promise<T> => {
@@ -41,7 +43,10 @@ export const pointHistoryService = {
     const data = await client.post(url, body, config)
     return data as T
   },
-  get: async <T = any>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
+  get: async <T = schemas['PointHistoryResponseDetailDto']>(
+    params: { id: string | number },
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -57,7 +62,7 @@ export const pointHistoryService = {
     const data = await client.get(url, config)
     return data as T
   },
-  update: async <T = any>(
+  update: async <T = schemas['PointHistoryResponseDetailDto']>(
     params: { id: string | number },
     body?: schemas['PointHistoryRequestUpdateDto'],
     options?: RequestOptions,

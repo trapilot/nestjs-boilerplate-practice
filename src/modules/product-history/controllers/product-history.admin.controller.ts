@@ -54,6 +54,7 @@ export class ProductHistoryAdminController {
     },
     response: {
       dto: ProductHistoryResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -95,6 +96,7 @@ export class ProductHistoryAdminController {
     },
     response: {
       dto: ProductHistoryResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -135,6 +137,7 @@ export class ProductHistoryAdminController {
     },
     response: {
       dto: ProductHistoryResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -170,6 +173,7 @@ export class ProductHistoryAdminController {
     },
     response: {
       dto: ProductHistoryResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -199,6 +203,7 @@ export class ProductHistoryAdminController {
     },
     response: {
       dto: ProductHistoryResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')

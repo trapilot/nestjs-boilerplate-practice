@@ -54,6 +54,7 @@ export class CartAdminController {
     },
     response: {
       dto: CartResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -88,6 +89,7 @@ export class CartAdminController {
     },
     response: {
       dto: CartResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -128,6 +130,7 @@ export class CartAdminController {
     },
     response: {
       dto: CartResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -157,6 +160,7 @@ export class CartAdminController {
     },
     response: {
       dto: CartResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -186,6 +190,7 @@ export class CartAdminController {
     },
     response: {
       dto: CartResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')

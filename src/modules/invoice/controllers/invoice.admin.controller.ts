@@ -54,6 +54,7 @@ export class InvoiceAdminController {
     },
     response: {
       dto: InvoiceResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -94,6 +95,7 @@ export class InvoiceAdminController {
     },
     response: {
       dto: InvoiceResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -134,6 +136,7 @@ export class InvoiceAdminController {
     },
     response: {
       dto: InvoiceResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -168,6 +171,7 @@ export class InvoiceAdminController {
     },
     response: {
       dto: InvoiceResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -197,6 +201,7 @@ export class InvoiceAdminController {
     },
     response: {
       dto: InvoiceResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')

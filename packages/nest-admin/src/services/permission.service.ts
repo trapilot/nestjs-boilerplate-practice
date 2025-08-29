@@ -6,7 +6,9 @@ type schemas = components['schemas']
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const permissionService = {
-  list: async <T = any>(options?: RequestOptions): Promise<T> => {
+  list: async <T = schemas['PermissionResponseListDto'][]>(
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {

@@ -54,6 +54,7 @@ export class OrderAdminController {
     },
     response: {
       dto: OrderResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -93,6 +94,7 @@ export class OrderAdminController {
     },
     response: {
       dto: OrderResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -133,6 +135,7 @@ export class OrderAdminController {
     },
     response: {
       dto: OrderResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -163,6 +166,7 @@ export class OrderAdminController {
     },
     response: {
       dto: OrderResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -189,6 +193,7 @@ export class OrderAdminController {
     },
     response: {
       dto: OrderResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')

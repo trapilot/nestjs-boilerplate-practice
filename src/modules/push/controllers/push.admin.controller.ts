@@ -54,6 +54,7 @@ export class PushAdminController {
     },
     response: {
       dto: PushResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -89,6 +90,7 @@ export class PushAdminController {
     },
     response: {
       dto: PushResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -130,6 +132,7 @@ export class PushAdminController {
     },
     response: {
       dto: PushResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -158,6 +161,7 @@ export class PushAdminController {
     },
     response: {
       dto: PushResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/inactive')
@@ -184,6 +188,7 @@ export class PushAdminController {
     },
     response: {
       dto: PushResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/active')
@@ -210,6 +215,7 @@ export class PushAdminController {
     },
     response: {
       dto: PushResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -239,6 +245,7 @@ export class PushAdminController {
     },
     response: {
       dto: PushResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')

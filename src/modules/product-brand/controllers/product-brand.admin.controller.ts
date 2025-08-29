@@ -54,6 +54,7 @@ export class ProductBrandAdminController {
     },
     response: {
       dto: ProductBrandResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -89,6 +90,7 @@ export class ProductBrandAdminController {
     },
     response: {
       dto: ProductBrandResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -130,6 +132,7 @@ export class ProductBrandAdminController {
     },
     response: {
       dto: ProductBrandResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -159,6 +162,7 @@ export class ProductBrandAdminController {
     },
     response: {
       dto: ProductBrandResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -188,6 +192,7 @@ export class ProductBrandAdminController {
     },
     response: {
       dto: ProductBrandResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')

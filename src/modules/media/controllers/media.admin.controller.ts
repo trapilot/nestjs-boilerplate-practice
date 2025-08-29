@@ -59,6 +59,7 @@ export class MediaAdminController {
     },
     response: {
       dto: MediaResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -94,6 +95,7 @@ export class MediaAdminController {
     },
     response: {
       dto: MediaResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -134,6 +136,7 @@ export class MediaAdminController {
     },
     response: {
       dto: MediaResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -169,6 +172,7 @@ export class MediaAdminController {
     },
     response: {
       dto: MediaResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -205,6 +209,7 @@ export class MediaAdminController {
     },
     response: {
       dto: MediaResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')

@@ -6,7 +6,7 @@ type schemas = components['schemas']
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const apiKeyService = {
-  list: async <T = any>(options?: RequestOptions): Promise<T> => {
+  list: async <T = schemas['ApiKeyResponseListDto'][]>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -22,7 +22,7 @@ export const apiKeyService = {
     const data = await client.get(url, config)
     return data as T
   },
-  create: async <T = any>(
+  create: async <T = schemas['ApiKeyResponseDetailDto']>(
     body?: schemas['ApiKeyRequestCreateDto'],
     options?: RequestOptions,
   ): Promise<T> => {
@@ -41,7 +41,9 @@ export const apiKeyService = {
     const data = await client.post(url, body, config)
     return data as T
   },
-  mapShorted: async <T = any>(options?: RequestOptions): Promise<T> => {
+  mapShorted: async <T = schemas['ApiKeyResponseListDto'][]>(
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -57,7 +59,10 @@ export const apiKeyService = {
     const data = await client.get(url, config)
     return data as T
   },
-  get: async <T = any>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
+  get: async <T = schemas['ApiKeyResponseDetailDto']>(
+    params: { id: string | number },
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -73,7 +78,7 @@ export const apiKeyService = {
     const data = await client.get(url, config)
     return data as T
   },
-  update: async <T = any>(
+  update: async <T = schemas['ApiKeyResponseDetailDto']>(
     params: { id: string | number },
     body?: schemas['ApiKeyRequestUpdateDto'],
     options?: RequestOptions,
@@ -112,7 +117,7 @@ export const apiKeyService = {
     const data = await client.delete(url, config)
     return data as T
   },
-  reset: async <T = any>(
+  reset: async <T = schemas['ApiKeyResponseDetailDto']>(
     params: { id: string | number },
     body?: unknown,
     options?: RequestOptions,
@@ -132,7 +137,7 @@ export const apiKeyService = {
     const data = await client.patch(url, body, config)
     return data as T
   },
-  renew: async <T = any>(
+  renew: async <T = schemas['ApiKeyResponseDetailDto']>(
     params: { id: string | number },
     body?: schemas['ApiKeyRequestRenewDto'],
     options?: RequestOptions,
@@ -152,7 +157,7 @@ export const apiKeyService = {
     const data = await client.patch(url, body, config)
     return data as T
   },
-  inactive: async <T = any>(
+  inactive: async <T = schemas['ApiKeyResponseDetailDto']>(
     params: { id: string | number },
     body?: unknown,
     options?: RequestOptions,
@@ -172,7 +177,7 @@ export const apiKeyService = {
     const data = await client.put(url, body, config)
     return data as T
   },
-  active: async <T = any>(
+  active: async <T = schemas['ApiKeyResponseDetailDto']>(
     params: { id: string | number },
     body?: unknown,
     options?: RequestOptions,

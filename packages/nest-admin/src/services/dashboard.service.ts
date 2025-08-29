@@ -6,7 +6,7 @@ type schemas = components['schemas']
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const dashboardService = {
-  get: async <T = any>(options?: RequestOptions): Promise<T> => {
+  get: async <T = schemas['DashboardSummaryResponseDto']>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -22,7 +22,9 @@ export const dashboardService = {
     const data = await client.get(url, config)
     return data as T
   },
-  refresh: async <T = any>(options?: RequestOptions): Promise<T> => {
+  refresh: async <T = schemas['DashboardSummaryResponseDto']>(
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -38,7 +40,9 @@ export const dashboardService = {
     const data = await client.get(url, config)
     return data as T
   },
-  viewDataList: async <T = any>(options?: RequestOptions): Promise<T> => {
+  viewDataList: async <T = schemas['DashboardSummaryResponseDto']>(
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {

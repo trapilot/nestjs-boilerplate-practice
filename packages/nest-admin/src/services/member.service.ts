@@ -6,7 +6,7 @@ type schemas = components['schemas']
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const memberService = {
-  list: async <T = any>(options?: RequestOptions): Promise<T> => {
+  list: async <T = schemas['MemberResponseListDto'][]>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -22,7 +22,10 @@ export const memberService = {
     const data = await client.get(url, config)
     return data as T
   },
-  create: async <T = any>(body?: unknown, options?: RequestOptions): Promise<T> => {
+  create: async <T = schemas['MemberResponseDetailDto']>(
+    body?: unknown,
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -38,7 +41,9 @@ export const memberService = {
     const data = await client.post(url, body, config)
     return data as T
   },
-  mapShorted: async <T = any>(options?: RequestOptions): Promise<T> => {
+  mapShorted: async <T = schemas['MemberResponseListDto'][]>(
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -54,7 +59,10 @@ export const memberService = {
     const data = await client.get(url, config)
     return data as T
   },
-  get: async <T = any>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
+  get: async <T = schemas['MemberResponseDetailDto']>(
+    params: { id: string | number },
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -70,7 +78,7 @@ export const memberService = {
     const data = await client.get(url, config)
     return data as T
   },
-  put: async <T = any>(
+  put: async <T = schemas['MemberResponseDetailDto']>(
     params: { id: string | number },
     body?: schemas['MemberRequestUpdateDto'],
     options?: RequestOptions,
@@ -90,7 +98,7 @@ export const memberService = {
     const data = await client.put(url, body, config)
     return data as T
   },
-  inactive: async <T = any>(
+  inactive: async <T = schemas['MemberResponseDetailDto']>(
     params: { id: string | number },
     body?: unknown,
     options?: RequestOptions,
@@ -110,7 +118,7 @@ export const memberService = {
     const data = await client.put(url, body, config)
     return data as T
   },
-  active: async <T = any>(
+  active: async <T = schemas['MemberResponseDetailDto']>(
     params: { id: string | number },
     body?: unknown,
     options?: RequestOptions,
@@ -130,7 +138,7 @@ export const memberService = {
     const data = await client.put(url, body, config)
     return data as T
   },
-  update: async <T = any>(
+  update: async <T = schemas['MemberResponseDetailDto']>(
     params: { id: string | number },
     body?: unknown,
     options?: RequestOptions,
@@ -150,7 +158,7 @@ export const memberService = {
     const data = await client.put(url, body, config)
     return data as T
   },
-  addPoint: async <T = any>(
+  addPoint: async <T = schemas['MemberResponseDetailDto']>(
     params: { id: string | number },
     body?: schemas['MemberAddPointRequestDto'],
     options?: RequestOptions,

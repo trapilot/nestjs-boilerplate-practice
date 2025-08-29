@@ -54,6 +54,7 @@ export class TierAdminController {
     },
     response: {
       dto: TierResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -88,6 +89,7 @@ export class TierAdminController {
     },
     response: {
       dto: TierResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -130,6 +132,7 @@ export class TierAdminController {
     },
     response: {
       dto: TierResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -165,6 +168,7 @@ export class TierAdminController {
     },
     response: {
       dto: TierResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -200,6 +204,7 @@ export class TierAdminController {
     },
     response: {
       dto: TierResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')

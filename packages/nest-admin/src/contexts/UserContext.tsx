@@ -59,7 +59,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         return
       }
 
-      const profile = await authenticationService.me()
+      const profile = await authenticationService.me<UserProfile>()
       setUser(profile)
       setError(null)
     } catch (err) {

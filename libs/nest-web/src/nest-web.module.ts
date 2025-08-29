@@ -7,11 +7,12 @@ import {
   ValidationPipeOptions,
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler'
 import { ROOT_PATH } from 'lib/nest-core'
 import { join } from 'path'
+import { FileFilter, GeneralFilter, HttpFilter, ValidationFilter } from './filters'
 import { ResponseHeadersInterceptor, ResponseTimeoutInterceptor } from './interceptors'
 import {
   RequestBodyParserMiddleware,
@@ -58,6 +59,10 @@ export class NestWebModule implements NestModule {
       global: true,
       module: NestWebModule,
       providers: [
+        { provide: APP_FILTER, useClass: GeneralFilter },
+        { provide: APP_FILTER, useClass: HttpFilter },
+        { provide: APP_FILTER, useClass: ValidationFilter },
+        { provide: APP_FILTER, useClass: FileFilter },
         { provide: APP_INTERCEPTOR, useClass: ResponseTimeoutInterceptor },
         { provide: APP_INTERCEPTOR, useClass: ResponseHeadersInterceptor },
         { provide: APP_GUARD, useClass: ThrottlerGuard },

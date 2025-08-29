@@ -55,6 +55,7 @@ export class NotificationAdminController {
     },
     response: {
       dto: NotificationResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -99,6 +100,7 @@ export class NotificationAdminController {
     },
     response: {
       dto: NotificationResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -140,6 +142,7 @@ export class NotificationAdminController {
     },
     response: {
       dto: NotificationResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -178,6 +181,7 @@ export class NotificationAdminController {
     },
     response: {
       dto: NotificationResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/inactive')
@@ -204,6 +208,7 @@ export class NotificationAdminController {
     },
     response: {
       dto: NotificationResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/active')
@@ -230,6 +235,7 @@ export class NotificationAdminController {
     },
     response: {
       dto: NotificationResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -273,6 +279,7 @@ export class NotificationAdminController {
     },
     response: {
       dto: NotificationResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')

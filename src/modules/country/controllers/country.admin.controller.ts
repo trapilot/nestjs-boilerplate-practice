@@ -54,6 +54,7 @@ export class CountryAdminController {
     },
     response: {
       dto: CountryResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -89,6 +90,7 @@ export class CountryAdminController {
     },
     response: {
       dto: CountryResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -131,6 +133,7 @@ export class CountryAdminController {
     },
     response: {
       dto: CountryResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -160,6 +163,7 @@ export class CountryAdminController {
     },
     response: {
       dto: CountryResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -189,6 +193,7 @@ export class CountryAdminController {
     },
     response: {
       dto: CountryResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')

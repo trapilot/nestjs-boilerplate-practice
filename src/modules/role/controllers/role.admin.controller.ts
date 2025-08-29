@@ -60,6 +60,7 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -94,6 +95,7 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -139,6 +141,7 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/new')
@@ -172,6 +175,7 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -210,6 +214,7 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -245,6 +250,7 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -299,6 +305,7 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/active')
@@ -332,6 +339,7 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/inactive')

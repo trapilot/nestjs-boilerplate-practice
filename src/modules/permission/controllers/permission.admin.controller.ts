@@ -50,6 +50,7 @@ export class PermissionAdminController {
     },
     response: {
       dto: PermissionResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -90,6 +91,7 @@ export class PermissionAdminController {
     docExclude: true,
     response: {
       dto: PermissionResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -122,6 +124,7 @@ export class PermissionAdminController {
     docExclude: true,
     response: {
       dto: PermissionResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')

@@ -56,6 +56,7 @@ export class PointHistoryAdminController {
     },
     response: {
       dto: PointHistoryResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -105,6 +106,7 @@ export class PointHistoryAdminController {
     },
     response: {
       dto: PointHistoryResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -146,6 +148,7 @@ export class PointHistoryAdminController {
     },
     response: {
       dto: PointHistoryResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -182,6 +185,7 @@ export class PointHistoryAdminController {
     },
     response: {
       dto: PointHistoryResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -211,6 +215,7 @@ export class PointHistoryAdminController {
     },
     response: {
       dto: PointHistoryResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')

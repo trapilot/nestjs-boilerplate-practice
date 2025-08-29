@@ -1437,12 +1437,6 @@ export interface paths {
 export type webhooks = Record<string, never>
 export interface components {
   schemas: {
-    UserProfileResponseDto: {
-      /** @example 1 */
-      id: number
-      /** @example  */
-      email: string
-    }
     ResponseMetadataDto: Record<string, never>
     ResponseDataDto: {
       /**
@@ -1462,12 +1456,18 @@ export interface components {
        */
       metadata: components['schemas']['ResponseMetadataDto']
     }
+    UserProfileResponseDto: {
+      /** @example 1 */
+      id: number
+      /** @example  */
+      email: string
+    }
     UserRequestSignUpDto: {
       /** @example admin@example.com */
       email: string
-      /** @example Braun */
+      /** @example Bernhard */
       name: string
-      /** @example 56356 Martin Luther King Boulevard */
+      /** @example 638 Holly Close */
       address: string
       /** Format: binary */
       avatar?: string
@@ -1484,12 +1484,12 @@ export interface components {
       expiresIn: number
       /**
        * @description Will be valid JWT Encode string
-       * @example iw3E7BKBQPxZrV2TX77CQKMKNkkRSe
+       * @example gTDuaNmmE7KxI8KTEgfFgpuKMGaAMH
        */
       accessToken: string
       /**
        * @description Will be valid JWT Encode string
-       * @example 0zaltjMI8R7ehTThMBpNEHnVHHilfZ
+       * @example AfdK3aLYoKt7EbiOLxY3mvuNmc5SLA
        */
       refreshToken: string
     }
@@ -1504,9 +1504,9 @@ export interface components {
       email: string
       /** @example 85200000000 */
       phone?: string
-      /** @example Braun */
+      /** @example Bernhard */
       name: string
-      /** @example 56356 Martin Luther King Boulevard */
+      /** @example 638 Holly Close */
       address: string
       /** @example true */
       isActive: boolean
@@ -1523,12 +1523,12 @@ export interface components {
       expiresIn: number
       /**
        * @description Will be valid JWT Encode string
-       * @example iw3E7BKBQPxZrV2TX77CQKMKNkkRSe
+       * @example gTDuaNmmE7KxI8KTEgfFgpuKMGaAMH
        */
       accessToken: string
       /**
        * @description Will be valid JWT Encode string
-       * @example 0zaltjMI8R7ehTThMBpNEHnVHHilfZ
+       * @example AfdK3aLYoKt7EbiOLxY3mvuNmc5SLA
        */
       refreshToken: string
     }
@@ -1597,6 +1597,52 @@ export interface components {
       /** @default [] */
       data: unknown[][]
     }
+    SettingResponseListDto: {
+      /** @example 1 */
+      id: number
+      /**
+       * @description Name of setting
+       * @example MaintenanceOn
+       */
+      name: string
+      /**
+       * @description Code of setting
+       * @example MaintenanceOn
+       */
+      code: string
+      /**
+       * @description Description of setting
+       * @example Maintenance Mode
+       */
+      description: string
+      /**
+       * @description Data type of setting
+       * @example BOOLEAN
+       * @enum {string}
+       */
+      type:
+        | 'BOOLEAN'
+        | 'YESNO'
+        | 'ONOFF'
+        | 'STRING'
+        | 'NUMBER'
+        | 'ARRAY_OF_STRING'
+        | 'ARRAY_OF_NUMBER'
+      /** @description Value of string, can be type string/boolean/number */
+      value: Record<string, never> | Record<string, never> | Record<string, never>
+      /**
+       * Format: date-time
+       * @description Date created at
+       * @example 2025-08-24T10:47:13.649Z
+       */
+      createdAt: string
+      /**
+       * Format: date-time
+       * @description Date updated at
+       * @example 2025-08-29T09:26:59.411Z
+       */
+      updatedAt: string
+    }
     SettingResponseDetailDto: {
       /** @example 1 */
       id: number
@@ -1633,13 +1679,13 @@ export interface components {
       /**
        * Format: date-time
        * @description Date created at
-       * @example 2025-01-28T23:12:49.527Z
+       * @example 2025-08-24T10:47:13.649Z
        */
       createdAt: string
       /**
        * Format: date-time
        * @description Date updated at
-       * @example 2025-08-29T01:46:57.237Z
+       * @example 2025-08-29T09:26:59.411Z
        */
       updatedAt: string
     }
@@ -1655,73 +1701,6 @@ export interface components {
       refer: string | null
     }
     DashboardSummaryResponseDto: Record<string, never>
-    UserBelongInfo: {
-      /**
-       * @description Id that representative with your target data
-       * @example 69
-       */
-      id: number
-      /**
-       * @description Name that representative with your target data
-       * @example Curtis20
-       */
-      name: string
-    }
-    ApiKeyResponseListDto: {
-      /** @example 10 */
-      id: number
-      /**
-       * @description Type of api key
-       * @example CLIENT
-       * @enum {string}
-       */
-      type: 'SYSTEM' | 'CLIENT' | 'DEFAULT'
-      /**
-       * @description Alias name of api key
-       * @example District Applications Manager
-       */
-      name: string
-      /**
-       * @description Unique key of api key
-       * @example rgkSnLCWVbwTukP
-       */
-      key: string
-      /**
-       * @description Hash key of api key
-       * @example LrHkiiQbWUWPwQctvvbVoVPZSTvJkBWH
-       */
-      hash: string
-      /** @example false */
-      isDeprecated: boolean
-      /** @example true */
-      isActive: boolean
-      /**
-       * Format: date-time
-       * @description Api Key start date
-       * @example 2025-06-11T01:53:58.773Z
-       */
-      startDate?: string
-      /**
-       * Format: date-time
-       * @description Api Key end date
-       * @example 2026-02-11T00:36:18.564Z
-       */
-      untilDate?: string
-      /**
-       * Format: date-time
-       * @example 2025-01-20T02:20:45.081Z
-       */
-      createdAt: string
-      /**
-       * Format: date-time
-       * @example 2025-08-29T02:43:18.225Z
-       */
-      updatedAt: string
-      createdBy: components['schemas']['UserBelongInfo']
-      updatedBy: components['schemas']['UserBelongInfo']
-      deletedBy: components['schemas']['UserBelongInfo']
-      assignedBy: components['schemas']['UserBelongInfo']
-    }
     ResponsePagingMetadataDto: Record<string, never>
     ResponsePagingDto: {
       /**
@@ -1751,8 +1730,20 @@ export interface components {
       /** @default [] */
       data: unknown[][]
     }
-    ApiKeyResponseDetailDto: {
-      /** @example 10 */
+    UserBelongInfo: {
+      /**
+       * @description Id that representative with your target data
+       * @example 43
+       */
+      id: number
+      /**
+       * @description Name that representative with your target data
+       * @example Arno.Larkin52
+       */
+      name: string
+    }
+    ApiKeyResponseListDto: {
+      /** @example 3 */
       id: number
       /**
        * @description Type of api key
@@ -1762,17 +1753,17 @@ export interface components {
       type: 'SYSTEM' | 'CLIENT' | 'DEFAULT'
       /**
        * @description Alias name of api key
-       * @example District Applications Manager
+       * @example Forward Interactions Designer
        */
       name: string
       /**
        * @description Unique key of api key
-       * @example rgkSnLCWVbwTukP
+       * @example xOycgvZmYMLJEoI
        */
       key: string
       /**
        * @description Hash key of api key
-       * @example LrHkiiQbWUWPwQctvvbVoVPZSTvJkBWH
+       * @example OjmxWMQnUOiicSRMkgFqvuMBaCdHaagY
        */
       hash: string
       /** @example false */
@@ -1782,23 +1773,78 @@ export interface components {
       /**
        * Format: date-time
        * @description Api Key start date
-       * @example 2025-06-11T01:53:58.773Z
+       * @example 2025-08-10T09:08:48.676Z
        */
       startDate?: string
       /**
        * Format: date-time
        * @description Api Key end date
-       * @example 2026-02-11T00:36:18.564Z
+       * @example 2026-07-14T16:57:39.245Z
        */
       untilDate?: string
       /**
        * Format: date-time
-       * @example 2025-01-20T02:20:45.081Z
+       * @example 2024-12-28T19:22:46.728Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T02:43:18.225Z
+       * @example 2025-08-29T03:08:24.519Z
+       */
+      updatedAt: string
+      createdBy: components['schemas']['UserBelongInfo']
+      updatedBy: components['schemas']['UserBelongInfo']
+      deletedBy: components['schemas']['UserBelongInfo']
+      assignedBy: components['schemas']['UserBelongInfo']
+    }
+    ApiKeyResponseDetailDto: {
+      /** @example 3 */
+      id: number
+      /**
+       * @description Type of api key
+       * @example CLIENT
+       * @enum {string}
+       */
+      type: 'SYSTEM' | 'CLIENT' | 'DEFAULT'
+      /**
+       * @description Alias name of api key
+       * @example Forward Interactions Designer
+       */
+      name: string
+      /**
+       * @description Unique key of api key
+       * @example xOycgvZmYMLJEoI
+       */
+      key: string
+      /**
+       * @description Hash key of api key
+       * @example OjmxWMQnUOiicSRMkgFqvuMBaCdHaagY
+       */
+      hash: string
+      /** @example false */
+      isDeprecated: boolean
+      /** @example true */
+      isActive: boolean
+      /**
+       * Format: date-time
+       * @description Api Key start date
+       * @example 2025-08-10T09:08:48.676Z
+       */
+      startDate?: string
+      /**
+       * Format: date-time
+       * @description Api Key end date
+       * @example 2026-07-14T16:57:39.245Z
+       */
+      untilDate?: string
+      /**
+       * Format: date-time
+       * @example 2024-12-28T19:22:46.728Z
+       */
+      createdAt: string
+      /**
+       * Format: date-time
+       * @example 2025-08-29T03:08:24.519Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -1815,38 +1861,38 @@ export interface components {
       type: 'SYSTEM' | 'CLIENT' | 'DEFAULT'
       /**
        * @description Api Key name
-       * @example Rau, Gulgowski and Boyer
+       * @example Cummerata and Sons
        */
       name: string
       /**
        * Format: date-time
        * @description Api Key start date
-       * @example 2025-08-28T15:51:23.573Z
+       * @example 2025-08-29T12:23:59.641Z
        */
       startDate?: string
       /**
        * Format: date-time
        * @description Api Key end date
-       * @example 2026-07-31T22:59:02.258Z
+       * @example 2025-09-25T10:07:32.230Z
        */
       untilDate?: string
     }
     ApiKeyRequestUpdateDto: {
       /**
        * @description Api Key name
-       * @example Rau, Gulgowski and Boyer
+       * @example Cummerata and Sons
        */
       name: string
       /**
        * Format: date-time
        * @description Api Key start date
-       * @example 2025-08-28T15:51:23.573Z
+       * @example 2025-08-29T12:23:59.641Z
        */
       startDate?: string
       /**
        * Format: date-time
        * @description Api Key end date
-       * @example 2026-07-31T22:59:02.258Z
+       * @example 2025-09-25T10:07:32.230Z
        */
       untilDate?: string
     }
@@ -1854,18 +1900,18 @@ export interface components {
       /**
        * Format: date-time
        * @description Api Key start date
-       * @example 2025-08-29T13:05:40.485Z
+       * @example 2025-08-29T06:13:07.768Z
        */
       startDate?: string
       /**
        * Format: date-time
        * @description Api Key end date
-       * @example 2026-04-08T12:15:44.841Z
+       * @example 2026-08-09T04:17:41.354Z
        */
       untilDate?: string
     }
     AppVersionResponseListDto: {
-      /** @example 7 */
+      /** @example 8 */
       id: number
       /**
        * @example IOS
@@ -1876,7 +1922,7 @@ export interface components {
       name: string
       /** @example 0.0.1 */
       version: string
-      /** @example https://orange-stir-fry.com/ */
+      /** @example https://unhealthy-seagull.name */
       url: string
       /** @example false */
       isForce: boolean
@@ -1884,12 +1930,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-06-13T13:00:01.850Z
+       * @example 2025-07-04T15:22:35.911Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T06:37:57.841Z
+       * @example 2025-08-29T01:47:47.737Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -1898,7 +1944,7 @@ export interface components {
       assignedBy: components['schemas']['UserBelongInfo']
     }
     AppVersionResponseDetailDto: {
-      /** @example 7 */
+      /** @example 8 */
       id: number
       /**
        * @example IOS
@@ -1909,7 +1955,7 @@ export interface components {
       name: string
       /** @example 0.0.1 */
       version: string
-      /** @example https://orange-stir-fry.com/ */
+      /** @example https://unhealthy-seagull.name */
       url: string
       /** @example false */
       isForce: boolean
@@ -1917,12 +1963,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-06-13T13:00:01.850Z
+       * @example 2025-07-04T15:22:35.911Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T06:37:57.841Z
+       * @example 2025-08-29T01:47:47.737Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -1949,7 +1995,7 @@ export interface components {
       version: string
       /**
        * @description Api share link
-       * @example https://unsightly-baseboard.net/
+       * @example https://gracious-poetry.name
        */
       url: string
     }
@@ -1966,7 +2012,7 @@ export interface components {
       version: string
       /**
        * @description Api share link
-       * @example https://unsightly-baseboard.net/
+       * @example https://gracious-poetry.name
        */
       url: string
     }
@@ -1990,14 +2036,18 @@ export interface components {
       deletedBy: components['schemas']['UserBelongInfo']
       assignedBy: components['schemas']['UserBelongInfo']
     }
+    UserResponseLoginHistoryDto: {
+      /** @example 1 */
+      id: number
+    }
     UserRequestCreateDto: {
       /** @example admin@example.com */
       email: string
       /** @example 85200000000 */
       phone?: string
-      /** @example Braun */
+      /** @example Bernhard */
       name: string
-      /** @example 56356 Martin Luther King Boulevard */
+      /** @example 638 Holly Close */
       address: string
       /** Format: binary */
       avatar?: string
@@ -2013,9 +2063,9 @@ export interface components {
       email: string
       /** @example 85200000000 */
       phone?: string
-      /** @example Braun */
+      /** @example Bernhard */
       name: string
-      /** @example 56356 Martin Luther King Boulevard */
+      /** @example 638 Holly Close */
       address: string
       /** @example true */
       isActive?: boolean
@@ -2089,10 +2139,18 @@ export interface components {
       isActive: boolean
       permissions: components['schemas']['RolePermissionRequestCreateDto'][]
     }
+    PermissionResponseListDto: {
+      /** @example 1 */
+      id: number
+      createdBy: components['schemas']['UserBelongInfo']
+      updatedBy: components['schemas']['UserBelongInfo']
+      deletedBy: components['schemas']['UserBelongInfo']
+      assignedBy: components['schemas']['UserBelongInfo']
+    }
     ResponseLocaleDto: {
-      /** @example Demo vox concido trado brevis certus taceo desolo ultra. */
+      /** @example Aiunt cimentarius traho aegrotatio corrupti. */
       en: string
-      /** @example Confido voco numquam. */
+      /** @example Error praesentium suffoco damno vereor utrum. */
       vi: string
     }
     ResponseDataChartDto: {
@@ -2100,15 +2158,15 @@ export interface components {
       id: number
       /** @example 9 */
       currId: number
-      /** @example 9 */
+      /** @example 10 */
       nextId: number
-      /** @example 1 */
+      /** @example 3 */
       requireSpending: number
       /** @example true */
       isActive: boolean
     }
     TierResponseBelongDto: {
-      /** @example 2 */
+      /** @example 4 */
       id: number
       /** @example NORMAL */
       code: string
@@ -2120,9 +2178,9 @@ export interface components {
       charts: components['schemas']['ResponseDataChartDto'][]
     }
     MemberResponseListDto: {
-      /** @example 35 */
+      /** @example 62 */
       id: number
-      /** @example 1 */
+      /** @example 2 */
       tierId: number
       /** @example  */
       code: string
@@ -2133,15 +2191,15 @@ export interface components {
       type: 'STAFF' | 'NORMAL' | 'MASTER'
       /** @example  */
       cardId: string
-      /** @example Trever12@yahoo.com */
+      /** @example Nora.OConner17@gmail.com */
       email: string
-      /** @example Hand */
+      /** @example Schimmel */
       name: string
       /** @example  */
       phone: string
       /** @example en */
       locale: string
-      /** @example 495 Jimmy Springs */
+      /** @example 222 Altenwerth Row */
       address: string
       /** @example  */
       referralCode: string
@@ -2167,12 +2225,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-08-29T08:07:39.329Z
+       * @example 2025-08-29T09:16:33.847Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-30T09:15:15.215Z
+       * @example 2025-08-29T17:23:32.045Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2182,9 +2240,9 @@ export interface components {
       tier: components['schemas']['TierResponseBelongDto']
     }
     MemberResponseDetailDto: {
-      /** @example 35 */
+      /** @example 62 */
       id: number
-      /** @example 1 */
+      /** @example 2 */
       tierId: number
       /** @example  */
       code: string
@@ -2195,15 +2253,15 @@ export interface components {
       type: 'STAFF' | 'NORMAL' | 'MASTER'
       /** @example  */
       cardId: string
-      /** @example Trever12@yahoo.com */
+      /** @example Nora.OConner17@gmail.com */
       email: string
-      /** @example Hand */
+      /** @example Schimmel */
       name: string
       /** @example  */
       phone: string
       /** @example en */
       locale: string
-      /** @example 495 Jimmy Springs */
+      /** @example 222 Altenwerth Row */
       address: string
       /** @example  */
       referralCode: string
@@ -2229,12 +2287,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-08-29T08:07:39.329Z
+       * @example 2025-08-29T09:16:33.847Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-30T09:15:15.215Z
+       * @example 2025-08-29T17:23:32.045Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2244,7 +2302,7 @@ export interface components {
       tier: components['schemas']['TierResponseBelongDto']
     }
     MemberRequestCreateDto: {
-      /** @example Kuvalis */
+      /** @example Marks */
       name: string
       /** @example 84332170915 */
       phone: string
@@ -2252,11 +2310,11 @@ export interface components {
       email?: string
       /** @example X5785184 */
       cardId?: string
-      /** @example 6507 Mafalda Fort Suite 327 */
+      /** @example 6637 Gennaro Shore Suite 888 */
       address?: string
       /**
        * Format: date-time
-       * @example 1984-09-28T10:46:47.853Z
+       * @example 1995-06-05T15:09:49.595Z
        */
       birthDate?: string
       /** Format: binary */
@@ -2272,7 +2330,7 @@ export interface components {
       password: string
     }
     MemberRequestUpdateDto: {
-      /** @example Kuvalis */
+      /** @example Marks */
       name: string
       /** @example 84332170915 */
       phone: string
@@ -2280,11 +2338,11 @@ export interface components {
       email?: string
       /** @example X5785184 */
       cardId?: string
-      /** @example 6507 Mafalda Fort Suite 327 */
+      /** @example 6637 Gennaro Shore Suite 888 */
       address?: string
       /**
        * Format: date-time
-       * @example 1984-09-28T10:46:47.853Z
+       * @example 1995-06-05T15:09:49.595Z
        */
       birthDate?: string
       /**
@@ -2306,17 +2364,17 @@ export interface components {
       point: number
     }
     MemberResponseBelongDto: {
-      /** @example 35 */
+      /** @example 62 */
       id: number
       /** @example  */
       code: string
-      /** @example Hand */
+      /** @example Schimmel */
       name: string
       /** @example  */
       phone: string
     }
     ProductBrandResponseBelongDto: {
-      /** @example 4 */
+      /** @example 5 */
       id: number
       name: components['schemas']['ResponseLocaleDto']
       /** @example true */
@@ -2327,7 +2385,7 @@ export interface components {
       assignedBy: components['schemas']['UserBelongInfo']
     }
     ProductCategoryResponseBelongDto: {
-      /** @example 8 */
+      /** @example 1 */
       id: number
       name: components['schemas']['ResponseLocaleDto']
       /** @example true */
@@ -2357,13 +2415,13 @@ export interface components {
       category: components['schemas']['ProductCategoryResponseBelongDto']
     }
     ResponseDataItemDto: {
-      /** @example 3 */
-      id: number
-      /** @example 2 */
-      orderId: number
-      /** @example 2 */
-      productId: number
       /** @example 10 */
+      id: number
+      /** @example 1 */
+      orderId: number
+      /** @example 4 */
+      productId: number
+      /** @example 2 */
       promotionId: number
       /** @example 0 */
       quantity: number
@@ -2377,17 +2435,17 @@ export interface components {
       finalPoint: number
       /**
        * Format: date-time
-       * @example 2025-06-01T18:07:42.629Z
+       * @example 2025-04-28T11:55:30.579Z
        */
       expiryDate: string
       /**
        * Format: date-time
-       * @example 2024-09-26T09:38:35.068Z
+       * @example 2024-12-06T16:48:30.719Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T04:51:12.738Z
+       * @example 2025-08-29T03:16:30.715Z
        */
       updatedAt: string
       product: components['schemas']['ProductResponseBelongDto']
@@ -2397,21 +2455,21 @@ export interface components {
       id: number
       /** @example  */
       code: string
-      /** @example 6 */
+      /** @example 8 */
       memberId: number
-      /** @example 1 */
+      /** @example 2 */
       promotionId: number
       /** @example  */
       totalPrice: number
-      /** @example 8 */
+      /** @example 3 */
       totalPoint: number
       /** @example  */
       discPrice: number
-      /** @example 10 */
+      /** @example 3 */
       discPoint: number
-      /** @example 6 */
+      /** @example 4 */
       finalPrice: number
-      /** @example 9 */
+      /** @example 8 */
       finalPoint: number
       /** @example SYSTEM */
       source: string
@@ -2421,22 +2479,22 @@ export interface components {
       isBirth: boolean
       /**
        * Format: date-time
-       * @example 2025-02-14T04:29:39.372Z
+       * @example 2025-02-10T17:45:35.166Z
        */
       issueDate: string
       /**
        * Format: date-time
-       * @example 2025-03-25T19:16:12.114Z
+       * @example 2024-11-26T15:06:33.324Z
        */
       issuedAt: string
       /**
        * Format: date-time
-       * @example 2025-01-26T21:06:58.018Z
+       * @example 2024-09-20T06:07:23.473Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T11:33:10.422Z
+       * @example 2025-08-29T02:08:46.585Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2447,19 +2505,19 @@ export interface components {
       items: components['schemas']['ResponseDataItemDto'][]
     }
     InvoiceResponseBelongDto: {
-      /** @example 4 */
+      /** @example 9 */
       id: number
       /** @example  */
       code: string
-      /** @example 2 */
+      /** @example 5 */
       finalPrice: number
-      /** @example 2 */
+      /** @example 4 */
       finalPoint: number
       /** @example FULLY_PAID */
       status: string
       /**
        * Format: date-time
-       * @example 2024-12-20T17:00:27.363Z
+       * @example 2024-09-06T14:51:37.025Z
        */
       issueDate: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2470,47 +2528,47 @@ export interface components {
       member: components['schemas']['MemberResponseBelongDto']
     }
     TierHistoryResponseListDto: {
-      /** @example 10 */
+      /** @example 6 */
       id: number
-      /** @example 7 */
-      memberId: number
       /** @example 9 */
+      memberId: number
+      /** @example 1 */
       invoiceId: number
-      /** @example 8 */
-      prevTierId: number
       /** @example 5 */
+      prevTierId: number
+      /** @example 4 */
       currTierId: number
-      /** @example 7 */
+      /** @example 2 */
       minTierId: number
       /** @example SYSTEM */
       type: string
-      /** @example 13.27 */
+      /** @example 88.62 */
       maximumSpending: number
-      /** @example 90.5 */
+      /** @example 25.91 */
       personalSpending: number
-      /** @example 74.66 */
+      /** @example 29.74 */
       referralSpending: number
-      /** @example 65.48 */
+      /** @example 21.49 */
       excessSpending: number
-      /** @example 4.28 */
+      /** @example 89.14 */
       renewalSpending: number
-      /** @example 3.47 */
+      /** @example 19.22 */
       upgradeSpending: number
       /**
        * Format: date-time
-       * @example 2025-03-12T17:07:59.833Z
+       * @example 2024-11-04T19:01:40.304Z
        */
       expiryDate: string
       /** @example true */
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-02-04T12:16:47.737Z
+       * @example 2024-10-19T05:41:09.272Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T11:36:12.685Z
+       * @example 2025-08-29T15:30:53.160Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2523,47 +2581,47 @@ export interface components {
       currTier: components['schemas']['TierResponseBelongDto']
     }
     TierHistoryResponseDetailDto: {
-      /** @example 10 */
+      /** @example 6 */
       id: number
-      /** @example 7 */
-      memberId: number
       /** @example 9 */
+      memberId: number
+      /** @example 1 */
       invoiceId: number
-      /** @example 8 */
-      prevTierId: number
       /** @example 5 */
+      prevTierId: number
+      /** @example 4 */
       currTierId: number
-      /** @example 7 */
+      /** @example 2 */
       minTierId: number
       /** @example SYSTEM */
       type: string
-      /** @example 13.27 */
+      /** @example 88.62 */
       maximumSpending: number
-      /** @example 90.5 */
+      /** @example 25.91 */
       personalSpending: number
-      /** @example 74.66 */
+      /** @example 29.74 */
       referralSpending: number
-      /** @example 65.48 */
+      /** @example 21.49 */
       excessSpending: number
-      /** @example 4.28 */
+      /** @example 89.14 */
       renewalSpending: number
-      /** @example 3.47 */
+      /** @example 19.22 */
       upgradeSpending: number
       /**
        * Format: date-time
-       * @example 2025-03-12T17:07:59.833Z
+       * @example 2024-11-04T19:01:40.304Z
        */
       expiryDate: string
       /** @example true */
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-02-04T12:16:47.737Z
+       * @example 2024-10-19T05:41:09.272Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T11:36:12.685Z
+       * @example 2025-08-29T15:30:53.160Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2576,41 +2634,41 @@ export interface components {
       currTier: components['schemas']['TierResponseBelongDto']
     }
     TierHistoryRequestCreateDto: {
-      /** @example 8387880576132058 */
+      /** @example 5785815201697386 */
       memberId: number
-      /** @example 2392509899897989 */
+      /** @example 3309274573826494 */
       prevTierId: number
-      /** @example 6547399354569276 */
+      /** @example 4868823890770516 */
       currTierId: number
     }
     TierHistoryRequestUpdateDto: {
-      /** @example 8387880576132058 */
+      /** @example 5785815201697386 */
       memberId: number
-      /** @example 2392509899897989 */
+      /** @example 3309274573826494 */
       prevTierId: number
-      /** @example 6547399354569276 */
+      /** @example 4868823890770516 */
       currTierId: number
     }
     PointHistoryResponseListDto: {
-      /** @example 5 */
+      /** @example 3 */
       id: number
-      /** @example 1 */
+      /** @example 10 */
       tierId: number
-      /** @example 7 */
+      /** @example 6 */
       memberId: number
-      /** @example 1 */
+      /** @example 8 */
       refereeId: number
-      /** @example 1 */
+      /** @example 3 */
       invoiceId: number
-      /** @example 1579 */
+      /** @example 3675 */
       invoiceAmount: number
       /** @example PURCHASE */
       type: string
-      /** @example 445 */
+      /** @example 987 */
       point: number
-      /** @example 968 */
+      /** @example 521 */
       pointBalance: number
-      /** @example 0.2387800753340772 */
+      /** @example 0.5606168463437976 */
       multipleRatio: number
       /** @example false */
       isFirst: boolean
@@ -2622,27 +2680,27 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-08-22T20:35:53.751Z
+       * @example 2025-08-04T11:41:28.038Z
        */
       expiryDate: string
       /**
        * Format: date-time
-       * @example 2026-02-02T02:34:26.513Z
+       * @example 2025-11-25T08:50:49.403Z
        */
       releaseDate: string
       /**
        * Format: date-time
-       * @example 2025-03-17T08:02:23.535Z
+       * @example 2025-08-19T16:10:53.034Z
        */
       createdDate: string
       /**
        * Format: date-time
-       * @example 2025-02-10T00:21:18.845Z
+       * @example 2024-09-04T22:11:37.242Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T01:37:48.217Z
+       * @example 2025-08-29T15:32:51.096Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2655,25 +2713,25 @@ export interface components {
       invoice: components['schemas']['InvoiceResponseBelongDto']
     }
     PointHistoryResponseDetailDto: {
-      /** @example 5 */
+      /** @example 3 */
       id: number
-      /** @example 1 */
+      /** @example 10 */
       tierId: number
-      /** @example 7 */
+      /** @example 6 */
       memberId: number
-      /** @example 1 */
+      /** @example 8 */
       refereeId: number
-      /** @example 1 */
+      /** @example 3 */
       invoiceId: number
-      /** @example 1579 */
+      /** @example 3675 */
       invoiceAmount: number
       /** @example PURCHASE */
       type: string
-      /** @example 445 */
+      /** @example 987 */
       point: number
-      /** @example 968 */
+      /** @example 521 */
       pointBalance: number
-      /** @example 0.2387800753340772 */
+      /** @example 0.5606168463437976 */
       multipleRatio: number
       /** @example false */
       isFirst: boolean
@@ -2685,27 +2743,27 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-08-22T20:35:53.751Z
+       * @example 2025-08-04T11:41:28.038Z
        */
       expiryDate: string
       /**
        * Format: date-time
-       * @example 2026-02-02T02:34:26.513Z
+       * @example 2025-11-25T08:50:49.403Z
        */
       releaseDate: string
       /**
        * Format: date-time
-       * @example 2025-03-17T08:02:23.535Z
+       * @example 2025-08-19T16:10:53.034Z
        */
       createdDate: string
       /**
        * Format: date-time
-       * @example 2025-02-10T00:21:18.845Z
+       * @example 2024-09-04T22:11:37.242Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T01:37:48.217Z
+       * @example 2025-08-29T15:32:51.096Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2718,15 +2776,15 @@ export interface components {
       invoice: components['schemas']['InvoiceResponseBelongDto']
     }
     PointHistoryRequestCreateDto: {
-      /** @example 3184765818975943 */
+      /** @example 508558494015342 */
       memberId: number
-      /** @example 8905778451844936 */
+      /** @example 1508176243205616 */
       point: number
     }
     PointHistoryRequestUpdateDto: {
-      /** @example 3184765818975943 */
+      /** @example 508558494015342 */
       memberId: number
-      /** @example 8905778451844936 */
+      /** @example 1508176243205616 */
       point: number
     }
     OrderResponseBelongDto: {
@@ -2736,15 +2794,15 @@ export interface components {
       code: string
       /** @example  */
       totalPrice: number
-      /** @example 8 */
+      /** @example 3 */
       totalPoint: number
       /** @example  */
       discPrice: number
-      /** @example 10 */
+      /** @example 3 */
       discPoint: number
-      /** @example 6 */
+      /** @example 4 */
       finalPrice: number
-      /** @example 9 */
+      /** @example 8 */
       finalPoint: number
       createdBy: components['schemas']['UserBelongInfo']
       updatedBy: components['schemas']['UserBelongInfo']
@@ -2754,19 +2812,19 @@ export interface components {
       items: components['schemas']['ResponseDataItemDto'][]
     }
     ProductHistoryResponseListDto: {
-      /** @example 6 */
+      /** @example 10 */
       id: number
-      /** @example 6 */
-      memberId: number
       /** @example 9 */
+      memberId: number
+      /** @example 4 */
       productId: number
-      /** @example 1 */
+      /** @example 6 */
       orderId: number
-      /** @example 8 */
+      /** @example 9 */
       promotionId: number
-      /** @example 667.5219184227494 */
+      /** @example 414.96305742053096 */
       redeemPrice: number
-      /** @example 21 */
+      /** @example 24 */
       redeemPoint: number
       /** @example ORDER */
       source: string
@@ -2776,47 +2834,47 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2024-11-10T16:44:23.064Z
+       * @example 2024-12-29T00:44:13.416Z
        */
       startDate: string
       /**
        * Format: date-time
-       * @example 2026-03-31T22:58:56.979Z
+       * @example 2026-07-22T14:13:00.621Z
        */
       untilDate: string
       /**
        * Format: date-time
-       * @example 2026-07-29T23:18:32.930Z
+       * @example 2025-12-10T05:39:28.864Z
        */
       expiryDate: string
       /**
        * Format: date-time
-       * @example 2024-12-04T20:41:55.131Z
+       * @example 2024-12-26T13:18:12.873Z
        */
       issuedDate: string
       /**
        * Format: date-time
-       * @example 2024-09-06T13:13:45.645Z
+       * @example 2024-10-02T09:57:31.476Z
        */
       usedDate: string
       /**
        * Format: date-time
-       * @example 2025-04-06T22:29:44.732Z
+       * @example 2025-03-25T12:40:24.325Z
        */
       usedAt: string
       /**
        * Format: date-time
-       * @example 2025-03-11T20:24:51.677Z
+       * @example 2025-03-21T02:51:20.220Z
        */
       issuedAt: string
       /**
        * Format: date-time
-       * @example 2025-07-27T10:04:26.411Z
+       * @example 2024-12-17T07:50:35.603Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-28T20:48:36.220Z
+       * @example 2025-08-28T21:59:23.846Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2828,19 +2886,19 @@ export interface components {
       order: components['schemas']['OrderResponseBelongDto']
     }
     ProductHistoryResponseDetailDto: {
-      /** @example 6 */
+      /** @example 10 */
       id: number
-      /** @example 6 */
-      memberId: number
       /** @example 9 */
+      memberId: number
+      /** @example 4 */
       productId: number
-      /** @example 1 */
+      /** @example 6 */
       orderId: number
-      /** @example 8 */
+      /** @example 9 */
       promotionId: number
-      /** @example 667.5219184227494 */
+      /** @example 414.96305742053096 */
       redeemPrice: number
-      /** @example 21 */
+      /** @example 24 */
       redeemPoint: number
       /** @example ORDER */
       source: string
@@ -2850,47 +2908,47 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2024-11-10T16:44:23.064Z
+       * @example 2024-12-29T00:44:13.416Z
        */
       startDate: string
       /**
        * Format: date-time
-       * @example 2026-03-31T22:58:56.979Z
+       * @example 2026-07-22T14:13:00.621Z
        */
       untilDate: string
       /**
        * Format: date-time
-       * @example 2026-07-29T23:18:32.930Z
+       * @example 2025-12-10T05:39:28.864Z
        */
       expiryDate: string
       /**
        * Format: date-time
-       * @example 2024-12-04T20:41:55.131Z
+       * @example 2024-12-26T13:18:12.873Z
        */
       issuedDate: string
       /**
        * Format: date-time
-       * @example 2024-09-06T13:13:45.645Z
+       * @example 2024-10-02T09:57:31.476Z
        */
       usedDate: string
       /**
        * Format: date-time
-       * @example 2025-04-06T22:29:44.732Z
+       * @example 2025-03-25T12:40:24.325Z
        */
       usedAt: string
       /**
        * Format: date-time
-       * @example 2025-03-11T20:24:51.677Z
+       * @example 2025-03-21T02:51:20.220Z
        */
       issuedAt: string
       /**
        * Format: date-time
-       * @example 2025-07-27T10:04:26.411Z
+       * @example 2024-12-17T07:50:35.603Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-28T20:48:36.220Z
+       * @example 2025-08-28T21:59:23.846Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2904,13 +2962,13 @@ export interface components {
     ProductHistoryRequestCreateDto: {
       /** @example 8 */
       memberId: number
-      /** @example 10 */
+      /** @example 5 */
       productId: number
     }
     ProductHistoryRequestUpdateDto: {
       /** @example 8 */
       memberId: number
-      /** @example 10 */
+      /** @example 5 */
       productId: number
     }
     ProductResponseListDto: {
@@ -2922,7 +2980,7 @@ export interface components {
       categoryId: number
       /** @example P01 */
       sku: string
-      /** @example https://picsum.photos/seed/lLi7GgYkE/2027/3552 */
+      /** @example https://picsum.photos/seed/6O790xC/3872/2008 */
       thumbnail: string
       name: components['schemas']['ResponseLocaleDto']
       content: components['schemas']['ResponseLocaleDto'][]
@@ -2952,9 +3010,9 @@ export interface components {
       expiryType: 'STATIC' | 'DYNAMIC'
       /** @example 0 */
       dynamicExpiryDays: number
-      /** @example 2026-06-02T14:17:32.307Z */
+      /** @example 2026-04-10T14:54:24.536Z */
       dynamicExpiryDate: string
-      /** @example 2026-06-12T03:36:49.114Z */
+      /** @example 2026-05-29T22:58:21.561Z */
       staticExpiryDate: string
       /** @example true */
       hasShipment: boolean
@@ -2984,12 +3042,12 @@ export interface components {
       isDeleted: boolean
       /**
        * Format: date-time
-       * @example 2025-08-28T17:24:54.358Z
+       * @example 2025-08-29T10:42:13.896Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T23:02:21.503Z
+       * @example 2025-08-30T08:43:06.375Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3008,7 +3066,7 @@ export interface components {
       categoryId: number
       /** @example P01 */
       sku: string
-      /** @example https://picsum.photos/seed/lLi7GgYkE/2027/3552 */
+      /** @example https://picsum.photos/seed/6O790xC/3872/2008 */
       thumbnail: string
       name: components['schemas']['ResponseLocaleDto']
       content: components['schemas']['ResponseLocaleDto'][]
@@ -3038,9 +3096,9 @@ export interface components {
       expiryType: 'STATIC' | 'DYNAMIC'
       /** @example 0 */
       dynamicExpiryDays: number
-      /** @example 2026-06-02T14:17:32.307Z */
+      /** @example 2026-04-10T14:54:24.536Z */
       dynamicExpiryDate: string
-      /** @example 2026-06-12T03:36:49.114Z */
+      /** @example 2026-05-29T22:58:21.561Z */
       staticExpiryDate: string
       /** @example true */
       hasShipment: boolean
@@ -3070,12 +3128,12 @@ export interface components {
       isDeleted: boolean
       /**
        * Format: date-time
-       * @example 2025-08-28T17:24:54.358Z
+       * @example 2025-08-29T10:42:13.896Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T23:02:21.503Z
+       * @example 2025-08-30T08:43:06.375Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3086,15 +3144,15 @@ export interface components {
       category: components['schemas']['ProductCategoryResponseBelongDto']
     }
     RequestSentenceDto: {
-      /** @example Aveho aeternus defluo crebro texo. */
+      /** @example Eum decor admoneo. */
       en: string
-      /** @example Commemoro speciosus valde deficio adhuc vobis nulla. */
+      /** @example Quibusdam aptus coniecto alter demens. */
       vi: string
     }
     RequestParagraphDto: {
-      /** @example Vigor fuga agnosco derideo denuncio deorsum voro ex arto strues. Vulariter tergo caelum volva vociferor aequitas. Desolo catena comburo vir sapiente vulpes viscus sint. */
+      /** @example Illo cursim bestia tui cubo decor certe. Defero excepturi animus aegre nam defluo quisquam. Copia vacuus assumenda vito pauper ustilo voluntarius ante celebrer verecundia. */
       en: string
-      /** @example Demens atavus odit subseco. Tripudio antea circumvenio corrigo confugo tabesco patior. Voco abbas alo demoror tergiversatio succurro stipes asperiores tolero. */
+      /** @example Ventus cinis perspiciatis textilis calamitas. Adulescens caries sperno. Delibero nihil cernuus patruus facere repellendus theologus sapiente ubi. */
       vi: string
     }
     ProductRequestUpdateDto: {
@@ -3128,7 +3186,7 @@ export interface components {
       dynamicExpiryDays?: number
       /**
        * Format: date-time
-       * @example 2026-06-08T03:16:02.947Z
+       * @example 2025-12-22T20:24:29.597Z
        */
       staticExpiryDate?: string
       /** @example false */
@@ -3161,7 +3219,7 @@ export interface components {
       brandId: number
       /** @example 1 */
       categoryId: number
-      /** @example P0083 */
+      /** @example P0082 */
       sku: string
       name: components['schemas']['RequestSentenceDto']
       termAndCond: components['schemas']['RequestParagraphDto']
@@ -3189,7 +3247,7 @@ export interface components {
       dynamicExpiryDays?: number
       /**
        * Format: date-time
-       * @example 2026-06-08T03:16:02.947Z
+       * @example 2025-12-22T20:24:29.597Z
        */
       staticExpiryDate?: string
       /** @example false */
@@ -3218,7 +3276,7 @@ export interface components {
       thumbnail?: string
     }
     ProductBrandResponseListDto: {
-      /** @example 4 */
+      /** @example 5 */
       id: number
       name: components['schemas']['ResponseLocaleDto']
       /** @example  */
@@ -3233,12 +3291,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2024-12-20T00:15:19.285Z
+       * @example 2024-09-25T06:40:06.604Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T09:12:54.262Z
+       * @example 2025-08-29T01:19:01.477Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3247,7 +3305,7 @@ export interface components {
       assignedBy: components['schemas']['UserBelongInfo']
     }
     ProductBrandResponseDetailDto: {
-      /** @example 4 */
+      /** @example 5 */
       id: number
       name: components['schemas']['ResponseLocaleDto']
       /** @example  */
@@ -3262,12 +3320,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2024-12-20T00:15:19.285Z
+       * @example 2024-09-25T06:40:06.604Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T09:12:54.262Z
+       * @example 2025-08-29T01:19:01.477Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3286,19 +3344,19 @@ export interface components {
       isActive?: boolean
     }
     ProductCategoryResponseListDto: {
-      /** @example 8 */
+      /** @example 1 */
       id: number
       name: components['schemas']['ResponseLocaleDto']
       /** @example true */
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-03-17T07:08:33.984Z
+       * @example 2025-08-25T15:37:42.918Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-28T19:21:23.844Z
+       * @example 2025-08-29T02:53:55.852Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3307,19 +3365,19 @@ export interface components {
       assignedBy: components['schemas']['UserBelongInfo']
     }
     ProductCategoryResponseDetailDto: {
-      /** @example 8 */
+      /** @example 1 */
       id: number
       name: components['schemas']['ResponseLocaleDto']
       /** @example true */
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-03-17T07:08:33.984Z
+       * @example 2025-08-25T15:37:42.918Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-28T19:21:23.844Z
+       * @example 2025-08-29T02:53:55.852Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3338,18 +3396,18 @@ export interface components {
       isActive?: boolean
     }
     ProductReviewResponseListDto: {
-      /** @example 6 */
+      /** @example 7 */
       id: number
       /** @example true */
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2024-09-12T08:36:52.379Z
+       * @example 2024-10-04T07:14:30.580Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T03:56:24.851Z
+       * @example 2025-08-28T17:19:54.539Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3358,18 +3416,18 @@ export interface components {
       assignedBy: components['schemas']['UserBelongInfo']
     }
     ProductReviewResponseDetailDto: {
-      /** @example 6 */
+      /** @example 7 */
       id: number
       /** @example true */
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2024-09-12T08:36:52.379Z
+       * @example 2024-10-04T07:14:30.580Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T03:56:24.851Z
+       * @example 2025-08-28T17:19:54.539Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3416,7 +3474,7 @@ export interface components {
       thumbnail?: string
     }
     TierResponseListDto: {
-      /** @example 2 */
+      /** @example 4 */
       id: number
       /** @example NORMAL */
       code: string
@@ -3441,7 +3499,7 @@ export interface components {
       charts: components['schemas']['ResponseDataChartDto'][]
     }
     TierResponseDetailDto: {
-      /** @example 2 */
+      /** @example 4 */
       id: number
       /** @example NORMAL */
       code: string
@@ -3467,12 +3525,12 @@ export interface components {
       cardCover: string
       /**
        * Format: date-time
-       * @example 2025-05-13T19:15:52.437Z
+       * @example 2025-06-23T22:59:25.318Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-28T20:26:11.088Z
+       * @example 2025-08-29T13:53:58.158Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3502,21 +3560,21 @@ export interface components {
       id: number
       /** @example  */
       code: string
-      /** @example 6 */
+      /** @example 8 */
       memberId: number
-      /** @example 1 */
+      /** @example 2 */
       promotionId: number
       /** @example  */
       totalPrice: number
-      /** @example 8 */
+      /** @example 3 */
       totalPoint: number
       /** @example  */
       discPrice: number
-      /** @example 10 */
+      /** @example 3 */
       discPoint: number
-      /** @example 6 */
+      /** @example 4 */
       finalPrice: number
-      /** @example 9 */
+      /** @example 8 */
       finalPoint: number
       /** @example SYSTEM */
       source: string
@@ -3526,22 +3584,22 @@ export interface components {
       isBirth: boolean
       /**
        * Format: date-time
-       * @example 2025-02-14T04:29:39.372Z
+       * @example 2025-02-10T17:45:35.166Z
        */
       issueDate: string
       /**
        * Format: date-time
-       * @example 2025-03-25T19:16:12.114Z
+       * @example 2024-11-26T15:06:33.324Z
        */
       issuedAt: string
       /**
        * Format: date-time
-       * @example 2025-01-26T21:06:58.018Z
+       * @example 2024-09-20T06:07:23.473Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T11:33:10.422Z
+       * @example 2025-08-29T02:08:46.585Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3564,27 +3622,27 @@ export interface components {
       orderId: number
     }
     InvoiceResponseListDto: {
-      /** @example 4 */
+      /** @example 9 */
       id: number
       /** @example  */
       code: string
-      /** @example 4 */
+      /** @example 1 */
       memberId: number
       /** @example 4 */
       orderId: number
-      /** @example 5 */
+      /** @example 4 */
       promotionId: number
       /** @example  */
       invoiceRef: string
       /** @example  */
       invoicePath: string
-      /** @example 8 */
+      /** @example 4 */
       paidPrice: number
-      /** @example 1 */
+      /** @example 7 */
       paidPoint: number
-      /** @example 2 */
+      /** @example 5 */
       finalPrice: number
-      /** @example 2 */
+      /** @example 4 */
       finalPoint: number
       /** @example FULLY_PAID */
       status: string
@@ -3596,27 +3654,27 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2026-02-18T15:16:51.803Z
+       * @example 2026-08-19T04:18:57.665Z
        */
       dueDate: string
       /**
        * Format: date-time
-       * @example 2024-12-20T17:00:27.363Z
+       * @example 2024-09-06T14:51:37.025Z
        */
       issueDate: string
       /**
        * Format: date-time
-       * @example 2025-06-24T09:31:17.485Z
+       * @example 2025-03-29T12:42:19.974Z
        */
       issuedAt: string
       /**
        * Format: date-time
-       * @example 2025-01-20T20:52:42.687Z
+       * @example 2024-09-03T23:31:15.472Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-28T19:41:24.868Z
+       * @example 2025-08-28T23:26:57.359Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3627,27 +3685,27 @@ export interface components {
       member: components['schemas']['MemberResponseBelongDto']
     }
     InvoiceResponseDetailDto: {
-      /** @example 4 */
+      /** @example 9 */
       id: number
       /** @example  */
       code: string
-      /** @example 4 */
+      /** @example 1 */
       memberId: number
       /** @example 4 */
       orderId: number
-      /** @example 5 */
+      /** @example 4 */
       promotionId: number
       /** @example  */
       invoiceRef: string
       /** @example  */
       invoicePath: string
-      /** @example 8 */
+      /** @example 4 */
       paidPrice: number
-      /** @example 1 */
+      /** @example 7 */
       paidPoint: number
-      /** @example 2 */
+      /** @example 5 */
       finalPrice: number
-      /** @example 2 */
+      /** @example 4 */
       finalPoint: number
       /** @example FULLY_PAID */
       status: string
@@ -3659,27 +3717,27 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2026-02-18T15:16:51.803Z
+       * @example 2026-08-19T04:18:57.665Z
        */
       dueDate: string
       /**
        * Format: date-time
-       * @example 2024-12-20T17:00:27.363Z
+       * @example 2024-09-06T14:51:37.025Z
        */
       issueDate: string
       /**
        * Format: date-time
-       * @example 2025-06-24T09:31:17.485Z
+       * @example 2025-03-29T12:42:19.974Z
        */
       issuedAt: string
       /**
        * Format: date-time
-       * @example 2025-01-20T20:52:42.687Z
+       * @example 2024-09-03T23:31:15.472Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-28T19:41:24.868Z
+       * @example 2025-08-28T23:26:57.359Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3702,17 +3760,17 @@ export interface components {
       orderId: number
     }
     PushResponseBelongDto: {
-      /** @example 8 */
+      /** @example 7 */
       id: number
-      /** @example 4 */
+      /** @example 10 */
       notificationId: number
       /** @example DAILY */
       type: string
       /** @example COMPLETED */
       status: string
-      /** @example 2025-02-04T15:05:43.421Z */
+      /** @example 2025-01-18T06:34:34.883Z */
       executeTime: string
-      /** @example 2025-08-27T13:31:57.531Z */
+      /** @example 2024-10-19T21:01:39.040Z */
       executeDate: string
       /** @example 1 */
       weekday: number
@@ -3722,12 +3780,12 @@ export interface components {
       month: number
       /**
        * Format: date-time
-       * @example 2025-03-16T22:32:41.389Z
+       * @example 2024-12-06T04:44:21.582Z
        */
       startDate: string
       /**
        * Format: date-time
-       * @example 2025-04-26T16:05:25.366Z
+       * @example 2024-10-18T03:18:56.883Z
        */
       untilDate: string
       /** @example 1 */
@@ -3736,22 +3794,22 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2026-02-01T13:45:29.146Z
+       * @example 2025-11-02T18:52:39.215Z
        */
       expiresAt: string
       /**
        * Format: date-time
-       * @example 2025-09-28T19:49:37.283Z
+       * @example 2025-10-30T17:17:50.065Z
        */
       scheduledAt: string
       /**
        * Format: date-time
-       * @example 2025-03-18T19:24:09.908Z
+       * @example 2025-05-08T15:09:47.878Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-28T23:42:08.850Z
+       * @example 2025-08-29T00:27:08.338Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3761,7 +3819,7 @@ export interface components {
       notification: Record<string, never>
     }
     ResponseGroupRelationDto: {
-      /** @example 6 */
+      /** @example 5 */
       id: number
       title: components['schemas']['ResponseLocaleDto']
       /** @example [] */
@@ -3770,19 +3828,19 @@ export interface components {
       emails: string[]
       /** @example [] */
       phones: string[]
-      /** @example 2025-07-12T15:07:23.756Z */
+      /** @example 2025-02-27T02:19:51.981Z */
       joinSinceDate: string[]
-      /** @example 2025-07-23T22:41:03.065Z */
+      /** @example 2025-06-07T12:56:54.447Z */
       joinUntilDate: string[]
     }
     NotificationResponseListDto: {
-      /** @example 5 */
+      /** @example 4 */
       id: number
       /** @example SMS */
       channel: string
       /** @example TEXT */
       type: string
-      /** @example 3 */
+      /** @example 5 */
       refId: number
       /** @example TEXT */
       refType: string
@@ -3793,12 +3851,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-03-24T19:58:13.387Z
+       * @example 2025-04-03T17:39:19.336Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T06:08:03.642Z
+       * @example 2025-08-29T10:18:56.985Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3809,13 +3867,13 @@ export interface components {
       groups: components['schemas']['ResponseGroupRelationDto'][]
     }
     NotificationResponseDetailDto: {
-      /** @example 5 */
+      /** @example 4 */
       id: number
       /** @example SMS */
       channel: string
       /** @example TEXT */
       type: string
-      /** @example 3 */
+      /** @example 5 */
       refId: number
       /** @example TEXT */
       refType: string
@@ -3826,12 +3884,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-03-24T19:58:13.387Z
+       * @example 2025-04-03T17:39:19.336Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T06:08:03.642Z
+       * @example 2025-08-29T10:18:56.985Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3842,9 +3900,9 @@ export interface components {
       groups: components['schemas']['ResponseGroupRelationDto'][]
     }
     RequestContentDto: {
-      /** @example <p>Vero coma appello adsidue deprimo constans conventus vapulus collum thalassinus. Denuncio ut occaecati deprimo acer claro. Comptus beatus summa videlicet vorax uxor arx timor.</p>Demum cupiditas in bibo exercitationem defetiscor aveho sufficio conturbo. Conservo averto coruscus. Tendo complectus curiositas ulciscor auctus utor via verus ademptio.</p> */
+      /** @example <p>Ocer comitatus conspergo desidero crebro venustas cogito adipiscor antepono pel. Odit utroque varietas balbus ulterius uter vel cotidie absque uter. Pauci ceno ducimus cado suadeo dolores demonstro inflammatio vestrum neque.</p>Capitulus demum consuasor amplexus capto tepidus decens angulus commodo officiis. Deorsum casso viriliter. Vomica praesentium assumenda vetus deleo.</p> */
       en: string
-      /** @example <p>Valens aptus textor. Thermae ipsa somnus adfectus depono caput abduco soluta. Quae terreo convoco sono culpa turpis.</p>Avaritia tantillus ut adfero inflammatio accendo defetiscor textor spiculum atqui. Abeo tutamen arma civis caries creo. Defluo recusandae atque coepi adiuvo aperte utpote vulgus.</p>Aperiam tamisium studio solium vinitor conitor laboriosam voro laborum. Carpo assentator solio ullus vehemens. Ademptio reprehenderit vorax eius thorax solus cenaculum aureus sufficio.</p> */
+      /** @example <p>Sulum congregatio tui versus attero aliquid. Saepe quos laudantium subvenio cauda. Ratione confido vicissitudo supra nam doloremque.</p>Clibanus adulescens stips conqueror. Creo tonsor derideo vallum tolero admitto natus aveho velum. Facere cuppedia debilito abbas conatus angulus adiuvo.</p>Solus careo canis baiulus aer adiuvo verumtamen. Cubicularis synagoga uberrime tametsi conservo denuo vulgivagus ascit. Magnam corporis optio laudantium basium.</p>Accommodo textor canto veritatis denique praesentium arbustum molestias. Itaque calcar defero suggero corpus valeo. Sperno calamitas desparatus comparo animadverto vix.</p> */
       vi: string
     }
     NotificationPushCreateDto: {
@@ -3855,7 +3913,7 @@ export interface components {
       type: 'INSTANT' | 'DATETIME' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
       /** @example  */
       executeTime: string
-      /** @example 2025-10-02T16:50:04.279Z */
+      /** @example 2025-12-15T01:35:38.686Z */
       executeDate: string
       /** @example  */
       weekday?: number
@@ -3865,12 +3923,12 @@ export interface components {
       month?: number
       /**
        * Format: date-time
-       * @example 2025-09-30T00:22:09.963Z
+       * @example 2026-05-02T03:41:46.558Z
        */
       startDate?: string
       /**
        * Format: date-time
-       * @example 2025-09-03T12:25:47.329Z
+       * @example 2026-08-13T00:42:37.252Z
        */
       untilDate?: string
       /** @example true */
@@ -3919,17 +3977,17 @@ export interface components {
       groupIds?: number[]
     }
     PushResponseListDto: {
-      /** @example 8 */
+      /** @example 7 */
       id: number
-      /** @example 4 */
+      /** @example 10 */
       notificationId: number
       /** @example DAILY */
       type: string
       /** @example COMPLETED */
       status: string
-      /** @example 2025-02-04T15:05:43.421Z */
+      /** @example 2025-01-18T06:34:34.883Z */
       executeTime: string
-      /** @example 2025-08-27T13:31:57.531Z */
+      /** @example 2024-10-19T21:01:39.040Z */
       executeDate: string
       /** @example 1 */
       weekday: number
@@ -3939,12 +3997,12 @@ export interface components {
       month: number
       /**
        * Format: date-time
-       * @example 2025-03-16T22:32:41.389Z
+       * @example 2024-12-06T04:44:21.582Z
        */
       startDate: string
       /**
        * Format: date-time
-       * @example 2025-04-26T16:05:25.366Z
+       * @example 2024-10-18T03:18:56.883Z
        */
       untilDate: string
       /** @example 1 */
@@ -3953,22 +4011,22 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2026-02-01T13:45:29.146Z
+       * @example 2025-11-02T18:52:39.215Z
        */
       expiresAt: string
       /**
        * Format: date-time
-       * @example 2025-09-28T19:49:37.283Z
+       * @example 2025-10-30T17:17:50.065Z
        */
       scheduledAt: string
       /**
        * Format: date-time
-       * @example 2025-03-18T19:24:09.908Z
+       * @example 2025-05-08T15:09:47.878Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-28T23:42:08.850Z
+       * @example 2025-08-29T00:27:08.338Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3978,17 +4036,17 @@ export interface components {
       notification: Record<string, never>
     }
     PushResponseDetailDto: {
-      /** @example 8 */
+      /** @example 7 */
       id: number
-      /** @example 4 */
+      /** @example 10 */
       notificationId: number
       /** @example DAILY */
       type: string
       /** @example COMPLETED */
       status: string
-      /** @example 2025-02-04T15:05:43.421Z */
+      /** @example 2025-01-18T06:34:34.883Z */
       executeTime: string
-      /** @example 2025-08-27T13:31:57.531Z */
+      /** @example 2024-10-19T21:01:39.040Z */
       executeDate: string
       /** @example 1 */
       weekday: number
@@ -3998,12 +4056,12 @@ export interface components {
       month: number
       /**
        * Format: date-time
-       * @example 2025-03-16T22:32:41.389Z
+       * @example 2024-12-06T04:44:21.582Z
        */
       startDate: string
       /**
        * Format: date-time
-       * @example 2025-04-26T16:05:25.366Z
+       * @example 2024-10-18T03:18:56.883Z
        */
       untilDate: string
       /** @example 1 */
@@ -4012,22 +4070,22 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2026-02-01T13:45:29.146Z
+       * @example 2025-11-02T18:52:39.215Z
        */
       expiresAt: string
       /**
        * Format: date-time
-       * @example 2025-09-28T19:49:37.283Z
+       * @example 2025-10-30T17:17:50.065Z
        */
       scheduledAt: string
       /**
        * Format: date-time
-       * @example 2025-03-18T19:24:09.908Z
+       * @example 2025-05-08T15:09:47.878Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-28T23:42:08.850Z
+       * @example 2025-08-29T00:27:08.338Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -4046,7 +4104,7 @@ export interface components {
       type: 'INSTANT' | 'DATETIME' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
       /** @example  */
       executeTime: string
-      /** @example 2025-10-02T16:50:04.279Z */
+      /** @example 2025-12-15T01:35:38.686Z */
       executeDate: string
       /** @example  */
       weekday?: number
@@ -4056,12 +4114,12 @@ export interface components {
       month?: number
       /**
        * Format: date-time
-       * @example 2025-09-30T00:22:09.963Z
+       * @example 2026-05-02T03:41:46.558Z
        */
       startDate?: string
       /**
        * Format: date-time
-       * @example 2025-09-03T12:25:47.329Z
+       * @example 2026-08-13T00:42:37.252Z
        */
       untilDate?: string
       /** @example true */
@@ -4077,7 +4135,7 @@ export interface components {
       type: 'INSTANT' | 'DATETIME' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
       /** @example  */
       executeTime: string
-      /** @example 2025-10-02T16:50:04.279Z */
+      /** @example 2025-12-15T01:35:38.686Z */
       executeDate: string
       /** @example  */
       weekday?: number
@@ -4087,26 +4145,26 @@ export interface components {
       month?: number
       /**
        * Format: date-time
-       * @example 2025-09-30T00:22:09.963Z
+       * @example 2026-05-02T03:41:46.558Z
        */
       startDate?: string
       /**
        * Format: date-time
-       * @example 2025-09-03T12:25:47.329Z
+       * @example 2026-08-13T00:42:37.252Z
        */
       untilDate?: string
       /** @example true */
       isActive?: boolean
     }
     MediaResponseListDto: {
-      /** @example 9 */
+      /** @example 1 */
       id: number
       /**
        * @example BANNER
        * @enum {string}
        */
       type: 'BANNER' | 'SLIDER'
-      /** @example https://loremflickr.com/697/3497?lock=5873359851552007 */
+      /** @example https://loremflickr.com/2306/3685?lock=4242013195568764 */
       url: string
       /** @example  */
       mime: string
@@ -4122,12 +4180,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-05-19T08:00:47.492Z
+       * @example 2025-05-05T22:54:50.330Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T06:20:59.872Z
+       * @example 2025-08-29T13:03:12.066Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -4136,14 +4194,14 @@ export interface components {
       assignedBy: components['schemas']['UserBelongInfo']
     }
     MediaResponseDetailDto: {
-      /** @example 9 */
+      /** @example 1 */
       id: number
       /**
        * @example BANNER
        * @enum {string}
        */
       type: 'BANNER' | 'SLIDER'
-      /** @example https://loremflickr.com/697/3497?lock=5873359851552007 */
+      /** @example https://loremflickr.com/2306/3685?lock=4242013195568764 */
       url: string
       /** @example  */
       mime: string
@@ -4159,12 +4217,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-05-19T08:00:47.492Z
+       * @example 2025-05-05T22:54:50.330Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T06:20:59.872Z
+       * @example 2025-08-29T13:03:12.066Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -4243,11 +4301,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['UserProfileResponseDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4273,7 +4335,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['AuthAccessResponseDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4294,7 +4360,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['UserProfileResponseDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4320,7 +4390,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['UserProfileResponseDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4341,7 +4415,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['AuthRefreshResponseDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4367,7 +4445,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['UserProfileResponseDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4392,7 +4474,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['UserProfileResponseDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4465,7 +4551,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['SettingCoreResponseDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4510,7 +4600,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['SettingResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
+        }
       }
     }
   }
@@ -4534,7 +4628,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['SettingResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4563,7 +4661,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['SettingResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4584,7 +4686,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['DashboardSummaryResponseDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4605,7 +4711,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['DashboardSummaryResponseDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4626,7 +4736,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['DashboardSummaryResponseDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4658,7 +4772,7 @@ export interface operations {
         }
         content: {
           'application/json': {
-            data?: components['schemas']['ApiKeyResponseListDto']
+            data?: components['schemas']['ApiKeyResponseListDto'][]
           } & components['schemas']['ResponsePagingDto']
         }
       }
@@ -4682,11 +4796,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ApiKeyResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4712,7 +4830,7 @@ export interface operations {
         }
         content: {
           'application/json': {
-            data?: components['schemas'][]
+            data?: components['schemas']['ApiKeyResponseListDto'][]
           } & components['schemas']['ResponseListingDto']
         }
       }
@@ -4737,7 +4855,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ApiKeyResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4765,7 +4887,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ApiKeyResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4811,7 +4937,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ApiKeyResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4839,7 +4969,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ApiKeyResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4862,7 +4996,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ApiKeyResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4885,7 +5023,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ApiKeyResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4913,7 +5055,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['AppVersionResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -4935,11 +5081,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['AppVersionResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4962,7 +5112,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['AppVersionResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -4990,7 +5144,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['AppVersionResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5036,7 +5194,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['AppVersionResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5059,7 +5221,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['AppVersionResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5092,7 +5258,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['UserResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -5113,11 +5283,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['UserResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5140,7 +5314,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['UserResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5168,7 +5346,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['UserResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5194,7 +5376,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['UserResponseLoginHistoryDto'][]
+          } & components['schemas']['ResponseListingDto']
+        }
       }
     }
   }
@@ -5221,7 +5407,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['UserResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5248,7 +5438,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['RoleResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -5270,11 +5464,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['RoleResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5297,7 +5495,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['RoleResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
+        }
       }
     }
   }
@@ -5318,7 +5520,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['RoleResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5341,7 +5547,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['RoleResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5369,7 +5579,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['RoleResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5415,7 +5629,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['RoleResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5438,7 +5656,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['RoleResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5462,7 +5684,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['PermissionResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
+        }
       }
     }
   }
@@ -5494,7 +5720,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['MemberResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -5515,11 +5745,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['MemberResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5540,7 +5774,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['MemberResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
+        }
       }
     }
   }
@@ -5563,7 +5801,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['MemberResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5591,7 +5833,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['MemberResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5614,7 +5860,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['MemberResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5637,7 +5887,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['MemberResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5664,7 +5918,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['MemberResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5688,11 +5946,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['MemberResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5720,7 +5982,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['TierHistoryResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -5742,11 +6008,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['TierHistoryResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5769,7 +6039,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['TierHistoryResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5797,7 +6071,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['TierHistoryResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5849,7 +6127,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['PointHistoryResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -5871,11 +6153,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['PointHistoryResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5898,7 +6184,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['PointHistoryResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5926,7 +6216,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['PointHistoryResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -5977,7 +6271,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductHistoryResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -5999,11 +6297,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductHistoryResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6026,7 +6328,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductHistoryResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6054,7 +6360,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductHistoryResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6105,7 +6415,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -6126,11 +6440,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6151,7 +6469,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
+        }
       }
     }
   }
@@ -6174,7 +6496,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6201,7 +6527,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6252,7 +6582,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductBrandResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -6274,11 +6608,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductBrandResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6301,7 +6639,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductBrandResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6329,7 +6671,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductBrandResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6380,7 +6726,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductCategoryResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -6402,11 +6752,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductCategoryResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6429,7 +6783,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductCategoryResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6457,7 +6815,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductCategoryResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6508,7 +6870,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductReviewResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -6530,11 +6896,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductReviewResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6557,7 +6927,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductReviewResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6585,7 +6959,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductReviewResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6635,7 +7013,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['FactResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -6658,7 +7040,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['FactResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6686,7 +7072,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['FactResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6709,7 +7099,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['FactResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6732,7 +7126,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['FactResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6758,7 +7156,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['TierResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -6779,7 +7181,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['TierResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
+        }
       }
     }
   }
@@ -6802,7 +7208,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['TierResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6830,7 +7240,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['TierResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6858,7 +7272,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['OrderResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -6880,11 +7298,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['OrderResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6907,7 +7329,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['OrderResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6935,7 +7361,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['OrderResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -6986,7 +7416,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['InvoiceResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -7008,11 +7442,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['InvoiceResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -7035,7 +7473,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['InvoiceResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -7063,7 +7505,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['InvoiceResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -7114,7 +7560,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['NotificationResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -7136,11 +7586,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['NotificationResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -7163,7 +7617,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['NotificationResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -7191,7 +7649,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['NotificationResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -7237,7 +7699,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['NotificationResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -7260,7 +7726,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['NotificationResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -7288,7 +7758,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['PushResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -7310,11 +7784,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['PushResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -7337,7 +7815,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['PushResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -7365,7 +7847,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['PushResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -7411,7 +7897,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['PushResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -7434,7 +7924,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['PushResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -7462,7 +7956,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['MediaResponseListDto'][]
+          } & components['schemas']['ResponsePagingDto']
+        }
       }
     }
   }
@@ -7483,11 +7981,15 @@ export interface operations {
       }
     }
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['MediaResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -7510,7 +8012,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['MediaResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }
@@ -7538,7 +8044,11 @@ export interface operations {
         headers: {
           [name: string]: unknown
         }
-        content?: never
+        content: {
+          'application/json': {
+            data?: components['schemas']['MediaResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
       }
     }
   }

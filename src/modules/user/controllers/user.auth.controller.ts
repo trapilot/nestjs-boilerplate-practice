@@ -59,6 +59,7 @@ export class UserAuthController {
     },
     response: {
       dto: UserProfileResponseDto,
+      docExpansion: true,
     },
   })
   @Post('/sign-up')
@@ -75,6 +76,7 @@ export class UserAuthController {
     },
     response: {
       dto: AuthAccessResponseDto,
+      docExpansion: true,
       statusCode: HttpStatus.OK,
     },
   })
@@ -109,6 +111,7 @@ export class UserAuthController {
     },
     response: {
       dto: AuthAccessResponseDto,
+      docExpansion: true,
     },
   })
   @AuthSocialGoogleProtected()
@@ -142,6 +145,7 @@ export class UserAuthController {
     },
     response: {
       dto: AuthAccessResponseDto,
+      docExpansion: true,
     },
   })
   @AuthSocialAppleProtected()
@@ -181,6 +185,7 @@ export class UserAuthController {
     },
     response: {
       dto: UserProfileResponseDto,
+      docExpansion: true,
     },
   })
   @Get('/_me')
@@ -201,6 +206,7 @@ export class UserAuthController {
     },
     response: {
       dto: UserProfileResponseDto,
+      docExpansion: true,
     },
   })
   @Put('/edit-profile')
@@ -235,6 +241,7 @@ export class UserAuthController {
     },
     response: {
       dto: AuthRefreshResponseDto,
+      docExpansion: true,
       statusCode: HttpStatus.OK,
     },
   })
@@ -266,6 +273,7 @@ export class UserAuthController {
     },
     response: {
       dto: UserProfileResponseDto,
+      docExpansion: true,
     },
   })
   @Put('/change-password')
@@ -301,6 +309,7 @@ export class UserAuthController {
     },
     response: {
       dto: UserProfileResponseDto,
+      docExpansion: true,
     },
   })
   @Put('/change-avatar')

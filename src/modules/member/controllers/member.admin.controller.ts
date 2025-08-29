@@ -70,6 +70,7 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -123,6 +124,7 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -167,6 +169,7 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -209,6 +212,7 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -246,6 +250,7 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -285,6 +290,7 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/inactive')
@@ -311,6 +317,7 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/active')
@@ -343,6 +350,7 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/change-avatar')
@@ -382,6 +390,7 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/:id/points')

@@ -53,6 +53,7 @@ export class FactAdminController {
     },
     response: {
       dto: FactResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -100,6 +101,7 @@ export class FactAdminController {
     },
     response: {
       dto: FactResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -133,6 +135,7 @@ export class FactAdminController {
     },
     response: {
       dto: FactResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -165,6 +168,7 @@ export class FactAdminController {
     },
     response: {
       dto: FactResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -224,6 +228,7 @@ export class FactAdminController {
     },
     response: {
       dto: FactResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/active')
@@ -257,6 +262,7 @@ export class FactAdminController {
     },
     response: {
       dto: FactResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/inactive')

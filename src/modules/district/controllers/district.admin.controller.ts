@@ -54,6 +54,7 @@ export class DistrictAdminController {
     },
     response: {
       dto: DistrictResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -89,6 +90,7 @@ export class DistrictAdminController {
     },
     response: {
       dto: DistrictResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -131,6 +133,7 @@ export class DistrictAdminController {
     },
     response: {
       dto: DistrictResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -160,6 +163,7 @@ export class DistrictAdminController {
     },
     response: {
       dto: DistrictResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -189,6 +193,7 @@ export class DistrictAdminController {
     },
     response: {
       dto: DistrictResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')

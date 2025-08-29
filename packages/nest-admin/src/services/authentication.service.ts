@@ -6,7 +6,7 @@ type schemas = components['schemas']
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const authenticationService = {
-  signUp: async <T = any>(
+  signUp: async <T = schemas['UserProfileResponseDto']>(
     body?: schemas['UserRequestSignUpDto'],
     options?: RequestOptions,
   ): Promise<T> => {
@@ -25,7 +25,7 @@ export const authenticationService = {
     const data = await client.post(url, body, config)
     return data as T
   },
-  login: async <T = any>(
+  login: async <T = schemas['AuthAccessResponseDto']>(
     body?: schemas['UserRequestSignInDto'],
     options?: RequestOptions,
   ): Promise<T> => {
@@ -44,7 +44,7 @@ export const authenticationService = {
     const data = await client.post(url, body, config)
     return data as T
   },
-  me: async <T = any>(options?: RequestOptions): Promise<T> => {
+  me: async <T = schemas['UserProfileResponseDto']>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -60,7 +60,7 @@ export const authenticationService = {
     const data = await client.get(url, config)
     return data as T
   },
-  editProfile: async <T = any>(
+  editProfile: async <T = schemas['UserProfileResponseDto']>(
     body?: schemas['UserEditProfileRequestDto'],
     options?: RequestOptions,
   ): Promise<T> => {
@@ -79,7 +79,10 @@ export const authenticationService = {
     const data = await client.put(url, body, config)
     return data as T
   },
-  refresh: async <T = any>(body?: unknown, options?: RequestOptions): Promise<T> => {
+  refresh: async <T = schemas['AuthRefreshResponseDto']>(
+    body?: unknown,
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -95,7 +98,7 @@ export const authenticationService = {
     const data = await client.post(url, body, config)
     return data as T
   },
-  changePassword: async <T = any>(
+  changePassword: async <T = schemas['UserProfileResponseDto']>(
     body?: schemas['UserRequestChangePasswordDto'],
     options?: RequestOptions,
   ): Promise<T> => {
@@ -114,7 +117,10 @@ export const authenticationService = {
     const data = await client.put(url, body, config)
     return data as T
   },
-  changeAvatar: async <T = any>(body?: unknown, options?: RequestOptions): Promise<T> => {
+  changeAvatar: async <T = schemas['UserProfileResponseDto']>(
+    body?: unknown,
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {

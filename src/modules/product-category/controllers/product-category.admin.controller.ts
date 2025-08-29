@@ -54,6 +54,7 @@ export class ProductCategoryAdminController {
     },
     response: {
       dto: ProductCategoryResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -89,6 +90,7 @@ export class ProductCategoryAdminController {
     },
     response: {
       dto: ProductCategoryResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -130,6 +132,7 @@ export class ProductCategoryAdminController {
     },
     response: {
       dto: ProductCategoryResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -159,6 +162,7 @@ export class ProductCategoryAdminController {
     },
     response: {
       dto: ProductCategoryResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -188,6 +192,7 @@ export class ProductCategoryAdminController {
     },
     response: {
       dto: ProductCategoryResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')

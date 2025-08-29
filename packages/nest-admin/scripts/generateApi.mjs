@@ -82,9 +82,13 @@ function getResponseType(op) {
   const resp = op?.responses?.['200'] || op?.responses?.['201']
   const schema = resp?.content?.['application/json']?.schema
   if (!schema) return 'any'
-  if (schema.$ref) {
-    const name = resolveSchemaRefName(schema.$ref)
+  if (schema?.properties?.data?.$ref) {
+    const name = resolveSchemaRefName(schema.properties.data.$ref)
     return name ? `schemas['${name}']` : 'any'
+  }
+  if (schema?.properties?.data?.items?.$ref) {
+    const name = resolveSchemaRefName(schema.properties.data.items.$ref)
+    return name ? `schemas['${name}'][]` : 'any'
   }
   return 'any'
 }

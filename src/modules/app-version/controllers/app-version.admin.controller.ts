@@ -54,6 +54,7 @@ export class AppVersionAdminController {
     },
     response: {
       dto: AppVersionResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -89,6 +90,7 @@ export class AppVersionAdminController {
     },
     response: {
       dto: AppVersionResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -129,6 +131,7 @@ export class AppVersionAdminController {
     },
     response: {
       dto: AppVersionResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -158,6 +161,7 @@ export class AppVersionAdminController {
     },
     response: {
       dto: AppVersionResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -187,6 +191,7 @@ export class AppVersionAdminController {
     },
     response: {
       dto: AppVersionResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -219,6 +224,7 @@ export class AppVersionAdminController {
     },
     response: {
       dto: AppVersionResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/inactive')
@@ -248,6 +254,7 @@ export class AppVersionAdminController {
     },
     response: {
       dto: AppVersionResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/active')

@@ -53,6 +53,7 @@ export class SettingAdminController {
     summary: SETTING_DOC_OPERATION,
     response: {
       dto: SettingCoreResponseDto,
+      docExpansion: true,
     },
   })
   @Get('core')
@@ -110,6 +111,7 @@ export class SettingAdminController {
     },
     response: {
       dto: SettingResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -142,6 +144,7 @@ export class SettingAdminController {
     },
     response: {
       dto: SettingResponseDetailDto,
+      docExpansion: true,
     },
   })
   @SettingAdminUpdateGuard()
@@ -170,6 +173,7 @@ export class SettingAdminController {
     },
     response: {
       dto: SettingResponseDetailDto,
+      docExpansion: true,
     },
   })
   @SettingAdminUpdateGuard()

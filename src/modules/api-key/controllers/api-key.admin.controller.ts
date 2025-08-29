@@ -139,6 +139,7 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -168,6 +169,7 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -202,6 +204,7 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -234,6 +237,7 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Patch('/:id/reset')
@@ -263,6 +267,7 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Patch('/:id/renew')
@@ -299,6 +304,7 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/inactive')
@@ -328,6 +334,7 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id/active')

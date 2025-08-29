@@ -6,7 +6,7 @@ type schemas = components['schemas']
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const productService = {
-  list: async <T = any>(options?: RequestOptions): Promise<T> => {
+  list: async <T = schemas['ProductResponseListDto'][]>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -22,7 +22,10 @@ export const productService = {
     const data = await client.get(url, config)
     return data as T
   },
-  create: async <T = any>(body?: unknown, options?: RequestOptions): Promise<T> => {
+  create: async <T = schemas['ProductResponseDetailDto']>(
+    body?: unknown,
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -38,7 +41,9 @@ export const productService = {
     const data = await client.post(url, body, config)
     return data as T
   },
-  mapShorted: async <T = any>(options?: RequestOptions): Promise<T> => {
+  mapShorted: async <T = schemas['ProductResponseListDto'][]>(
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -54,7 +59,10 @@ export const productService = {
     const data = await client.get(url, config)
     return data as T
   },
-  get: async <T = any>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
+  get: async <T = schemas['ProductResponseDetailDto']>(
+    params: { id: string | number },
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -70,7 +78,7 @@ export const productService = {
     const data = await client.get(url, config)
     return data as T
   },
-  update: async <T = any>(
+  update: async <T = schemas['ProductResponseDetailDto']>(
     params: { id: string | number },
     body?: unknown,
     options?: RequestOptions,

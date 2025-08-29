@@ -43,6 +43,7 @@ export class <%= singular(classify(name)) %>AuthController {
     summary: <%= singular(uppercased(name)) %>_DOC_AUTH_OPERATION,
     response: {
       dto: <%= singular(classify(name)) %>ResponseProfileDto,
+      docExpansion: true,
     },
   })
   @Post('/sign-up')
@@ -59,6 +60,7 @@ export class <%= singular(classify(name)) %>AuthController {
     },
     response: {
       dto: AuthAccessResponseDto,
+      docExpansion: true,
       statusCode: HttpStatus.OK,
     },
   })
@@ -93,6 +95,7 @@ export class <%= singular(classify(name)) %>AuthController {
     },
     response: {
       dto: AuthAccessResponseDto,
+      docExpansion: true,
     },
   })
   @AuthSocialGoogleProtected()
@@ -126,7 +129,8 @@ export class <%= singular(classify(name)) %>AuthController {
     },
     response: {
       dto: AuthAccessResponseDto,
-    }
+      docExpansion: true,
+    },
   })
   @AuthSocialAppleProtected()
   @Post('/login/social/apple')
@@ -165,7 +169,8 @@ export class <%= singular(classify(name)) %>AuthController {
     },
     response: {
       dto: <%= singular(classify(name)) %>ResponseProfileDto,
-    }
+      docExpansion: true,
+    },
   })
   @Get('/_me')
   async me(@AuthJwtPayload('user.id') userId: number): Promise<IResponseData> {
@@ -182,8 +187,9 @@ export class <%= singular(classify(name)) %>AuthController {
     },
     response: {
       dto: AuthRefreshResponseDto,
+      docExpansion: true,
       statusCode: HttpStatus.OK,
-    }
+    },
   })
   @Post('/refresh')
   async refresh(
@@ -207,9 +213,6 @@ export class <%= singular(classify(name)) %>AuthController {
         active: true,
       },
     },
-    response: {
-      messagePath: 'auth.success.changePassword'
-    }
   })
   @Put('/change-password')
   async changePassword(

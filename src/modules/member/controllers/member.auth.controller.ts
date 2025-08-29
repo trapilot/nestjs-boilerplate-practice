@@ -56,6 +56,7 @@ export class MemberAuthController {
     },
     response: {
       dto: MemberProfileResponseDto,
+      docExpansion: true,
     },
   })
   @Post('/sign-up')
@@ -83,6 +84,7 @@ export class MemberAuthController {
     },
     response: {
       dto: AuthAccessResponseDto,
+      docExpansion: true,
       statusCode: HttpStatus.OK,
     },
   })
@@ -117,6 +119,7 @@ export class MemberAuthController {
     },
     response: {
       dto: AuthAccessResponseDto,
+      docExpansion: true,
     },
   })
   @AuthSocialGoogleProtected()
@@ -150,6 +153,7 @@ export class MemberAuthController {
     },
     response: {
       dto: AuthAccessResponseDto,
+      docExpansion: true,
     },
   })
   @AuthSocialAppleProtected()
@@ -182,6 +186,7 @@ export class MemberAuthController {
     },
     response: {
       dto: AuthRefreshResponseDto,
+      docExpansion: true,
       statusCode: HttpStatus.OK,
     },
   })
@@ -206,6 +211,7 @@ export class MemberAuthController {
     },
     response: {
       dto: MemberProfileResponseDto,
+      docExpansion: true,
     },
   })
   @Put('/reset-password')

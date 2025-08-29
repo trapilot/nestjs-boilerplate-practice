@@ -1,16 +1,9 @@
 import { HttpStatus, Module } from '@nestjs/common'
-import { APP_FILTER } from '@nestjs/core'
 import { ValidationError } from 'class-validator'
 import { NestAuthModule } from 'lib/nest-auth'
 import { EntityValidateException, NestCoreModule } from 'lib/nest-core'
-import { NestPrismaModule, PrismaFilter } from 'lib/nest-prisma'
-import {
-  FileFilter,
-  GeneralFilter,
-  HttpFilter,
-  NestWebModule,
-  ValidationFilter,
-} from 'lib/nest-web'
+import { NestPrismaModule } from 'lib/nest-prisma'
+import { NestWebModule } from 'lib/nest-web'
 import configs from '../configs'
 import { AppController } from './controllers'
 import { MiddlewareModule } from './middleware'
@@ -19,13 +12,6 @@ import { WorkerModule } from './worker'
 
 @Module({
   controllers: [AppController],
-  providers: [
-    { provide: APP_FILTER, useClass: GeneralFilter },
-    { provide: APP_FILTER, useClass: HttpFilter },
-    { provide: APP_FILTER, useClass: ValidationFilter },
-    { provide: APP_FILTER, useClass: FileFilter },
-    { provide: APP_FILTER, useClass: PrismaFilter },
-  ],
   imports: [
     // Library
     NestPrismaModule.forRoot(),

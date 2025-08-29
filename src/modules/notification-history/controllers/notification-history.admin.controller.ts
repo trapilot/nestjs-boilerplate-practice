@@ -57,6 +57,7 @@ export class NotificationHistoryAdminController {
     },
     response: {
       dto: NotificationHistoryResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -92,6 +93,7 @@ export class NotificationHistoryAdminController {
     },
     response: {
       dto: NotificationHistoryResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -132,6 +134,7 @@ export class NotificationHistoryAdminController {
     },
     response: {
       dto: NotificationHistoryResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -161,6 +164,7 @@ export class NotificationHistoryAdminController {
     },
     response: {
       dto: NotificationHistoryResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -190,6 +194,7 @@ export class NotificationHistoryAdminController {
     },
     response: {
       dto: NotificationHistoryResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')

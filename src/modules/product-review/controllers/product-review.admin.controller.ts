@@ -54,6 +54,7 @@ export class ProductReviewAdminController {
     },
     response: {
       dto: ProductReviewResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')
@@ -89,6 +90,7 @@ export class ProductReviewAdminController {
     },
     response: {
       dto: ProductReviewResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -129,6 +131,7 @@ export class ProductReviewAdminController {
     },
     response: {
       dto: ProductReviewResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -158,6 +161,7 @@ export class ProductReviewAdminController {
     },
     response: {
       dto: ProductReviewResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Post('/')
@@ -187,6 +191,7 @@ export class ProductReviewAdminController {
     },
     response: {
       dto: ProductReviewResponseDetailDto,
+      docExpansion: true,
     },
   })
   @Put('/:id')

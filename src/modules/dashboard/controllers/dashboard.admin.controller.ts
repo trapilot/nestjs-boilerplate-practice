@@ -39,6 +39,7 @@ export class DashboardAdminController {
     },
     response: {
       dto: DashboardSummaryResponseDto,
+      docExpansion: true,
       cached: { key: DashboardSummaryResponseDto.name, ttl: 60_000 },
     },
   })
@@ -69,6 +70,7 @@ export class DashboardAdminController {
     },
     response: {
       dto: DashboardSummaryResponseDto,
+      docExpansion: true,
     },
   })
   @Get('/refresh-summary')
@@ -100,6 +102,7 @@ export class DashboardAdminController {
     },
     response: {
       dto: DashboardSummaryResponseDto,
+      docExpansion: true,
     },
   })
   @Get('/view-data-list')

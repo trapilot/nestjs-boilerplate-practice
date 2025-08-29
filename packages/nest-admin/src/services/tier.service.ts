@@ -6,7 +6,7 @@ type schemas = components['schemas']
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const tierService = {
-  list: async <T = any>(options?: RequestOptions): Promise<T> => {
+  list: async <T = schemas['TierResponseListDto'][]>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -22,7 +22,9 @@ export const tierService = {
     const data = await client.get(url, config)
     return data as T
   },
-  mapShorted: async <T = any>(options?: RequestOptions): Promise<T> => {
+  mapShorted: async <T = schemas['TierResponseListDto'][]>(
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -38,7 +40,10 @@ export const tierService = {
     const data = await client.get(url, config)
     return data as T
   },
-  get: async <T = any>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
+  get: async <T = schemas['TierResponseDetailDto']>(
+    params: { id: string | number },
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -54,7 +59,7 @@ export const tierService = {
     const data = await client.get(url, config)
     return data as T
   },
-  update: async <T = any>(
+  update: async <T = schemas['TierResponseDetailDto']>(
     params: { id: string | number },
     body?: schemas['TierRequestUpdateDto'],
     options?: RequestOptions,

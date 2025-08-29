@@ -162,26 +162,31 @@ function HttpResponse(
   const interceptors: NestInterceptor[] = []
 
   if (options?.docExpansion && options?.data?.type) {
-    if (options?.dto) {
+    dtos.push(options.data.type)
+    if (options?.dtos) {
+      dtos.push(options.dtos)
       docs.push(
+        SetMetadata(RESPONSE_DTO_CONSTRUCTOR_METADATA, options.dtos),
+        ApiResponse({
+          status: HttpStatus.OK,
+          schema: {
+            allOf: [{ $ref: getSchemaPath(options.data.type) }],
+            properties: {
+              data: { type: 'array', items: { $ref: getSchemaPath(options.dtos) } },
+            },
+          },
+        }),
+      )
+    } else if (options?.dto) {
+      dtos.push(options.dto)
+      docs.push(
+        SetMetadata(RESPONSE_DTO_CONSTRUCTOR_METADATA, options.dto),
         ApiResponse({
           status: HttpStatus.OK,
           schema: {
             allOf: [{ $ref: getSchemaPath(options.data.type) }],
             properties: {
               data: { $ref: getSchemaPath(options.dto) },
-            },
-          },
-        }),
-      )
-    } else if (options?.dtos) {
-      docs.push(
-        ApiResponse({
-          status: HttpStatus.OK,
-          schema: {
-            allOf: [{ $ref: getSchemaPath(options.data.type) }],
-            properties: {
-              data: { type: 'array', items: { $ref: getSchemaPath(options.dto) } },
             },
           },
         }),
@@ -214,13 +219,6 @@ function HttpResponse(
     docs.push(SetMetadata(RESPONSE_FILE_DISPOSITION_METADATA, options.disposition))
   }
 
-  if (options?.dto) {
-    dtos.push(options.dto)
-  }
-  if (options?.data?.type) {
-    dtos.push(options.data.type)
-  }
-
   if (options?.data?.interceptor) {
     interceptors.push(options.data.interceptor)
   }
@@ -232,7 +230,6 @@ function HttpResponse(
     ApiProduces('application/json'),
     UseInterceptors(...interceptors),
     ApiExtraModels(...dtos),
-    SetMetadata(RESPONSE_DTO_CONSTRUCTOR_METADATA, options?.dto),
     ...docs,
   )
 }

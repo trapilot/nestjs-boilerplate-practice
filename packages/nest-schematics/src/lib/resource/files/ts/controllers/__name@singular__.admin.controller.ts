@@ -54,6 +54,7 @@ export class <%= singular(classify(name)) %>AdminController {
     },
     response: {
       dto: <%= singular(classify(name)) %>ResponseListDto,
+      docExpansion: true,
     },
   })
   @Get('/')

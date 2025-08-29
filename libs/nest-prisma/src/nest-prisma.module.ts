@@ -1,8 +1,9 @@
 import { DynamicModule, Module, Scope } from '@nestjs/common'
-import { REQUEST } from '@nestjs/core'
+import { APP_FILTER, REQUEST } from '@nestjs/core'
 import { AsyncLocalStorage } from 'async_hooks'
 import { IContextPayload } from 'lib/nest-core'
 import { PRISMA_TENANT_TOKEN } from './constants'
+import { PrismaFilter } from './filters'
 import { PrismaManager, PrismaService } from './services'
 
 @Module({})
@@ -12,6 +13,10 @@ export class NestPrismaModule {
       global: true,
       module: NestPrismaModule,
       providers: [
+        {
+          provide: APP_FILTER,
+          useClass: PrismaFilter,
+        },
         {
           provide: AsyncLocalStorage,
           useValue: new AsyncLocalStorage(),
