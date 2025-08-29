@@ -1,4 +1,3 @@
-
 export function BooleanIcon({ value }: { value: boolean }) {
   const color = value ? '#22c55e' : '#ef4444'
   const label = value ? 'Yes' : 'No'

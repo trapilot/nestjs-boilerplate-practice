@@ -1,11 +1,12 @@
 import { privateAxios } from '../lib/httpClient'
-// import type { components as ApiSchemasRoot } from '../types/api'
-// type ApiSchemas = ApiSchemasRoot['schemas']
+import type { components } from '../types/api'
+// @ts-ignore
+type schemas = components['schemas']
 
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const productService = {
-  list: async (options?: RequestOptions): Promise<any> => {
+  list: async <T = any>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -19,9 +20,9 @@ export const productService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
-  create: async (body?: unknown, options?: RequestOptions): Promise<any> => {
+  create: async <T = any>(body?: unknown, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -35,9 +36,9 @@ export const productService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.post(url, body, config)
-    return data as any
+    return data as T
   },
-  mapShorted: async (options?: RequestOptions): Promise<any> => {
+  mapShorted: async <T = any>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -51,9 +52,9 @@ export const productService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
-  get: async (params: { id: string | number }, options?: RequestOptions): Promise<any> => {
+  get: async <T = any>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -67,13 +68,13 @@ export const productService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
-  update: async (
+  update: async <T = any>(
     params: { id: string | number },
     body?: unknown,
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -87,9 +88,12 @@ export const productService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
-    return data as any
+    return data as T
   },
-  delete: async (params: { id: string | number }, options?: RequestOptions): Promise<any> => {
+  delete: async <T = any>(
+    params: { id: string | number },
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -103,6 +107,6 @@ export const productService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.delete(url, config)
-    return data as any
+    return data as T
   },
 }

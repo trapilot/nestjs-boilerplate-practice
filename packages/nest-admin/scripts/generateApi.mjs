@@ -1,5 +1,5 @@
-import fs from 'fs'
-import path from 'path'
+import fs from 'node:fs'
+import path from 'node:path'
 
 const ROOT = path.resolve(process.cwd())
 const INPUT = path.join(ROOT, 'swagger.json')
@@ -36,7 +36,7 @@ function toKebabCase(name) {
 }
 
 function opToFunctionName(method, url, op) {
-  if (op && op.operationId) return toSafeName(op.operationId)
+  if (op?.operationId) return toSafeName(op.operationId)
   const segs = url
     .split('/')
     .filter(Boolean)
@@ -84,7 +84,7 @@ function getResponseType(op) {
   if (!schema) return 'any'
   if (schema.$ref) {
     const name = resolveSchemaRefName(schema.$ref)
-    return name ? `ApiSchemas['${name}']` : 'any'
+    return name ? `schemas['${name}']` : 'any'
   }
   return 'any'
 }
@@ -94,16 +94,20 @@ function getRequestBodyType(op) {
   if (!req) return 'unknown'
   if (req.$ref) {
     const name = resolveSchemaRefName(req.$ref)
-    return name ? `ApiSchemas['${name}']` : 'unknown'
+    return name ? `schemas['${name}']` : 'unknown'
   }
   return 'unknown'
 }
 
 function generateService(tag, operations) {
   const lines = []
-  lines.push(`import { privateAxios } from '../lib/httpClient'`)
-  lines.push(`import type { components as ApiSchemasRoot } from '../types/api'`)
-  lines.push(`type ApiSchemas = ApiSchemasRoot['schemas']`)
+  const usePublic = operations.find((op) => detectSecurity(op.op) === false)
+  operations.find((op) => detectSecurity(op.op) === false)
+    ? lines.push(`import { privateAxios, publicAxios } from '../lib/httpClient'`)
+    : lines.push(`import { privateAxios } from '../lib/httpClient'`)
+  lines.push(`import type { components } from '../types/api'`)
+  lines.push(`// @ts-ignore`)
+  lines.push(`type schemas = components['schemas']`)
   lines.push('')
   lines.push(`type RequestOptions = { query?: Record<string, unknown>; config?: any }`)
   lines.push('')
@@ -130,7 +134,7 @@ function generateService(tag, operations) {
         : ''
     const bodySig = hasBody ? `body?: ${bodyType}` : ''
     const signatureParts = [paramsSig, bodySig, 'options?: RequestOptions'].filter(Boolean)
-    lines.push(`  ${fn}: async (${signatureParts.join(', ')}): Promise<${respType}> => {`)
+    lines.push(`  ${fn}: async <T = ${respType}>(${signatureParts.join(', ')}): Promise<T> => {`)
     const pathExpr = buildPathExpression(cleanedPath, 'params', pathParams.length > 0)
     lines.push(`    ${buildQueryParamsSnippet()}`)
     lines.push(`    const baseUrl = ${pathExpr}`)
@@ -138,7 +142,7 @@ function generateService(tag, operations) {
     lines.push(`    const client = ${usePrivate ? 'privateAxios' : 'publicAxios'}`)
     lines.push(`    const config = options?.config || {}`)
     lines.push(`    const data = await client.${method}(url${hasBody ? ', body' : ''}, config)`)
-    lines.push(`    return data as ${respType}`)
+    lines.push(`    return data as T`)
     lines.push('  },')
   })
   lines.push('}')
@@ -175,7 +179,7 @@ function main() {
     console.log('Generated', file)
     indexLines.push(`export * from './${fileName.replace(/\.ts$/, '')}'`)
   })
-  fs.writeFileSync(path.join(OUT_DIR, 'index.ts'), indexLines.join('\n') + '\n', 'utf-8')
+  fs.writeFileSync(path.join(OUT_DIR, 'index.ts'), `${indexLines.join('\n')}\n`, 'utf-8')
 }
 
 main()

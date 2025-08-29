@@ -1,14 +1,15 @@
-import { publicAxios, privateAxios } from '../lib/httpClient'
-import type { components as ApiSchemasRoot } from '../types/api'
-type ApiSchemas = ApiSchemasRoot['schemas']
+import { privateAxios, publicAxios } from '../lib/httpClient'
+import type { components } from '../types/api'
+// @ts-ignore
+type schemas = components['schemas']
 
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const authenticationService = {
-  signUp: async (
-    body?: ApiSchemas['UserRequestSignUpDto'],
+  signUp: async <T = any>(
+    body?: schemas['UserRequestSignUpDto'],
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -22,12 +23,12 @@ export const authenticationService = {
     const client = publicAxios
     const config = options?.config || {}
     const data = await client.post(url, body, config)
-    return data as any
+    return data as T
   },
-  login: async (
-    body?: ApiSchemas['UserRequestSignInDto'],
+  login: async <T = any>(
+    body?: schemas['UserRequestSignInDto'],
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -41,9 +42,9 @@ export const authenticationService = {
     const client = publicAxios
     const config = options?.config || {}
     const data = await client.post(url, body, config)
-    return data as any
+    return data as T
   },
-  me: async (options?: RequestOptions): Promise<any> => {
+  me: async <T = any>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -57,12 +58,12 @@ export const authenticationService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
-  editProfile: async (
-    body?: ApiSchemas['UserEditProfileRequestDto'],
+  editProfile: async <T = any>(
+    body?: schemas['UserEditProfileRequestDto'],
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -76,9 +77,9 @@ export const authenticationService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
-    return data as any
+    return data as T
   },
-  refresh: async (body?: unknown, options?: RequestOptions): Promise<any> => {
+  refresh: async <T = any>(body?: unknown, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -92,12 +93,12 @@ export const authenticationService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.post(url, body, config)
-    return data as any
+    return data as T
   },
-  changePassword: async (
-    body?: ApiSchemas['UserRequestChangePasswordDto'],
+  changePassword: async <T = any>(
+    body?: schemas['UserRequestChangePasswordDto'],
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -111,9 +112,9 @@ export const authenticationService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
-    return data as any
+    return data as T
   },
-  changeAvatar: async (body?: unknown, options?: RequestOptions): Promise<any> => {
+  changeAvatar: async <T = any>(body?: unknown, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -127,12 +128,12 @@ export const authenticationService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
-    return data as any
+    return data as T
   },
-  confirmPassword: async (
-    body?: ApiSchemas['UserVerifyPasswordRequestDto'],
+  confirmPassword: async <T = any>(
+    body?: schemas['UserVerifyPasswordRequestDto'],
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -146,12 +147,12 @@ export const authenticationService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.post(url, body, config)
-    return data as any
+    return data as T
   },
-  changeConfirmPassword: async (
-    body?: ApiSchemas['UserRequestChangeConfirmPasswordDto'],
+  changeConfirmPassword: async <T = any>(
+    body?: schemas['UserRequestChangeConfirmPasswordDto'],
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -165,6 +166,6 @@ export const authenticationService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.post(url, body, config)
-    return data as any
+    return data as T
   },
 }

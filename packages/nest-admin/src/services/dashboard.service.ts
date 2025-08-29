@@ -1,11 +1,12 @@
 import { privateAxios } from '../lib/httpClient'
-// import type { components as ApiSchemasRoot } from '../types/api'
-// type ApiSchemas = ApiSchemasRoot['schemas']
+import type { components } from '../types/api'
+// @ts-ignore
+type schemas = components['schemas']
 
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const dashboardService = {
-  get: async (options?: RequestOptions): Promise<any> => {
+  get: async <T = any>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -19,9 +20,9 @@ export const dashboardService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
-  refresh: async (options?: RequestOptions): Promise<any> => {
+  refresh: async <T = any>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -35,9 +36,9 @@ export const dashboardService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
-  viewDataList: async (options?: RequestOptions): Promise<any> => {
+  viewDataList: async <T = any>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -51,6 +52,6 @@ export const dashboardService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
 }

@@ -1,11 +1,12 @@
 import { privateAxios } from '../lib/httpClient'
-import type { components as ApiSchemasRoot } from '../types/api'
-type ApiSchemas = ApiSchemasRoot['schemas']
+import type { components } from '../types/api'
+// @ts-ignore
+type schemas = components['schemas']
 
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const apiKeyService = {
-  list: async (options?: RequestOptions): Promise<any> => {
+  list: async <T = any>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -19,12 +20,12 @@ export const apiKeyService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
-  create: async (
-    body?: ApiSchemas['ApiKeyRequestCreateDto'],
+  create: async <T = any>(
+    body?: schemas['ApiKeyRequestCreateDto'],
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -38,9 +39,9 @@ export const apiKeyService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.post(url, body, config)
-    return data as any
+    return data as T
   },
-  mapShorted: async (options?: RequestOptions): Promise<any> => {
+  mapShorted: async <T = any>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -54,9 +55,9 @@ export const apiKeyService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
-  get: async (params: { id: string | number }, options?: RequestOptions): Promise<any> => {
+  get: async <T = any>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -70,13 +71,13 @@ export const apiKeyService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
-  update: async (
+  update: async <T = any>(
     params: { id: string | number },
-    body?: ApiSchemas['ApiKeyRequestUpdateDto'],
+    body?: schemas['ApiKeyRequestUpdateDto'],
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -90,9 +91,12 @@ export const apiKeyService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
-    return data as any
+    return data as T
   },
-  delete: async (params: { id: string | number }, options?: RequestOptions): Promise<any> => {
+  delete: async <T = any>(
+    params: { id: string | number },
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -106,13 +110,13 @@ export const apiKeyService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.delete(url, config)
-    return data as any
+    return data as T
   },
-  reset: async (
+  reset: async <T = any>(
     params: { id: string | number },
     body?: unknown,
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -126,13 +130,13 @@ export const apiKeyService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.patch(url, body, config)
-    return data as any
+    return data as T
   },
-  renew: async (
+  renew: async <T = any>(
     params: { id: string | number },
-    body?: ApiSchemas['ApiKeyRequestRenewDto'],
+    body?: schemas['ApiKeyRequestRenewDto'],
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -146,13 +150,13 @@ export const apiKeyService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.patch(url, body, config)
-    return data as any
+    return data as T
   },
-  inactive: async (
+  inactive: async <T = any>(
     params: { id: string | number },
     body?: unknown,
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -166,13 +170,13 @@ export const apiKeyService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
-    return data as any
+    return data as T
   },
-  active: async (
+  active: async <T = any>(
     params: { id: string | number },
     body?: unknown,
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -186,6 +190,6 @@ export const apiKeyService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
-    return data as any
+    return data as T
   },
 }

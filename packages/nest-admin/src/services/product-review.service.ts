@@ -1,11 +1,12 @@
 import { privateAxios } from '../lib/httpClient'
-import type { components as ApiSchemasRoot } from '../types/api'
-type ApiSchemas = ApiSchemasRoot['schemas']
+import type { components } from '../types/api'
+// @ts-ignore
+type schemas = components['schemas']
 
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const productReviewService = {
-  list: async (options?: RequestOptions): Promise<any> => {
+  list: async <T = any>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -19,12 +20,12 @@ export const productReviewService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
-  create: async (
-    body?: ApiSchemas['ProductReviewRequestCreateDto'],
+  create: async <T = any>(
+    body?: schemas['ProductReviewRequestCreateDto'],
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -38,9 +39,9 @@ export const productReviewService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.post(url, body, config)
-    return data as any
+    return data as T
   },
-  get: async (params: { id: string | number }, options?: RequestOptions): Promise<any> => {
+  get: async <T = any>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -49,18 +50,18 @@ export const productReviewService = {
       else search.append(k, String(v))
     })
     const qs = search.toString()
-    const baseUrl = '/product-reviews' + String(params.id)
+    const baseUrl = '/product-reviews/' + String(params.id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
-  update: async (
+  update: async <T = any>(
     params: { id: string | number },
-    body?: ApiSchemas['ProductReviewRequestUpdateDto'],
+    body?: schemas['ProductReviewRequestUpdateDto'],
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -69,14 +70,17 @@ export const productReviewService = {
       else search.append(k, String(v))
     })
     const qs = search.toString()
-    const baseUrl = '/product-reviews' + String(params.id)
+    const baseUrl = '/product-reviews/' + String(params.id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
-    return data as any
+    return data as T
   },
-  delete: async (params: { id: string | number }, options?: RequestOptions): Promise<any> => {
+  delete: async <T = any>(
+    params: { id: string | number },
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -85,11 +89,11 @@ export const productReviewService = {
       else search.append(k, String(v))
     })
     const qs = search.toString()
-    const baseUrl = '/product-reviews' + String(params.id)
+    const baseUrl = '/product-reviews/' + String(params.id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.delete(url, config)
-    return data as any
+    return data as T
   },
 }

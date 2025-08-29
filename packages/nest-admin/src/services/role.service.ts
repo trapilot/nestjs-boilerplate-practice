@@ -1,11 +1,12 @@
 import { privateAxios } from '../lib/httpClient'
-import type { components as ApiSchemasRoot } from '../types/api'
-type ApiSchemas = ApiSchemasRoot['schemas']
+import type { components } from '../types/api'
+// @ts-ignore
+type schemas = components['schemas']
 
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const roleService = {
-  list: async (options?: RequestOptions): Promise<any> => {
+  list: async <T = any>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -19,12 +20,12 @@ export const roleService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
-  create: async (
-    body?: ApiSchemas['RoleRequestCreateDto'],
+  create: async <T = any>(
+    body?: schemas['RoleRequestCreateDto'],
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -38,9 +39,9 @@ export const roleService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.post(url, body, config)
-    return data as any
+    return data as T
   },
-  mapShorted: async (options?: RequestOptions): Promise<any> => {
+  mapShorted: async <T = any>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -54,9 +55,9 @@ export const roleService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
-  new: async (options?: RequestOptions): Promise<any> => {
+  new: async <T = any>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -70,9 +71,9 @@ export const roleService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
-  get: async (params: { id: string | number }, options?: RequestOptions): Promise<any> => {
+  get: async <T = any>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -86,13 +87,13 @@ export const roleService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
-    return data as any
+    return data as T
   },
-  update: async (
+  update: async <T = any>(
     params: { id: string | number },
-    body?: ApiSchemas['RoleRequestUpdateDto'],
+    body?: schemas['RoleRequestUpdateDto'],
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -106,9 +107,12 @@ export const roleService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
-    return data as any
+    return data as T
   },
-  delete: async (params: { id: string | number }, options?: RequestOptions): Promise<any> => {
+  delete: async <T = any>(
+    params: { id: string | number },
+    options?: RequestOptions,
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -122,13 +126,13 @@ export const roleService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.delete(url, config)
-    return data as any
+    return data as T
   },
-  active: async (
+  active: async <T = any>(
     params: { id: string | number },
     body?: unknown,
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -142,13 +146,13 @@ export const roleService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
-    return data as any
+    return data as T
   },
-  inactive: async (
+  inactive: async <T = any>(
     params: { id: string | number },
     body?: unknown,
     options?: RequestOptions,
-  ): Promise<any> => {
+  ): Promise<T> => {
     const query = options?.query || {}
     const search = new URLSearchParams()
     Object.entries(query).forEach(([k, v]) => {
@@ -162,6 +166,6 @@ export const roleService = {
     const client = privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
-    return data as any
+    return data as T
   },
 }
