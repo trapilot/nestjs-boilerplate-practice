@@ -6,6 +6,7 @@ export default function ProductCategoriesList() {
     <GenericList
       module="product_category"
       fetcher={(options) => productCategoryService.list(options)}
+      columns={['id', 'name', 'isActive', 'createdAt', 'updatedAt']}
     />
   )
 }

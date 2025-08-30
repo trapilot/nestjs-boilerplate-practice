@@ -105,15 +105,15 @@ export class AuthAbilityHelper {
       },
       [ENUM_AUTH_ABILITY_SUBJECT.MEDIA]: {
         [ENUM_MESSAGE_LANGUAGE.EN]: 'Media',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Tệp đa phương tiện',
+        [ENUM_MESSAGE_LANGUAGE.VI]: 'Hình Ảnh',
       },
       [ENUM_AUTH_ABILITY_SUBJECT.API_KEY]: {
         [ENUM_MESSAGE_LANGUAGE.EN]: 'Api Keys',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Khóa API',
+        [ENUM_MESSAGE_LANGUAGE.VI]: 'Api Keys',
       },
       [ENUM_AUTH_ABILITY_SUBJECT.APP_VERSION]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Api Versions',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Phiên bản API',
+        [ENUM_MESSAGE_LANGUAGE.EN]: 'App Versions',
+        [ENUM_MESSAGE_LANGUAGE.VI]: 'Phiên bản',
       },
       [ENUM_AUTH_ABILITY_SUBJECT.USER]: {
         [ENUM_MESSAGE_LANGUAGE.EN]: 'Users',

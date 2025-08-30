@@ -6,6 +6,26 @@ export default function MemberRedemptionsList() {
     <GenericList
       module="member_redemption"
       fetcher={(options) => productHistoryService.list(options)}
+      columns={[
+        'id',
+        'memberId',
+        'productId',
+        'orderId',
+        'promotionId',
+        'redeemPrice',
+        'redeemPoint',
+        'source',
+        'status',
+        'isActive',
+        'startDate',
+        'untilDate',
+        'issuedDate',
+        'usedAt',
+        'createdAt',
+        'updatedAt',
+        'createdBy',
+        'updatedBy',
+      ]}
     />
   )
 }

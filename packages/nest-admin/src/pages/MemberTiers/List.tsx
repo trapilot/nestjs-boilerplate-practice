@@ -3,6 +3,25 @@ import { tierHistoryService } from '../../services/tier-history.service'
 
 export default function MemberTiersList() {
   return (
-    <GenericList module="member_tier" fetcher={(options) => tierHistoryService.list(options)} />
+    <GenericList
+      module="member_tier"
+      fetcher={(options) => tierHistoryService.list(options)}
+      columns={[
+        'id',
+        'memberId',
+        'invoiceId',
+        'prevTierId',
+        'currTierId',
+        'type',
+        'personalSpending',
+        'referralSpending',
+        'renewalSpending',
+        'upgradeSpending',
+        'expiryDate',
+        'isActive',
+        'createdAt',
+        'updatedAt',
+      ]}
+    />
   )
 }

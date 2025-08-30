@@ -1,92 +1,316 @@
 {
   "app_version": {
-    "title": "App Versions",
+    "title": "Phiên bản ứng dụng",
     "fields": {
       "id": "ID",
-      "type": "Platform",
-      "name": "Name",
-      "version": "Version",
-      "url": "Magic Link",
-      "isForce": "Force Updated",
-      "isActive": "Is Active",
-      "createdAt": "Created At",
-      "updatedAt": "Updated At"
+      "type": "Nền tảng",
+      "name": "Tên",
+      "version": "Phiên bản",
+      "url": "Liên kết ma thuật",
+      "isForce": "Bắt buộc cập nhật",
+      "isActive": "Kích hoạt",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật"
     }
   },
   "dashboard": {
-    "title": "Dashboard"
+    "title": "Bảng điều khiển"
   },
   "fact": {
-    "title": "Facts"
-  },
-  "invoice": {
-    "title": "Invoices"
-  },
-  "media": {
-    "title": "Medias"
-  },
-  "member_notification": {
-    "title": "Member Notifications"
-  },
-  "member_point": {
-    "title": "Member Points"
-  },
-  "member_redemption": {
-    "title": "Member Redemptions"
-  },
-  "member": {
-    "title": "Members",
+    "title": "Sự kiện",
     "fields": {
       "id": "ID",
-      "tierId": "Tier ID",
-      "code": "Code",
-      "type": "Type",
-      "cardId": "Card ID",
+      "title": "Tiêu đề",
+      "type": "Loại",
+      "sorting": "Sắp xếp",
+      "isActive": "Kích hoạt",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật",
+      "createdBy": "Người tạo",
+      "updatedBy": "Người chỉnh sửa"
+    }
+  },
+  "invoice": {
+    "title": "Hóa đơn",
+    "fields": {
+      "id": "ID",
+      "code": "Số hóa đơn",
+      "memberId": "ID thành viên",
+      "orderId": "ID đơn hàng",
+      "promotionId": "ID khuyến mãi",
+      "invoiceRef": "Tham chiếu hóa đơn",
+      "invoicePath": "Hóa đơn PDF",
+      "paidPrice": "Giá đã thanh toán",
+      "paidPoint": "Điểm đã thanh toán",
+      "finalPrice": "Tổng giá",
+      "finalPoint": "Tổng điểm",
+      "status": "Trạng thái",
+      "isBirth": "Mua vào sinh nhật",
+      "isEarned": "Đã nhận",
+      "dueDate": "Hạn thanh toán",
+      "issueDate": "Ngày lập hóa đơn",
+      "issuedAt": "Thời điểm phát hành",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật",
+      "createdBy": "Người tạo",
+      "updatedBy": "Người chỉnh sửa"
+    }
+  },
+  "media": {
+    "title": "Phương tiện",
+    "fields": {
+      "id": "ID"
+    }
+  },
+  "member_notification": {
+    "title": "Thông báo thành viên",
+    "fields": {
+      "id": "ID",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật"
+    }
+  },
+  "member_point": {
+    "title": "Điểm thành viên",
+    "fields": {
+      "id": "ID",
+      "tierId": "ID hạng",
+      "memberId": "ID thành viên",
+      "refereeId": "ID người giới thiệu",
+      "invoiceId": "ID hóa đơn",
+      "invoiceAmount": "Số tiền hóa đơn",
+      "type": "Loại",
+      "point": "Điểm",
+      "pointBalance": "Số dư điểm",
+      "multipleRatio": "Hệ số nhân",
+      "isFirst": "Lần đầu",
+      "isBirth": "Sinh nhật",
+      "isPending": "Chờ xử lý",
+      "isActive": "Kích hoạt",
+      "expiryDate": "Ngày hết hạn",
+      "releaseDate": "Ngày phát hành",
+      "createdDate": "Ngày tạo",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật",
+      "createdBy": "Người tạo",
+      "updatedBy": "Người chỉnh sửa"
+    }
+  },
+  "member_redemption": {
+    "title": "Đổi thưởng thành viên",
+    "fields": {
+      "id": "ID",
+      "memberId": "ID thành viên",
+      "productId": "ID sản phẩm",
+      "orderId": "ID đơn hàng",
+      "promotionId": "ID khuyến mãi",
+      "redeemPrice": "Giá",
+      "redeemPoint": "Điểm",
+      "source": "Nguồn",
+      "status": "Trạng thái",
+      "isActive": "Kích hoạt",
+      "startDate": "Ngày bắt đầu",
+      "untilDate": "Ngày kết thúc",
+      "issuedDate": "Ngày phát hành",
+      "usedAt": "Thời điểm sử dụng",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật",
+      "createdBy": "Người tạo",
+      "updatedBy": "Người chỉnh sửa"
+    }
+  },
+  "member": {
+    "title": "Thành viên",
+    "fields": {
+      "id": "ID",
+      "tierId": "ID hạng",
+      "code": "Mã",
+      "type": "Loại",
+      "cardId": "ID thẻ",
       "email": "Email",
-      "name": "Name",
-      "phone": "Phone",
-      "locale": "Locale",
-      "referralCode": "Referral Code",
-      "birthDate": "Birth Date",
-      "expiryDate": "Expiry Date",
-      "pointBalance": "Point Balance",
-      "personalSpending": "Personal Spending",
-      "referralSpending": "Referral Spending",
-      "hasFirstPurchased": "Has First Purchased",
-      "hasDiamondAchieved": "Has Diamond Achieved",
-      "isActive": "Is Active",
-      "createdAt": "Created At",
-      "updatedAt": "Updated At"
+      "name": "Tên",
+      "phone": "Số điện thoại",
+      "locale": "Ngôn ngữ",
+      "referralCode": "Mã giới thiệu",
+      "birthDate": "Ngày sinh",
+      "expiryDate": "Ngày xuống hạn",
+      "pointBalance": "Số dư điểm",
+      "personalSpending": "Chi tiêu cá nhân",
+      "referralSpending": "Chi tiêu giới thiệu",
+      "hasFirstPurchased": "Đã mua lần đầu",
+      "hasDiamondAchieved": "Đạt hạng Kim cương",
+      "isActive": "Kích hoạt",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật"
     }
   },
   "member_tier": {
-    "title": "Member Tiers"
+    "title": "Hạng thành viên",
+    "fields": {
+      "id": "ID",
+      "memberId": "ID thành viên",
+      "invoiceId": "ID hóa đơn",
+      "prevTierId": "ID hạng trước",
+      "currTierId": "ID hạng hiện tại",
+      "minTierId": "ID hạng tối thiểu",
+      "type": "Loại",
+      "personalSpending": "Chi tiêu cá nhân",
+      "referralSpending": "Chi tiêu giới thiệu",
+      "excessSpending": "Chi tiêu vượt mức",
+      "renewalSpending": "Chi tiêu gia hạn",
+      "upgradeSpending": "Chi tiêu nâng hạng",
+      "expiryDate": "Ngày hết hạn",
+      "isActive": "Kích hoạt",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật"
+    }
   },
   "notification": {
-    "title": "Notifications"
+    "title": "Thông báo",
+    "fields": {
+      "id": "ID",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật"
+    }
   },
   "order": {
-    "title": "Orders"
+    "title": "Đơn hàng",
+    "fields": {
+      "id": "ID",
+      "code": "Mã đơn hàng",
+      "memberId": "ID thành viên",
+      "promotionId": "ID khuyến mãi",
+      "totalPrice": "Tổng giá",
+      "totalPoint": "Tổng điểm",
+      "discPrice": "Giá giảm",
+      "discPoint": "Điểm giảm",
+      "finalPrice": "Giá cuối",
+      "finalPoint": "Điểm cuối",
+      "source": "Nguồn",
+      "status": "Trạng thái",
+      "isBirth": "Sinh nhật",
+      "issueDate": "Ngày tạo đơn",
+      "issuedAt": "Thời điểm tạo",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật"
+    }
   },
   "product_brand": {
-    "title": "Brands"
+    "title": "Thương hiệu",
+    "fields": {
+      "id": "ID",
+      "name": "Tên",
+      "thumbnail": "Ảnh thu nhỏ",
+      "address": "Địa chỉ",
+      "latitude": "Vĩ độ",
+      "longitude": "Kinh độ",
+      "isActive": "Kích hoạt",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật"
+    }
   },
   "product_category": {
-    "title": "Categories"
+    "title": "Danh mục",
+    "fields": {
+      "id": "ID",
+      "name": "Tên",
+      "isActive": "Kích hoạt",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật"
+    }
   },
   "product_review": {
-    "title": "Reviews"
+    "title": "Đánh giá",
+    "fields": {
+      "id": "ID",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật"
+    }
   },
   "product": {
-    "title": "Products"
+    "title": "Sản phẩm",
+    "fields": {
+      "id": "ID",
+      "brandId": "ID thương hiệu",
+      "categoryId": "ID danh mục",
+      "sku": "SKU",
+      "thumbnail": "Ảnh thu nhỏ",
+      "name": "Tên",
+      "salePoint": "Điểm bán",
+      "salePrice": "Giá bán",
+      "costPrice": "Giá vốn",
+      "stockQty": "Tổng kho",
+      "paidQty": "Số lượng đã bán",
+      "unpaidQty": "Số lượng chưa thanh toán",
+      "salePerPerson": "Giới hạn mỗi người",
+      "sorting": "Sắp xếp",
+      "duePaidDays": "Số ngày phải thanh toán",
+      "expiryType": "Loại hết hạn",
+      "dynamicExpiryDays": "Ngày hết hạn động",
+      "dynamicExpiryDate": "Ngày hết hạn động",
+      "hasShipment": "Có vận chuyển",
+      "hasInventory": "Có tồn kho",
+      "hasExpiration": "Có hạn sử dụng",
+      "hasDuePayment": "Có khoản thanh toán đến hạn",
+      "hasLimitPerson": "Có giới hạn người dùng",
+      "isPopular": "Phổ biến",
+      "isBestSale": "Bán chạy nhất",
+      "isFlashSale": "Flash Sale",
+      "isComingSoon": "Sắp ra mắt",
+      "isNewArrival": "Hàng mới về",
+      "isActive": "Kích hoạt",
+      "isDeleted": "Đã xóa",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật",
+      "createdBy": "Người tạo",
+      "updatedBy": "Người chỉnh sửa",
+      "deletedBy": "Người xóa"
+    }
   },
   "role": {
-    "title": "Roles"
+    "title": "Vai trò",
+    "fields": {
+      "id": "ID",
+      "title": "Tiêu đề",
+      "description": "Mô tả",
+      "isActive": "Kích hoạt",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật",
+      "createdBy": "Người tạo",
+      "updatedBy": "Người chỉnh sửa"
+    }
   },
   "tier": {
-    "title": "Tiers"
+    "title": "Hạng",
+    "fields": {
+      "id": "ID",
+      "code": "Mã",
+      "name": "Tên",
+      "rewardPoint": "Điểm thưởng",
+      "limitSpending": "Giới hạn chi tiêu",
+      "personalRate": "Tỷ lệ quy đổi cá nhân",
+      "referralRate": "Tỷ lệ quy đổi giới thiệu",
+      "initialRate": "Tỷ lệ quy đổi lần đầu",
+      "birthdayRatio": "Tỷ lệ sinh nhật cao nhất"
+    }
   },
   "user": {
-    "title": "Users"
+    "title": "Người dùng",
+    "fields": {
+      "id": "ID",
+      "email": "Email",
+      "phone": "Số điện thoại",
+      "name": "Tên",
+      "address": "Địa chỉ",
+      "avatar": "Ảnh đại diện",
+      "loginDate": "Ngày đăng nhập",
+      "signUpFrom": "Đăng ký từ",
+      "isActive": "Kích hoạt",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật",
+      "createdBy": "Người tạo",
+      "updatedBy": "Người chỉnh sửa"
+    }
   }
 }
+

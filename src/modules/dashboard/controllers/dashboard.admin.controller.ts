@@ -2,12 +2,12 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Controller, Get, Inject } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Cache } from 'cache-manager'
-import { HelperDateService } from 'lib/nest-core'
 import {
   ENUM_AUTH_ABILITY_ACTION,
-  ENUM_AUTH_SCOPE_TYPE,
   ENUM_AUTH_ABILITY_SUBJECT,
+  ENUM_AUTH_SCOPE_TYPE,
 } from 'lib/nest-auth'
+import { HelperDateService, IDateRange } from 'lib/nest-core'
 import { ApiRequestData, IResponseData } from 'lib/nest-web'
 import { DASHBOARD_DOC_OPERATION } from '../constants'
 import { DashboardSummaryResponseDto } from '../dtos'
@@ -21,6 +21,11 @@ export class DashboardAdminController {
     protected readonly dashboardService: DashboardService,
     protected readonly helperDateService: HelperDateService,
   ) {}
+
+  private getDate(): IDateRange {
+    const dates = this.helperDateService.createRange()
+    return dates
+  }
 
   @ApiRequestData({
     summary: DASHBOARD_DOC_OPERATION,
@@ -45,8 +50,8 @@ export class DashboardAdminController {
   })
   @Get('/view-summary')
   async get(): Promise<IResponseData> {
-    const date = this.helperDateService.create()
-    const dashboard = await this.dashboardService.getSummary(date)
+    const dates = this.getDate()
+    const dashboard = await this.dashboardService.getSummary(dates.startOfMonth, dates.endOfMonth)
 
     return {
       data: dashboard,
@@ -75,8 +80,8 @@ export class DashboardAdminController {
   })
   @Get('/refresh-summary')
   async refresh(): Promise<IResponseData> {
-    const date = this.helperDateService.create()
-    const dashboard = await this.dashboardService.getSummary(date)
+    const dates = this.getDate()
+    const dashboard = await this.dashboardService.getSummary(dates.startOfMonth, dates.endOfMonth)
 
     await this.cache.set(DashboardSummaryResponseDto.name, dashboard)
 
@@ -107,13 +112,13 @@ export class DashboardAdminController {
   })
   @Get('/view-data-list')
   async viewDataList(): Promise<IResponseData> {
-    const date = this.helperDateService.create()
-    const dashboard = await this.dashboardService.getSummary(date)
+    const dates = this.getDate()
+    const dataList = await this.dashboardService.viewDataList(dates.startOfMonth, dates.endOfMonth)
 
-    await this.cache.set(DashboardSummaryResponseDto.name, dashboard)
+    await this.cache.set(DashboardSummaryResponseDto.name, dataList)
 
     return {
-      data: dashboard,
+      data: dataList,
     }
   }
 }

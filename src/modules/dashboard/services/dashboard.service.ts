@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common'
-import { ModuleRef } from '@nestjs/core'
+import { ENUM_INVOICE_STATUS } from '@prisma/client'
 import { HelperDateService } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { TDashboard } from '../interfaces'
@@ -7,43 +7,61 @@ import { TDashboard } from '../interfaces'
 @Injectable()
 export class DashboardService implements OnModuleInit {
   constructor(
-    private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
     private readonly helperDateService: HelperDateService,
   ) {}
 
   onModuleInit() {}
 
-  async getSummary(date: Date): Promise<TDashboard> {
-    const startOfDay = this.helperDateService.create(date, { startOfDay: true })
-    const endOfDay = this.helperDateService.create(date, { endOfDay: true })
+  async getSummary(startDate: Date, untilDate: Date): Promise<TDashboard> {
+    const startTime = this.helperDateService.create(startDate, { startOfDay: true })
+    const untilTime = this.helperDateService.create(untilDate, { endOfDay: true })
 
     const [
-      totalMasters,
-      totalTodayTasks,
-      totalTodayProfit,
-      totalUnpaidOrders,
-      totalPartialOrders,
-      totalPaidOrders,
-      totalCancelOrders,
+      totalMembers,
+      totalUnpaidInvoices,
+      totalPartialInvoices,
+      totalPaidInvoices,
+      totalCancelInvoices,
     ] = await Promise.all([
-      this.prisma.member.count({ where: { isActive: true } }),
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
+      this.prisma.member.count({ where: { createdAt: { gte: startTime, lte: untilTime } } }),
+      this.prisma.invoice.count({
+        where: {
+          createdAt: { gte: startTime, lte: untilTime },
+          status: ENUM_INVOICE_STATUS.PENDING,
+        },
+      }),
+      this.prisma.invoice.count({
+        where: {
+          createdAt: { gte: startTime, lte: untilTime },
+          status: ENUM_INVOICE_STATUS.PARTIALLY_PAID,
+        },
+      }),
+      ,
+      this.prisma.invoice.count({
+        where: {
+          createdAt: { gte: startTime, lte: untilTime },
+          status: ENUM_INVOICE_STATUS.FULLY_PAID,
+        },
+      }),
+      this.prisma.invoice.count({
+        where: {
+          createdAt: { gte: startTime, lte: untilTime },
+          status: ENUM_INVOICE_STATUS.CANCELED,
+        },
+      }),
     ])
 
     return {
-      totalMasters,
-      totalTodayTasks,
-      totalTodayProfit,
-      totalUnpaidOrders,
-      totalPartialOrders,
-      totalPaidOrders,
-      totalCancelOrders,
+      totalMembers,
+      totalUnpaidInvoices,
+      totalPartialInvoices,
+      totalPaidInvoices,
+      totalCancelInvoices,
     }
+  }
+
+  async viewDataList(startDate: Date, untilDate: Date) {
+    return []
   }
 }

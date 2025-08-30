@@ -8,7 +8,7 @@
       "version": "Version",
       "url": "Magic Link",
       "isForce": "Force Updated",
-      "isActive": "Is Active",
+      "isActive": "Active",
       "createdAt": "Created At",
       "updatedAt": "Updated At"
     }
@@ -17,22 +17,107 @@
     "title": "Dashboard"
   },
   "fact": {
-    "title": "Facts"
+    "title": "Facts",
+    "fields": {
+      "id": "ID",
+      "title": "Title",
+      "type": "Type",
+      "sorting": "Sort",
+      "isActive": "Active",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Owner",
+      "updatedBy": "Modifier"
+    }
   },
   "invoice": {
-    "title": "Invoices"
+    "title": "Invoices",
+    "fields": {
+      "id": "ID",
+      "code": "Invoice Number",
+      "memberId": "Member ID",
+      "orderId": "Order ID",
+      "promotionId": "Promotion ID",
+      "invoiceRef": "Invoice Referrence",
+      "invoicePath": "Invoice PDF",
+      "paidPrice": "Paid Price",
+      "paidPoint": "Paid Point",
+      "finalPrice": "Total Price",
+      "finalPoint": "Total Point",
+      "status": "Status",
+      "isBirth": "Purchased on Birthday",
+      "isEarned": "Earned",
+      "dueDate": "Due Date",
+      "issueDate": "Issue Date",
+      "issuedAt": "Issued At",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Owner",
+      "updatedBy": "Modifier"
+    }
   },
   "media": {
-    "title": "Medias"
+    "title": "Medias",
+    "fields": {
+      "id": "ID"
+    }
   },
   "member_notification": {
-    "title": "Member Notifications"
+    "title": "Member Notifications",
+    "fields": {
+      "id": "ID",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    }
   },
   "member_point": {
-    "title": "Member Points"
+    "title": "Member Points",
+    "fields": {
+      "id": "ID",
+      "tierId": "Tier ID",
+      "memberId": "Member ID",
+      "refereeId": "Referee ID",
+      "invoiceId": "Invoice ID",
+      "invoiceAmount": "Invoice Amount",
+      "type": "Type",
+      "point": "Point",
+      "pointBalance": "Point Balance",
+      "multipleRatio": "Multiple Ratio",
+      "isFirst": "First",
+      "isBirth": "Birth",
+      "isPending": "Pending",
+      "isActive": "Active",
+      "expiryDate": "Expiry Date",
+      "releaseDate": "Release Date",
+      "createdDate": "Created Date",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Owner",
+      "updatedBy": "Modifier"
+    }
   },
   "member_redemption": {
-    "title": "Member Redemptions"
+    "title": "Member Redemptions",
+    "fields": {
+      "id": "ID",
+      "memberId": "Member ID",
+      "productId": "Product ID",
+      "orderId": "Order ID",
+      "promotionId": "Promotion ID",
+      "redeemPrice": "Price",
+      "redeemPoint": "Point",
+      "source": "Source",
+      "status": "Status",
+      "isActive": "Active",
+      "startDate": "Start Date",
+      "untilDate": "Until Date",
+      "issuedDate": "Issued Date",
+      "usedAt": "Used At",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Owner",
+      "updatedBy": "Modifier"
+    }
   },
   "member": {
     "title": "Members",
@@ -54,39 +139,177 @@
       "referralSpending": "Referral Spending",
       "hasFirstPurchased": "Has First Purchased",
       "hasDiamondAchieved": "Has Diamond Achieved",
-      "isActive": "Is Active",
+      "isActive": "Active",
       "createdAt": "Created At",
       "updatedAt": "Updated At"
     }
   },
   "member_tier": {
-    "title": "Member Tiers"
+    "title": "Member Tiers",
+    "fields": {
+      "id": "ID",
+      "memberId": "Member ID",
+      "invoiceId": "Invoice ID",
+      "prevTierId": "Previous Tier ID",
+      "currTierId": "Current Tier ID",
+      "minTierId": "Minimum Tier ID",
+      "type": "Type",
+      "personalSpending": "Personal Spending",
+      "referralSpending": "Referral Spending",
+      "excessSpending": "Excess Spending",
+      "renewalSpending": "Renewal Spending",
+      "upgradeSpending": "Upgrade Spending",
+      "expiryDate": "Expiry Date",
+      "isActive": "Active",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    }
   },
   "notification": {
-    "title": "Notifications"
+    "title": "Notifications",
+    "fields": {
+      "id": "ID",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    }
   },
   "order": {
-    "title": "Orders"
+    "title": "Orders",
+    "fields": {
+      "id": "ID",
+      "code": "Order Number",
+      "memberId": "Member ID",
+      "promotionId": "Promotion ID",
+      "totalPrice": "Total Price",
+      "totalPoint": "Total Point",
+      "discPrice": "Discount Price",
+      "discPoint": "Discount Point",
+      "finalPrice": "Final Price",
+      "finalPoint": "Final Point",
+      "source": "Source",
+      "status": "Status",
+      "isBirth": "On Birthday",
+      "issueDate": "Issue Date",
+      "issuedAt": "Issued At",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    }
   },
   "product_brand": {
-    "title": "Brands"
+    "title": "Brands",
+    "fields": {
+      "id": "ID",
+      "name": "Name",
+      "thumbnail": "Thumbnail",
+      "address": "Address",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "isActive": "Active",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    }
   },
   "product_category": {
-    "title": "Categories"
+    "title": "Categories",
+    "fields": {
+      "id": "ID",
+      "name": "Name",
+      "isActive": "Active",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    }
   },
   "product_review": {
-    "title": "Reviews"
+    "title": "Reviews",
+    "fields": {
+      "id": "ID",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    }
   },
   "product": {
-    "title": "Products"
+    "title": "Products",
+    "fields": {
+      "id": "ID",
+      "brandId": "Brand ID",
+      "categoryId": "Category ID",
+      "sku": "SKU",
+      "thumbnail": "Thumbnail",
+      "name": "Name",
+      "salePoint": "Sale Point",
+      "salePrice": "Sale Price",
+      "costPrice": "Cost Price",
+      "stockQty": "Stock Qty",
+      "paidQty": "Paid Qty",
+      "unpaidQty": "Unpaid Qty",
+      "salePerPerson": "Limit per Person",
+      "sorting": "Sort",
+      "duePaidDays": "Due Paid Days",
+      "expiryType": "Expiry Type",
+      "dynamicExpiryDays": "Dynamic Expiry Days",
+      "dynamicExpiryDate": "Dynamic Expiry Date",
+      "hasShipment": "Has Shipment",
+      "hasInventory": "Has Inventory",
+      "hasExpiration": "Has Expiration",
+      "hasDuePayment": "Has Due Payment",
+      "hasLimitPerson": "Has Limit Person",
+      "isPopular": "Is Popular",
+      "isBestSale": "Is BestSale",
+      "isFlashSale": "Is FlashSale",
+      "isComingSoon": "Is ComingSoon",
+      "isNewArrival": "Is New Arrival",
+      "isActive": "Active",
+      "isDeleted": "Is Deleted",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Owner",
+      "updatedBy": "Modifier",
+      "deletedBy": "Deleted By"
+    }
   },
   "role": {
-    "title": "Roles"
+    "title": "Roles",
+    "fields": {
+      "id": "ID",
+      "title": "Title",
+      "description": "Description",
+      "isActive": "Active",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Owner",
+      "updatedBy": "Modifier"
+    }
   },
   "tier": {
-    "title": "Tiers"
+    "title": "Tiers",
+    "fields": {
+      "id": "ID",
+      "code": "Code",
+      "name": "Name",
+      "rewardPoint": "Reward Point",
+      "limitSpending": "Limit Spending",
+      "personalRate": "Personal Convention Rate",
+      "referralRate": "Referral Convention Rate",
+      "initialRate": "Initial Convention Rate",
+      "birthdayRatio": "Highest Birthday Ratio"
+    }
   },
   "user": {
-    "title": "Users"
+    "title": "Users",
+    "fields": {
+      "id": "ID",
+      "email": "Email",
+      "phone": "Phone",
+      "name": "Name",
+      "address": "Address",
+      "avatar": "Avatar",
+      "loginDate": "Login Date",
+      "signUpFrom": "Sign-Up From",
+      "isActive": "Active",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "createdBy": "Owner",
+      "updatedBy": "Modifier"
+    }
   }
 }

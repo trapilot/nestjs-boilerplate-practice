@@ -4,29 +4,21 @@ import { ToDecimal } from 'lib/nest-core'
 export class DashboardSummaryResponseDto {
   @Type(() => Number)
   @Expose()
-  totalMasters: number
+  totalMembers: number
 
   @Type(() => Number)
   @Expose()
-  totalTodayTasks: number
-
-  @ToDecimal()
-  @Expose()
-  totalTodayProfit: string
+  totalUnpaidInvoices: number
 
   @Type(() => Number)
   @Expose()
-  totalUnpaidOrders: number
+  totalPartialInvoices: number
 
   @Type(() => Number)
   @Expose()
-  totalPartialOrders: number
+  totalPaidInvoices: number
 
   @Type(() => Number)
   @Expose()
-  totalPaidOrders: number
-
-  @Type(() => Number)
-  @Expose()
-  totalCancelOrders: number
+  totalCancelInvoices: number
 }
