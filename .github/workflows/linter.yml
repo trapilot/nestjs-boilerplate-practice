@@ -1,54 +1,50 @@
 name: Linter
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - staging
   pull_request:
     branches:
-      - dev-vn
-      # - main
-      # - staging
-      # - development
+      - staging
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: 'Deploy stage (staging or production)'
+        required: true
+        default: 'staging'
 
 jobs:
-  lint-commit-code:
+  lint-code:
+    name: Lint Code
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: ['18']
+        node-version: ['22']
 
     steps:
-      - name: Git checkout
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup node version ${{ matrix.node-version }}
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
       - name: Install dependencies
-        run: yarn --frozen-lockfile --non-interactive
+        run: yarn install --frozen-lockfile --non-interactive
 
-      - name: Lint commit code
+      - name: Run ESLint & Prettier
         run: yarn lint
 
   lint-commit-message:
+    name: Lint Commit Messages
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: ['18']
-
     steps:
-      - name: Git checkout
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup node version ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Install dependencies
-        run: yarn --frozen-lockfile --non-interactive
-
-      - name: Lint commit message
-        run: npx commitlint --last --verbose
+      - name: Lint commit messages with commitlint
+        run: npx commitlint --from=HEAD~10 --to=HEAD --verbose

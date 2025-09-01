@@ -1,19 +1,23 @@
 .PHONY: env build rebuild recreate
 
 env:
-	@read -p "Are you sure you want to clone .env.staging? (y/n) " confirm; \
-	if [ "$$confirm" = "y" ]; then \
-		cp -f .env.staging .env; \
-	fi
+	@if [ ! -f .env.$(STAGE) ]; then \
+		echo "❌ File .env.$(STAGE) does not exist!"; \
+		exit 1; \
+	fi; \
+	cp -f .env.$(STAGE) .env; \
+	echo "✅ Copied .env.$(STAGE) → .env"
 
 pull:
-	git pull origin
+	git pull origin main
 
 build:
-	docker build ./deploy -t api-img:1.0.0 --no-cache
+	build -f ./deploy/Dockerfile -t api-img:1.0.0 --no-cache .
 
 rebuild:
-	docker build ./deploy -t api-img:1.0.0
+	docker build -f ./deploy/Dockerfile -t api-img:1.0.0 .
 
 recreate:
-	docker compose ./deploy --compatibility up -d --force-recreate
+	docker compose -f ./deploy/docker-compose.yml --compatibility up -d --force-recreate
+
+deploy: env pull build recreate
