@@ -13,8 +13,8 @@ services:
     env_file:
       - ../.env
     restart: always
-    external_links:
-      - mysql:mysql-8.2
+    depends_on:
+      - mysql
     deploy:
       resources:
         limits:
