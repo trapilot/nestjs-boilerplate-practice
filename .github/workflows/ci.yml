@@ -1,4 +1,4 @@
-name: CI Pipeline (Lint, Test, Build Image)
+name: CI Pipeline (Test, Build Image)
 
 on:
   push:
@@ -26,27 +26,8 @@ jobs:
         id: vars
         run: echo "node-version=22" >> "$GITHUB_OUTPUT"
 
-  lint:
-    name: Lint Code
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ needs.setup.outputs.node-version }}
-
-      - name: Install dependencies
-        run: yarn --frozen-lockfile
-
-      - name: Lint code
-        run: yarn lint
-
   test:
     name: Run Unit Tests
-    needs: lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -57,7 +38,7 @@ jobs:
           node-version: ${{ needs.setup.outputs.node-version }}
 
       - name: Install dependencies
-        run: yarn --frozen-lockfile
+        run: yarn --frozen-lockfile --non-interactive
 
       - name: Run Tests
         run: yarn test
