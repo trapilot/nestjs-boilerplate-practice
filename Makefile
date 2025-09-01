@@ -12,7 +12,7 @@ pull:
 	git pull origin staging
 
 build:
-	build -f ./deploy/Dockerfile -t api-img:1.0.0 --no-cache .
+	docker build -f ./deploy/Dockerfile -t api-img:1.0.0 --no-cache .
 
 rebuild:
 	docker build -f ./deploy/Dockerfile -t api-img:1.0.0 .

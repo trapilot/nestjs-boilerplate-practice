@@ -27,7 +27,11 @@ COPY --from=build-deps /app/node_modules /app/node_modules
 COPY . .
 RUN yarn build
 RUN yarn bundle \
-  && cp /app/node_modules/swagger-ui-dist/{swagger-ui.css,swagger-ui-bundle.js,swagger-ui-standalone-preset.js,favicon-32x32.png,favicon-16x16.png} /app/dist
+  && cp /app/node_modules/swagger-ui-dist/swagger-ui.css /app/dist \
+  && cp /app/node_modules/swagger-ui-dist/swagger-ui-bundle.js /app/dist \
+  && cp /app/node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js /app/dist \
+  && cp /app/node_modules/swagger-ui-dist/favicon-32x32.png /app/dist \
+  && cp /app/node_modules/swagger-ui-dist/favicon-16x16.png /app/dist
 
 
 # Finally, build the production image with minimal footprint
