@@ -1,8 +1,7 @@
 services:
   api:
-    build: .
     container_name: api
-    image: api-img:1.0.0
+    image: ghcr.io/trapilot/nestjs-boilerplate-practice:${STAGE}
     networks:
       - app-network
     ports:
