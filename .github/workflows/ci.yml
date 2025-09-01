@@ -45,4 +45,7 @@ jobs:
       - name: Run Tests
         run: yarn test
         env:
+          DATABASE_DEBUG: false
+          DATABASE_LAZY: true
+          DATABASE_MIGRATE: true
           DATABASE_URL: mysql://test_user:test_pwd@localhost:3306/app_test
