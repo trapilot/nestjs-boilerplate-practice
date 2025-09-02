@@ -27,7 +27,7 @@ jobs:
 
       - name: Build and Package Docker Image
         run: |
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:staging -f deploy/Dockerfile . --build-arg APP_ENV=staging
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:staging -f ci/Dockerfile . --build-arg APP_ENV=staging
           docker save ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:staging | gzip > app.tgz
 
       # - name: Configure SSH Key
@@ -41,7 +41,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: 'docker-compose.yml,app.tgz'
+          source: 'app.tgz'
           target: /app
           timeout: 10m
 
@@ -53,8 +53,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /app
+            git pull origin staging
             tar -xzf app.tgz
             docker load -i app.tgz
             rm app.tgz
             echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
-            TAG=staging docker compose -f ./deploy/docker-compose.yml up -d --force-recreate
+            TAG=staging docker compose -f ./ci/docker-compose.yml up -d --force-recreate
