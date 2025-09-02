@@ -3,11 +3,11 @@
 # Build dependencies
 node_modules/
 coverage/
+ci/
 dist/
 packages/
 resources/
 public/
-deploy/
 .husky/
 .github/
 
