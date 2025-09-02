@@ -1,18 +1,20 @@
 services:
   api:
     container_name: api
-    build: .
+    build:
+      context: .
+      dockerfile: ./ci/Dockerfile
     image: api-img:1.0.0
     networks:
       - app-network
     ports:
       - 3000:3000
     volumes:
-      - ../logs:/app/logs
-      - ../public:/app/public
-      - ../resources:/app/resources
+      - ./logs:/app/logs
+      - ./public:/app/public
+      - ./resources:/app/resources
     env_file:
-      - ../.env
+      - ./.env
     restart: always
     depends_on:
       - mysql
@@ -33,7 +35,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root_pwd
     volumes:
-      - ./Volumns/mysql8:/var/lib/mysql/
+      - ./.data/mysql8:/var/lib/mysql/
   redis:
     image: redis:7
     container_name: redis
@@ -43,7 +45,7 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - ./Volumns/redis7:/data
+      - ./.data/redis7:/data
     command: ["redis-server", "--appendonly", "yes"]
 networks:
   app-network:

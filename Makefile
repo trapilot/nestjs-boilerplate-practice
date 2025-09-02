@@ -9,14 +9,14 @@ env:
 	echo "✅ Copied .env.$(STAGE) → .env"
 
 pull:
-	git pull origin staging
+	git pull origin
 
 build:
-	docker build -f ./deploy/Dockerfile -t api-img:1.0.0 --no-cache .
+	docker build -f ./ci/Dockerfile -t api-img:1.0.0 --no-cache .
 
 rebuild:
-	docker build -f ./deploy/Dockerfile -t api-img:1.0.0 .
+	docker build -f ./ci/Dockerfile -t api-img:1.0.0 .
 
 recreate:
-	docker compose -f ./deploy/docker-compose.local.yml --compatibility up -d --force-recreate
+	docker compose -f docker-compose.yml --compatibility up -d --force-recreate
 

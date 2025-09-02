@@ -1,0 +1,50 @@
+services:
+  api:
+    container_name: api
+    image: ghcr.io/trapilot/nestjs-boilerplate-practice:${TAG}
+    networks:
+      - app-network
+    ports:
+      - 80:3000
+    volumes:
+      - ./logs:/app/logs
+      - ./public:/app/public
+      - ./resources:/app/resources
+    env_file:
+      - ./.env
+    restart: always
+    depends_on:
+      - mysql
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    networks:
+      - app-network
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_pwd
+    volumes:
+      - ./.data/mysql8:/var/lib/mysql/
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: unless-stopped
+    networks:
+      - app-network
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./.data/redis7:/data
+    command: ["redis-server", "--appendonly", "yes"]
+networks:
+  app-network:
+    external: true
+
