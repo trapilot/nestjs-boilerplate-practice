@@ -5,17 +5,13 @@ import {
   ENUM_AUTH_ABILITY_ACTION,
   ENUM_AUTH_ABILITY_SUBJECT,
 } from 'lib/nest-auth'
-import { HelperStringService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { IRoleCreateOptions, IRoleUpdateOptions, TRole } from '../interfaces'
 
 @Injectable()
 export class RoleService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly helperStringService: HelperStringService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.RoleFindUniqueArgs): Promise<TRole> {
     return await this.prisma.role.findUnique(kwargs)
@@ -35,7 +31,7 @@ export class RoleService {
   ): Promise<TRole> {
     return await this.prisma.role
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.role.notFound',
@@ -63,7 +59,7 @@ export class RoleService {
   ): Promise<TRole> {
     const role = await this.prisma.role
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.role.notFound',
@@ -175,7 +171,7 @@ export class RoleService {
     try {
       await this.prisma.role.delete({ where: { id } })
       return true
-    } catch (err: any) {}
+    } catch (_: any) {}
     return false
   }
 

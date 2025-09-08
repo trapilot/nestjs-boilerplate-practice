@@ -40,7 +40,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
         const { context, isVisible, title, subject, bitwise } = userPermission
         if (!(context in grpContextPermission)) {
           grpContextPermission[context] = {
-            group: AuthAbilityHelper.isGroup(context),
+            group: false,
             title: NestHelper.toLocaleValue(AuthAbilityHelper.toContext(context)),
             context,
             subjects: [],
@@ -63,6 +63,12 @@ export function ToUserPermissions(): (target: any, key: string) => void {
             isVisible,
             actions: AuthAbilityHelper.toActions(bitwise),
           })
+          if (!grpContextPermission[context].group) {
+            const activeSubjects = grpContextPermission[context].subjects.filter(
+              (subject) => !subject.isVisible,
+            )
+            grpContextPermission[context].group = activeSubjects.length > 1
+          }
         }
       }
       return Object.values(grpContextPermission)
