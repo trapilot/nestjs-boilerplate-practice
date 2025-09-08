@@ -3,11 +3,14 @@ import { useTranslation } from 'react-i18next'
 export function LangSwitcher() {
   const { i18n } = useTranslation()
 
-  const changeLanguage = (lng: string) => {
+  const changeLanguage = async (lng: string) => {
     try {
       localStorage.setItem('language', lng)
-    } catch {}
-    i18n.changeLanguage(lng)
+      await i18n.changeLanguage(lng)
+      window.location.reload()
+    } catch (err) {
+      console.error('Failed to change language', err)
+    }
   }
 
   return (

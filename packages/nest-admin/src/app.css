@@ -172,3 +172,7 @@ textarea {
   border-radius: 6px;
   background: #fff;
 }
+
+.nowrap {
+  white-space: nowrap;
+}

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { getLanguage } from '../../utils/language'
+import { getFullDate, getShortDate } from '../../utils/time'
 import { BooleanIcon } from '../Icons/BooleanIcon'
 import { ListPage } from './ListPage'
 
@@ -8,45 +9,23 @@ function inferColumns(items: any[]): string[] {
   return Object.keys(first)
 }
 
-function isValidDate(str: string): [boolean, Date] {
-  const date = new Date(str)
-  return [!isNaN(date.getTime()), date]
-}
-
 function renderObject(value: any, key: string, language: string) {
   if (value === null || value === undefined) return ''
-  if (key === 'createdBy' || key === 'updatedBy' || key === 'deletedBy') return value['name'] || ''
+  if (key === 'createdBy' || key === 'updatedBy' || key === 'deletedBy') {
+    return <span className="nowrap">{value['name'] || ''}</span>
+  }
   if (language in value) return value[language] || ''
   return <pre>{JSON.stringify(value, null, 2)}</pre>
 }
 
 function renderShortDate(value: any) {
   if (value === null || value === undefined) return ''
-
-  const [isDate, date] = isValidDate(value)
-  if (isDate) {
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
-  }
-  return value
+  return <span className="nowrap">{getShortDate(value)}</span>
 }
 
 function renderFullDate(value: any) {
   if (value === null || value === undefined) return ''
-
-  const [isDate, date] = isValidDate(value)
-  if (isDate) {
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    const hours = String(date.getHours()).padStart(2, '0')
-    const minutes = String(date.getMinutes()).padStart(2, '0')
-    const seconds = String(date.getSeconds()).padStart(2, '0')
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
-  }
-  return value
+  return <span className="nowrap">{getFullDate(value)}</span>
 }
 
 function renderCell(value: any, key: string, language: string) {
