@@ -65,7 +65,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
           })
           if (!grpContextPermission[context].group) {
             const activeSubjects = grpContextPermission[context].subjects.filter(
-              (subject) => !subject.isVisible,
+              (subject) => subject.isVisible,
             )
             grpContextPermission[context].group = activeSubjects.length > 1
           }
