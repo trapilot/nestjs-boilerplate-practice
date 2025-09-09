@@ -1,17 +1,17 @@
-import { HttpStatus, Module } from '@nestjs/common'
+import { HttpStatus, MiddlewareConsumer, Module } from '@nestjs/common'
 import { ValidationError } from 'class-validator'
 import { NestAuthModule } from 'lib/nest-auth'
-import { EntityValidateException, NestCoreModule } from 'lib/nest-core'
+import { APP_ENV, APP_NAME, EntityValidateException, NestCoreModule } from 'lib/nest-core'
 import { NestPrismaModule } from 'lib/nest-prisma'
 import { NestWebModule } from 'lib/nest-web'
+import { AppVersionMiddleware, AppVersionModule } from 'src/modules/app-version'
+import { SettingMaintenanceMiddleware, SettingModule } from 'src/modules/setting'
 import configs from '../configs'
-import { AppController } from './controllers'
-import { MiddlewareModule } from './middleware'
 import { RouterModule } from './router'
 import { WorkerModule } from './worker'
 
 @Module({
-  controllers: [AppController],
+  controllers: [],
   imports: [
     // Library
     NestPrismaModule.forRoot(),
@@ -27,20 +27,35 @@ import { WorkerModule } from './worker'
       cache: { isGlobal: true },
     }),
     NestWebModule.forRoot({
-      transform: true,
-      whitelist: true,
-      skipNullProperties: false,
-      skipUndefinedProperties: false,
-      skipMissingProperties: false,
-      forbidUnknownValues: false,
-      // stopAtFirstError: false,
-      stopAtFirstError: true,
-      errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-      exceptionFactory: async (errors: ValidationError[]) => new EntityValidateException(errors),
+      validator: {
+        transform: true,
+        whitelist: true,
+        skipNullProperties: false,
+        skipUndefinedProperties: false,
+        skipMissingProperties: false,
+        forbidUnknownValues: false,
+        // stopAtFirstError: false,
+        stopAtFirstError: true,
+        errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+        exceptionFactory: async (errors: ValidationError[]) => new EntityValidateException(errors),
+      },
+      metrics: {
+        defaultMetricsEnabled: false, // disable metrics
+        defaultLabels: {
+          app: APP_NAME,
+          environment: APP_ENV,
+        },
+      },
+      middleware: {
+        imports: [SettingModule, AppVersionModule],
+        configure: (consumer: MiddlewareConsumer) => {
+          AppVersionMiddleware.configure(consumer)
+          SettingMaintenanceMiddleware.configure(consumer)
+        },
+      },
     }),
 
-    // Application
-    MiddlewareModule,
+    // Routes
     WorkerModule.register(),
     RouterModule.register({ http: true }),
   ],

@@ -18,7 +18,7 @@ import { RouterModule } from './router'
       cache: { isGlobal: true },
     }),
 
-    // Application
+    // Routes
     RouterModule.register({ cli: true }),
   ],
 })

@@ -36,6 +36,7 @@ export interface IRequestFilterParseOptions extends Pick<IRequestFilterOptions, 
   pipes?: (Type<PipeTransform> | PipeTransform)[]
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface IRequestFilterDateOptions extends IRequestFilterOptions {}
 
 export interface IRequestFilterEqualOptions extends IRequestFilterOptions {
@@ -62,6 +63,7 @@ export interface IRequestOptions
   headers?: ApiHeaderOptions[]
   params?: ApiParamOptions[]
   queries?: ApiQueryOptions[]
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
   body?: { type?: ENUM_REQUEST_BODY_TYPE; dto?: Function }
 }
 
@@ -95,7 +97,7 @@ export interface IRequestAuthOptions {
     scope: ENUM_AUTH_SCOPE_TYPE
     user: {
       synchronize: boolean
-      require: Boolean
+      require: boolean
       active?: boolean
       unique?: boolean
       hmac?: boolean
@@ -116,4 +118,19 @@ export interface IRequestGuardOptions {
   timezone?: boolean
   timestamp?: boolean
   rateLimit?: Record<string, IRequestRateLimitOptions>
+}
+
+export interface IRequestMetricsConfig {
+  defaultLabels?: Record<string, string>
+  defaultMetricsEnabled?: boolean
+  interceptors?: Type<any>[]
+  pushgatewayUrl?: string
+  pushgatewayOptions?: {
+    timeout?: number
+    headers?: Record<string, string>
+    auth?: {
+      username: string
+      password: string
+    }
+  }
 }

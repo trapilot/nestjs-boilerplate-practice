@@ -3,7 +3,9 @@ import {
   HttpVersionNotSupportedException,
   Injectable,
   NestMiddleware,
+  RequestMethod,
 } from '@nestjs/common'
+import { MiddlewareConsumer } from '@nestjs/common/interfaces'
 import { INextFunction, IRequestApp, IResponseApp } from 'lib/nest-core'
 import { AppVersionService } from '../services'
 
@@ -11,9 +13,20 @@ import { AppVersionService } from '../services'
 export class AppVersionMiddleware implements NestMiddleware {
   constructor(protected readonly appVersionService: AppVersionService) {}
 
-  async use(req: IRequestApp, res: IResponseApp, next: INextFunction): Promise<void> {
+  static configure(consumer: MiddlewareConsumer): void {
+    consumer
+      .apply(this)
+      .forRoutes(
+        { path: 'app/*spat', method: RequestMethod.ALL },
+        { path: 'v:version/app/*spat', method: RequestMethod.ALL },
+        { path: 'web/*spat', method: RequestMethod.ALL },
+        { path: 'v:version/web/*spat', method: RequestMethod.ALL },
+      )
+  }
+
+  async use(req: IRequestApp, _: IResponseApp, next: INextFunction): Promise<void> {
     let noLongerSupported = false
-    let metadata: any = {}
+    const metadata: any = {}
     try {
       const userAgent = JSON.parse(req.headers['x-user-agent'] as string)
       const appVersion = await this.appVersionService.findFirst({
@@ -28,7 +41,7 @@ export class AppVersionMiddleware implements NestMiddleware {
         version: appVersion.version,
         url: appVersion.url,
       }
-    } catch (err: unknown) {}
+    } catch (_: unknown) {}
 
     if (noLongerSupported === true) {
       throw new HttpVersionNotSupportedException({
