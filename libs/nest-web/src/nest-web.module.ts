@@ -3,17 +3,24 @@ import {
   MiddlewareConsumer,
   Module,
   NestModule,
+  Provider,
+  Type,
   ValidationPipe,
   ValidationPipeOptions,
 } from '@nestjs/common'
+import { Controller, ForwardReference } from '@nestjs/common/interfaces'
 import { ConfigService } from '@nestjs/config'
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler'
 import { ROOT_PATH } from 'lib/nest-core'
 import { join } from 'path'
+import { collectDefaultMetrics, Registry } from 'prom-client'
+import { REQUEST_METRICS_CONFIG_TOKEN } from './constants'
+import { HealthController, MetricsController } from './controllers'
 import { FileFilter, GeneralFilter, HttpFilter, ValidationFilter } from './filters'
 import { ResponseHeadersInterceptor, ResponseTimeoutInterceptor } from './interceptors'
+import { IRequestMetricsConfig } from './interfaces'
 import {
   RequestBodyParserMiddleware,
   RequestCorsMiddleware,
@@ -21,6 +28,7 @@ import {
   RequestSecurityMiddleware,
   RequestUserAgentMiddleware,
 } from './middlewares'
+import { MetricsService, ReporterService } from './services'
 import {
   AgeGreaterThanEqualConstraint,
   DateGreaterThanConstraint,
@@ -40,8 +48,14 @@ import {
   StartWithConstraint,
 } from './validations'
 
+type ModuleImport = Type<any> | DynamicModule | Promise<DynamicModule> | ForwardReference
+type ModuleExport = DynamicModule | Type<any> | string | symbol | ForwardReference
+type ModuleController = Type<Controller>
+
 @Module({})
 export class NestWebModule implements NestModule {
+  private static middlewareConfig?: (consumer: MiddlewareConsumer) => void
+
   configure(consumer: MiddlewareConsumer): void {
     consumer
       .apply(
@@ -52,13 +66,65 @@ export class NestWebModule implements NestModule {
         RequestUserAgentMiddleware,
       )
       .forRoutes('*')
+
+    // Custom middleware (user-defined)
+    if (NestWebModule.middlewareConfig) {
+      NestWebModule.middlewareConfig(consumer)
+    }
   }
 
-  static forRoot(options: ValidationPipeOptions): DynamicModule {
+  static forRoot(options: {
+    validator: ValidationPipeOptions
+    metrics?: IRequestMetricsConfig
+    middleware?: { imports?: any[]; configure: (consumer: MiddlewareConsumer) => void }
+  }): DynamicModule {
+    const providers: Provider[] = []
+    const imports: ModuleImport[] = []
+    const exports: ModuleExport[] = []
+    const controllers: ModuleController[] = [HealthController]
+
+    if (options.middleware) {
+      NestWebModule.middlewareConfig = options.middleware.configure
+      if (options.middleware.imports) {
+        imports.push(...options.middleware.imports)
+      }
+    }
+
+    if (options?.metrics?.defaultMetricsEnabled) {
+      const registry: Registry = new Registry()
+
+      if (options.metrics.defaultLabels) {
+        registry.setDefaultLabels(options.metrics.defaultLabels)
+      }
+
+      if (options.metrics.defaultMetricsEnabled) {
+        collectDefaultMetrics({ register: registry })
+      }
+
+      controllers.push(MetricsController)
+      exports.push(ReporterService)
+      providers.push(
+        { provide: Registry, useValue: registry },
+        { provide: REQUEST_METRICS_CONFIG_TOKEN, useValue: options.metrics },
+        MetricsService,
+        ReporterService,
+      )
+
+      if (options.metrics.interceptors) {
+        providers.push(
+          ...options.metrics.interceptors.map((interceptor) => ({
+            provide: APP_INTERCEPTOR,
+            useClass: interceptor as Type<any>,
+          })),
+        )
+      }
+    }
+
     return {
       global: true,
       module: NestWebModule,
       providers: [
+        ...providers,
         { provide: APP_FILTER, useClass: GeneralFilter },
         { provide: APP_FILTER, useClass: HttpFilter },
         { provide: APP_FILTER, useClass: ValidationFilter },
@@ -68,7 +134,7 @@ export class NestWebModule implements NestModule {
         { provide: APP_GUARD, useClass: ThrottlerGuard },
         {
           provide: APP_PIPE,
-          useFactory: () => new ValidationPipe(options),
+          useFactory: () => new ValidationPipe(options.validator),
         },
 
         // constraints
@@ -90,6 +156,7 @@ export class NestWebModule implements NestModule {
         StartWithConstraint,
       ],
       imports: [
+        ...imports,
         ServeStaticModule.forRoot({
           rootPath: join(ROOT_PATH, 'public', 'admin'),
           serveRoot: '/admin',
@@ -104,6 +171,8 @@ export class NestWebModule implements NestModule {
           ],
         }),
       ],
+      exports,
+      controllers,
     }
   }
 }

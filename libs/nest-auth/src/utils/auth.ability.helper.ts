@@ -371,15 +371,6 @@ export class AuthAbilityHelper {
     } as T
   }
 
-  static isGroup(context: string | null): boolean {
-    const subjects: ENUM_AUTH_ABILITY_SUBJECT[] = this.getContexts()[context]?.subjects ?? []
-    if (subjects.length <= 1) return false
-
-    const _invisibles = this.getInvisiblePerms()
-    const _visibles = subjects.filter((s) => !_invisibles.includes(s))
-    return _visibles.length > 1
-  }
-
   static toUserRoles(user: IAuthUserData): IAuthUserRole[] {
     const userRoles = (user?.pivotRoles ?? [])
       .map((roles) => roles.role)

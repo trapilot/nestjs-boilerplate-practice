@@ -49,7 +49,7 @@ export function ToEnum(
 ): (target: any, key: string) => void {
   return Transform(({ value, obj }: any) => {
     if (transform?.path) {
-      let properties = transform?.path.split('.')
+      const properties = transform?.path.split('.')
       if (properties.length) {
         const nestedField = properties.shift()
         value = obj[nestedField]
@@ -104,7 +104,7 @@ export function ToNestedArray<T>(transform: {
   locale?: boolean
 }): (target: any, key: string) => void {
   return Transform(({ obj }: any) => {
-    let properties = transform.path.split('.')
+    const properties = transform.path.split('.')
     if (properties.length) {
       const nestedField = properties.shift()
       if (nestedField in obj) {
@@ -144,7 +144,7 @@ export function ToNestedField<T>(transform: {
   locale?: boolean
 }): (target: any, key: string) => void {
   return Transform(({ obj }: any) => {
-    let properties = transform.path.split('.')
+    const properties = transform.path.split('.')
     if (properties.length) {
       const nestedField = properties.shift()
       let data = transform?.root
@@ -174,7 +174,7 @@ export function ToLocaleField<T>(transform: {
   default?: T
 }): (target: any, key: string) => void {
   return Transform(({ obj, key }: any) => {
-    let properties = (transform?.path ?? 'languages').split('.')
+    const properties = (transform?.path ?? 'languages').split('.')
     if (properties.length) {
       const nestedField = properties.shift()
       let data = transform?.root

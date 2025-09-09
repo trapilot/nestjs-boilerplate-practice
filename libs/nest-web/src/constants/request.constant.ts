@@ -1,6 +1,8 @@
 export const REQUEST_PARAM_CLASS_DTO_METADATA = 'nest_web_module:web_request_param_dto'
 export const REQUEST_TIMEOUT_METADATA = 'nest_web_module:web_request_timeout'
 
+export const REQUEST_METRICS_CONFIG_TOKEN = 'nest_web_module:REQUEST_METRICS_CONFIG_TOKEN'
+
 export const REQUEST_DEFAULT_ORDER_BY = 'id'
 export const REQUEST_DEFAULT_AVAILABLE_ORDER_BY = ['id']
 export const REQUEST_DEFAULT_PAGE = 1

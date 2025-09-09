@@ -5,7 +5,7 @@ import {
   ENUM_AUTH_LOGIN_TYPE,
   ENUM_AUTH_LOGIN_WITH,
   ENUM_AUTH_SCOPE_TYPE,
-} from '../../enums'
+} from '../enums'
 
 export class AuthJwtAccessPayloadDto<T = Record<string, any>> {
   @ApiProperty({

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { Logger, RequestMethod, VersioningType } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestApplication, NestFactory } from '@nestjs/core'
@@ -5,7 +6,7 @@ import { IoAdapter } from '@nestjs/platform-socket.io'
 import { plainToInstance } from 'class-transformer'
 import { useContainer, validate } from 'class-validator'
 import compression from 'compression'
-import { APP_PATH, INextFunction, IRequestApp, IResponseApp, ROOT_PATH } from 'lib/nest-core'
+import { INextFunction, IRequestApp, IResponseApp, ROOT_PATH } from 'lib/nest-core'
 import { MessageService } from 'lib/nest-message'
 import { CommandFactory } from 'nest-commander'
 import { join } from 'path'
@@ -41,7 +42,11 @@ async function bootstrap() {
 
   // Global
   app.setGlobalPrefix(globalPrefix, {
-    exclude: [{ path: '^admin/(.*)', method: RequestMethod.ALL }],
+    exclude: [
+      { path: '^admin/*splat', method: RequestMethod.ALL },
+      { path: '^health/*splat', method: RequestMethod.ALL },
+      { path: '^metrics/*splat', method: RequestMethod.ALL },
+    ],
   })
 
   // Custom Validation

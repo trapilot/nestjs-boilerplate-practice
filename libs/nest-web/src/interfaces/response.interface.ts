@@ -125,3 +125,9 @@ export type IResponseFile = IDataFileBuffer | IDataFilePath
 export interface IResponseFileExcel {
   data: IFileRows[]
 }
+
+export interface IResponsePushgateway {
+  status: number
+  success: boolean
+  message?: string
+}

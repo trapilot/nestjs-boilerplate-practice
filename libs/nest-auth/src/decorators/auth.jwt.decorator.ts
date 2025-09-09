@@ -16,6 +16,7 @@ import {
 } from '../guards'
 import { IAuthAbility, IAuthJwtProtectedOptions } from '../interfaces'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface AuthJwtPayloadOptions extends Pick<IStringParseOptions, 'parseAs'> {}
 
 export const AuthJwtPayload = createParamDecorator(
