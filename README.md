@@ -129,6 +129,26 @@ For open source projects, say how it is licensed.
 ## Project status
 If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
 
+---
+
+## Release
+
+This package uses semantic versioning via commit messages:
+
+```bash
+ci: message        # Changes to the build system or dependencies
+doc: message       # Documentation updates or maintenance tasks
+feat: message      # New features or significant changes
+fix: message       # Bug fixes or corrections
+hotfix: message    # Critical fixes, usually for production issues
+refactor: message  # Code refactoring (improvements without changing functionality)
+revert: message    # Reverting a previous commit or change
+style: message     # Code style changes (e.g., formatting, semicolons)
+test: message      # Adding or fixing tests
+```
+
+Any other prefix will cause the commit to be ignored by semantic-release and won't appear anywhere in release notes.
+
 ***
 # Setup and Initialization
 
@@ -136,24 +156,26 @@ Use these commands to set up your local environment and populate the database wi
 
 ```sh
 # Clean up the project (e.g., remove old builds, reset the database)
-yarn start:clean
+yarn app:reset
 
 # Create and generate environment variables
 yarn app:env create
 yarn app:env generate
 
 # Run the main seeding scripts
-yarn app:seed
 yarn start:cli api-key:seed
 yarn start:cli app-version:seed
 
 # Seed example products and members
 yarn start:cli product:seed -i 100
-yarn start:cli member:seed -i 1000
+yarn start:cli member:seed -i 100
 yarn start:cli cart:seed
 
+# Apply new settings for permissions
+yarn permission:migrate
+
 # Apply current permissions to system roles
-yarn app:migrate
+yarn role:migrate
 
 # Run the project in development mode
 yarn start:dev
