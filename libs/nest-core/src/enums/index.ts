@@ -1,6 +1,7 @@
 export * from './app.enum'
 export * from './date.enum'
 export * from './error.enum'
+export * from './file.enum'
 export * from './loyalty.enum'
 export * from './place.enum'
 export * from './unit.enum'

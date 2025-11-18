@@ -43,15 +43,10 @@ import {
   AuthUserScopeProtected,
 } from 'lib/nest-auth'
 import {
-  ENUM_GENDER_TYPE,
-  MESSAGE_LANGUAGES,
-  MULTITENANCY_ENABLE,
-  TIMEZONE_LIST,
-} from 'lib/nest-core'
-import {
   ENUM_FILE_DISPOSITION,
   ENUM_FILE_MIME,
   ENUM_FILE_TYPE_EXCEL,
+  ENUM_GENDER_TYPE,
   FileUploadMultiple,
   FileUploadMultipleFields,
   FileUploadSingle,
@@ -59,8 +54,11 @@ import {
   IFileUploadMultipleField,
   IFileUploadMultipleFieldOptions,
   IFileUploadSingle,
+  MESSAGE_LANGUAGES,
+  MULTITENANCY_ENABLE,
   NoFilesUpload,
-} from 'lib/nest-file'
+  TIMEZONE_LIST,
+} from 'lib/nest-core'
 import {
   REQUEST_DEFAULT_DOWNLOAD_TIMEOUT,
   REQUEST_DEFAULT_EXPORT_TIMEOUT,

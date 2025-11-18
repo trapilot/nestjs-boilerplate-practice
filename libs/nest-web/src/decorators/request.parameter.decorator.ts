@@ -191,7 +191,7 @@ export function RequestQueryList(options?: IRequestQueryListOptions): ParameterD
       options?.availableOrderBy
         ? options.availableOrderBy
         : options?.defaultOrderBy
-          ? options.defaultOrderBy.split(',').map((ord) => ord.split(':')[0])
+          ? options.defaultOrderBy.split('|').map((ord) => ord.split(':')[0])
           : [],
     ),
     RequestFilterPagingPipe(options?.defaultPerPage),

@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { FailedAttemptError, FeatureDisabledException, NestQueue, pNestRetry } from 'lib/nest-core'
+import { AppException, FailedAttemptError, QueueContext, RetryContext } from 'lib/nest-core'
 import { LoggerService } from 'lib/nest-logger'
 import { createTransport, Transporter } from 'nodemailer'
 import { INotificationPayload } from '../interfaces'
@@ -9,7 +9,7 @@ import { INotificationPayload } from '../interfaces'
 export class EmailProvider {
   private readonly dryRun: boolean
 
-  private queue = new NestQueue({ concurrency: 1 })
+  private queue = new QueueContext({ concurrency: 1 })
   private transporter!: Transporter
 
   constructor(
@@ -22,11 +22,12 @@ export class EmailProvider {
 
   send(payload: INotificationPayload) {
     if (this.dryRun) {
-      throw new FeatureDisabledException(
-        `Simulating send email when developing.\n
+      throw new AppException({
+        message: `Simulating send email when developing.\n
           Subject: ${payload.subject}\n
           Content: ${payload.content}\n`,
-      )
+        httpStatus: HttpStatus.LOCKED,
+      })
     }
 
     if (!this.transporter) {
@@ -55,7 +56,7 @@ export class EmailProvider {
     }
 
     return this.queue.add(() =>
-      pNestRetry(() => this.process(payload), {
+      RetryContext(() => this.process(payload), {
         onFailedAttempt: (error: FailedAttemptError) => {
           this.logger.debug(
             `Email to ${payload.to} failed, retrying (${error.retriesLeft} attempts left)`,

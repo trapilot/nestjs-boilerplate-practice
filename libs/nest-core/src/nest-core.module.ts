@@ -1,53 +1,123 @@
+import { createClient, createKeyv, RedisClientOptions } from '@keyv/redis'
 import { HttpModule } from '@nestjs/axios'
-import { CacheModule, CacheModuleOptions } from '@nestjs/cache-manager'
+import { BullModule } from '@nestjs/bullmq'
+import { CacheModule, CacheOptions } from '@nestjs/cache-manager'
 import { DynamicModule, Module } from '@nestjs/common'
-import { ConfigModule, ConfigModuleOptions, ConfigService } from '@nestjs/config'
+import { ConfigFactory, ConfigModule, ConfigService } from '@nestjs/config'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ScheduleModule } from '@nestjs/schedule'
-import { NestFileModule } from 'lib/nest-file'
 import { NestLoggerModule } from 'lib/nest-logger'
-import { NestMessageModule } from 'lib/nest-message'
 import { NestNotifierModule } from 'lib/nest-notifier'
+import { HeaderResolver, I18nJsonLoader, I18nModule } from 'nestjs-i18n'
+import { join } from 'path'
+import { APP_PATH, REALTIME_PUB, REALTIME_STREAM, REALTIME_SUB } from './constants'
+import { ENUM_MESSAGE_LANGUAGE } from './enums'
 import {
   HelperArrayService,
   HelperCryptoService,
   HelperDateService,
+  HelperFileService,
+  HelperMessageService,
   HelperNumberService,
+  HelperRealtimeService,
   HelperStringService,
 } from './services'
 
 @Module({})
 export class NestCoreModule {
   static forRoot(options: {
-    config: ConfigModuleOptions
-    cache: CacheModuleOptions
+    configs: Array<ConfigFactory | Promise<ConfigFactory>>
+    cache?: boolean
+    envFilePath?: string[]
   }): DynamicModule {
     return {
       global: true,
       module: NestCoreModule,
-      providers: [
-        HelperArrayService,
-        HelperDateService,
-        HelperCryptoService,
-        HelperNumberService,
-        HelperStringService,
-      ],
       exports: [
+        HelperFileService,
         HelperArrayService,
         HelperDateService,
         HelperCryptoService,
         HelperNumberService,
         HelperStringService,
+        HelperMessageService,
+        HelperRealtimeService,
+      ],
+      providers: [
+        HelperFileService,
+        HelperArrayService,
+        HelperDateService,
+        HelperCryptoService,
+        HelperNumberService,
+        HelperStringService,
+        HelperMessageService,
+        HelperRealtimeService,
+        {
+          provide: REALTIME_PUB,
+          inject: [ConfigService],
+          useFactory: async (configService: ConfigService) => {
+            const host = configService.get<string>('redis.pub.host')
+            const port = configService.get<number>('redis.pub.port')
+
+            if (host && port) {
+              const client = createClient({
+                socket: { host, port },
+                database: configService.get<number>('redis.pub.database', 2),
+                username: configService.get<string>('redis.pub.username'),
+                password: configService.get<string>('redis.pub.password'),
+              })
+              await client.connect()
+              return client
+            }
+          },
+        },
+        {
+          provide: REALTIME_SUB,
+          inject: [ConfigService],
+          useFactory: async (configService: ConfigService) => {
+            const host = configService.get<string>('redis.sub.host')
+            const port = configService.get<number>('redis.sub.port')
+
+            if (host && port) {
+              const client = createClient({
+                socket: { host, port },
+                database: configService.get<number>('redis.sub.database', 3),
+                username: configService.get<string>('redis.sub.username'),
+                password: configService.get<string>('redis.sub.password'),
+              })
+              await client.connect()
+              return client
+            }
+          },
+        },
+        {
+          provide: REALTIME_STREAM,
+          inject: [ConfigService],
+          useFactory: async (configService: ConfigService) => {
+            const host = configService.get<string>('redis.stream.host')
+            const port = configService.get<number>('redis.stream.port')
+
+            if (host && port) {
+              const client = createClient({
+                socket: { host, port },
+                database: configService.get<number>('redis.stream.database', 4),
+                username: configService.get<string>('redis.stream.username'),
+                password: configService.get<string>('redis.stream.password'),
+              })
+              await client.connect()
+              return client
+            }
+          },
+        },
       ],
       imports: [
-        ConfigModule.forRoot(options.config),
-        CacheModule.register(options.cache),
-        EventEmitterModule.forRoot({ ignoreErrors: true }),
-        ScheduleModule.forRoot(),
-        NestFileModule.forRoot(),
-        NestLoggerModule.forRoot(),
-        NestNotifierModule.forRoot(),
-        NestMessageModule.forRoot(),
+        ConfigModule.forRoot({
+          isGlobal: true,
+          load: options.configs,
+          cache: options.cache ?? true,
+          envFilePath: options?.envFilePath ?? ['.env'],
+          expandVariables: false,
+        }),
         HttpModule.registerAsync({
           global: true,
           useFactory: (config: ConfigService) => ({
@@ -56,6 +126,78 @@ export class NestCoreModule {
           }),
           inject: [ConfigService],
         }),
+        I18nModule.forRootAsync({
+          loader: I18nJsonLoader,
+          inject: [ConfigService],
+          resolvers: [new HeaderResolver(['x-language'])],
+          useFactory: (config: ConfigService) => ({
+            fallbackLanguage: config.getOrThrow<ENUM_MESSAGE_LANGUAGE>('helper.message.fallback'),
+            fallbacks: config
+              .get<ENUM_MESSAGE_LANGUAGE[]>('helper.message.availableList')
+              .reduce((a, v) => ({ ...a, [`${v}_*`]: v }), {}),
+            loaderOptions: {
+              path: join(APP_PATH, 'languages'),
+              watch: true,
+            },
+            logging: false,
+            skipAsyncHook: true,
+            throwOnMissingKey: false,
+            viewEngine: config.get<'hbs' | 'pug' | 'ejs'>('app.view', 'hbs'),
+          }),
+        }),
+
+        CacheModule.registerAsync({
+          isGlobal: true,
+          imports: [ConfigModule],
+          inject: [ConfigService],
+          useFactory: async (configService: ConfigService): Promise<CacheOptions> => {
+            const host = configService.get<string>('redis.pub.host')
+            const port = configService.get<number>('redis.pub.port')
+            const max = configService.get<number>('redis.cache.max')
+            const ttl = configService.get<number>('redis.cache.ttl')
+
+            if (host && port) {
+              return {
+                max,
+                ttl,
+                stores: [
+                  createKeyv({
+                    socket: { host, port },
+                    database: configService.get<number>('redis.cache.database', 0),
+                    username: configService.get<string>('redis.cache.username'),
+                    password: configService.get<string>('redis.cache.password'),
+                  } as RedisClientOptions).store,
+                ],
+              }
+            }
+            return { max, ttl }
+          },
+        }),
+        BullModule.forRootAsync({
+          imports: [ConfigModule],
+          inject: [ConfigService],
+          useFactory: (configService: ConfigService) => ({
+            connection: {
+              host: configService.get<string>('redis.queue.host'),
+              port: configService.get<number>('redis.queue.port'),
+              db: configService.get<number>('redis.cache.database', 1),
+              username: configService.get<string>('redis.queue.username'),
+              password: configService.get<string>('redis.queue.password'),
+              tls: configService.get<any>('redis.queue.tls'),
+            },
+            defaultJobOptions: {
+              backoff: {
+                type: 'exponential',
+                delay: 3_000,
+              },
+              attempts: 3,
+            },
+          }),
+        }),
+        EventEmitterModule.forRoot({ ignoreErrors: true }),
+        ScheduleModule.forRoot(),
+        NestLoggerModule.forRoot(),
+        NestNotifierModule.forRoot(),
       ],
     }
   }

@@ -34,8 +34,4 @@ export class HelperNumberService {
     }
     return Number.parseFloat((tValue * 100).toFixed(2))
   }
-
-  pad(number: number, maxLength: number, fillString: string = '0') {
-    return number.toString().padStart(maxLength, fillString)
-  }
 }

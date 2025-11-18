@@ -1,6 +1,6 @@
 import { Transform } from 'class-transformer'
 import { AuthAbilityHelper } from 'lib/nest-auth'
-import { NestHelper } from 'lib/nest-core'
+import { AppHelper } from 'lib/nest-core'
 import { TRole } from '../interfaces'
 
 export function ToRolePermissions(): (target: any, key: string) => void {
@@ -17,7 +17,7 @@ export function ToRolePermissions(): (target: any, key: string) => void {
           const { context, subject, title, bitwise } = perm
           if (!(subject in mappedPermissions)) {
             mappedPermissions[subject] = {
-              title: NestHelper.toLocaleValue(title),
+              title: AppHelper.toLocaleValue(title),
               context,
               subject,
               actions: [],

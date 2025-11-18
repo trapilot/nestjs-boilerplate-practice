@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { OnEvent } from '@nestjs/event-emitter'
-import { MessageService } from 'lib/nest-message'
+import { HelperMessageService } from 'lib/nest-core'
 import { MemberGateway } from 'src/app/gateway'
 import { MemberSignInEvent } from '../events'
 
@@ -8,7 +8,7 @@ import { MemberSignInEvent } from '../events'
 export class MemberAuthListener {
   constructor(
     private readonly memberGateway: MemberGateway,
-    private readonly messageService: MessageService,
+    private readonly helperMessageService: HelperMessageService,
   ) {}
 
   @OnEvent(MemberSignInEvent.eventPath, { async: true })
@@ -19,7 +19,7 @@ export class MemberAuthListener {
     this.memberGateway.sendToClient(event.memberId, {
       token: event.memberToken,
       data: {
-        message: this.messageService.setMessage('auth.error.uniqueLoggedIn'),
+        message: this.helperMessageService.setMessage('auth.error.uniqueLoggedIn'),
       },
     })
   }

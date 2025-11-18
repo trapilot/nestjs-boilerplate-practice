@@ -1,6 +1,6 @@
 import { ENUM_PRODUCT_EXPIRY } from '@prisma/client'
 import { Transform } from 'class-transformer'
-import { IDateRequestOptions, NestHelper } from 'lib/nest-core'
+import { AppHelper, IDateRequestOptions } from 'lib/nest-core'
 
 export function ToDynamicExpiryDays(): (target: any, key: string) => void {
   return Transform(({ obj, value }: any) => {
@@ -19,7 +19,7 @@ export function ToStaticExpiryDate(
 ): (target: any, key: string) => void {
   return Transform(({ obj, value }: any) => {
     if (obj.expiryType === ENUM_PRODUCT_EXPIRY.STATIC) {
-      return value ? NestHelper.toDate(value, options) : value
+      return value ? AppHelper.toDate(value, options) : value
     }
     return value
   })
@@ -32,7 +32,7 @@ export function ToDynamicExpiryDate(
     if (obj.expiryType === ENUM_PRODUCT_EXPIRY.DYNAMIC && obj?.dynamicExpiryDays) {
       const dynamicDate = new Date()
       dynamicDate.setDate(dynamicDate.getDate() + obj.dynamicExpiryDays)
-      return NestHelper.toDate(dynamicDate, options)
+      return AppHelper.toDate(dynamicDate, options)
     }
     return null
   })

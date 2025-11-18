@@ -178,9 +178,9 @@ export class LoggerFileDriver extends Writable {
         const { filePath: newFilePath } = this.createFilePath(type)
         return this.addFileStream(type, newFilePath)
       }
-    } catch (error) {
+    } catch (_: any) {
       // If the file does not exist (e.g., was deleted), create a new one.
-      console.error(`File for ${type} was not found, creating a new file...`)
+      // console.error(`File for ${type} was not found, creating a new file...`)
       this.fileStreams.delete(type)
       this.filePaths.delete(type)
       const { filePath: newFilePath } = this.createFilePath(type)

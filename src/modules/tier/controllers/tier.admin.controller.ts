@@ -7,8 +7,8 @@ import {
   ENUM_AUTH_ABILITY_SUBJECT,
   ENUM_AUTH_SCOPE_TYPE,
 } from 'lib/nest-auth'
-import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-file'
-import { PrismaHelper } from 'lib/nest-prisma/utils'
+import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
+import { PrismaHelper } from 'lib/nest-prisma'
 import {
   ApiRequestData,
   ApiRequestList,

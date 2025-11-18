@@ -37,6 +37,7 @@
     "notImplemented": "Chưa được thực hiện",
     "temporaryRedirect": "TChuyển hướng tạm thời",
     "badGateway": "Cổng không hợp lệ",
+    "featureLocked": "Tính năng tạm khóa",
     "serviceUnavailable": "Dịch vụ không khả dụng",
     "serviceMaintenance": "Chúng tôi đang bảo trì để cải thiện dịch vụ",
     "requestTimeout": "Yêu cầu quá thời gian",

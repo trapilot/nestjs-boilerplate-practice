@@ -5,7 +5,9 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": true,
-    "plugins": ["@nestjs/swagger"],
+    "plugins": [
+      "@nestjs/swagger"
+    ],
     "assets": [
       {
         "include": "languages/**/*",
@@ -18,15 +20,6 @@
     ]
   },
   "projects": {
-    "nest-core": {
-      "type": "library",
-      "root": "libs/nest-core",
-      "entryFile": "index",
-      "sourceRoot": "libs/nest-core/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/nest-core/tsconfig.lib.json"
-      }
-    },
     "nest-auth": {
       "type": "library",
       "root": "libs/nest-auth",
@@ -36,13 +29,13 @@
         "tsConfigPath": "libs/nest-auth/tsconfig.lib.json"
       }
     },
-    "nest-file": {
+    "nest-core": {
       "type": "library",
-      "root": "libs/nest-file",
+      "root": "libs/nest-core",
       "entryFile": "index",
-      "sourceRoot": "libs/nest-file/src",
+      "sourceRoot": "libs/nest-core/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/nest-file/tsconfig.lib.json"
+        "tsConfigPath": "libs/nest-core/tsconfig.lib.json"
       }
     },
     "nest-logger": {
@@ -61,15 +54,6 @@
       "sourceRoot": "libs/nest-notifier/src",
       "compilerOptions": {
         "tsConfigPath": "libs/nest-notifier/tsconfig.lib.json"
-      }
-    },
-    "nest-message": {
-      "type": "library",
-      "root": "libs/nest-message",
-      "entryFile": "index",
-      "sourceRoot": "libs/nest-message/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/nest-message/tsconfig.lib.json"
       }
     },
     "nest-prisma": {

@@ -2,12 +2,12 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nes
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import { Reflector } from '@nestjs/core'
 import { ClassConstructor, ClassTransformOptions, plainToInstance } from 'class-transformer'
-import { HelperDateService, IRequestApp, IResponseApp, NestContext } from 'lib/nest-core'
+import { AppContext, HelperDateService, IRequestApp, IResponseApp } from 'lib/nest-core'
 import { Observable, throwError } from 'rxjs'
 import { catchError, map } from 'rxjs/operators'
 import { RESPONSE_DTO_CONSTRUCTOR_METADATA, RESPONSE_DTO_OPTIONS_METADATA } from '../constants'
 import { ResponseMetadataDto } from '../dtos'
-import { IResponseBody, IResponseData } from '../interfaces'
+import { IResponseData, IResponseSuccess } from '../interfaces'
 
 @Injectable()
 export class ResponseDataInterceptor<T> implements NestInterceptor<T, IResponseData> {
@@ -31,7 +31,7 @@ export class ResponseDataInterceptor<T> implements NestInterceptor<T, IResponseD
     return next.handle()
   }
 
-  private send(context: ExecutionContext, responseData: IResponseData): IResponseBody {
+  private send(context: ExecutionContext, responseData: IResponseData): IResponseSuccess {
     const ctx: HttpArgumentsHost = context.switchToHttp()
     const req: IRequestApp = ctx.getRequest<IRequestApp>()
     const res: IResponseApp = ctx.getResponse<IResponseApp>()
@@ -48,16 +48,16 @@ export class ResponseDataInterceptor<T> implements NestInterceptor<T, IResponseD
 
     // metadata
     const dateNow = this.helperDateService.create()
-    const ctxData = NestContext.current()
+    const ctxData = AppContext.current()
     let metadata: ResponseMetadataDto = {
       path: req.path,
-      language: ctxData?.language ?? NestContext.language(),
-      timezone: ctxData?.timezone ?? NestContext.timezone(),
-      version: ctxData?.apiVersion ?? NestContext.apiVersion(),
+      language: ctxData?.language ?? AppContext.language(),
+      timezone: ctxData?.timezone ?? AppContext.timezone(),
+      version: ctxData?.apiVersion ?? AppContext.apiVersion(),
       timestamp: this.helperDateService.getTimestamp(dateNow),
     }
 
-    let statusHttp = res.statusCode
+    const statusHttp = res.statusCode
     let result = responseData.data
 
     const { _metadata } = responseData

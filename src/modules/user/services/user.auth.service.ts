@@ -20,8 +20,13 @@ import {
   IAuthValidatorOptions,
   ITokenPayload,
 } from 'lib/nest-auth'
-import { APP_TIMEZONE, HelperCryptoService, HelperDateService, IRequestApp } from 'lib/nest-core'
-import { FileService } from 'lib/nest-file'
+import {
+  APP_TIMEZONE,
+  HelperCryptoService,
+  HelperDateService,
+  HelperFileService,
+  IRequestApp,
+} from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { IResult } from 'ua-parser-js'
 import {
@@ -52,7 +57,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
   constructor(
     private readonly prisma: PrismaService,
     private readonly authService: AuthService,
-    private readonly fileService: FileService,
+    private readonly helperFileService: HelperFileService,
     private readonly helperDateService: HelperDateService,
     private readonly helperCryptoService: HelperCryptoService,
   ) {}
@@ -456,7 +461,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
   async changeAvatar(user: TUser, data: Prisma.UserUncheckedUpdateInput): Promise<TUser> {
     return await this.prisma.$transaction(async (tx) => {
       const _user = await tx.user.update({ data, where: { id: user.id } })
-      await this.fileService.unlink(user.avatar)
+      await this.helperFileService.unlink(user.avatar)
       return _user
     })
   }

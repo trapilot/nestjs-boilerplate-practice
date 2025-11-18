@@ -6,14 +6,19 @@ import { IoAdapter } from '@nestjs/platform-socket.io'
 import { plainToInstance } from 'class-transformer'
 import { useContainer, validate } from 'class-validator'
 import compression from 'compression'
-import { INextFunction, IRequestApp, IResponseApp, ROOT_PATH } from 'lib/nest-core'
-import { MessageService } from 'lib/nest-message'
+import {
+  HelperMessageService,
+  INextFunction,
+  IRequestApp,
+  IResponseApp,
+  ROOT_PATH,
+} from 'lib/nest-core'
 import { CommandFactory } from 'nest-commander'
 import { join } from 'path'
 import { AppModule } from 'src/app/app.module'
 import { CliModule } from 'src/app/cli.module'
 import { AppEnvDto } from 'src/app/dtos'
-import docSetup from 'src/tools/docs'
+import docSetup from 'src/docs'
 
 async function bootstrap() {
   const app: NestApplication = await NestFactory.create(AppModule, {
@@ -22,6 +27,7 @@ async function bootstrap() {
     bufferLogs: false,
     abortOnError: true,
   })
+
   const config = app.get(ConfigService)
   const env: string = config.get<string>('app.env')
   const host: string = config.get<string>('app.http.host', 'localhost')
@@ -50,7 +56,9 @@ async function bootstrap() {
   })
 
   // Custom Validation
-  useContainer(app.select(AppModule), { fallbackOnErrors: true })
+  useContainer(app.select(AppModule), {
+    fallbackOnErrors: true,
+  })
 
   // Static
   app.useStaticAssets(join(ROOT_PATH, 'public'), { prefix: '/public/' })
@@ -69,7 +77,7 @@ async function bootstrap() {
   const classEnv = plainToInstance(AppEnvDto, process.env)
   const errors = await validate(classEnv)
   if (errors.length > 0) {
-    const messageService = app.get(MessageService)
+    const messageService = app.get(HelperMessageService)
     const messageErrors = messageService.setValidationMessage(errors)
 
     throw new Error('Env Variable Invalid', {
@@ -86,7 +94,11 @@ async function bootstrap() {
   await docSetup(app)
 
   // set response for log
-  app.use(function (_: IRequestApp, res: IResponseApp, next: INextFunction) {
+  app.use(function (req: IRequestApp, res: IResponseApp, next: INextFunction) {
+    if (req.originalUrl && req.originalUrl.split('/').pop() === 'favicon.ico') {
+      return res.sendStatus(204)
+    }
+
     const send = res.send
     res.send = function (body: any) {
       res.body = body

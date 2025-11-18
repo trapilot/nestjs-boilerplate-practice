@@ -1,5 +1,5 @@
 import { ENUM_PUSH_TYPE, Prisma } from '@prisma/client'
-import { NestHelper } from 'lib/nest-core'
+import { AppHelper } from 'lib/nest-core'
 import { NotificationPushCreateDto } from 'src/modules/notification/dtos'
 
 export class PushHelper {
@@ -41,14 +41,14 @@ export class PushHelper {
       return new Date()
     }
     if (dto.type === ENUM_PUSH_TYPE.DATETIME) {
-      return NestHelper.mergeDate(dto.executeDate, dto.executeTime)
+      return AppHelper.mergeDate(dto.executeDate, dto.executeTime)
     }
-    return NestHelper.mergeDate(dto.startDate, dto.executeTime)
+    return AppHelper.mergeDate(dto.startDate, dto.executeTime)
   }
 
   static makeDto(dto: NotificationPushCreateDto): Prisma.PushCreateManyNotificationInput {
     const dateSchedule = PushHelper.getScheduledDate(dto)
-    const dateExtract = NestHelper.extractDate(dateSchedule)
+    const dateExtract = AppHelper.extractDate(dateSchedule)
 
     return {
       ...dto,

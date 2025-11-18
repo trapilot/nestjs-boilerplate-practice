@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import { Logger } from '@nestjs/common'
 import { ENUM_ORDER_SOURCE, ENUM_POINT_TYPE, Prisma } from '@prisma/client'
-import { HelperDateService, NEST_CLI, NestHelper } from 'lib/nest-core'
+import { AppHelper, HelperDateService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner } from 'nest-commander'
 import { MemberService } from 'src/modules/member/services'
@@ -42,7 +42,7 @@ export class CartSeedCommand extends CommandRunner {
       const products = await this.prisma.product.findMany()
 
       for (const member of members) {
-        const pointBalance = NestHelper.randomNumber(2_000, 20_000, 500)
+        const pointBalance = AppHelper.randomNumber(2_000, 20_000, 500)
         await this.prisma.member.update({
           where: { id: member.id },
           data: {
@@ -64,11 +64,11 @@ export class CartSeedCommand extends CommandRunner {
 
       for (const member of members) {
         try {
-          const productList = NestHelper.randomItems(products, NestHelper.randomNumber(1, 2))
+          const productList = AppHelper.randomItems(products, AppHelper.randomNumber(1, 2))
 
           const cartItems: Prisma.CartItemUncheckedCreateWithoutCartInput[] = []
           for (const product of productList) {
-            const quantity = NestHelper.randomNumber(1, 2)
+            const quantity = AppHelper.randomNumber(1, 2)
 
             cartItems.push({
               productId: product.id,

@@ -1,9 +1,14 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Logger } from '@nestjs/common'
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import { Prisma } from '@prisma/client'
-import { HelperDateService, IRequestApp, IResponseApp, NestContext } from 'lib/nest-core'
-import { MessageService } from 'lib/nest-message'
-import { IResponseBody, ResponseMetadataDto } from 'lib/nest-web'
+import {
+  AppContext,
+  HelperDateService,
+  HelperMessageService,
+  IRequestApp,
+  IResponseApp,
+} from 'lib/nest-core'
+import { IResponseFailure, ResponseMetadataDto } from 'lib/nest-web'
 
 @Catch(
   Prisma.PrismaClientKnownRequestError,
@@ -14,8 +19,8 @@ export class PrismaFilter implements ExceptionFilter {
   private readonly logger = new Logger(PrismaFilter.name)
 
   constructor(
-    private readonly messageService: MessageService,
     private readonly helperDateService: HelperDateService,
+    private readonly helperMessageService: HelperMessageService,
   ) {}
 
   catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
@@ -28,23 +33,23 @@ export class PrismaFilter implements ExceptionFilter {
 
     // metadata
     const dateNow = this.helperDateService.create()
-    const ctxData = NestContext.current()
+    const ctxData = AppContext.current()
     const metadata: ResponseMetadataDto = {
       path: req.path,
-      language: ctxData?.language ?? NestContext.language(),
-      timezone: ctxData?.timezone ?? NestContext.timezone(),
-      version: ctxData?.apiVersion ?? NestContext.apiVersion(),
+      language: ctxData?.language ?? AppContext.language(),
+      timezone: ctxData?.timezone ?? AppContext.timezone(),
+      version: ctxData?.apiVersion ?? AppContext.apiVersion(),
       timestamp: this.helperDateService.getTimestamp(dateNow),
     }
 
     // message
     const messageCode = exception?.code ? exception.code : 'P0000'
-    const message = this.messageService.setMessage(`prisma.${messageCode}`, {
+    const message = this.helperMessageService.setMessage(`prisma.${messageCode}`, {
       customLanguage: metadata.language,
       properties: exception?.meta,
     })
 
-    const responseBody: IResponseBody = {
+    const responseBody: IResponseFailure = {
       success: false,
       metadata,
       error: {

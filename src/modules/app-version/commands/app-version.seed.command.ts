@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ENUM_APP_VERSION_PLATFORM } from '@prisma/client'
-import { NEST_CLI, NestHelper } from 'lib/nest-core'
+import { NEST_CLI } from 'lib/nest-core'
 import { Command, CommandRunner } from 'nest-commander'
 import { AppVersionService } from '../services'
 

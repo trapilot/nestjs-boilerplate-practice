@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { DateObjectUnits, DateTime, Duration, DurationLikeObject } from 'luxon'
+import { AppContext } from '../contexts'
 import { ENUM_DATE_FORMAT } from '../enums'
 import {
   IDateCheckOptions,
@@ -9,12 +10,11 @@ import {
   IDateRange,
   IDateRoundDownOptions,
 } from '../interfaces'
-import { NestContext } from '../utils'
 
 @Injectable()
 export class HelperDateService {
   calculateAge(dateOfBirth: Date, fromYear?: number): Duration {
-    const timeZone = NestContext.timezone()
+    const timeZone = AppContext.timezone()
     const dateTime = DateTime.now().setZone(timeZone).plus({ day: 1 }).set({
       hour: 0,
       minute: 0,
@@ -61,11 +61,11 @@ export class HelperDateService {
   }
 
   checkIso(date: string): boolean {
-    return DateTime.fromISO(date).setZone(NestContext.timezone()).isValid
+    return DateTime.fromISO(date).setZone(AppContext.timezone()).isValid
   }
 
   checkTimestamp(timestamp: number): boolean {
-    return DateTime.fromMillis(timestamp).setZone(NestContext.timezone()).isValid
+    return DateTime.fromMillis(timestamp).setZone(AppContext.timezone()).isValid
   }
 
   checkZone(timezone: string): boolean {
@@ -73,31 +73,31 @@ export class HelperDateService {
   }
 
   getZone(date: Date): string {
-    return DateTime.fromJSDate(date).setZone(NestContext.timezone()).zone.name
+    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).zone.name
   }
 
   getZoneOffset(date: Date): string {
-    return DateTime.fromJSDate(date).setZone(NestContext.timezone()).offsetNameShort
+    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).offsetNameShort
   }
 
   getTimestamp(date: Date): number {
-    return DateTime.fromJSDate(date).setZone(NestContext.timezone()).toMillis()
+    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).toMillis()
   }
 
   formatToRFC2822(date: Date): string {
-    return DateTime.fromJSDate(date).setZone(NestContext.timezone()).toRFC2822()
+    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).toRFC2822()
   }
 
   formatToIso(date: Date): string {
-    return DateTime.fromJSDate(date).setZone(NestContext.timezone()).toISO()
+    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).toISO()
   }
 
   formatToIsoDate(date: Date): string {
-    return DateTime.fromJSDate(date).setZone(NestContext.timezone()).toISODate()
+    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).toISODate()
   }
 
   formatToIsoTime(date: Date): string {
-    return DateTime.fromJSDate(date).setZone(NestContext.timezone()).toISOTime()
+    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).toISOTime()
   }
 
   checkDates(dateOne: Date, dateTwoMoreThanDateOne: Date, options: IDateCheckOptions): boolean {
@@ -111,7 +111,7 @@ export class HelperDateService {
   }
 
   createInstance(date?: Date, options?: IDateCreateOptions): DateTime {
-    const timezone = options?.timezone ?? NestContext.timezone()
+    const timezone = options?.timezone ?? AppContext.timezone()
     let mDate = date
       ? DateTime.fromJSDate(date).setZone(timezone)
       : DateTime.now().setZone(timezone)
@@ -149,7 +149,7 @@ export class HelperDateService {
   }
 
   createFromIso(iso: string, options?: IDateCreateOptions): Date {
-    const timezone = options?.timezone ?? NestContext.timezone()
+    const timezone = options?.timezone ?? AppContext.timezone()
     let mDate = DateTime.fromISO(iso).setZone(timezone)
 
     if (options?.startOfDay) {
@@ -165,7 +165,7 @@ export class HelperDateService {
   }
 
   createFromTimestamp(timestamp?: number, options?: IDateCreateOptions): Date {
-    const timezone = options?.timezone ?? NestContext.timezone()
+    const timezone = options?.timezone ?? AppContext.timezone()
     let mDate = timestamp
       ? DateTime.fromMillis(timestamp).setZone(timezone)
       : DateTime.now().setZone(timezone)
@@ -187,19 +187,19 @@ export class HelperDateService {
   }
 
   set(date: Date, units: DateObjectUnits): Date {
-    return DateTime.fromJSDate(date).setZone(NestContext.timezone()).set(units).toJSDate()
+    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).set(units).toJSDate()
   }
 
   forward(date: Date, duration: DurationLikeObject): Date {
     return DateTime.fromJSDate(date)
-      .setZone(NestContext.timezone())
+      .setZone(AppContext.timezone())
       .plus(Duration.fromObject(duration))
       .toJSDate()
   }
 
   backward(date: Date, duration: DurationLikeObject): Date {
     return DateTime.fromJSDate(date)
-      .setZone(NestContext.timezone())
+      .setZone(AppContext.timezone())
       .minus(Duration.fromObject(duration))
       .toJSDate()
   }

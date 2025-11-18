@@ -1,4 +1,5 @@
 import { registerAs } from '@nestjs/config'
+import { MESSAGE_FALLBACK, MESSAGE_LANGUAGES } from 'lib/nest-core'
 
 export default registerAs(
   'helper',
@@ -14,6 +15,10 @@ export default registerAs(
     http: {
       maxRedirects: 5,
       timeout: 5_000,
+    },
+    message: {
+      fallback: MESSAGE_FALLBACK,
+      availableList: MESSAGE_LANGUAGES,
     },
   }),
 )

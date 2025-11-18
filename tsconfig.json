@@ -18,23 +18,17 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "paths": {
-      "lib/nest-core": [
-        "libs/nest-core/src"
-      ],
-      "lib/nest-core/*": [
-        "libs/nest-core/src/*"
-      ],
       "lib/nest-auth": [
         "libs/nest-auth/src"
       ],
       "lib/nest-auth/*": [
         "libs/nest-auth/src/*"
       ],
-      "lib/nest-file": [
-        "libs/nest-file/src"
+      "lib/nest-core": [
+        "libs/nest-core/src"
       ],
-      "lib/nest-file/*": [
-        "libs/nest-file/src/*"
+      "lib/nest-core/*": [
+        "libs/nest-core/src/*"
       ],
       "lib/nest-logger": [
         "libs/nest-logger/src"
@@ -47,12 +41,6 @@
       ],
       "lib/nest-notifier/*": [
         "libs/nest-notifier/src/*"
-      ],
-      "lib/nest-message": [
-        "libs/nest-message/src"
-      ],
-      "lib/nest-message/*": [
-        "libs/nest-message/src/*"
       ],
       "lib/nest-prisma": [
         "libs/nest-prisma/src"

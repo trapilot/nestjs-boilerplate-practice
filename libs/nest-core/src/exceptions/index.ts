@@ -1,2 +1,1 @@
-export * from './entity.validate.exception'
-export * from './feature.disabled.exception'
+export * from './app.exception'

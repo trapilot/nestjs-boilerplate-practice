@@ -1,7 +1,7 @@
 import { Inject, Injectable, mixin, Type } from '@nestjs/common'
 import { ArgumentMetadata, PipeTransform, Scope } from '@nestjs/common/interfaces'
 import { REQUEST } from '@nestjs/core'
-import { IRequestApp, NestHelper } from 'lib/nest-core'
+import { AppHelper, IRequestApp } from 'lib/nest-core'
 import { IRequestFilterEqualOptions } from '../interfaces'
 
 export function RequestFilterEqualPipe(
@@ -27,7 +27,7 @@ export function RequestFilterEqualPipe(
         }
       }
 
-      const finalValue = NestHelper.parse(value, options)
+      const finalValue = AppHelper.parse(value, options)
 
       this.addToRequestInstance(finalValue)
       return {
@@ -69,7 +69,7 @@ export function RequestFilterGreaterThanEqualPipe(
         }
       }
 
-      const finalValue = NestHelper.parse(value, options)
+      const finalValue = AppHelper.parse(value, options)
 
       this.addToRequestInstance(finalValue)
       return {
@@ -111,7 +111,7 @@ export function RequestFilterLessThanEqualPipe(
         }
       }
 
-      const finalValue = NestHelper.parse(value, options)
+      const finalValue = AppHelper.parse(value, options)
 
       this.addToRequestInstance(finalValue)
       return {

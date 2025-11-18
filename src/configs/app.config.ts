@@ -5,8 +5,6 @@ import {
   APP_VERSION_NUMBER,
   APP_VERSION_PREFIX,
   COUNTRY_LIST,
-  MESSAGE_FALLBACK,
-  MESSAGE_LANGUAGES,
 } from 'lib/nest-core'
 
 export default registerAs(
@@ -35,11 +33,6 @@ export default registerAs(
       driver: process.env.DEBUG_DRIVER || 'file', // file | remote
       level: process.env.DEBUG_LEVEL || 'error',
       remoteUrl: process.env.DEBUG_REMOTE,
-    },
-
-    message: {
-      fallback: MESSAGE_FALLBACK,
-      availableList: MESSAGE_LANGUAGES,
     },
 
     urlVersion: {

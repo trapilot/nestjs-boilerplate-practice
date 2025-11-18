@@ -1,9 +1,10 @@
 import { ClassConstructor, plainToInstance, Transform } from 'class-transformer'
+import { AppContext } from '../contexts'
+import { AppHelper } from '../helpers'
 import { IDateRequestOptions, IStringNumericOptions } from '../interfaces'
-import { NestContext, NestHelper } from '../utils'
 
 export function ToUrl(host?: string): (target: any, key: string) => void {
-  return Transform(({ value }: any) => NestHelper.toUrl(value, host))
+  return Transform(({ value }: any) => AppHelper.toUrl(value, host))
 }
 
 export function ToDate(
@@ -12,7 +13,7 @@ export function ToDate(
   return Transform(({ value, obj }: any) => {
     const { ref, ...options } = transform ?? {}
     if (ref) value = obj[ref] ?? undefined
-    return value ? NestHelper.toDate(value, options) : value
+    return value ? AppHelper.toDate(value, options) : value
   })
 }
 
@@ -58,7 +59,7 @@ export function ToEnum(
         }
 
         if (value && transform.locale) {
-          value = value[NestContext.language()] || transform?.default
+          value = value[AppContext.language()] || transform?.default
         }
 
         return enums[value] || transform?.default
@@ -72,8 +73,8 @@ export function ToDecimal(options?: IStringNumericOptions): (target: any, key: s
   return Transform(({ value, obj, key }: any) => {
     const decimal = value ?? obj[key.replace('Format', '')]
     if (typeof decimal === 'number') {
-      return NestHelper.toNumber(decimal ?? 0, {
-        useGrouping: !NestContext.isAdmin(),
+      return AppHelper.toNumber(decimal ?? 0, {
+        useGrouping: !AppContext.isAdmin(),
         ...options,
       })
     }
@@ -83,8 +84,8 @@ export function ToDecimal(options?: IStringNumericOptions): (target: any, key: s
 
 export function ToCurrency(options?: IStringNumericOptions): (target: any, key: string) => void {
   return Transform(({ value, obj, key }: any) => {
-    return NestHelper.toCurrency(value ?? obj[key.replace('Format', '')] ?? 0, {
-      useGrouping: !NestContext.isAdmin(),
+    return AppHelper.toCurrency(value ?? obj[key.replace('Format', '')] ?? 0, {
+      useGrouping: !AppContext.isAdmin(),
       ...options,
     })
   })
@@ -122,7 +123,7 @@ export function ToNestedArray<T>(transform: {
           }
 
           if (data && transform.locale) {
-            data = data[NestContext.language()] || transform?.default
+            data = data[AppContext.language()] || transform?.default
           }
           if (data && transform?.type) {
             data = plainToInstance(transform.type, data, { excludeExtraneousValues: true })
@@ -156,7 +157,7 @@ export function ToNestedField<T>(transform: {
       }
 
       if (data && transform.locale) {
-        data = data[NestContext.language()] || transform?.default
+        data = data[AppContext.language()] || transform?.default
       }
       if (data && transform?.type) {
         return plainToInstance(transform.type, data, { excludeExtraneousValues: true })
@@ -186,7 +187,7 @@ export function ToLocaleField<T>(transform: {
       }
 
       if (data) {
-        data = NestHelper.toLocaleField(data, key)
+        data = AppHelper.toLocaleField(data, key)
       }
 
       if (data && transform?.type) {
@@ -201,7 +202,7 @@ export function ToLocaleField<T>(transform: {
 export function ToLocale(field?: string): (target: any, key: string) => void {
   return Transform(({ obj, value }: any) => {
     if (field) value = obj[field] ?? null
-    return value ? value[NestContext.language()] : value
+    return value ? value[AppContext.language()] : value
   })
 }
 

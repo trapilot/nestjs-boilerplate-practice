@@ -1,8 +1,7 @@
-import { CacheModuleOptions } from '@nestjs/cache-manager'
-import { ConfigModuleOptions } from '@nestjs/config'
-import { EventEmitterModuleOptions } from '@nestjs/event-emitter/dist/interfaces'
+import { HttpStatus } from '@nestjs/common'
 import { NextFunction, Request, Response } from 'express'
 import { AuthJwtAccessPayloadDto } from 'lib/nest-auth'
+import { IMessageProperties } from './message.interface'
 
 export interface IRequestApp<T = AuthJwtAccessPayloadDto> extends Request {
   user?: T
@@ -25,7 +24,7 @@ export interface IRequestApp<T = AuthJwtAccessPayloadDto> extends Request {
   }
 
   raw?: any
-  rawBody?: any // customer raw body
+  rawBody?: any // custom raw body
 }
 
 export interface IRequestContext {
@@ -47,6 +46,36 @@ export interface IResponseApp extends Response {
   send(body: any): any
 }
 
+export interface IResponseMetadata {
+  customProperty?: {
+    statusCode?: number
+    statusHttp?: HttpStatus
+    message?: string
+    messageProperties?: IMessageProperties
+    serializeProperties?: Record<string, any>
+  }
+  [key: string]: any
+}
+
+export interface IResponseCacheOptions {
+  key?: string
+  ttl?: number // milliseconds
+}
+
+export interface IResponseException {
+  message: string
+  httpStatus: number
+  statusCode?: number
+  metadata?: IResponseMetadata
+  errors?: IMessageError[]
+  error?: string
+}
+
+export interface IMessageError {
+  property: string
+  message: string
+}
+
 export interface INextFunction extends NextFunction {}
 
 export interface IContextPayload {
@@ -65,9 +94,3 @@ export interface ISocketMessage {
 }
 
 export interface ISocketBulkMessage extends Omit<ISocketMessage, 'token'> {}
-
-export interface IAppModuleOptions {
-  config: ConfigModuleOptions
-  cache: CacheModuleOptions
-  emitter: EventEmitterModuleOptions
-}

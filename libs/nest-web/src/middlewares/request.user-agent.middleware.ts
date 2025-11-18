@@ -2,14 +2,14 @@ import { Injectable, NestMiddleware } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
   APP_TIMEZONE,
+  AppContext,
+  AppHelper,
   HelperArrayService,
   HelperDateService,
   INextFunction,
   IRequestApp,
   IRequestContext,
   IResponseApp,
-  NestContext,
-  NestHelper,
 } from 'lib/nest-core'
 
 @Injectable()
@@ -27,12 +27,12 @@ export class RequestUserAgentMiddleware implements NestMiddleware {
     req.__timezone = ctxData.timezone
     req.__language = ctxData.language
 
-    NestContext.create(new NestContext(ctxData), next)
+    AppContext.create(new AppContext(ctxData), next)
   }
 
   private parseDataContext(req: IRequestApp): IRequestContext {
     return {
-      apiType: NestHelper.getApiType(req.originalUrl),
+      apiType: AppHelper.getApiType(req.originalUrl),
       apiVersion: this.parseApiVersion(req),
       language: this.parseUserLanguage(req),
       timezone: this.parseUserTimezone(req),

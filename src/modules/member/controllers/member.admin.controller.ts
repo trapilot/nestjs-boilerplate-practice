@@ -8,8 +8,7 @@ import {
   ENUM_AUTH_ABILITY_SUBJECT,
   ENUM_AUTH_SCOPE_TYPE,
 } from 'lib/nest-auth'
-import { HelperDateService } from 'lib/nest-core'
-import { ENUM_FILE_TYPE_EXCEL, FileRequiredPipe, FileTypePipe, IFile } from 'lib/nest-file'
+import { ENUM_FILE_TYPE_EXCEL, HelperDateService, IFile } from 'lib/nest-core'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -19,6 +18,8 @@ import {
   IResponsePaging,
   RequestBody,
   RequestBookType,
+  RequestFileRequiredPipe,
+  RequestFileTypePipe,
   RequestFilterDto,
   RequestListDto,
   RequestParam,
@@ -219,7 +220,7 @@ export class MemberAdminController {
   async create(
     @RequestBody() body: MemberRequestCreateDto,
     @AuthJwtPayload('user.id') createdBy: number,
-    @UploadedFile(new FileTypePipe(MEMBER_UPLOAD_AVATAR_MIME)) file: IFile,
+    @UploadedFile(new RequestFileTypePipe(MEMBER_UPLOAD_AVATAR_MIME)) file: IFile,
   ): Promise<IResponseData> {
     const passwordHash = this.authService.createPassword(body.password)
     const member = await this.memberService.create(
@@ -358,7 +359,10 @@ export class MemberAdminController {
     @RequestBody() body: MemberChangeAvatarRequestDto,
     @RequestParam('id') memberId: number,
     @AuthJwtPayload('user.id') updatedBy: number,
-    @UploadedFile(new FileRequiredPipe('avatar'), new FileTypePipe(MEMBER_UPLOAD_AVATAR_MIME))
+    @UploadedFile(
+      new RequestFileRequiredPipe('avatar'),
+      new RequestFileTypePipe(MEMBER_UPLOAD_AVATAR_MIME),
+    )
     file: IFile,
   ): Promise<IResponseData> {
     const member = await this.memberService.findOrFail(memberId)

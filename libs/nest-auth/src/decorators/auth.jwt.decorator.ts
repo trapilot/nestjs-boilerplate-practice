@@ -5,7 +5,7 @@ import {
   SetMetadata,
   UseGuards,
 } from '@nestjs/common'
-import { IRequestApp, IStringParseOptions, NestHelper } from 'lib/nest-core'
+import { AppHelper, IRequestApp, IStringParseOptions } from 'lib/nest-core'
 import { AUTH_ABILITY_META_KEY, AUTH_SCOPE_META_KEY } from '../constants'
 import { ENUM_AUTH_SCOPE_TYPE } from '../enums'
 import {
@@ -40,7 +40,7 @@ export const AuthJwtPayload = createParamDecorator(
     }
 
     // // Handle runtime type parsing
-    payload = NestHelper.parse(payload, {
+    payload = AppHelper.parse(payload, {
       ...options,
       errorAs: options?.parseAs === 'id' ? 0 : undefined,
     })

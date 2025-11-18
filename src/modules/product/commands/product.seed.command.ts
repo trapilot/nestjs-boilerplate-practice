@@ -1,15 +1,14 @@
 import { faker } from '@faker-js/faker'
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { ENUM_PRODUCT_EXPIRY, Prisma } from '@prisma/client'
-import { PrismaService } from 'lib/nest-prisma'
+import { ENUM_PRODUCT_EXPIRY } from '@prisma/client'
 import {
   ENUM_MESSAGE_LANGUAGE,
   HelperDateService,
   HelperStringService,
   NEST_CLI,
-  NestHelper,
 } from 'lib/nest-core'
+import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner, Option } from 'nest-commander'
 
 @Command({
@@ -112,8 +111,8 @@ export class ProductSeedCommand extends CommandRunner {
           dynamicExpiryDays = undefined
         }
 
-        let category = categories[Math.floor(Math.random() * categories.length)]
-        let brand = brands[Math.floor(Math.random() * brands.length)]
+        const category = categories[Math.floor(Math.random() * categories.length)]
+        const brand = brands[Math.floor(Math.random() * brands.length)]
 
         await this.prisma.product.create({
           data: {

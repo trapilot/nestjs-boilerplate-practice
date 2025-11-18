@@ -1,4 +1,4 @@
-import { ENUM_FILE_MIME, FILE_SIZE_IN_LARGE_BYTES } from 'lib/nest-file'
+import { ENUM_FILE_MIME, FILE_SIZE_IN_LARGE_BYTES } from 'lib/nest-core'
 
 export const MEMBER_UPLOAD_IMAGE_PATH = `public/uploads/images/members`
 export const MEMBER_UPLOAD_TASK_SIZE = FILE_SIZE_IN_LARGE_BYTES

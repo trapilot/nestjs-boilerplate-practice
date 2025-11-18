@@ -29,11 +29,11 @@ import {
   APP_TIMEZONE,
   HelperCryptoService,
   HelperDateService,
+  HelperFileService,
+  HelperMessageService,
   HelperStringService,
   IRequestApp,
 } from 'lib/nest-core'
-import { FileService } from 'lib/nest-file'
-import { MessageService } from 'lib/nest-message'
 import { NotifierService } from 'lib/nest-notifier'
 import { PrismaService } from 'lib/nest-prisma'
 import { join } from 'path'
@@ -67,11 +67,11 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
     private readonly emitter: EventEmitter2,
     private readonly notifier: NotifierService,
     private readonly authService: AuthService,
-    private readonly fileService: FileService,
-    private readonly messageService: MessageService,
+    private readonly helperFileService: HelperFileService,
     private readonly helperDateService: HelperDateService,
     private readonly helperStringService: HelperStringService,
     private readonly helperCryptoService: HelperCryptoService,
+    private readonly helperMessageService: HelperMessageService,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_6AM, { timeZone: APP_TIMEZONE })
@@ -215,7 +215,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
       })
     }
 
-    const validate: boolean = await this.authService.verify(dto.password, member.password)
+    const validate = await this.authService.verify(dto.password, member.password)
     if (!validate) {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
@@ -469,17 +469,17 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
 
     const content = options?.text
       ? options?.text
-      : this.fileService.readTemplate(join(APP_PATH, 'views', 'templates'), {
+      : this.helperFileService.readTemplate(join(APP_PATH, 'views', 'templates'), {
           template: options.template,
           // language: options?.language, --> multiple languages if neeeded
         })
 
     await this.notifier.sendSms({
       to: phone,
-      subject: this.messageService.setMessage(options?.subject, {
+      subject: this.helperMessageService.setMessage(options?.subject, {
         customLanguage: options?.language,
       }),
-      content: this.messageService.setMessage(content, {
+      content: this.helperMessageService.setMessage(content, {
         properties: {
           code: verify.code,
           ...(options?.properties || {}),
@@ -514,18 +514,18 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
 
     const content = options?.text
       ? options.text
-      : this.fileService.readTemplate(join(APP_PATH, 'views', 'templates'), {
+      : this.helperFileService.readTemplate(join(APP_PATH, 'views', 'templates'), {
           template: options.template,
           // language: options?.memberLang, --> multiple languages if neeeded
         })
 
     await this.notifier.sendEmail({
       to: email,
-      content: this.messageService.setMessage(content, {
+      content: this.helperMessageService.setMessage(content, {
         properties: {
           url: token,
           token,
-          subject: this.messageService.setMessage(options?.subject, {
+          subject: this.helperMessageService.setMessage(options?.subject, {
             customLanguage: options?.language,
           }),
           ...(options?.properties || {}),

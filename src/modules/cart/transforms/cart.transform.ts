@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer'
-import { NestHelper } from 'lib/nest-core'
+import { AppHelper } from 'lib/nest-core'
 import { TCart, TCartItem } from '../interfaces'
 
 export function ToOutOfStockStatus(): (target: any, key: string) => void {
@@ -17,7 +17,7 @@ export function ToOutOfStockSale(): (target: any, key: string) => void {
 export function ToUnitPrice(): (target: any, key: string) => void {
   return Transform(({ obj, value }: { obj: TCartItem; value: number }) => {
     if (value === undefined || value === null) {
-      return NestHelper.toNumber(obj.product.salePrice, { useGrouping: true })
+      return AppHelper.toNumber(obj.product.salePrice, { useGrouping: true })
     }
     return value
   })
@@ -26,7 +26,7 @@ export function ToUnitPrice(): (target: any, key: string) => void {
 export function ToUnitPoint(): (target: any, key: string) => void {
   return Transform(({ obj, value }: { obj: TCartItem; value: number }) => {
     if (value === undefined || value === null) {
-      return NestHelper.toNumber(obj.product.salePoint, { useGrouping: true })
+      return AppHelper.toNumber(obj.product.salePoint, { useGrouping: true })
     }
     return value
   })
@@ -35,14 +35,14 @@ export function ToUnitPoint(): (target: any, key: string) => void {
 export function ToFinalPrice(): (target: any, key: string) => void {
   return Transform(({ obj }: { obj: TCartItem }) => {
     const unitPrice = obj?.unitPrice >= 0 ? obj?.unitPrice : obj.product.salePrice
-    return NestHelper.toNumber(unitPrice * obj.quantity, { useGrouping: true })
+    return AppHelper.toNumber(unitPrice * obj.quantity, { useGrouping: true })
   })
 }
 
 export function ToFinalPoint(): (target: any, key: string) => void {
   return Transform(({ obj }: { obj: TCartItem }) => {
     const unitPoint = obj?.unitPoint >= 0 ? obj?.unitPoint : obj.product.salePoint
-    return NestHelper.toNumber(unitPoint * obj.quantity, { useGrouping: true })
+    return AppHelper.toNumber(unitPoint * obj.quantity, { useGrouping: true })
   })
 }
 
@@ -52,7 +52,7 @@ export function ToCartPrice(): (target: any, key: string) => void {
       const unitPrice = item?.unitPrice >= 0 ? item?.unitPrice : item.product.salePrice
       return sum + item.quantity * unitPrice
     }, 0)
-    return NestHelper.toNumber(cartPrice, { useGrouping: true })
+    return AppHelper.toNumber(cartPrice, { useGrouping: true })
   })
 }
 
@@ -62,7 +62,7 @@ export function ToCartPoint(): (target: any, key: string) => void {
       const unitPoint = item?.unitPoint >= 0 ? item?.unitPoint : item.product.salePoint
       return sum + item.quantity * unitPoint
     }, 0)
-    return NestHelper.toNumber(cartPoint, { useGrouping: true })
+    return AppHelper.toNumber(cartPoint, { useGrouping: true })
   })
 }
 
