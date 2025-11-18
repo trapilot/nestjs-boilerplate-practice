@@ -1,9 +1,14 @@
 import { Controller, Delete, Get, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { HelperDateService } from 'lib/nest-core'
-import { FileRequiredPipe, FileTypePipe, IFile } from 'lib/nest-file'
-import { ApiRequestData, IResponseData, RequestBody } from 'lib/nest-web'
+import { HelperDateService, IFile } from 'lib/nest-core'
+import {
+  ApiRequestData,
+  IResponseData,
+  RequestBody,
+  RequestFileRequiredPipe,
+  RequestFileTypePipe,
+} from 'lib/nest-web'
 import {
   MEMBER_DOC_OPERATION,
   MEMBER_UPLOAD_AVATAR_MIME,
@@ -117,7 +122,7 @@ export class MemberAppController {
   @Put('upload-avatar')
   async uploadAvatar(
     @AuthJwtPayload('user.id') memberId: number,
-    @UploadedFile(new FileRequiredPipe(), new FileTypePipe(MEMBER_UPLOAD_AVATAR_MIME))
+    @UploadedFile(new RequestFileRequiredPipe(), new RequestFileTypePipe(MEMBER_UPLOAD_AVATAR_MIME))
     file: IFile,
   ): Promise<IResponseData> {
     await this.memberService.update(memberId, {

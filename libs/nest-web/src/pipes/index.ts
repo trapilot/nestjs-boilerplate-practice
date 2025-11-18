@@ -1,3 +1,6 @@
+export * from './request.file-required.pipe'
+export * from './request.file-size.pipe'
+export * from './request.file-type.pipe'
 export * from './request.filter-between.pipe'
 export * from './request.filter-contain.pipe'
 export * from './request.filter-date.pipe'

@@ -20,11 +20,9 @@ import {
   ENUM_FILE_MIME,
   ENUM_FILE_TYPE_EXCEL,
   FILE_SIZE_IN_BYTES,
-  FileRequiredPipe,
-  FileTypePipe,
+  HelperDateService,
   IFile,
-} from 'lib/nest-file'
-import { HelperDateService } from 'lib/nest-core'
+} from 'lib/nest-core'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -34,6 +32,8 @@ import {
   IResponsePaging,
   RequestBody,
   RequestBookType,
+  RequestFileRequiredPipe,
+  RequestFileTypePipe,
   RequestFilterDto,
   RequestListDto,
   RequestParam,
@@ -243,7 +243,9 @@ export class UserAdminController {
   @Post('/')
   async create(
     @RequestBody() body: UserRequestCreateDto,
-    @UploadedFile(new FileTypePipe([ENUM_FILE_MIME.JPEG, ENUM_FILE_MIME.JPG, ENUM_FILE_MIME.PNG]))
+    @UploadedFile(
+      new RequestFileTypePipe([ENUM_FILE_MIME.JPEG, ENUM_FILE_MIME.JPG, ENUM_FILE_MIME.PNG]),
+    )
     file: IFile,
   ): Promise<IResponseData> {
     const { roleId, ...data } = body
@@ -354,8 +356,8 @@ export class UserAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') updatedBy: number,
     @UploadedFile(
-      new FileRequiredPipe('avatar'),
-      new FileTypePipe([ENUM_FILE_MIME.JPEG, ENUM_FILE_MIME.JPG, ENUM_FILE_MIME.PNG]),
+      new RequestFileRequiredPipe('avatar'),
+      new RequestFileTypePipe([ENUM_FILE_MIME.JPEG, ENUM_FILE_MIME.JPG, ENUM_FILE_MIME.PNG]),
     )
     file: IFile,
   ): Promise<IResponseData> {

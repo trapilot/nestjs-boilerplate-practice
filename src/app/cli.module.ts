@@ -7,16 +7,8 @@ import { RouterModule } from './router'
 @Module({
   imports: [
     // Library
+    NestCoreModule.forRoot({ configs, envFilePath: ['.env'] }),
     NestPrismaModule.forRoot(),
-    NestCoreModule.forRoot({
-      config: {
-        isGlobal: true,
-        expandVariables: true,
-        envFilePath: ['.env'],
-        load: configs,
-      },
-      cache: { isGlobal: true },
-    }),
 
     // Routes
     RouterModule.register({ cli: true }),

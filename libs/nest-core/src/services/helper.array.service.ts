@@ -28,11 +28,11 @@ export class HelperArrayService {
     return a.concat(b)
   }
 
-  minOfNumbers<T = Number>(a: T[]): T {
+  minOfNumbers<T = number>(a: T[]): T {
     return Math.min.apply(null, a)
   }
 
-  maxOfNumbers<T = Number>(a: T[]): T {
+  maxOfNumbers<T = number>(a: T[]): T {
     return Math.max.apply(null, a)
   }
 

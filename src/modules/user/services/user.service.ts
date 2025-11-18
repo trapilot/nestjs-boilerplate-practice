@@ -8,9 +8,8 @@ import {
 import { ModuleRef } from '@nestjs/core'
 import { Prisma } from '@prisma/client'
 import { ENUM_AUTH_SIGN_UP_FROM, IAuthPassword } from 'lib/nest-auth'
-import { FileService } from 'lib/nest-file'
+import { HelperFileService, HelperStringService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
-import { HelperStringService } from 'lib/nest-core'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { RoleService } from '../../role/services'
 import { IUserCreatedOptions, IUserUpdateOptions, TUser } from '../interfaces'
@@ -21,7 +20,7 @@ export class UserService implements OnModuleInit {
   constructor(
     private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
-    private readonly fileService: FileService,
+    private readonly helperFileService: HelperFileService,
     private readonly helperStringService: HelperStringService,
   ) {}
 
@@ -142,7 +141,7 @@ export class UserService implements OnModuleInit {
         },
       })
     } catch (err: any) {
-      this.fileService.unlink(data?.avatar)
+      this.helperFileService.unlink(data?.avatar)
       throw err
     }
   }

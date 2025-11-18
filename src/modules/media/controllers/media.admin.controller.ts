@@ -7,7 +7,7 @@ import {
   ENUM_AUTH_ABILITY_SUBJECT,
   ENUM_AUTH_SCOPE_TYPE,
 } from 'lib/nest-auth'
-import { ENUM_FILE_TYPE_EXCEL, FileRequiredPipe, FileTypePipe, IFile } from 'lib/nest-file'
+import { ENUM_FILE_TYPE_EXCEL, IFile } from 'lib/nest-core'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -17,6 +17,8 @@ import {
   IResponsePaging,
   RequestBody,
   RequestBookType,
+  RequestFileRequiredPipe,
+  RequestFileTypePipe,
   RequestListDto,
   RequestParam,
   RequestQueryList,
@@ -178,7 +180,8 @@ export class MediaAdminController {
   @Post('/')
   async create(
     @RequestBody() body: MediaRequestCreateDto,
-    @UploadedFile(new FileRequiredPipe(), new FileTypePipe(MEDIA_UPLOAD_IMAGE_MIME)) file: IFile,
+    @UploadedFile(new RequestFileRequiredPipe(), new RequestFileTypePipe(MEDIA_UPLOAD_IMAGE_MIME))
+    file: IFile,
   ): Promise<IResponseData> {
     const media = await this.mediaService.create({
       ...body,

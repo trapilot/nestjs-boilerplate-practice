@@ -9,8 +9,15 @@ import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import { Reflector } from '@nestjs/core'
 import archiver from 'archiver'
 import * as fs from 'fs'
-import { HelperDateService, IRequestApp, IResponseApp, ROOT_PATH } from 'lib/nest-core'
-import { ENUM_FILE_MIME, FileHelper, FileService } from 'lib/nest-file'
+import {
+  ENUM_FILE_MIME,
+  FileHelper,
+  HelperDateService,
+  HelperFileService,
+  IRequestApp,
+  IResponseApp,
+  ROOT_PATH,
+} from 'lib/nest-core'
 import path from 'path'
 import { Observable, throwError } from 'rxjs'
 import { catchError, mergeMap } from 'rxjs/operators'
@@ -23,7 +30,7 @@ import { IDataFileBuffer, IDataFilePath, IResponseFile } from '../interfaces'
 export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseFile> {
   constructor(
     private readonly reflector: Reflector,
-    private readonly fileService: FileService,
+    private readonly helperFileService: HelperFileService,
     private readonly helperDateService: HelperDateService,
   ) {}
 
@@ -70,7 +77,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
 
       if (zipFileTemporary) {
         // Create the ZIP file
-        await this.fileService.zipFiles(responseData.file, {
+        await this.helperFileService.zipFiles(responseData.file, {
           zipFilePath,
           zipFileRelative,
         })

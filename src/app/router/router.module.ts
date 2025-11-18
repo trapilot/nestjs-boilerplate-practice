@@ -1,6 +1,6 @@
 import { DynamicModule, ForwardReference, Module, Type } from '@nestjs/common'
 import { RouterModule as NestJsRouterModule } from '@nestjs/core'
-import { ENUM_APP_API_ROUTE, NestHelper } from 'lib/nest-core'
+import { AppHelper, ENUM_APP_API_ROUTE } from 'lib/nest-core'
 import { CommandsMigrateModule, CommandsSeedModule } from './commands'
 import { RoutesAdminModule, RoutesAppModule, RoutesPublicModule, RoutesWebModule } from './routes'
 
@@ -14,7 +14,7 @@ export class RouterModule {
       imports.push(CommandsMigrateModule)
 
       // Does not allow seed data in Production
-      if (!NestHelper.isProduction()) {
+      if (!AppHelper.isProduction()) {
         imports.push(CommandsSeedModule)
       }
     }

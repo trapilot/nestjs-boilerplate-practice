@@ -7,8 +7,8 @@ import {
   ENUM_AUTH_ABILITY_SUBJECT,
   ENUM_AUTH_SCOPE_TYPE,
 } from 'lib/nest-auth'
-import { ENUM_FILE_TYPE_EXCEL, FileRequiredPipe, IFile } from 'lib/nest-file'
-import { PrismaHelper } from 'lib/nest-prisma/utils'
+import { ENUM_FILE_TYPE_EXCEL, IFile } from 'lib/nest-core'
+import { PrismaHelper } from 'lib/nest-prisma'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -18,6 +18,7 @@ import {
   IResponsePaging,
   RequestBody,
   RequestBookType,
+  RequestFileRequiredPipe,
   RequestFilterDto,
   RequestListDto,
   RequestParam,
@@ -254,7 +255,7 @@ export class ProductAdminController {
   async create(
     @RequestBody() body: ProductRequestCreateDto,
     @AuthJwtPayload('user.id') createdBy: number,
-    @UploadedFile(new FileRequiredPipe()) file: IFile,
+    @UploadedFile(new RequestFileRequiredPipe()) file: IFile,
   ): Promise<IResponseData> {
     const { content, termAndCond, ...dto } = body
     const data: Prisma.ProductUncheckedCreateInput = {

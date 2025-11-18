@@ -6,15 +6,14 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator'
-import { HelperStringService } from 'lib/nest-core'
-import { MessageService } from 'lib/nest-message'
+import { HelperMessageService, HelperStringService } from 'lib/nest-core'
 
 @ValidatorConstraint({ async: true })
 @Injectable()
 export class IsCustomEmailConstraint implements ValidatorConstraintInterface {
   constructor(
     protected readonly helperStringService: HelperStringService,
-    protected readonly messageService: MessageService,
+    private readonly helperMessageService: HelperMessageService,
   ) {}
 
   validate(value: string): boolean {
@@ -24,7 +23,7 @@ export class IsCustomEmailConstraint implements ValidatorConstraintInterface {
 
   defaultMessage(validationArguments?: ValidationArguments): string {
     const { message } = this.helperStringService.checkEmail(validationArguments.value)
-    return this.messageService.setMessage(message)
+    return this.helperMessageService.setMessage(message)
   }
 }
 

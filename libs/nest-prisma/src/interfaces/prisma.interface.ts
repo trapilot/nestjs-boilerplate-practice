@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client'
-import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-file'
+import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
 import { withList, withPaginate, withReplica, withYield } from '../extensions'
 
 export const _primaClient = new PrismaClient()

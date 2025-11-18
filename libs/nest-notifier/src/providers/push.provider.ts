@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as admin from 'firebase-admin'
 import {
+  AppException,
   FailedAttemptError,
-  FeatureDisabledException,
-  NestQueue,
-  pNestRetry,
+  QueueContext,
+  RetryContext,
   ROOT_PATH,
 } from 'lib/nest-core'
 import { LoggerService } from 'lib/nest-logger'
@@ -16,7 +16,7 @@ import { INotificationPayload } from '../interfaces'
 export class PushProvider {
   private readonly dryRun: boolean
 
-  private queue = new NestQueue({ concurrency: 1 })
+  private queue = new QueueContext({ concurrency: 1 })
   private fcm: admin.messaging.Messaging
 
   constructor(
@@ -29,9 +29,10 @@ export class PushProvider {
 
   send(payload: INotificationPayload) {
     if (this.dryRun) {
-      throw new FeatureDisabledException(
-        `Simulating push on Mobile Devices when developing. SMS message: ${payload.content}`,
-      )
+      throw new AppException({
+        message: `Simulating push on Mobile Devices when developing. SMS message: ${payload.content}`,
+        httpStatus: HttpStatus.LOCKED,
+      })
     }
 
     if (!this.fcm) {
@@ -44,7 +45,7 @@ export class PushProvider {
     }
 
     return this.queue.add(() =>
-      pNestRetry(() => this.process(payload), {
+      RetryContext(() => this.process(payload), {
         onFailedAttempt: (error: FailedAttemptError) => {
           this.logger.debug(
             `SMS to ${payload.to} failed, retrying (${error.retriesLeft} attempts left)`,

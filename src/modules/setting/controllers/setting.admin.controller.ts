@@ -6,9 +6,7 @@ import {
   ENUM_AUTH_ABILITY_SUBJECT,
   ENUM_AUTH_SCOPE_TYPE,
 } from 'lib/nest-auth'
-import { HelperCryptoService } from 'lib/nest-core'
-import { FILE_SIZE_IN_BYTES } from 'lib/nest-file'
-import { MessageService } from 'lib/nest-message'
+import { FILE_SIZE_IN_BYTES, HelperCryptoService, HelperMessageService } from 'lib/nest-core'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -45,8 +43,8 @@ import { SettingService } from '../services'
 export class SettingAdminController {
   constructor(
     protected readonly settingService: SettingService,
-    protected readonly messageService: MessageService,
     protected readonly helperCryptoService: HelperCryptoService,
+    private readonly helperMessageService: HelperMessageService,
   ) {}
 
   @ApiRequestData({
@@ -61,7 +59,7 @@ export class SettingAdminController {
     @RequestUserIp() userIp: string,
     @RequestUserAgent() userAgent: IResult,
   ): Promise<IResponseData> {
-    const languages: string[] = this.messageService.getAvailableLanguages()
+    const languages: string[] = this.helperMessageService.getAvailableLanguages()
 
     const tz: string = await this.settingService.getTimezone()
     const timezoneOffset: string = await this.settingService.getTimezoneOffset()

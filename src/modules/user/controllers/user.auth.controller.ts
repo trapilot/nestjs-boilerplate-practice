@@ -13,19 +13,14 @@ import {
   ENUM_AUTH_LOGIN_WITH,
   ENUM_AUTH_SCOPE_TYPE,
 } from 'lib/nest-auth'
-import { IRequestApp } from 'lib/nest-core'
-import {
-  ENUM_FILE_MIME_IMAGE,
-  FILE_SIZE_IN_BYTES,
-  FileRequiredPipe,
-  FileTypePipe,
-  IFile,
-} from 'lib/nest-file'
+import { ENUM_FILE_MIME_IMAGE, FILE_SIZE_IN_BYTES, IFile, IRequestApp } from 'lib/nest-core'
 import {
   ApiRequestData,
   IResponseData,
   RequestApp,
   RequestBody,
+  RequestFileRequiredPipe,
+  RequestFileTypePipe,
   RequestUserAgent,
   RequestUserFrom,
   RequestUserIp,
@@ -317,8 +312,8 @@ export class UserAuthController {
     @RequestBody() body: UserRequestChangeAvatarDto,
     @AuthJwtPayload('user.id') userId: number,
     @UploadedFile(
-      new FileRequiredPipe('avatar'),
-      new FileTypePipe(Object.values(ENUM_FILE_MIME_IMAGE)),
+      new RequestFileRequiredPipe('avatar'),
+      new RequestFileTypePipe(Object.values(ENUM_FILE_MIME_IMAGE)),
     )
     file: IFile,
   ): Promise<IResponseData> {

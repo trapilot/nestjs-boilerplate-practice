@@ -18,14 +18,14 @@ import {
 import { ENUM_AUTH_SCOPE_TYPE, IAuthPassword } from 'lib/nest-auth'
 import {
   APP_LANGUAGE,
+  AppContext,
+  AppHelper,
   ENUM_DATE_FORMAT,
   HelperCryptoService,
   HelperDateService,
+  HelperMessageService,
   HelperStringService,
-  NestContext,
-  NestHelper,
 } from 'lib/nest-core'
-import { MessageService } from 'lib/nest-message'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { InvoiceService } from 'src/modules/invoice/services'
@@ -46,10 +46,10 @@ export class MemberService implements OnModuleInit {
     private readonly ref: ModuleRef,
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly messageService: MessageService,
     private readonly helperDateService: HelperDateService,
     private readonly helperStringService: HelperStringService,
     private readonly helperCryptoService: HelperCryptoService,
+    private readonly helperMessageService: HelperMessageService,
   ) {}
 
   async onModuleInit() {
@@ -371,8 +371,8 @@ export class MemberService implements OnModuleInit {
 
     if (member.expiryDate) {
       messages.push(
-        this.messageService.setMessage('module.member.memberTierExpiresIn', {
-          customLanguage: NestContext.language(),
+        this.helperMessageService.setMessage('module.member.memberTierExpiresIn', {
+          customLanguage: AppContext.language(),
           properties: {
             tierExpireDate: this.helperDateService.format(
               member.expiryDate,
@@ -400,10 +400,10 @@ export class MemberService implements OnModuleInit {
 
       if (totalExpiredPoints._sum.point) {
         messages.push(
-          this.messageService.setMessage('module.member.memberPointExpiresIn', {
-            customLanguage: NestContext.language(),
+          this.helperMessageService.setMessage('module.member.memberPointExpiresIn', {
+            customLanguage: AppContext.language(),
             properties: {
-              pointExpireValue: NestHelper.toNumber(totalExpiredPoints._sum.point, {
+              pointExpireValue: AppHelper.toNumber(totalExpiredPoints._sum.point, {
                 useGrouping: true,
               }),
               pointExpireDate: this.helperDateService.format(
@@ -906,7 +906,7 @@ export class MemberService implements OnModuleInit {
     const chartIterator = this.tierService.getChartIterator()
 
     let sinceDate = this.helperDateService.create(sinceInvoice.issuedAt, { startOfDay: true })
-    let untilDate = this.helperDateService.create(issuedAt, { startOfDay: true })
+    const untilDate = this.helperDateService.create(issuedAt, { startOfDay: true })
 
     while (sinceDate <= untilDate) {
       const grpInvoices = await this.invoiceService.getEarnInvoices(sinceDate)

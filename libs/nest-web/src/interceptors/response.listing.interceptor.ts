@@ -4,14 +4,15 @@ import { Reflector } from '@nestjs/core'
 import { ClassConstructor, ClassTransformOptions, plainToInstance } from 'class-transformer'
 import { stream, Workbook, Worksheet } from 'exceljs'
 import {
+  AppContext,
+  ENUM_FILE_TYPE_EXCEL,
+  FileHelper,
   HelperDateService,
+  HelperMessageService,
   IRequestApp,
   IResponseApp,
-  NestContext,
-  NestMetadata,
+  MetadataHelper,
 } from 'lib/nest-core'
-import { ENUM_FILE_TYPE_EXCEL, FileHelper } from 'lib/nest-file'
-import { MessageService } from 'lib/nest-message'
 import { Observable, throwError } from 'rxjs'
 import { catchError, mergeMap } from 'rxjs/operators'
 import {
@@ -21,14 +22,14 @@ import {
   RESPONSE_FILE_EXPORT_METADATA,
 } from '../constants'
 import { ResponseListingMetadataDto, ResponseUserBelongDto } from '../dtos'
-import { IDataIterator, IDataList, IResponseBody, IResponseList } from '../interfaces'
+import { IDataIterator, IDataList, IResponseList, IResponseSuccess } from '../interfaces'
 
 @Injectable()
 export class ResponseListingInterceptor<T> implements NestInterceptor<T, IResponseList> {
   constructor(
     private readonly reflector: Reflector,
-    private readonly messageService: MessageService,
     private readonly helperDateService: HelperDateService,
+    private readonly helperMessageService: HelperMessageService,
   ) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
@@ -57,7 +58,10 @@ export class ResponseListingInterceptor<T> implements NestInterceptor<T, IRespon
     return next.handle()
   }
 
-  private async send(context: ExecutionContext, responseList: IDataList): Promise<IResponseBody> {
+  private async send(
+    context: ExecutionContext,
+    responseList: IDataList,
+  ): Promise<IResponseSuccess> {
     const ctx: HttpArgumentsHost = context.switchToHttp()
     const req: IRequestApp = ctx.getRequest<IRequestApp>()
     const res: IResponseApp = ctx.getResponse<IResponseApp>()
@@ -74,18 +78,18 @@ export class ResponseListingInterceptor<T> implements NestInterceptor<T, IRespon
 
     // metadata
     const dateNow = this.helperDateService.create()
-    const ctxData = NestContext.current()
+    const ctxData = AppContext.current()
     let metadata: ResponseListingMetadataDto = {
       path: req.path,
-      language: ctxData?.language ?? NestContext.language(),
-      timezone: ctxData?.timezone ?? NestContext.timezone(),
-      version: ctxData?.apiVersion ?? NestContext.apiVersion(),
+      language: ctxData?.language ?? AppContext.language(),
+      timezone: ctxData?.timezone ?? AppContext.timezone(),
+      version: ctxData?.apiVersion ?? AppContext.apiVersion(),
       timestamp: this.helperDateService.getTimestamp(dateNow),
       availableSearch: req.__filters?.availableSearch ?? [],
       availableOrderBy: req.__filters?.availableOrderBy ?? [],
     }
 
-    let statusHttp = res.statusCode
+    const statusHttp = res.statusCode
     let result = responseList.data
 
     const { _metadata } = responseList
@@ -167,7 +171,7 @@ export class ResponseListingInterceptor<T> implements NestInterceptor<T, IRespon
     }
 
     const userKeys = Object.keys(plainToInstance(ResponseUserBelongDto, {}, dtoSerializeOptions))
-    const exportProperties = NestMetadata.getExportableProperties(dtoClass)
+    const exportProperties = MetadataHelper.getExportableProperties(dtoClass)
     const serializeMetadata = responseIterator?._metadata?.customProperty?.serializeProperties ?? {}
 
     let rowIndex = 0
@@ -194,8 +198,12 @@ export class ResponseListingInterceptor<T> implements NestInterceptor<T, IRespon
 
           sheetHeaders = sheetFields.map((field) => {
             const { message, domain } = exportProperties.get(field) || {}
-            if (message) return this.messageService.setMessage(`${message}`)
-            if (domain) return this.messageService.setMessage(['export', domain, field].join('.'))
+            if (message) {
+              return this.helperMessageService.setMessage(`${message}`)
+            }
+            if (domain) {
+              return this.helperMessageService.setMessage(['export', domain, field].join('.'))
+            }
             return field
               .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
               .replace(/^./, (c: string) => c.toUpperCase())

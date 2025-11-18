@@ -37,6 +37,7 @@
     "notImplemented": "Not Implemented",
     "temporaryRedirect": "Temporary Redirect",
     "badGateway": "Bad Gateway",
+    "featureLocked": "Feature Locked",
     "serviceUnavailable": "Service Unavailable",
     "serviceMaintenance": "We are currently performing maintenance to enhance our services",
     "requestTimeout": "Request Timeout",

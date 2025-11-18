@@ -1,34 +1,19 @@
 import { HttpStatus } from '@nestjs/common'
 import { ClassConstructor } from 'class-transformer'
-import { ValidationError } from 'class-validator'
-import { ENUM_FILE_MIME, IFileRows } from 'lib/nest-file'
 import {
-  IMessageOptionsProperties,
-  IMessageValidationError,
-  IMessageValidationImportError,
-} from 'lib/nest-message'
-
-export interface IResponseCustomPropertyMetadata {
-  statusCode?: number
-  statusHttp?: HttpStatus
-  message?: string
-  messageProperties?: IMessageOptionsProperties
-  serializeProperties?: Record<string, any>
-}
-
-// metadata
-export interface IResponseMetadata {
-  customProperty?: IResponseCustomPropertyMetadata
-  [key: string]: any
-}
-
-// decorator options
+  ENUM_FILE_MIME,
+  IFileRows,
+  IMessageError,
+  IMessageProperties,
+  IResponseCacheOptions,
+  IResponseMetadata,
+} from 'lib/nest-core'
 
 export interface IResponseOptions<T> {
   statusCode?: number
   statusHttp?: HttpStatus
   dto?: ClassConstructor<T>
-  messageProperties?: IMessageOptionsProperties
+  messageProperties?: IMessageProperties
   cached?: IResponseCacheOptions | boolean
   docExpansion?: boolean
 }
@@ -54,30 +39,19 @@ export interface IResponseFileExcelOptions<T> extends IResponseFileOptions<T> {
 }
 
 // Response
-export interface IResponseError {
-  statusCode: number
-  message: string
-  metadata: IResponseMetadata
-  errors?: IMessageValidationError[] | ValidationError[]
-  error?: string
-}
-
-export interface IResponseBody<T = any> {
+export interface IResponseSuccess<T = any> {
   success: boolean
   metadata: IResponseMetadata
-  result?: T
-  error?: {
-    message: string
-    code: string
-    details?: IMessageValidationError[] | IMessageValidationImportError[]
-    error?: string // Error message for debug
-  }
+  result: T
 }
 
-// cached
-export interface IResponseCacheOptions {
-  key?: string
-  ttl?: number // milliseconds
+export interface IResponseFailure<T = any> extends Omit<IResponseSuccess<T>, 'result'> {
+  error: {
+    message: string
+    code: string | number
+    details?: IMessageError[]
+    error?: string // Error message for debugging
+  }
 }
 
 // Response

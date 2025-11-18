@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common'
+import { HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { FailedAttemptError, FeatureDisabledException, NestQueue, pNestRetry } from 'lib/nest-core'
+import { AppException, FailedAttemptError, QueueContext, RetryContext } from 'lib/nest-core'
 import { LoggerService } from 'lib/nest-logger'
 import { Twilio } from 'twilio'
 import { INotificationPayload } from '../interfaces'
@@ -9,7 +9,7 @@ import { INotificationPayload } from '../interfaces'
 export class SmsProvider {
   private readonly dryRun: boolean
 
-  private queue = new NestQueue({ concurrency: 1 })
+  private queue = new QueueContext({ concurrency: 1 })
   private twilioClient: Twilio
 
   constructor(
@@ -22,9 +22,10 @@ export class SmsProvider {
 
   send(payload: INotificationPayload) {
     if (this.dryRun) {
-      throw new FeatureDisabledException(
-        `Simulating SMS on Mobile Devices when developing. SMS message: ${payload.content}`,
-      )
+      throw new AppException({
+        message: `Simulating SMS on Mobile Devices when developing. SMS message: ${payload.content}`,
+        httpStatus: HttpStatus.LOCKED,
+      })
     }
 
     if (!this.twilioClient) {
@@ -39,7 +40,7 @@ export class SmsProvider {
     }
 
     return this.queue.add(() =>
-      pNestRetry(() => this.process(payload), {
+      RetryContext(() => this.process(payload), {
         onFailedAttempt: (error: FailedAttemptError) => {
           this.logger.debug(
             `SMS to ${payload.to} failed, retrying (${error.retriesLeft} attempts left)`,

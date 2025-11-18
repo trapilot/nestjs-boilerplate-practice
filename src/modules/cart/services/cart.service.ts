@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 import { Prisma, Product } from '@prisma/client'
-import { HelperDateService, NestHelper } from 'lib/nest-core'
+import { AppHelper, HelperDateService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { MemberService } from 'src/modules/member/services'
@@ -28,7 +28,7 @@ export class CartService implements OnModuleInit {
     },
   }
   private readonly cartUpVersion: Prisma.IntFieldUpdateOperationsInput = {
-    increment: NestHelper.isDevelopment() ? 0 : 1,
+    increment: AppHelper.isDevelopment() ? 0 : 1,
   }
 
   private memberService: MemberService

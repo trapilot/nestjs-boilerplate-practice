@@ -3,13 +3,13 @@ import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ENUM_MEMBER_TIER_ACTION, ENUM_MEMBER_TYPE } from '@prisma/client'
 import {
+  AppHelper,
   ENUM_APP_LANGUAGE,
   ENUM_GENDER_TYPE,
   HelperCryptoService,
   HelperDateService,
   HelperStringService,
   NEST_CLI,
-  NestHelper,
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner, Option } from 'nest-commander'
@@ -35,7 +35,7 @@ export class MemberSeedCommand extends CommandRunner {
 
   async run(passedParam: string[], options?: any): Promise<void> {
     this.logger.warn(`${MemberSeedCommand.name} is running...`)
-    if (NestHelper.isProduction()) {
+    if (AppHelper.isProduction()) {
       return
     }
 

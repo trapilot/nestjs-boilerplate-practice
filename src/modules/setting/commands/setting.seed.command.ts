@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common'
-import { NEST_CLI, NestHelper } from 'lib/nest-core'
+import { NEST_CLI } from 'lib/nest-core'
 import { Command, CommandRunner } from 'nest-commander'
 import { ENUM_SETTING_GROUP, ENUM_SETTING_TYPE } from '../enums'
 import { SettingService } from '../services'

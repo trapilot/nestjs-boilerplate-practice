@@ -1,6 +1,6 @@
 import { Transform } from 'class-transformer'
 import { AuthAbilityHelper, IAuthUserPermission, IAuthUserTransformer } from 'lib/nest-auth'
-import { NestHelper } from 'lib/nest-core'
+import { AppHelper } from 'lib/nest-core'
 import { IContextUserPermission, IUserPermission } from '../interfaces'
 
 export function ToUserPermissions(): (target: any, key: string) => void {
@@ -25,7 +25,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
               isVisible,
               sorting,
               subject,
-              title: NestHelper.toLocaleValue(title),
+              title: AppHelper.toLocaleValue(title),
               bitwise: roleBitwise & bitwise,
             })
           }
@@ -41,7 +41,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
         if (!(context in grpContextPermission)) {
           grpContextPermission[context] = {
             group: false,
-            title: NestHelper.toLocaleValue(AuthAbilityHelper.toContext(context)),
+            title: AppHelper.toLocaleValue(AuthAbilityHelper.toContext(context)),
             context,
             subjects: [],
           }
@@ -51,7 +51,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
           (data) => data.subject === subject,
         )
         if (exist) {
-          exist.actions = NestHelper.toUnique([
+          exist.actions = AppHelper.toUnique([
             ...exist.actions,
             ...AuthAbilityHelper.toActions(bitwise),
           ])

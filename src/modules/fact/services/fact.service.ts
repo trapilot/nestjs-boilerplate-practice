@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Fact, Prisma } from '@prisma/client'
-import { FileService } from 'lib/nest-file'
+import { HelperFileService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { ENUM_FACT_TYPE } from '../enums'
@@ -10,7 +10,7 @@ import { TFact } from '../interfaces'
 export class FactService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly fileService: FileService,
+    private readonly helperFileService: HelperFileService,
   ) {}
 
   async findOne(kwargs?: Prisma.FactFindUniqueArgs): Promise<Fact> {
@@ -120,7 +120,7 @@ export class FactService {
 
       // await this.prisma.$transaction(async (tx) => {
       //   await tx.fact.delete({ where: { id: fact.id } })
-      //   await this.fileService.unlink(fact.thumbnail)
+      //   await this.helperFileService.unlink(fact.thumbnail)
       // })
     }
     return fact

@@ -1,9 +1,9 @@
 import { HttpStatus, MiddlewareConsumer, Module } from '@nestjs/common'
 import { ValidationError } from 'class-validator'
 import { NestAuthModule } from 'lib/nest-auth'
-import { APP_ENV, APP_NAME, EntityValidateException, NestCoreModule } from 'lib/nest-core'
+import { APP_ENV, APP_NAME, NestCoreModule } from 'lib/nest-core'
 import { NestPrismaModule } from 'lib/nest-prisma'
-import { NestWebModule } from 'lib/nest-web'
+import { EntityValidateException, NestWebModule } from 'lib/nest-web'
 import { AppVersionMiddleware, AppVersionModule } from 'src/modules/app-version'
 import { SettingMaintenanceMiddleware, SettingModule } from 'src/modules/setting'
 import configs from '../configs'
@@ -14,18 +14,9 @@ import { WorkerModule } from './worker'
   controllers: [],
   imports: [
     // Library
+    NestCoreModule.forRoot({ configs, envFilePath: ['.env'] }),
     NestPrismaModule.forRoot(),
     NestAuthModule.forRoot(),
-    NestCoreModule.forRoot({
-      config: {
-        isGlobal: true,
-        cache: true,
-        expandVariables: true,
-        envFilePath: ['.env'],
-        load: configs,
-      },
-      cache: { isGlobal: true },
-    }),
     NestWebModule.forRoot({
       validator: {
         transform: true,

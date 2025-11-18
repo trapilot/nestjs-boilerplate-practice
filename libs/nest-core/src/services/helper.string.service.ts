@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { isStrongPassword } from 'class-validator'
 import RandExp from 'randexp'
 import { ENUM_COUNTRY_CODE } from '../enums'
+import { AppHelper } from '../helpers'
 import {
   IStringCurrencyOptions,
   IStringEmailValidation,
@@ -9,7 +10,6 @@ import {
   IStringPasswordOptions,
   IStringRandomOptions,
 } from '../interfaces'
-import { NestHelper } from '../utils'
 
 @Injectable()
 export class HelperStringService {
@@ -200,11 +200,11 @@ export class HelperStringService {
   }
 
   formatCurrency(number: number, options?: IStringCurrencyOptions): string {
-    return NestHelper.toCurrency(number, options)
+    return AppHelper.toCurrency(number, options)
   }
 
   formatNumber(number: number, options?: IStringNumericOptions) {
-    return NestHelper.toNumber(number, options)
+    return AppHelper.toNumber(number, options)
   }
 
   boolean(value: number | string | boolean): boolean {

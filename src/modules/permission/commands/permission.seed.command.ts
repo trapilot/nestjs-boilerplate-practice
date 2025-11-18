@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { AuthAbilityHelper, ENUM_AUTH_ABILITY_SUBJECT } from 'lib/nest-auth'
-import { HelperDateService, NEST_CLI, NestHelper } from 'lib/nest-core'
+import { HelperDateService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner } from 'nest-commander'
 

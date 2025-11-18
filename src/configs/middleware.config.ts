@@ -1,6 +1,6 @@
 import { registerAs } from '@nestjs/config'
 import bytes from 'bytes'
-import { NestHelper, NestTimer } from 'lib/nest-core'
+import { AppHelper, TimeHelper } from 'lib/nest-core'
 
 export default registerAs(
   'middleware',
@@ -63,14 +63,14 @@ export default registerAs(
         'x-cart-version',
       ],
     },
-    timeout: NestTimer.ms('10s'), // 10s based on ms module
+    timeout: TimeHelper.ms('10s'), // 10s based on ms module
     security: {
       key: process.env.MIDDLEWARE_SECURITY_KEY ?? 'SECURITY=PdmXqYqRe5E/Q==',
       ttl: 300, // 5 minutes
-      enable: !NestHelper.isDevelopment(),
+      enable: !AppHelper.isDevelopment(),
     },
     throttle: {
-      ttl: NestTimer.ms('500'), // 0.5 secs
+      ttl: TimeHelper.ms('500'), // 0.5 secs
       limit: 5, // max request per reset time
     },
   }),

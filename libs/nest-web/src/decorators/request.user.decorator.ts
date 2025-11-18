@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common'
 import { ENUM_AUTH_LOGIN_FROM } from 'lib/nest-auth'
-import { ENUM_GENDER_TYPE, IRequestApp, NestHelper } from 'lib/nest-core'
+import { AppHelper, ENUM_GENDER_TYPE, IRequestApp } from 'lib/nest-core'
 import { IResult, UAParser } from 'ua-parser-js'
 
 export const RequestBookType = createParamDecorator(
@@ -79,7 +79,7 @@ export const RequestUserGender: () => ParameterDecorator = createParamDecorator(
   (data: string, ctx: ExecutionContext): string => {
     const req = ctx.switchToHttp().getRequest<IRequestApp>()
     const userGender = (req.headers['x-user-gender'] as string) ?? undefined
-    return NestHelper.keyOfEnums<string>(ENUM_GENDER_TYPE, userGender?.toUpperCase(), data)
+    return AppHelper.keyOfEnums<string>(ENUM_GENDER_TYPE, userGender?.toUpperCase(), data)
   },
 )
 
