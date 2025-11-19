@@ -25,8 +25,8 @@ import {
   ITokenPayload,
 } from 'lib/nest-auth'
 import {
-  APP_PATH,
   APP_TIMEZONE,
+  AppHelper,
   HelperCryptoService,
   HelperDateService,
   HelperFileService,
@@ -36,7 +36,6 @@ import {
 } from 'lib/nest-core'
 import { NotifierService } from 'lib/nest-notifier'
 import { PrismaService } from 'lib/nest-prisma'
-import { join } from 'path'
 import { TierService } from 'src/modules/tier/services'
 import { IResult } from 'ua-parser-js'
 import {
@@ -468,11 +467,10 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
     )
 
     const content = options?.text
-      ? options?.text
-      : this.helperFileService.readTemplate(join(APP_PATH, 'views', 'templates'), {
-          template: options.template,
-          // language: options?.language, --> multiple languages if neeeded
-        })
+      ? options.text
+      : this.helperFileService.readText(
+          AppHelper.getTemplatePath(options.template, options?.language),
+        )
 
     await this.notifier.sendSms({
       to: phone,
@@ -514,10 +512,9 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
 
     const content = options?.text
       ? options.text
-      : this.helperFileService.readTemplate(join(APP_PATH, 'views', 'templates'), {
-          template: options.template,
-          // language: options?.memberLang, --> multiple languages if neeeded
-        })
+      : this.helperFileService.readText(
+          AppHelper.getTemplatePath(options.template, options?.language),
+        )
 
     await this.notifier.sendEmail({
       to: email,

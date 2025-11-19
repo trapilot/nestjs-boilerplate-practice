@@ -136,7 +136,7 @@ export class NestCoreModule {
               .get<ENUM_MESSAGE_LANGUAGE[]>('helper.message.availableList')
               .reduce((a, v) => ({ ...a, [`${v}_*`]: v }), {}),
             loaderOptions: {
-              path: join(APP_PATH, 'languages'),
+              path: join(APP_PATH, 'resources', 'languages'),
               watch: true,
             },
             logging: false,

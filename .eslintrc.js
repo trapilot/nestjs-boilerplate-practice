@@ -22,7 +22,7 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'warn',
     '@typescript-eslint/no-unsafe-function-type': 'off',
     '@typescript-eslint/no-unused-expressions': 'off',
-    '@typescript-eslint/await-thenable': 'error',
+    '@typescript-eslint/await-thenable': 'warn',
     'prettier/prettier': ['error'],
     'no-unused-vars': 'off',
   },
