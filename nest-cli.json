@@ -10,11 +10,7 @@
     ],
     "assets": [
       {
-        "include": "languages/**/*",
-        "outDir": "dist"
-      },
-      {
-        "include": "templates/**",
+        "include": "resources/**/*",
         "outDir": "dist"
       }
     ]

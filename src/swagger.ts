@@ -8,7 +8,7 @@ import {
   RoutesAppModule,
   RoutesPublicModule,
   RoutesWebModule,
-} from 'src/app/router/routes'
+} from 'src/app/router'
 
 export default async function (app: INestApplication) {
   const config = app.get(ConfigService)
@@ -37,17 +37,22 @@ export default async function (app: INestApplication) {
     { name: 'refreshToken', options: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } },
   ]
 
-  docs(app, env, builder(), { prefix: 'api', routes: [RoutesPublicModule], apiKeys })
-  docs(app, env, builder(), { prefix: 'app', routes: [RoutesAppModule], bearerAuths })
-  docs(app, env, builder(), { prefix: 'web', routes: [RoutesWebModule], bearerAuths })
-  docs(app, env, builder(), { prefix: 'admin', routes: [RoutesAdminModule], bearerAuths })
+  setup(app, builder(), { env, prefix: 'api', routes: [RoutesPublicModule], apiKeys })
+  setup(app, builder(), { env, prefix: 'app', routes: [RoutesAppModule], bearerAuths })
+  setup(app, builder(), { env, prefix: 'web', routes: [RoutesWebModule], bearerAuths })
+  setup(app, builder(), { env, prefix: 'admin', routes: [RoutesAdminModule], bearerAuths })
 }
 
-const docs = (
+const setup = (
   app: INestApplication,
-  env: ENUM_APP_ENVIRONMENT,
   documentBuilder: DocumentBuilder,
-  documentOptions: { prefix: string; routes: any[]; apiKeys?: any[]; bearerAuths?: any[] },
+  documentOptions: {
+    env: ENUM_APP_ENVIRONMENT
+    prefix: string
+    routes: any[]
+    apiKeys?: any[]
+    bearerAuths?: any[]
+  },
 ) => {
   if (documentOptions?.apiKeys) {
     documentOptions.apiKeys.forEach((apiKey) =>
@@ -78,7 +83,7 @@ const docs = (
     customfavIcon: '/public/favicon.ico',
     swaggerOptions: {
       docExpansion: 'none',
-      persistAuthorization: env === ENUM_APP_ENVIRONMENT.DEVELOPMENT,
+      persistAuthorization: documentOptions.env === ENUM_APP_ENVIRONMENT.DEVELOPMENT,
       displayOperationId: true,
       operationsSorter: 'method',
       // tagsSorter: 'alpha',

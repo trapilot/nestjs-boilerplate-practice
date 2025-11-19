@@ -18,7 +18,7 @@ import { join } from 'path'
 import { AppModule } from 'src/app/app.module'
 import { CliModule } from 'src/app/cli.module'
 import { AppEnvDto } from 'src/app/dtos'
-import docSetup from 'src/docs'
+import docSetup from 'src/swagger'
 
 async function bootstrap() {
   const app: NestApplication = await NestFactory.create(AppModule, {

@@ -196,13 +196,6 @@ export class HelperFileService {
     return text
   }
 
-  readTemplate(path: string, options: { template: string; language?: string }): string {
-    const text: string = options?.language
-      ? fs.readFileSync(join(path, options.language, options.template), 'utf8')
-      : fs.readFileSync(join(path, options.template), 'utf8')
-    return text
-  }
-
   readBuffer(path: string): Buffer {
     const buffer: Buffer = fs.readFileSync(path)
     return buffer

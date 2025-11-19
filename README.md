@@ -46,7 +46,7 @@ Full structure of module
 ```
 .
 └── moduleA
-    ├── abstracts
+    ├── bases
     ├── commands            // custom migrate/seed command
     ├── constants           // constant like static value, status code, etc
     ├── controllers         // business logic for rest api

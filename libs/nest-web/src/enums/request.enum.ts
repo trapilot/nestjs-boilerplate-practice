@@ -9,6 +9,7 @@ export enum ENUM_REQUEST_METHOD {
 }
 
 export enum ENUM_REQUEST_BODY_TYPE {
+  NONE = 'NONE',
   JSON = 'JSON',
   TEXT = 'TEXT',
   FORM_DATA = 'FORM_DATA',

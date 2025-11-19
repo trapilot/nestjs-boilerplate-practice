@@ -1,4 +1,5 @@
-import { APP_ENV, APP_URL, MESSAGE_FALLBACK, MESSAGE_LANGUAGES } from '../constants'
+import { join } from 'path'
+import { APP_ENV, APP_PATH, APP_URL, MESSAGE_FALLBACK, MESSAGE_LANGUAGES } from '../constants'
 import { AppContext } from '../contexts'
 import {
   ENUM_APP_API_ROUTE,
@@ -72,6 +73,13 @@ export class AppHelper {
       return ENUM_APP_API_TYPE.WEB
     }
     return ENUM_APP_API_TYPE.PUB
+  }
+
+  static getTemplatePath(fileName: string, language?: string): string {
+    const templatePath: string = language
+      ? join(APP_PATH, 'resources', 'templates', language, fileName)
+      : join(APP_PATH, 'resources', 'templates', fileName)
+    return templatePath
   }
 
   static keyOfEnums<T = string | number>(enums: any, value: string, fallback: string = null): T {
