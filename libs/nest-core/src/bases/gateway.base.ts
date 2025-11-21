@@ -15,7 +15,7 @@ export abstract class GateWayBase {
   handleConnection(client: Socket) {
     if (!this.enabled) return
 
-    const connTimer = setTimeout(() => {
+    const _connTimer = setTimeout(() => {
       if (!client?.data?.verifyAt) {
         this.logger.log(`Closing socket due to timeout: ${client.id}`)
         client.disconnect()
@@ -23,7 +23,7 @@ export abstract class GateWayBase {
     }, this.connTimeout)
 
     client.on('identify', (userData: IClientIdentify) => {
-      clearTimeout(connTimer)
+      // clearTimeout(connTimer)
 
       const verifyAt = new Date().getTime()
       const validToken = this.pendingTokens.get(client.id)
@@ -43,8 +43,10 @@ export abstract class GateWayBase {
       joinAt: new Date().getTime(),
     }
 
-    this.pendingTokens.set(client.id, join.userToken)
     client.data = join
+
+    this.pendingTokens.set(client.id, join.userToken)
+    client.emit('token', { token: join.userToken })
   }
 
   handleDisconnect(client: Socket) {

@@ -18,6 +18,7 @@
 
         socket.on('token', ({ token }) => {
           userData.token = token
+          console.log('[Client] userData', userData);
           socket.emit('identify', { userToken: userData.token, userId: userData.id }, response =>
             console.log('[Client] Identify:', response),
           );
