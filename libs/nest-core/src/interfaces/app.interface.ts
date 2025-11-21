@@ -87,10 +87,26 @@ export interface IStep<T> {
   compensate(input: T): any
 }
 
-export interface ISocketMessage {
-  data: any
-  version?: string
-  token?: string
+export interface IClientData {
+  userId: string
+  userToken: string
+  userDevice: string
+  joinAt: number
+  verifyAt: number
 }
 
-export interface ISocketBulkMessage extends Omit<ISocketMessage, 'token'> {}
+export interface IClientMessage {
+  data: IClientData
+  version?: string
+}
+
+export interface IClientIdentify {
+  userId: string
+  userToken: string
+}
+
+export interface IClientQuery {
+  userId: string
+  userDevice: string
+  [key: string]: any
+}

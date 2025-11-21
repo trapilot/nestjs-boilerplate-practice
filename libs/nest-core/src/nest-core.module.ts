@@ -10,7 +10,7 @@ import { NestLoggerModule } from 'lib/nest-logger'
 import { NestNotifierModule } from 'lib/nest-notifier'
 import { HeaderResolver, I18nJsonLoader, I18nModule } from 'nestjs-i18n'
 import { join } from 'path'
-import { APP_PATH, REALTIME_PUB, REALTIME_STREAM, REALTIME_SUB } from './constants'
+import { APP_PATH, REALTIME_CACHE, REALTIME_PUB, REALTIME_STREAM, REALTIME_SUB } from './constants'
 import { ENUM_MESSAGE_LANGUAGE } from './enums'
 import {
   HelperArrayService,
@@ -56,15 +56,15 @@ export class NestCoreModule {
           provide: REALTIME_PUB,
           inject: [ConfigService],
           useFactory: async (configService: ConfigService) => {
-            const host = configService.get<string>('redis.pub.host')
-            const port = configService.get<number>('redis.pub.port')
+            const host = configService.get<string>('redis.pubsub.host')
+            const port = configService.get<number>('redis.pubsub.port')
 
             if (host && port) {
               const client = createClient({
                 socket: { host, port },
-                database: configService.get<number>('redis.pub.database', 2),
-                username: configService.get<string>('redis.pub.username'),
-                password: configService.get<string>('redis.pub.password'),
+                database: configService.get<number>('redis.pubsub.database', 2),
+                username: configService.get<string>('redis.pubsub.username'),
+                password: configService.get<string>('redis.pubsub.password'),
               })
               await client.connect()
               return client
@@ -75,15 +75,34 @@ export class NestCoreModule {
           provide: REALTIME_SUB,
           inject: [ConfigService],
           useFactory: async (configService: ConfigService) => {
-            const host = configService.get<string>('redis.sub.host')
-            const port = configService.get<number>('redis.sub.port')
+            const host = configService.get<string>('redis.pubsub.host')
+            const port = configService.get<number>('redis.pubsub.port')
 
             if (host && port) {
               const client = createClient({
                 socket: { host, port },
-                database: configService.get<number>('redis.sub.database', 3),
-                username: configService.get<string>('redis.sub.username'),
-                password: configService.get<string>('redis.sub.password'),
+                database: configService.get<number>('redis.pubsub.database', 2),
+                username: configService.get<string>('redis.pubsub.username'),
+                password: configService.get<string>('redis.pubsub.password'),
+              })
+              await client.connect()
+              return client
+            }
+          },
+        },
+        {
+          provide: REALTIME_CACHE,
+          inject: [ConfigService],
+          useFactory: async (configService: ConfigService) => {
+            const host = configService.get<string>('redis.realtime.host')
+            const port = configService.get<number>('redis.realtime.port')
+
+            if (host && port) {
+              const client = createClient({
+                socket: { host, port },
+                database: configService.get<number>('redis.realtime.database', 3),
+                username: configService.get<string>('redis.realtime.username'),
+                password: configService.get<string>('redis.realtime.password'),
               })
               await client.connect()
               return client
@@ -151,8 +170,8 @@ export class NestCoreModule {
           imports: [ConfigModule],
           inject: [ConfigService],
           useFactory: async (configService: ConfigService): Promise<CacheOptions> => {
-            const host = configService.get<string>('redis.pub.host')
-            const port = configService.get<number>('redis.pub.port')
+            const host = configService.get<string>('redis.cache.host')
+            const port = configService.get<number>('redis.cache.port')
             const max = configService.get<number>('redis.cache.max')
             const ttl = configService.get<number>('redis.cache.ttl')
 

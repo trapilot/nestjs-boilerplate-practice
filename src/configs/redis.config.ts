@@ -19,14 +19,14 @@ export default registerAs(
       username: process.env.REDIS_USERNAME,
       database: 1,
     },
-    pub: {
+    pubsub: {
       host: process.env.REDIS_HOST,
       port: Number.parseInt(process.env.REDIS_PORT),
       password: process.env.REDIS_PASSWORD,
       username: process.env.REDIS_USERNAME,
       database: 2,
     },
-    sub: {
+    realtime: {
       host: process.env.REDIS_HOST,
       port: Number.parseInt(process.env.REDIS_PORT),
       password: process.env.REDIS_PASSWORD,
