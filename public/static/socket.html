@@ -2,15 +2,26 @@
   <head>
     <script src="https://cdn.socket.io/4.3.2/socket.io.min.js" integrity="sha384-KAZ4DtjNhLChOB/hxXuKqhMLYvx3b5MlT55xPEiNmREKRzeEm+RVPlTnAn0ajQNs" crossorigin="anonymous"></script>
     <script>
-      const socket = io('http://localhost:3000/');
+      const userData = {
+        id: 1,
+        device: "MB",
+        token: ""
+      };
+      const socket = io('http://localhost:3000/', {
+        query: {
+          userId: userData.id,
+          userDevice: userData.device,
+        }
+      });
       socket.on('connect', function() {
         console.log('[Client] Connected');
 
-        const userId = 1;
-        const userToken = ''
-        socket.emit('identify', userToken, userId, response =>
-          console.log('[Client] Identify:', response),
-        );
+        socket.on('token', ({ token }) => {
+          userData.token = token
+          socket.emit('identify', { userToken: userData.token, userId: userData.id }, response =>
+            console.log('[Client] Identify:', response),
+          );
+        });
         socket.on('message', function(message) {
           console.log('[Client] Message:', message.data);
         });

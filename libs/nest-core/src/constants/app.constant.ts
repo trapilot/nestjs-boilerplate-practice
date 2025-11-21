@@ -4,6 +4,7 @@ export const APP_ENV_META_KEY = 'AppEnvMetaKey'
 
 export const REALTIME_PUB = 'REALTIME_PUB'
 export const REALTIME_SUB = 'REALTIME_SUB'
+export const REALTIME_CACHE = 'REALTIME_CACHE'
 export const REALTIME_STREAM = 'REALTIME_STREAM'
 
 export const FILE_CUSTOM_MAX_SIZE_METADATA = 'nest_file_module:file_custom_max_size'

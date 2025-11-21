@@ -1,11 +1,13 @@
-import { Controller, Get } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Controller, Get, Inject } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
+import { Cache } from 'cache-manager'
 import {
   ENUM_AUTH_ABILITY_ACTION,
   ENUM_AUTH_ABILITY_SUBJECT,
   ENUM_AUTH_SCOPE_TYPE,
 } from 'lib/nest-auth'
-import { HelperDateService, HelperRealtimeService, IDateRange } from 'lib/nest-core'
+import { HelperDateService, IDateRange } from 'lib/nest-core'
 import { ApiRequestData, IResponseData } from 'lib/nest-web'
 import { DASHBOARD_DOC_OPERATION } from '../constants'
 import { DashboardSummaryResponseDto } from '../dtos'
@@ -15,9 +17,9 @@ import { DashboardService } from '../services'
 @Controller({ path: '/dashboard' })
 export class DashboardAdminController {
   constructor(
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
     protected readonly dashboardService: DashboardService,
     protected readonly helperDateService: HelperDateService,
-    protected readonly helperRealtimeService: HelperRealtimeService,
   ) {}
 
   private getDate(): IDateRange {
@@ -81,7 +83,7 @@ export class DashboardAdminController {
     const dates = this.getDate()
     const dashboard = await this.dashboardService.getSummary(dates.startOfMonth, dates.endOfMonth)
 
-    await this.helperRealtimeService.cacheSet(DashboardSummaryResponseDto.name, dashboard)
+    await this.cache.set(DashboardSummaryResponseDto.name, dashboard)
 
     return {
       data: dashboard,
@@ -113,7 +115,7 @@ export class DashboardAdminController {
     const dates = this.getDate()
     const dataList = await this.dashboardService.viewDataList(dates.startOfMonth, dates.endOfMonth)
 
-    await this.helperRealtimeService.cacheSet(DashboardSummaryResponseDto.name, dataList)
+    await this.cache.set(DashboardSummaryResponseDto.name, dataList)
 
     return {
       data: dataList,
