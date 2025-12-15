@@ -49,8 +49,8 @@ export class UserAuthController {
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: UserProfileResponseDto,
@@ -66,8 +66,8 @@ export class UserAuthController {
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: AuthAccessResponseDto,
@@ -101,8 +101,8 @@ export class UserAuthController {
     google: true,
     docExclude: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: AuthAccessResponseDto,
@@ -135,8 +135,8 @@ export class UserAuthController {
     apple: true,
     docExclude: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: AuthAccessResponseDto,
@@ -175,8 +175,8 @@ export class UserAuthController {
       },
     },
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
     response: {
       dto: UserProfileResponseDto,
@@ -231,8 +231,8 @@ export class UserAuthController {
     summary: USER_DOC_AUTH_OPERATION,
     jwtRefreshToken: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
     response: {
       dto: AuthRefreshResponseDto,
@@ -263,8 +263,8 @@ export class UserAuthController {
       },
     },
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
     response: {
       dto: UserProfileResponseDto,
@@ -299,8 +299,8 @@ export class UserAuthController {
       },
     },
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
     response: {
       dto: UserProfileResponseDto,
@@ -335,8 +335,8 @@ export class UserAuthController {
       },
     },
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
   })
   @Post('/confirm-password')

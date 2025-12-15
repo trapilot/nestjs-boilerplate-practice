@@ -1,4 +1,4 @@
-import { ExecutionContext, PipeTransform, Type } from '@nestjs/common'
+import { PipeTransform, Type } from '@nestjs/common'
 import { ApiHeaderOptions, ApiParamOptions, ApiQueryOptions } from '@nestjs/swagger'
 import { ClassConstructor } from 'class-transformer'
 import { ENUM_AUTH_SCOPE_TYPE, IAuthAbility } from 'lib/nest-auth'
@@ -12,11 +12,9 @@ import {
 import { ENUM_REQUEST_BODY_TYPE } from '../enums'
 
 export interface IRequestRateLimitOptions {
-  limit?: number
-  ttl?: number
+  limit: number
+  seconds: number
   blockDuration?: number
-  getTracker?: (req: Record<string, any>) => Promise<string> | string
-  generateKey?: (context: ExecutionContext, trackerString: string, throttlerName: string) => string
 }
 
 export interface IRequestQueryListOptions {
@@ -114,10 +112,15 @@ export interface IRequestGuardOptions {
   userGender?: boolean
   cartVersion?: boolean
   language?: boolean
-  timeout?: number
   timezone?: boolean
   timestamp?: boolean
-  rateLimit?: Record<string, IRequestRateLimitOptions>
+  timeLimit?: number
+  rateLimit?: {
+    default?: IRequestRateLimitOptions
+    short?: IRequestRateLimitOptions
+    medium?: IRequestRateLimitOptions
+    long?: IRequestRateLimitOptions
+  }
 }
 
 export interface IRequestMetricsConfig {

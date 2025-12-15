@@ -661,12 +661,18 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
     })
   }
 
-  if (options?.timeout) {
-    decorators.push(SetMetadata(REQUEST_TIMEOUT_METADATA, options.timeout))
+  if (options?.timeLimit) {
+    decorators.push(SetMetadata(REQUEST_TIMEOUT_METADATA, options.timeLimit))
   }
 
   if (options?.rateLimit) {
-    decorators.push(Throttle(options?.rateLimit))
+    const rateLimitWithTtl = Object.fromEntries(
+      Object.entries(options.rateLimit).map(([name, config]) => [
+        name,
+        { ...config, ttl: config.seconds * 1000 },
+      ]),
+    )
+    decorators.push(Throttle(rateLimitWithTtl))
   }
 
   if (options?.docExpansion === true) {
@@ -699,7 +705,7 @@ export function ApiRequestFile(options: IRequestFileOptions) {
   const { response, ...request } = options
   return applyDecorators(
     HttpRequest({
-      timeout: request?.timeout || REQUEST_DEFAULT_DOWNLOAD_TIMEOUT,
+      timeLimit: REQUEST_DEFAULT_DOWNLOAD_TIMEOUT,
       ...request,
     }),
     HttpResponse({
@@ -717,7 +723,7 @@ export function ApiRequestList(options: Omit<IRequestListOptions, 'paging' | 'pe
 
   return applyDecorators(
     HttpRequest({
-      timeout: isExportable ? REQUEST_DEFAULT_EXPORT_TIMEOUT : undefined,
+      timeLimit: isExportable ? REQUEST_DEFAULT_EXPORT_TIMEOUT : undefined,
       ...request,
     }),
     HttpResponse({
@@ -739,7 +745,7 @@ export function ApiRequestPaging(options: Omit<IRequestListOptions, 'paging'>) {
 
   return applyDecorators(
     HttpRequest({
-      timeout: isExportable ? REQUEST_DEFAULT_EXPORT_TIMEOUT : undefined,
+      timeLimit: isExportable ? REQUEST_DEFAULT_EXPORT_TIMEOUT : undefined,
       paging: true,
       ...request,
     }),

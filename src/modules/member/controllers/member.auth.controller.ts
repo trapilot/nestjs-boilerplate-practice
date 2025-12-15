@@ -51,8 +51,8 @@ export class MemberAuthController {
     summary: MEMBER_DOC_AUTH_OPERATION,
     userOTP: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: MemberProfileResponseDto,
@@ -79,8 +79,8 @@ export class MemberAuthController {
     userAgent: true,
     userToken: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: AuthAccessResponseDto,
@@ -114,8 +114,8 @@ export class MemberAuthController {
     google: true,
     docExclude: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: AuthAccessResponseDto,
@@ -148,8 +148,8 @@ export class MemberAuthController {
     apple: true,
     docExclude: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: AuthAccessResponseDto,
@@ -181,8 +181,8 @@ export class MemberAuthController {
     summary: MEMBER_DOC_AUTH_OPERATION,
     jwtRefreshToken: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
     response: {
       dto: AuthRefreshResponseDto,
@@ -206,8 +206,8 @@ export class MemberAuthController {
     summary: MEMBER_DOC_AUTH_OPERATION,
     userOTP: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
     response: {
       dto: MemberProfileResponseDto,
@@ -233,8 +233,8 @@ export class MemberAuthController {
     summary: MEMBER_DOC_AUTH_OPERATION,
     // docExclude: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
   })
   @Post('/sign-up/request-otp')
@@ -252,8 +252,8 @@ export class MemberAuthController {
     userOTP: true,
     // docExclude: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
   })
   @Post('/sign-up/verify-otp')
@@ -272,8 +272,8 @@ export class MemberAuthController {
     summary: MEMBER_DOC_AUTH_OPERATION,
     // docExclude: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
   })
   @Post('/sign-up/request-token')
@@ -291,8 +291,8 @@ export class MemberAuthController {
     userOTT: true,
     // docExclude: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
   })
   @Post('/sign-up/verify-token')
@@ -310,8 +310,8 @@ export class MemberAuthController {
   @ApiRequestData({
     summary: MEMBER_DOC_AUTH_OPERATION,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
   })
   @Post('/reset-password/request-otp')
@@ -331,8 +331,8 @@ export class MemberAuthController {
     summary: MEMBER_DOC_AUTH_OPERATION,
     userOTP: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
   })
   @Post('/reset-password/verify-otp')

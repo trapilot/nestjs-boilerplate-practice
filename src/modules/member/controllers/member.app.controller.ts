@@ -144,8 +144,8 @@ export class MemberAppController {
       },
     },
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
     response: {
       dto: MemberProfileResponseDto,

@@ -14,7 +14,10 @@ export class AuditPublicController {
   @ApiRequestData({
     summary: AUDIT_DOC_OPERATION,
     docExclude: true,
-    rateLimit: { default: { ttl: 60_000, limit: 100 } },
+    rateLimit: {
+      short: { limit: 3, seconds: 1 },
+      long: { limit: 100, seconds: 60 },
+    },
   })
   @Post('/send-entry')
   async createEntry(@RequestBody() body: AuditRequestEntryDto): Promise<IResponseData> {

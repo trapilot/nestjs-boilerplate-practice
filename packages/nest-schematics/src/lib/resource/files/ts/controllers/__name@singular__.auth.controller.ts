@@ -55,8 +55,8 @@ export class <%= singular(classify(name)) %>AuthController {
   @ApiRequestData({
     summary: <%= singular(uppercased(name)) %>_DOC_AUTH_OPERATION,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 10, seconds: 10 },
     },
     response: {
       dto: AuthAccessResponseDto,
@@ -90,8 +90,8 @@ export class <%= singular(classify(name)) %>AuthController {
     google: true,
     docExclude: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: AuthAccessResponseDto,
@@ -124,8 +124,8 @@ export class <%= singular(classify(name)) %>AuthController {
     apple: true,
     docExclude: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: AuthAccessResponseDto,
@@ -156,8 +156,8 @@ export class <%= singular(classify(name)) %>AuthController {
   @ApiRequestData({
     summary: <%= singular(uppercased(name)) %>_DOC_AUTH_OPERATION,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.<%= authType %>,
@@ -182,8 +182,8 @@ export class <%= singular(classify(name)) %>AuthController {
     summary: <%= singular(uppercased(name)) %>_DOC_AUTH_OPERATION,
     jwtRefreshToken: true,
     rateLimit: {
-      short: { limit: 2, ttl: 1_000 },
-      long: { limit: 5, ttl: 60_000 },
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
     },
     response: {
       dto: AuthRefreshResponseDto,
