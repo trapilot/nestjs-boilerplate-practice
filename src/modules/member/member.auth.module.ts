@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common'
+import { MemberGateway } from 'app/gateway'
 import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { MemberGateway } from 'src/app/gateway'
+import { ENUM_APP_API_TYPE, ModuleBase } from 'lib/nest-core'
+import { MemberAuthController } from './controllers'
 import { MemberAuthService, MemberVerificationService } from './services'
 
 @Module({
@@ -15,4 +17,8 @@ import { MemberAuthService, MemberVerificationService } from './services'
   exports: [ENUM_AUTH_SCOPE_TYPE.MEMBER],
   imports: [],
 })
-export class MemberAuthModule {}
+export class MemberAuthModule extends ModuleBase {
+  static _controllers = {
+    [ENUM_APP_API_TYPE.APP]: [MemberAuthController],
+  }
+}

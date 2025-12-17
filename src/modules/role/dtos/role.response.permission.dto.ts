@@ -1,5 +1,5 @@
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { Expose, Type } from 'class-transformer'
-import { ENUM_AUTH_ABILITY_ACTION, ENUM_AUTH_ABILITY_SUBJECT } from 'lib/nest-auth'
 
 export class RolePermissionResponseDto {
   @Type(() => Number)
@@ -12,11 +12,11 @@ export class RolePermissionResponseDto {
 
   @Type(() => String)
   @Expose()
-  subject: ENUM_AUTH_ABILITY_SUBJECT
+  subject: ENUM_APP_ABILITY_SUBJECT
 
   @Expose()
-  action: ENUM_AUTH_ABILITY_ACTION
+  action: ENUM_APP_ABILITY_ACTION
 
   @Expose()
-  actions: ENUM_AUTH_ABILITY_ACTION[]
+  actions: ENUM_APP_ABILITY_ACTION[]
 }

@@ -3,7 +3,7 @@ import { ApiProperty, IntersectionType } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
 import { ToDate, ToDecimal } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { ProductResponseBelongDto } from 'src/modules/product/dtos'
+import { ProductResponseBelongDto } from 'modules/product/dtos'
 import { ToOutOfStockSale, ToOutOfStockStatus } from '../transforms'
 
 class ResponseDataDetailDto {

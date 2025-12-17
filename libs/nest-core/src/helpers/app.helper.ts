@@ -10,6 +10,7 @@ import {
   ENUM_NUMBER_LANGUAGE,
 } from '../enums'
 import {
+  EnumLike,
   IDateExtractData,
   IDateRequestOptions,
   IStringCurrencyOptions,
@@ -80,6 +81,12 @@ export class AppHelper {
       ? join(APP_PATH, 'resources', 'templates', language, fileName)
       : join(APP_PATH, 'resources', 'templates', fileName)
     return templatePath
+  }
+
+  static enumToStrings(value: EnumLike | string[]): string[] {
+    if (Array.isArray(value)) return value
+
+    return Object.values(value).filter((v): v is string => typeof v === 'string')
   }
 
   static keyOfEnums<T = string | number>(enums: any, value: string, fallback: string = null): T {

@@ -12,8 +12,8 @@ import {
   NEST_CLI,
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
+import { TierService } from 'modules/tier/services'
 import { Command, CommandRunner, Option } from 'nest-commander'
-import { TierService } from 'src/modules/tier/services'
 
 @Command({
   name: 'member:seed',

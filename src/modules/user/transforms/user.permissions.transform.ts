@@ -1,15 +1,21 @@
+import { AppAbilityUtil } from 'app/helpers'
 import { Transform } from 'class-transformer'
-import { AuthAbilityHelper, IAuthUserPermission, IAuthUserTransformer } from 'lib/nest-auth'
 import { AppHelper } from 'lib/nest-core'
-import { IContextUserPermission, IUserPermission } from '../interfaces'
+import {
+  IContextUserPermission,
+  IUserDataPermission,
+  IUserProfilePermission,
+  IUserTransformOptions,
+} from '../interfaces'
+import { UserTransformUtil } from '../helpers'
 
 export function ToUserPermissions(): (target: any, key: string) => void {
-  return Transform(({ obj: user, value }: IAuthUserTransformer): IUserPermission[] => {
+  return Transform(({ obj: user, value }: IUserTransformOptions): IUserProfilePermission[] => {
     // console.log({ ToUserPermissions: user })
     if (user?.pivotRoles !== undefined) {
       const grpContextPermission: IContextUserPermission = {}
-      const userPermissions: IAuthUserPermission[] = []
-      const userRoles = AuthAbilityHelper.toUserRoles(user)
+      const userPermissions: IUserDataPermission[] = []
+      const userRoles = UserTransformUtil.toValidUserRoles(user)
 
       for (const userRole of userRoles) {
         const userRolePermissions = userRole?.pivotPermissions ?? []
@@ -41,7 +47,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
         if (!(context in grpContextPermission)) {
           grpContextPermission[context] = {
             group: false,
-            title: AppHelper.toLocaleValue(AuthAbilityHelper.toContext(context)),
+            title: AppAbilityUtil.toContext(context),
             context,
             subjects: [],
           }
@@ -53,7 +59,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
         if (exist) {
           exist.actions = AppHelper.toUnique([
             ...exist.actions,
-            ...AuthAbilityHelper.toActions(bitwise),
+            ...AppAbilityUtil.toActions(bitwise),
           ])
         } else {
           grpContextPermission[context].subjects.push({
@@ -61,7 +67,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
             context,
             subject,
             isVisible,
-            actions: AuthAbilityHelper.toActions(bitwise),
+            actions: AppAbilityUtil.toActions(bitwise),
           })
           if (!grpContextPermission[context].group) {
             const activeSubjects = grpContextPermission[context].subjects.filter(

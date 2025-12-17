@@ -1,16 +1,28 @@
-import { InferSubjects, PureAbility } from '@casl/ability'
+import { Type } from '@nestjs/common'
 import { ClassConstructor } from 'class-transformer'
-import { IRequestApp } from 'lib/nest-core'
+import { EnumLike, IRequestApp } from 'lib/nest-core'
 import { IResult } from 'ua-parser-js'
 import { AuthJwtAccessPayloadDto } from '../dtos'
 import {
-  ENUM_AUTH_ABILITY_ACTION,
-  ENUM_AUTH_ABILITY_SUBJECT,
   ENUM_AUTH_LOGIN_FROM,
   ENUM_AUTH_LOGIN_TYPE,
   ENUM_AUTH_LOGIN_WITH,
   ENUM_AUTH_SCOPE_TYPE,
 } from '../enums'
+import { AuthAbilityFactory } from '../factories'
+
+export interface AuthModuleOptions {
+  factory: Type<AuthAbilityFactory>
+  subjects: EnumLike | string[]
+  actions: EnumLike | string[]
+}
+
+export interface IAuthToken {
+  expiresIn: number
+  tokenType: string
+  accessToken: string
+  refreshToken: string
+}
 
 export interface IAuthPassword {
   salt: string
@@ -23,11 +35,8 @@ export interface IAuthPasswordOptions {
   temporary: boolean
 }
 
-export interface ITokenPayload {
-  expiresIn: number
-  tokenType: string
-  accessToken: string
-  refreshToken: string
+export interface IAuthPayloadPermission {
+  [subjectIndex: number]: [bitwise: number]
 }
 
 export interface IAuthPayloadOptions {
@@ -53,57 +62,4 @@ export interface IAuthJwtProtectedOptions {
   metadata?: {
     [key: string]: any
   }
-}
-
-export interface IAuthAbility {
-  subject: ENUM_AUTH_ABILITY_SUBJECT
-  actions: ENUM_AUTH_ABILITY_ACTION[]
-}
-
-export interface IAuthAbilityFlat {
-  subject: ENUM_AUTH_ABILITY_SUBJECT
-  action: ENUM_AUTH_ABILITY_ACTION
-}
-
-export type IAuthAbilitySubject = InferSubjects<ENUM_AUTH_ABILITY_SUBJECT> | 'all'
-
-export type IAuthAbilityRule = PureAbility<[ENUM_AUTH_ABILITY_ACTION, IAuthAbilitySubject]>
-
-export type IAuthAbilityHandlerCallback = (ability: IAuthAbilityRule) => boolean
-
-export interface IAuthUserTransformer {
-  value: any
-  key: any
-  obj: IAuthUserData
-}
-
-export interface IAuthJwtPermission {
-  [subjectIndex: number]: [bitwise: number]
-}
-
-export interface IAuthUserPermission {
-  context: string
-  subject: string
-  title: any
-  sorting: number
-  bitwise: number
-  isActive: boolean
-  isVisible: boolean
-}
-
-export interface IAuthUserRole {
-  id: number
-  level: number
-  isActive: boolean
-  pivotPermissions: {
-    bitwise: number
-    permission: IAuthUserPermission
-  }[]
-}
-
-export interface IAuthUserData {
-  level: number
-  pivotRoles: {
-    role: IAuthUserRole
-  }[]
 }

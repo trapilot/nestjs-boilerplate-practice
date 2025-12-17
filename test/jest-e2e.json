@@ -12,6 +12,9 @@
   },
   "moduleNameMapper": {
     "^src/(.*)$": "<rootDir>/../src/$1",
+    "^app/(.*)$": "<rootDir>/../src/app/$1",
+    "^configs/(.*)$": "<rootDir>/../src/configs/$1",
+    "^modules/(.*)$": "<rootDir>/../src/modules/$1",
     "lib/nest-auth": "<rootDir>/../libs/nest-auth/src",
     "lib/nest-auth/(.*)": "<rootDir>/../libs/nest-auth/src/$1",
     "lib/nest-core": "<rootDir>/../libs/nest-core/src",

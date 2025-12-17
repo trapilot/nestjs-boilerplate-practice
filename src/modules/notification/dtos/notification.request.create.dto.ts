@@ -11,7 +11,7 @@ import {
 } from 'class-validator'
 import { ToArray, ToBoolean, ToNumber, ToObject, ToString } from 'lib/nest-core'
 import { RequestContentDto, RequestParagraphDto, RequestSentenceDto } from 'lib/nest-web'
-import { PushRequestCreateDto } from 'src/modules/push/dtos'
+import { PushRequestCreateDto } from 'modules/push/dtos'
 import { ENUM_NOTIFICATION_REF_TYPE } from '../enums'
 
 export class NotificationPushCreateDto extends OmitType(PushRequestCreateDto, ['notificationId']) {}

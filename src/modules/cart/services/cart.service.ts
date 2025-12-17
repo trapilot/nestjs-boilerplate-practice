@@ -11,12 +11,12 @@ import { Prisma, Product } from '@prisma/client'
 import { AppHelper, HelperDateService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
-import { MemberService } from 'src/modules/member/services'
-import { OrderService } from 'src/modules/order/services'
-import { ProductService } from 'src/modules/product/services'
+import { MemberService } from 'modules/member/services'
+import { OrderService } from 'modules/order/services'
+import { ProductService } from 'modules/product/services'
 import { ICartCheckoutOptions, ICartItemAddOptions, TCart, TCartItem } from '../interfaces'
 import { CartItemInStockRule, CartItemIsActiveRule, CartItemMemberRequireRule } from '../rules'
-import { CartHelper, CartValidator } from '../utils'
+import { CartUtil, CartValidator } from '../helpers'
 
 @Injectable()
 export class CartService implements OnModuleInit {
@@ -317,7 +317,7 @@ export class CartService implements OnModuleInit {
   }
 
   async adjustItem(cart: TCart, cartItem: TCartItem, quantity: number): Promise<TCart> {
-    const { id, cartId, ...data } = CartHelper.recalculate(cartItem, quantity)
+    const { id, cartId, ...data } = CartUtil.recalculate(cartItem, quantity)
     return await this.prisma.cart.update({
       where: { id: cart.id },
       include: this.cartRelation,

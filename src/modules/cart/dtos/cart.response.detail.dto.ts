@@ -3,7 +3,7 @@ import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagg
 import { Expose, Type } from 'class-transformer'
 import { ToDate } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { MemberResponseBelongDto } from 'src/modules/member/dtos'
+import { MemberResponseBelongDto } from 'modules/member/dtos'
 import { ToCartPoint, ToCartPrice, ToShipment } from '../transforms'
 import { CartItemResponseDetailDto } from './cart.response.item.dto'
 

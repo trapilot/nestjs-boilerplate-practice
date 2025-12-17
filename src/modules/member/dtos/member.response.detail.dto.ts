@@ -5,7 +5,7 @@ import { Expose, Type } from 'class-transformer'
 import { ENUM_AUTH_LOGIN_FROM } from 'lib/nest-auth'
 import { APP_LANGUAGE, ENUM_DATE_FORMAT, ToDate, ToDecimal, ToUrl } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { TierResponseBelongDto } from 'src/modules/tier/dtos'
+import { TierResponseBelongDto } from 'modules/tier/dtos'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: faker.number.int({ min: 1, max: 100 }) })

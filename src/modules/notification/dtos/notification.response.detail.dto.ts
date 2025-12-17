@@ -4,7 +4,7 @@ import { ENUM_NOTIFICATION_CHANNEL, ENUM_NOTIFICATION_TYPE } from '@prisma/clien
 import { Expose, Type } from 'class-transformer'
 import { ToDate, ToNestedArray } from 'lib/nest-core'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
-import { PushResponseBelongDto } from 'src/modules/push/dtos'
+import { PushResponseBelongDto } from 'modules/push/dtos'
 import { ENUM_NOTIFICATION_REF_TYPE } from '../enums'
 
 class ResponseDataDetailDto {

@@ -19,10 +19,10 @@ import {
   AuthService,
   IAuthPayloadOptions,
   IAuthRefetchOptions,
+  IAuthToken,
   IAuthUserValidatorDto,
   IAuthValidator,
   IAuthValidatorOptions,
-  ITokenPayload,
 } from 'lib/nest-auth'
 import {
   APP_TIMEZONE,
@@ -36,7 +36,7 @@ import {
 } from 'lib/nest-core'
 import { NotifierService } from 'lib/nest-notifier'
 import { PrismaService } from 'lib/nest-prisma'
-import { TierService } from 'src/modules/tier/services'
+import { TierService } from 'modules/tier/services'
 import { IResult } from 'ua-parser-js'
 import {
   MemberChangePasswordRequestDto,
@@ -234,8 +234,8 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
     userIp: string,
     userAgent: IResult,
     userRequest: IRequestApp,
-    userAuth: Partial<IAuthPayloadOptions>,
-  ): Promise<ITokenPayload> {
+    options: Partial<IAuthPayloadOptions>,
+  ): Promise<IAuthToken> {
     if (!member.isActive) {
       throw new BadRequestException({
         statusCode: HttpStatus.FORBIDDEN,
@@ -253,13 +253,13 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
 
     const payload = await this.serializeUserData(member)
     const payloadAccessToken = this.authService.createPayloadAccessToken(payload, {
-      scopeType: userAuth.scopeType,
-      loginType: userAuth.loginType,
-      loginFrom: userAuth.loginFrom,
-      loginWith: userAuth.loginWith,
-      loginDate: userAuth?.loginDate ?? this.authService.getLoginDate(),
-      loginToken: userAuth?.loginToken ?? this.authService.createToken(userIp, userAgent),
-      loginRotate: userAuth?.loginRotate === true,
+      scopeType: options.scopeType,
+      loginType: options.loginType,
+      loginFrom: options.loginFrom,
+      loginWith: options.loginWith,
+      loginDate: options?.loginDate ?? this.authService.getLoginDate(),
+      loginToken: options?.loginToken ?? this.authService.createToken(userIp, userAgent),
+      loginRotate: options?.loginRotate === true,
     })
     const payloadRefreshToken = this.authService.createPayloadRefreshToken(
       payload.id,
@@ -267,7 +267,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
     )
 
     const [expiresIn, refreshIn] =
-      userAuth?.loginRotate === true
+      options?.loginRotate === true
         ? [
             this.authService.getAccessTokenExpirationTime(),
             this.authService.getRefreshTokenExpirationTime(),
@@ -296,7 +296,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
     member: TMember,
     refreshToken: string,
     refreshPayload: AuthJwtRefreshPayloadDto,
-  ): Promise<ITokenPayload> {
+  ): Promise<IAuthToken> {
     if (!refreshPayload?.loginRotate) {
       throw new ForbiddenException({
         statusCode: HttpStatus.FORBIDDEN,

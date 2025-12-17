@@ -1,12 +1,8 @@
 import { Controller, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@prisma/client'
-import {
-  AuthJwtPayload,
-  ENUM_AUTH_ABILITY_ACTION,
-  ENUM_AUTH_ABILITY_SUBJECT,
-  ENUM_AUTH_SCOPE_TYPE,
-} from 'lib/nest-auth'
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
+import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -42,8 +38,8 @@ export class PermissionAdminController {
         require: true,
         abilities: [
           {
-            subject: ENUM_AUTH_ABILITY_SUBJECT.PERMISSION,
-            actions: [ENUM_AUTH_ABILITY_ACTION.READ],
+            subject: ENUM_APP_ABILITY_SUBJECT.PERMISSION,
+            actions: [ENUM_APP_ABILITY_ACTION.READ],
           },
         ],
       },
@@ -82,8 +78,8 @@ export class PermissionAdminController {
         active: true,
         abilities: [
           {
-            subject: ENUM_AUTH_ABILITY_SUBJECT.PERMISSION,
-            actions: [ENUM_AUTH_ABILITY_ACTION.READ, ENUM_AUTH_ABILITY_ACTION.UPDATE],
+            subject: ENUM_APP_ABILITY_SUBJECT.PERMISSION,
+            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
           },
         ],
       },
@@ -115,8 +111,8 @@ export class PermissionAdminController {
         active: true,
         abilities: [
           {
-            subject: ENUM_AUTH_ABILITY_SUBJECT.PERMISSION,
-            actions: [ENUM_AUTH_ABILITY_ACTION.READ, ENUM_AUTH_ABILITY_ACTION.CREATE],
+            subject: ENUM_APP_ABILITY_SUBJECT.PERMISSION,
+            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.CREATE],
           },
         ],
       },

@@ -1,12 +1,20 @@
 import { Transform } from 'class-transformer'
-import { IAuthJwtPermission, IAuthUserTransformer } from '../interfaces'
-import { AuthAbilityHelper } from '../utils'
+import { AuthAbilityContext, IAuthPayloadPermission } from 'lib/nest-auth'
+import { IUserTransformOptions } from '../interfaces'
+import { UserTransformUtil } from '../helpers'
 
-export function ToAuthUserPermissions(): (target: any, key: string) => void {
-  return Transform(({ obj: user }: IAuthUserTransformer): IAuthJwtPermission => {
+export function ToUserPayloadRoles(): (target: any, key: string) => void {
+  return Transform(({ obj: user }: IUserTransformOptions): number[] => {
+    // console.log({ ToAuthUserRoles: user })
+    return UserTransformUtil.toValidUserRoleIds(user)
+  })
+}
+
+export function ToUserPayloadPermissions(): (target: any, key: string) => void {
+  return Transform(({ obj: user }: IUserTransformOptions): IAuthPayloadPermission => {
     // console.log({ ToAuthUserPermissions: user })
-    const subjects: string[] = AuthAbilityHelper.getSubjects()
-    const userRoles = AuthAbilityHelper.toUserRoles(user)
+    const { subjects } = AuthAbilityContext.getConfig()
+    const userRoles = UserTransformUtil.toValidUserRoles(user)
     const userPermissions = {}
 
     for (const userRole of userRoles) {

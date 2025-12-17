@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
-import { ProductModule } from 'src/modules/product'
-import { RoleMigrateCommand, RoleModule } from 'src/modules/role'
+import { ENUM_APP_CMD_TYPE } from 'lib/nest-core'
+import { RoleModule } from 'modules/role'
 
 @Module({
-  providers: [RoleMigrateCommand],
-  imports: [RoleModule, ProductModule],
+  providers: [...RoleModule.commands(ENUM_APP_CMD_TYPE.MIGRATE)],
+  imports: [RoleModule],
 })
 export class CommandsMigrateModule {}

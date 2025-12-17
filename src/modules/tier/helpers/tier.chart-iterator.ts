@@ -1,6 +1,6 @@
 import { ENUM_TIER_CODE } from 'lib/nest-core'
-import { InvoiceData } from 'src/modules/invoice/utils'
-import { MemberData } from 'src/modules/member/utils'
+import { InvoiceData } from 'modules/invoice/helpers'
+import { MemberData } from 'modules/member/helpers'
 import { TTier, TTierChart } from '../interfaces'
 import { TierData, TierValue } from './tier.data'
 

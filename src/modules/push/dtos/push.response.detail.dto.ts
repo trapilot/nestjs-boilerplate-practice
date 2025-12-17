@@ -4,7 +4,7 @@ import { ENUM_PUSH_STATUS, ENUM_PUSH_TYPE } from '@prisma/client'
 import { Exclude, Expose, Type } from 'class-transformer'
 import { ENUM_DATE_FORMAT, ToDate, ToDuration } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { NotificationResponseBelongDto } from 'src/modules/notification/dtos'
+import { NotificationResponseBelongDto } from 'modules/notification/dtos'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })

@@ -4,8 +4,8 @@ import { ENUM_PRODUCT_EXPIRY } from '@prisma/client'
 import { Expose, Type } from 'class-transformer'
 import { ENUM_DATE_FORMAT, ToDecimal, ToLocaleField, ToUrl } from 'lib/nest-core'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
-import { ProductBrandResponseBelongDto } from 'src/modules/product-brand/dtos'
-import { ProductCategoryResponseBelongDto } from 'src/modules/product-category/dtos'
+import { ProductBrandResponseBelongDto } from 'modules/product-brand/dtos'
+import { ProductCategoryResponseBelongDto } from 'modules/product-category/dtos'
 import { ToDynamicExpiryDate, ToInWishList, ToStaticExpiryDate } from '../transforms'
 
 class ResponseDataDetailDto {

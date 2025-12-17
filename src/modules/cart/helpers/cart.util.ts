@@ -1,6 +1,6 @@
 import { CartItem } from '@prisma/client'
 
-export class CartHelper {
+export class CartUtil {
   static recalculate(item: CartItem, quantity: number): CartItem {
     const unitPrice = item.unitPrice || 0
     const discPrice = item.discPrice || 0

@@ -1,14 +1,9 @@
 import { INestApplication } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { RoutesAdminModule, RoutesAppModule, RoutesPublicModule, RoutesWebModule } from 'app/router'
 import { ENUM_APP_ENVIRONMENT } from 'lib/nest-core'
 import { writeFileSync } from 'node:fs'
-import {
-  RoutesAdminModule,
-  RoutesAppModule,
-  RoutesPublicModule,
-  RoutesWebModule,
-} from 'src/app/router'
 
 export default async function (app: INestApplication) {
   const config = app.get(ConfigService)

@@ -1,5 +1,5 @@
 import { Permission, RolesPermissions } from '@prisma/client'
-import { ENUM_AUTH_ABILITY_ACTION } from 'lib/nest-auth'
+import { ENUM_APP_ABILITY_ACTION } from 'app/enums'
 
 export type TRolePermission = RolesPermissions
 
@@ -8,7 +8,7 @@ export type TPermission = Permission & {
 }
 
 export interface IPermissionCreateOptions {
-  actions: ENUM_AUTH_ABILITY_ACTION[]
+  actions: ENUM_APP_ABILITY_ACTION[]
   createdBy?: number
 }
 

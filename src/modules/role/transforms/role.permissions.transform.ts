@@ -1,5 +1,5 @@
+import { AppAbilityUtil } from 'app/helpers'
 import { Transform } from 'class-transformer'
-import { AuthAbilityHelper } from 'lib/nest-auth'
 import { AppHelper } from 'lib/nest-core'
 import { TRole } from '../interfaces'
 
@@ -24,10 +24,10 @@ export function ToRolePermissions(): (target: any, key: string) => void {
             }
           }
 
-          const actions = AuthAbilityHelper.toActions(bitwise)
+          const actions = AppAbilityUtil.toActions(bitwise)
           for (const action of actions) {
             mappedPermissions[subject].actions.push({
-              [action]: (roleBit & AuthAbilityHelper.toBitwise([action])) > 0,
+              [action]: (roleBit & AppAbilityUtil.toBitwise([action])) > 0,
             })
           }
         }
