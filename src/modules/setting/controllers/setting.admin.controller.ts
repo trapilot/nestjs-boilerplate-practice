@@ -1,11 +1,8 @@
 import { BadRequestException, Controller, Get, HttpStatus, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma, Setting } from '@prisma/client'
-import {
-  ENUM_AUTH_ABILITY_ACTION,
-  ENUM_AUTH_ABILITY_SUBJECT,
-  ENUM_AUTH_SCOPE_TYPE,
-} from 'lib/nest-auth'
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
+import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { FILE_SIZE_IN_BYTES, HelperCryptoService, HelperMessageService } from 'lib/nest-core'
 import {
   ApiRequestData,
@@ -101,8 +98,8 @@ export class SettingAdminController {
         require: true,
         abilities: [
           {
-            subject: ENUM_AUTH_ABILITY_SUBJECT.SETTING,
-            actions: [ENUM_AUTH_ABILITY_ACTION.READ],
+            subject: ENUM_APP_ABILITY_SUBJECT.SETTING,
+            actions: [ENUM_APP_ABILITY_ACTION.READ],
           },
         ],
       },
@@ -134,8 +131,8 @@ export class SettingAdminController {
         require: true,
         abilities: [
           {
-            subject: ENUM_AUTH_ABILITY_SUBJECT.SETTING,
-            actions: [ENUM_AUTH_ABILITY_ACTION.READ],
+            subject: ENUM_APP_ABILITY_SUBJECT.SETTING,
+            actions: [ENUM_APP_ABILITY_ACTION.READ],
           },
         ],
       },
@@ -163,8 +160,8 @@ export class SettingAdminController {
         active: true,
         abilities: [
           {
-            subject: ENUM_AUTH_ABILITY_SUBJECT.SETTING,
-            actions: [ENUM_AUTH_ABILITY_ACTION.UPDATE],
+            subject: ENUM_APP_ABILITY_SUBJECT.SETTING,
+            actions: [ENUM_APP_ABILITY_ACTION.UPDATE],
           },
         ],
       },

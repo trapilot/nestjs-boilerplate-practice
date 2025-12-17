@@ -1,39 +1,35 @@
 import { Module } from '@nestjs/common'
-import { CartAppController, CartModule } from 'src/modules/cart'
-import { CountryAppController, CountryModule } from 'src/modules/country'
-import { DistrictAppController, DistrictModule } from 'src/modules/district'
-import { FactAppController, FactModule } from 'src/modules/fact'
-import { InvoiceAppController, InvoiceModule } from 'src/modules/invoice'
-import { MediaAppController, MediaModule } from 'src/modules/media'
-import {
-  MemberAppController,
-  MemberAuthController,
-  MemberAuthModule,
-  MemberModule,
-} from 'src/modules/member'
-import { PointHistoryAppController, PointHistoryModule } from 'src/modules/point-history'
-import { ProductAppController, ProductModule } from 'src/modules/product'
-import { ProductBrandAppController, ProductBrandModule } from 'src/modules/product-brand'
-import { ProductCategoryAppController, ProductCategoryModule } from 'src/modules/product-category'
-import { ProductHistoryAppController, ProductHistoryModule } from 'src/modules/product-history'
-import { TierAppController, TierModule } from 'src/modules/tier'
+import { ENUM_APP_API_TYPE } from 'lib/nest-core'
+import { CartModule } from 'modules/cart'
+import { CountryModule } from 'modules/country'
+import { DistrictModule } from 'modules/district'
+import { FactModule } from 'modules/fact'
+import { InvoiceModule } from 'modules/invoice'
+import { MediaModule } from 'modules/media'
+import { MemberAuthModule, MemberModule } from 'modules/member'
+import { PointHistoryModule } from 'modules/point-history'
+import { ProductModule } from 'modules/product'
+import { ProductBrandModule } from 'modules/product-brand'
+import { ProductCategoryModule } from 'modules/product-category'
+import { ProductHistoryModule } from 'modules/product-history'
+import { TierModule } from 'modules/tier'
 
 @Module({
   controllers: [
-    MemberAuthController,
-    MemberAppController,
-    FactAppController,
-    CountryAppController,
-    DistrictAppController,
-    TierAppController,
-    CartAppController,
-    InvoiceAppController,
-    PointHistoryAppController,
-    ProductHistoryAppController,
-    MediaAppController,
-    ProductAppController,
-    ProductBrandAppController,
-    ProductCategoryAppController,
+    ...MemberAuthModule.controllers(ENUM_APP_API_TYPE.APP),
+    ...MemberModule.controllers(ENUM_APP_API_TYPE.APP),
+    ...FactModule.controllers(ENUM_APP_API_TYPE.APP),
+    ...CountryModule.controllers(ENUM_APP_API_TYPE.APP),
+    ...DistrictModule.controllers(ENUM_APP_API_TYPE.APP),
+    ...TierModule.controllers(ENUM_APP_API_TYPE.APP),
+    ...CartModule.controllers(ENUM_APP_API_TYPE.APP),
+    ...InvoiceModule.controllers(ENUM_APP_API_TYPE.APP),
+    ...PointHistoryModule.controllers(ENUM_APP_API_TYPE.APP),
+    ...ProductHistoryModule.controllers(ENUM_APP_API_TYPE.APP),
+    ...MediaModule.controllers(ENUM_APP_API_TYPE.APP),
+    ...ProductModule.controllers(ENUM_APP_API_TYPE.APP),
+    ...ProductBrandModule.controllers(ENUM_APP_API_TYPE.APP),
+    ...ProductCategoryModule.controllers(ENUM_APP_API_TYPE.APP),
   ],
   imports: [
     MemberAuthModule,

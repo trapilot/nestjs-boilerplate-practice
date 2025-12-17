@@ -1,6 +1,7 @@
 import { IntersectionType, PickType } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
-import { IAuthJwtPermission, ToAuthUserPermissions, ToAuthUserRoles } from 'lib/nest-auth'
+import { IAuthPayloadPermission } from 'lib/nest-auth'
+import { ToUserPayloadPermissions, ToUserPayloadRoles } from '../transforms'
 import { UserProfileResponseDto } from './user.response.profile.dto'
 
 export class ResponseUserPayloadDto extends PickType(UserProfileResponseDto, [
@@ -15,13 +16,13 @@ class ResponseUserPayloadRelationDto {
   @Expose()
   level: number
 
-  @ToAuthUserRoles()
+  @ToUserPayloadRoles()
   @Expose()
   roles: number[]
 
-  @ToAuthUserPermissions()
+  @ToUserPayloadPermissions()
   @Expose()
-  permissions: IAuthJwtPermission[]
+  permissions: IAuthPayloadPermission[]
 }
 
 export class UserResponsePayloadDto extends IntersectionType(

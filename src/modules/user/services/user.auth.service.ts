@@ -15,10 +15,10 @@ import {
   ENUM_AUTH_SIGN_UP_FROM,
   IAuthPayloadOptions,
   IAuthRefetchOptions,
+  IAuthToken,
   IAuthUserValidatorDto,
   IAuthValidator,
   IAuthValidatorOptions,
-  ITokenPayload,
 } from 'lib/nest-auth'
 import {
   APP_TIMEZONE,
@@ -224,8 +224,8 @@ export class UserAuthService implements IAuthValidator<TUser> {
     userIp: string,
     userAgent: IResult,
     userRequest: IRequestApp,
-    userAuth: Partial<IAuthPayloadOptions>,
-  ): Promise<ITokenPayload> {
+    options: Partial<IAuthPayloadOptions>,
+  ): Promise<IAuthToken> {
     if (!user.isActive) {
       throw new BadRequestException({
         statusCode: HttpStatus.FORBIDDEN,
@@ -243,13 +243,13 @@ export class UserAuthService implements IAuthValidator<TUser> {
 
     const payload = await this.serializeUserData(user)
     const payloadAccessToken = this.authService.createPayloadAccessToken(payload, {
-      scopeType: userAuth.scopeType,
-      loginFrom: userAuth.loginFrom,
-      loginWith: userAuth.loginWith,
-      loginType: userAuth.loginType,
-      loginDate: userAuth?.loginDate ?? this.authService.getLoginDate(),
-      loginToken: userAuth?.loginToken ?? this.authService.createToken(userIp, userAgent),
-      loginRotate: userAuth?.loginRotate === true,
+      scopeType: options.scopeType,
+      loginFrom: options.loginFrom,
+      loginWith: options.loginWith,
+      loginType: options.loginType,
+      loginDate: options?.loginDate ?? this.authService.getLoginDate(),
+      loginToken: options?.loginToken ?? this.authService.createToken(userIp, userAgent),
+      loginRotate: options?.loginRotate === true,
     })
 
     const payloadRefreshToken = this.authService.createPayloadRefreshToken(
@@ -258,7 +258,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
     )
 
     const [expiresIn, refreshIn] =
-      userAuth?.loginRotate === true
+      options?.loginRotate === true
         ? [
             this.authService.getAccessTokenExpirationTime(),
             this.authService.getRefreshTokenExpirationTime(),
@@ -287,7 +287,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
     user: TUser,
     refreshToken: string,
     refreshPayload: AuthJwtRefreshPayloadDto,
-  ): Promise<ITokenPayload> {
+  ): Promise<IAuthToken> {
     if (!refreshPayload?.loginRotate) {
       throw new ForbiddenException({
         statusCode: HttpStatus.FORBIDDEN,

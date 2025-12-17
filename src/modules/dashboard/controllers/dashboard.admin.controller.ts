@@ -1,12 +1,9 @@
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Controller, Get, Inject } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { Cache } from 'cache-manager'
-import {
-  ENUM_AUTH_ABILITY_ACTION,
-  ENUM_AUTH_ABILITY_SUBJECT,
-  ENUM_AUTH_SCOPE_TYPE,
-} from 'lib/nest-auth'
+import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { HelperDateService, IDateRange } from 'lib/nest-core'
 import { ApiRequestData, IResponseData } from 'lib/nest-web'
 import { DASHBOARD_DOC_OPERATION } from '../constants'
@@ -36,8 +33,8 @@ export class DashboardAdminController {
         require: true,
         abilities: [
           {
-            subject: ENUM_AUTH_ABILITY_SUBJECT.DASHBOARD,
-            actions: [ENUM_AUTH_ABILITY_ACTION.READ],
+            subject: ENUM_APP_ABILITY_SUBJECT.DASHBOARD,
+            actions: [ENUM_APP_ABILITY_ACTION.READ],
           },
         ],
       },
@@ -67,8 +64,8 @@ export class DashboardAdminController {
         require: true,
         abilities: [
           {
-            subject: ENUM_AUTH_ABILITY_SUBJECT.DASHBOARD,
-            actions: [ENUM_AUTH_ABILITY_ACTION.READ],
+            subject: ENUM_APP_ABILITY_SUBJECT.DASHBOARD,
+            actions: [ENUM_APP_ABILITY_ACTION.READ],
           },
         ],
       },
@@ -99,8 +96,8 @@ export class DashboardAdminController {
         require: true,
         abilities: [
           {
-            subject: ENUM_AUTH_ABILITY_SUBJECT.DASHBOARD,
-            actions: [ENUM_AUTH_ABILITY_ACTION.READ],
+            subject: ENUM_APP_ABILITY_SUBJECT.DASHBOARD,
+            actions: [ENUM_APP_ABILITY_ACTION.READ],
           },
         ],
       },

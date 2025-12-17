@@ -4,8 +4,8 @@ import { ENUM_INVOICE_STATUS } from '@prisma/client'
 import { Expose, Type } from 'class-transformer'
 import { ENUM_DATE_FORMAT, ToDate, ToDecimal } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { MemberResponseBelongDto } from 'src/modules/member/dtos'
-import { OrderResponseBelongDto, OrderResponseDetailDto } from 'src/modules/order/dtos'
+import { MemberResponseBelongDto } from 'modules/member/dtos'
+import { OrderResponseDetailDto } from 'modules/order/dtos'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })

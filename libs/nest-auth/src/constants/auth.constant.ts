@@ -6,4 +6,6 @@ export const AUTH_ACCESS_USER_HMAC_METADATA = 'nest_auth_module:auth_user_hmac'
 export const AUTH_ABILITY_META_KEY = 'nest_auth_module:auth_ability'
 export const AUTH_SCOPE_META_KEY = 'nest_auth_module:auth_scope'
 
+export const AUTH_ABILITY_CONFIG_TOKEN = 'nest_auth_module:AUTH_ABILITY_CONFIG_TOKEN'
 export const AUTH_ABILITY_FACTORY_TOKEN = 'nest_auth_module:AUTH_ABILITY_FACTORY_TOKEN'
+export const AUTH_ABILITY_CONTEXT_TOKEN = 'nest_auth_module:AUTH_ABILITY_CONTEXT_TOKEN'

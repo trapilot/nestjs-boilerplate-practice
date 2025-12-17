@@ -19,6 +19,11 @@ export enum ENUM_APP_API_ROUTE {
   WEB = '/web',
 }
 
+export enum ENUM_APP_CMD_TYPE {
+  SEED = 'SEED',
+  MIGRATE = 'MIGRATE',
+}
+
 export enum ENUM_DEVICE_PLATFORM {
   IOS = 'IOS',
   AOS = 'AOS',

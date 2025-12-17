@@ -9,10 +9,11 @@ import {
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import {
-  AUTH_ABILITY_META_KEY,
   AUTH_ABILITY_FACTORY_TOKEN,
+  AUTH_ABILITY_META_KEY,
   AUTH_ACCESS_REQUIRE_METADATA,
-  AuthUserAbilityFactory,
+  AuthAbilityFactory,
+  AuthJwtAccessPayloadDto,
   IAuthAbility,
 } from 'lib/nest-auth'
 import { IRequestApp } from 'lib/nest-core'
@@ -21,11 +22,11 @@ import { IRequestApp } from 'lib/nest-core'
 export class AuthUserAbilityGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    @Inject(AUTH_ABILITY_FACTORY_TOKEN) private readonly abilityFactory: AuthUserAbilityFactory,
+    @Inject(AUTH_ABILITY_FACTORY_TOKEN) private readonly abilityFactory: AuthAbilityFactory,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<IRequestApp>()
+    const request = context.switchToHttp().getRequest<IRequestApp<AuthJwtAccessPayloadDto>>()
     const { user: payload } = request
 
     const isAuthenticated = !!payload
@@ -55,10 +56,8 @@ export class AuthUserAbilityGuard implements CanActivate {
       }
 
       // console.log({ payload })
-      const userPermissions = this.abilityFactory.parseFromRequest(payload.user?.permissions)
-
       const handler = this.abilityFactory.handlerAbilities(abilities)
-      const rule = this.abilityFactory.defineFromRequest(userPermissions)
+      const rule = this.abilityFactory.defineFromRequest(payload)
       const check: boolean = handler.every((handler) => handler(rule))
 
       if (!check) {

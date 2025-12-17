@@ -1,6 +1,6 @@
 import { ENUM_PUSH_TYPE, Prisma } from '@prisma/client'
 import { AppHelper } from 'lib/nest-core'
-import { NotificationPushCreateDto } from 'src/modules/notification/dtos'
+import { NotificationPushCreateDto } from 'modules/notification/dtos'
 
 export class PushHelper {
   static canWeekday(type: ENUM_PUSH_TYPE): boolean {

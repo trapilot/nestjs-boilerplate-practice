@@ -18,6 +18,9 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "paths": {
+      "app/*": ["src/app/*"],
+      "configs/*": ["src/configs/*"],
+      "modules/*": ["src/modules/*"],
       "lib/nest-auth": [
         "libs/nest-auth/src"
       ],

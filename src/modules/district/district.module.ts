@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common'
+import { ENUM_APP_API_TYPE, ModuleBase } from 'lib/nest-core'
+import { DistrictAdminController, DistrictAppController } from './controllers'
 import { DistrictService } from './services'
 
 @Module({
@@ -6,4 +8,9 @@ import { DistrictService } from './services'
   exports: [DistrictService],
   imports: [],
 })
-export class DistrictModule {}
+export class DistrictModule extends ModuleBase {
+  static _controllers = {
+    [ENUM_APP_API_TYPE.CMS]: [DistrictAdminController],
+    [ENUM_APP_API_TYPE.APP]: [DistrictAppController],
+  }
+}

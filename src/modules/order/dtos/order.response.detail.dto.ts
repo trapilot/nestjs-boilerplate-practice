@@ -4,8 +4,8 @@ import { ENUM_ORDER_SOURCE, ENUM_ORDER_STATUS } from '@prisma/client'
 import { Expose, Type } from 'class-transformer'
 import { ENUM_DATE_FORMAT, ToDate, ToDecimal, ToNumber } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { MemberResponseBelongDto } from 'src/modules/member/dtos'
-import { ProductResponseBelongDto } from 'src/modules/product/dtos'
+import { MemberResponseBelongDto } from 'modules/member/dtos'
+import { ProductResponseBelongDto } from 'modules/product/dtos'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })

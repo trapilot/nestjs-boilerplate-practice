@@ -1,12 +1,9 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import {
-  AuthAbilityHelper,
-  ENUM_AUTH_ABILITY_ACTION,
-  ENUM_AUTH_ABILITY_SUBJECT,
-} from 'lib/nest-auth'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
+import { AppAbilityUtil } from 'app/helpers'
 import { IRoleCreateOptions, IRoleUpdateOptions, TRole } from '../interfaces'
 
 @Injectable()
@@ -101,7 +98,7 @@ export class RoleService {
     const permissions = options?.permissions ?? []
     const rolePermissions = []
     for (const p of permissions) {
-      const { subject, bitwise: roleBit } = AuthAbilityHelper.toPermission(p.subject, p.actions)
+      const { subject, bitwise: roleBit } = AppAbilityUtil.toPermission(p.subject, p.actions)
       const perm = await this.prisma.permission.findUnique({ where: { subject } })
       if (perm) {
         rolePermissions.push({ permissionId: perm.id, bitwise: roleBit })
@@ -136,7 +133,7 @@ export class RoleService {
     const newPermissions = options?.permissions ?? []
     const rolePermissions = []
     for (const p of newPermissions) {
-      const { subject, bitwise: roleBit } = AuthAbilityHelper.toPermission(p.subject, p.actions)
+      const { subject, bitwise: roleBit } = AppAbilityUtil.toPermission(p.subject, p.actions)
       const perm = await this.prisma.permission.findUnique({ where: { subject } })
       if (perm) {
         rolePermissions.push({ permissionId: perm.id, bitwise: roleBit })
@@ -184,10 +181,10 @@ export class RoleService {
   }
 
   async generate<T = Prisma.PermissionUncheckedCreateInput>(
-    subject: ENUM_AUTH_ABILITY_SUBJECT,
-    actions: ENUM_AUTH_ABILITY_ACTION[],
+    subject: ENUM_APP_ABILITY_SUBJECT,
+    actions: ENUM_APP_ABILITY_ACTION[],
   ): Promise<T> {
-    return AuthAbilityHelper.toPermission<T>(subject, actions)
+    return AppAbilityUtil.toPermission<T>(subject, actions)
   }
 
   async deleteAll(): Promise<boolean> {

@@ -14,11 +14,11 @@ import {
   AuthService,
   IAuthPassword,
   IAuthPayloadOptions,
+  IAuthToken,
   IAuthRefetchOptions,
   IAuthUserValidatorDto,
   IAuthValidator,
   IAuthValidatorOptions,
-  ITokenPayload,
 } from 'lib/nest-auth'
 import { PrismaService } from 'lib/nest-prisma'
 import { APP_TIMEZONE, HelperDateService, HelperStringService, IRequestApp } from 'lib/nest-core'
@@ -194,8 +194,8 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
     userIp: string,
     userAgent: IResult,
     userRequest: IRequestApp,
-    userAuth: Partial<IAuthPayloadOptions>,
-  ): Promise<ITokenPayload> {
+    options: Partial<IAuthPayloadOptions>,
+  ): Promise<IAuthToken> {
     if (!<%= singular(lowercased(name)) %>.isActive) {
       throw new BadRequestException({
         statusCode: HttpStatus.FORBIDDEN,
@@ -213,13 +213,13 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
 
     const payload = await this.serializeUserData(<%= singular(lowercased(name)) %>)
     const payloadAccessToken = await this.authService.createPayloadAccessToken(payload, {
-      scopeType: userAuth.scopeType,
-      loginFrom: userAuth.loginFrom,
-      loginWith: userAuth.loginWith,
-      loginType: userAuth.loginType,
-      loginDate: userAuth?.loginDate ?? (await this.authService.getLoginDate()),
-      loginToken: userAuth?.loginToken ?? (await this.authService.createToken(userIp, userAgent)),
-      loginRotate: userAuth?.loginRotate === true,
+      scopeType: options.scopeType,
+      loginFrom: options.loginFrom,
+      loginWith: options.loginWith,
+      loginType: options.loginType,
+      loginDate: options?.loginDate ?? (await this.authService.getLoginDate()),
+      loginToken: options?.loginToken ?? (await this.authService.createToken(userIp, userAgent)),
+      loginRotate: options?.loginRotate === true,
     })
 
     const payloadRefreshToken = await this.authService.createPayloadRefreshToken(
@@ -228,7 +228,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
     )
 
     const [expiresIn, refreshIn] = await Promise.all(
-      userAuth?.loginRotate === true
+      options?.loginRotate === true
         ? [
             this.authService.getAccessTokenExpirationTime(),
             this.authService.getRefreshTokenExpirationTime(),
@@ -262,7 +262,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
     <%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>,
     refreshToken: string,
     refreshPayload: AuthJwtRefreshPayloadDto,
-  ): Promise<ITokenPayload> {
+  ): Promise<IAuthToken> {
     if (!refreshPayload?.loginRotate) {
       throw new ForbiddenException({
         statusCode: HttpStatus.FORBIDDEN,

@@ -1,1 +1,1 @@
-export * from './auth.user-ability.factory'
+export * from './auth.ability.factory'

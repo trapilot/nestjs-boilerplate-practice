@@ -4,9 +4,9 @@ import { ENUM_POINT_TYPE } from '@prisma/client'
 import { Expose, Type } from 'class-transformer'
 import { ENUM_DATE_FORMAT, ToDate, ToDecimal, TransformIf } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { InvoiceResponseBelongDto } from 'src/modules/invoice/dtos'
-import { MemberResponseBelongDto } from 'src/modules/member/dtos'
-import { TierResponseBelongDto } from 'src/modules/tier/dtos'
+import { InvoiceResponseBelongDto } from 'modules/invoice/dtos'
+import { MemberResponseBelongDto } from 'modules/member/dtos'
+import { TierResponseBelongDto } from 'modules/tier/dtos'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })

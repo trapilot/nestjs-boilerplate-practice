@@ -28,14 +28,14 @@ import {
 } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
-import { InvoiceService } from 'src/modules/invoice/services'
-import { InvoiceHelper } from 'src/modules/invoice/utils'
-import { TierService } from 'src/modules/tier/services'
-import { TierHelper } from 'src/modules/tier/utils'
+import { InvoiceUtil } from 'modules/invoice/helpers'
+import { InvoiceService } from 'modules/invoice/services'
+import { TierUtil } from 'modules/tier/helpers'
+import { TierService } from 'modules/tier/services'
 import { MemberChangePasswordRequestDto } from '../dtos'
+import { MemberData } from '../helpers'
 import { ISlipCounterOptions, TMember, TMemberMetadata } from '../interfaces'
-import { MemberData } from '../utils'
-import { MemberAuthService } from './member-auth.service'
+import { MemberAuthService } from '../services'
 
 @Injectable()
 export class MemberService implements OnModuleInit {
@@ -869,7 +869,7 @@ export class MemberService implements OnModuleInit {
       if (birthPoint) {
         const chartIterator = this.tierService.getChartIterator()
         const memberTier = chartIterator.getTierInfo(member.tierId)
-        const newPoint = TierHelper.round(birthPoint.point * (memberTier.birthdayRatio - 1))
+        const newPoint = TierUtil.round(birthPoint.point * (memberTier.birthdayRatio - 1))
 
         await this.prisma.member.update({
           where: { id: member.id },
@@ -921,14 +921,14 @@ export class MemberService implements OnModuleInit {
 
           const memberTier = chartIterator.getTierInfo(member.tierId)
           const memberRatio = member.hasFirstPurchased
-            ? TierHelper.ratio(memberTier.personalRate)
-            : TierHelper.ratio(memberTier.initialRate)
+            ? TierUtil.ratio(memberTier.personalRate)
+            : TierUtil.ratio(memberTier.initialRate)
           const memberInvoices = member.hasFirstPurchased
             ? [invoice]
             : dateInvoices.filter((inv) => inv.memberId === memberData.id)
 
           // const invoiceData = this.getDataFromInvoices(memberInvoices)
-          const invoiceData = InvoiceHelper.getData(memberInvoices)
+          const invoiceData = InvoiceUtil.getData(memberInvoices)
           const { tierData, tierValue, invoiceIds } = memberData.hasFirstPurchased
             ? chartIterator.calculateTierData(memberData, invoiceData)
             : chartIterator.calculateTierDataInFirstPurchase(memberData, invoiceData)
@@ -967,7 +967,7 @@ export class MemberService implements OnModuleInit {
                 isFirst: !memberData.hasFirstPurchased,
                 isBirth: memberData.hasBirthPurchased,
                 multipleRatio: memberRatio,
-                point: TierHelper.round(memberRatio * tierValue.usageAmount),
+                point: TierUtil.round(memberRatio * tierValue.usageAmount),
                 expiryDate: pointExpiryDate,
                 createdAt: sinceDate,
                 updatedAt: sinceDate,
@@ -980,7 +980,7 @@ export class MemberService implements OnModuleInit {
                 multipleRatio: memberRatio,
                 isFirst: !memberData.hasFirstPurchased,
                 isBirth: memberData.hasBirthPurchased,
-                point: TierHelper.round(memberRatio * tierValue.currAmount),
+                point: TierUtil.round(memberRatio * tierValue.currAmount),
                 expiryDate: pointExpiryDate,
                 createdAt: sinceDate,
                 updatedAt: sinceDate,
@@ -999,7 +999,7 @@ export class MemberService implements OnModuleInit {
                 isFirst: !memberData.hasFirstPurchased,
                 isBirth: memberData.hasBirthPurchased,
                 multipleRatio: memberRatio,
-                point: TierHelper.round(memberRatio * tierValue.usageAmount),
+                point: TierUtil.round(memberRatio * tierValue.usageAmount),
                 expiryDate: pointExpiryDate,
                 createdAt: sinceDate,
                 updatedAt: sinceDate,
@@ -1042,8 +1042,8 @@ export class MemberService implements OnModuleInit {
                     tierId: referrerData.tierId,
                     invoiceId: invoiceIds[invoiceIds.length - 1],
                     invoiceAmount: tierValue.usageAmount,
-                    multipleRatio: TierHelper.ratio(tierData.curr.referralRate),
-                    point: TierHelper.convert(tierValue.usageAmount, tierData.curr.referralRate),
+                    multipleRatio: TierUtil.ratio(tierData.curr.referralRate),
+                    point: TierUtil.convert(tierValue.usageAmount, tierData.curr.referralRate),
                     expiryDate: pointExpiryDate,
                     createdAt: sinceDate,
                     updatedAt: sinceDate,

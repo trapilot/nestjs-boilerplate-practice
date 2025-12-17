@@ -1,45 +1,42 @@
 import { Module } from '@nestjs/common'
-import { ApiKeyModule, ApiKeySeedCommand } from 'src/modules/api-key'
-import { AppVersionModule, AppVersionSeedCommand } from 'src/modules/app-version'
-import { CartModule, CartSeedCommand } from 'src/modules/cart'
-import { FactModule, FactSeedCommand } from 'src/modules/fact'
-import { InvoiceModule } from 'src/modules/invoice'
-import { MemberModule, MemberSeedCommand } from 'src/modules/member'
-import { OrderModule } from 'src/modules/order'
-import { PermissionModule, PermissionSeedCommand } from 'src/modules/permission'
-import { ProductModule, ProductSeedCommand } from 'src/modules/product'
-import { RoleModule, RoleSeedCommand } from 'src/modules/role'
-import { SettingModule, SettingSeedCommand } from 'src/modules/setting'
-import { TierModule, TierSeedCommand } from 'src/modules/tier'
-import { UserModule, UserSeedCommand } from 'src/modules/user'
+import { ENUM_APP_CMD_TYPE } from 'lib/nest-core'
+import { ApiKeyModule } from 'modules/api-key'
+import { AppVersionModule } from 'modules/app-version'
+import { CartModule } from 'modules/cart'
+import { FactModule } from 'modules/fact'
+import { MemberModule } from 'modules/member'
+import { PermissionModule } from 'modules/permission'
+import { ProductModule } from 'modules/product'
+import { RoleModule } from 'modules/role'
+import { SettingModule } from 'modules/setting'
+import { TierModule } from 'modules/tier'
+import { UserModule } from 'modules/user'
 
 @Module({
   providers: [
-    SettingSeedCommand,
-    RoleSeedCommand,
-    PermissionSeedCommand,
-    UserSeedCommand,
-    FactSeedCommand,
-    ApiKeySeedCommand,
-    AppVersionSeedCommand,
-    MemberSeedCommand,
-    ProductSeedCommand,
-    CartSeedCommand,
-    TierSeedCommand,
+    ...SettingModule.commands(ENUM_APP_CMD_TYPE.SEED),
+    ...RoleModule.commands(ENUM_APP_CMD_TYPE.SEED),
+    ...PermissionModule.commands(ENUM_APP_CMD_TYPE.SEED),
+    ...UserModule.commands(ENUM_APP_CMD_TYPE.SEED),
+    ...FactModule.commands(ENUM_APP_CMD_TYPE.SEED),
+    ...ApiKeyModule.commands(ENUM_APP_CMD_TYPE.SEED),
+    ...AppVersionModule.commands(ENUM_APP_CMD_TYPE.SEED),
+    ...MemberModule.commands(ENUM_APP_CMD_TYPE.SEED),
+    ...ProductModule.commands(ENUM_APP_CMD_TYPE.SEED),
+    ...CartModule.commands(ENUM_APP_CMD_TYPE.SEED),
+    ...TierModule.commands(ENUM_APP_CMD_TYPE.SEED),
   ],
   imports: [
     SettingModule,
     RoleModule,
     PermissionModule,
+    UserModule,
     FactModule,
     ApiKeyModule,
     AppVersionModule,
-    UserModule,
     MemberModule,
     ProductModule,
     CartModule,
-    InvoiceModule,
-    OrderModule,
     TierModule,
   ],
 })

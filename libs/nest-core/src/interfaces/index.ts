@@ -1,5 +1,6 @@
 export * from './app.interface'
 export * from './array.interface'
+export * from './base.interface'
 export * from './date.interface'
 export * from './encryption.interface'
 export * from './file.interface'

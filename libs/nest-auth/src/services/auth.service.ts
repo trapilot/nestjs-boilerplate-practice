@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { OAuth2Client, TokenInfo } from 'google-auth-library'
 import {
+  ENUM_APP_ENVIRONMENT,
   HelperCryptoService,
   HelperDateService,
   HelperStringService,
@@ -60,7 +61,7 @@ export class AuthService {
     private readonly helperStringService: HelperStringService,
     private readonly helperCryptoService: HelperCryptoService,
   ) {
-    this.appEnv = this.config.get<string>('app.env', '')
+    this.appEnv = this.config.get<string>('app.env', ENUM_APP_ENVIRONMENT.PRODUCTION)
 
     // jwt
     this.jwtAccessTokenSecretKey = this.config.get<string>('auth.jwt.accessToken.secretKey')
@@ -171,12 +172,12 @@ export class AuthService {
     return false
   }
 
-  createPayloadAccessToken<Payload = Record<string, any>>(
-    user: Payload,
+  createPayloadAccessToken<UserData = Record<string, any>>(
+    data: UserData,
     options: IAuthPayloadOptions,
-  ): AuthJwtAccessPayloadDto<Payload> {
+  ): AuthJwtAccessPayloadDto<UserData> {
     return {
-      user,
+      user: data,
       scopeType: options.scopeType,
       loginType: options.loginType,
       loginFrom: options.loginFrom,

@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { AuthAbilityHelper, ENUM_AUTH_ABILITY_SUBJECT } from 'lib/nest-auth'
+import { ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
+import { AppAbilityUtil } from 'app/helpers'
 import { HelperDateService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner } from 'nest-commander'
@@ -58,7 +59,7 @@ export class PermissionSeedCommand extends CommandRunner {
 
   getSorting(permission: Prisma.PermissionUncheckedCreateInput): number {
     let sorting = 10
-    const contexts = AuthAbilityHelper.getContexts()
+    const contexts = AppAbilityUtil.getContexts()
     for (const context in contexts) {
       const subjects = contexts[context].subjects
       if (subjects.includes(permission.subject)) {
@@ -71,14 +72,14 @@ export class PermissionSeedCommand extends CommandRunner {
   }
 
   getAllPermissions() {
-    const _disables = AuthAbilityHelper.getDisablePerms()
-    const _invisibles = AuthAbilityHelper.getInvisiblePerms()
+    const _disables = AppAbilityUtil.getDisablePerms()
+    const _invisibles = AppAbilityUtil.getInvisiblePerms()
 
     const permissions: Prisma.PermissionUncheckedCreateInput[] = []
 
-    Object.values(ENUM_AUTH_ABILITY_SUBJECT).forEach((subject) => {
-      const actions = AuthAbilityHelper.getSubjectActions(subject)
-      const permission = AuthAbilityHelper.toPermission<Prisma.PermissionUncheckedCreateInput>(
+    Object.values(ENUM_APP_ABILITY_SUBJECT).forEach((subject) => {
+      const actions = AppAbilityUtil.getSubjectActions(subject)
+      const permission = AppAbilityUtil.toPermission<Prisma.PermissionUncheckedCreateInput>(
         subject,
         actions,
         _disables,

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { ModuleBase } from 'lib/nest-core'
 import { NotificationHistoryService } from './services'
 
 @Module({
@@ -6,4 +7,4 @@ import { NotificationHistoryService } from './services'
   exports: [NotificationHistoryService],
   imports: [],
 })
-export class NotificationHistoryModule {}
+export class NotificationHistoryModule extends ModuleBase {}

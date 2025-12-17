@@ -9,7 +9,7 @@ import { Prisma } from '@prisma/client'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { TTier } from '../interfaces'
-import { TierChartIterator } from '../utils'
+import { TierChartIterator } from '../helpers'
 
 @Injectable()
 export class TierService implements OnModuleInit {

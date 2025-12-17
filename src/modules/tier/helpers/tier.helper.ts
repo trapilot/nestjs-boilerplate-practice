@@ -1,7 +1,7 @@
 import { TTier } from '../interfaces'
 import { TierValue } from './tier.data'
 
-export class TierHelper {
+export class TierUtil {
   static ratio(rate: number) {
     if (rate <= 0) {
       throw new Error('Rate value is invalid!')
@@ -10,7 +10,7 @@ export class TierHelper {
   }
 
   static convert(amount: number, rate: number) {
-    return TierHelper.round(amount / rate)
+    return TierUtil.round(amount / rate)
   }
 
   static round(amount: number) {
@@ -22,9 +22,9 @@ export class TierHelper {
       initialRate: tier.initialRate,
       personalRate: tier.personalRate,
       referralRate: tier.referralRate,
-      initialRatio: TierHelper.ratio(tier.initialRate),
-      personalRatio: TierHelper.ratio(tier.personalRate),
-      referralRatio: TierHelper.ratio(tier.referralRate),
+      initialRatio: TierUtil.ratio(tier.initialRate),
+      personalRatio: TierUtil.ratio(tier.personalRate),
+      referralRatio: TierUtil.ratio(tier.referralRate),
       birthdayRatio: tier.birthdayRatio,
     }
   }

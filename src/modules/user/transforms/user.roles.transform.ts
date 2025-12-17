@@ -1,15 +1,15 @@
 import { plainToInstance, Transform } from 'class-transformer'
-import { AuthAbilityHelper, IAuthUserTransformer } from 'lib/nest-auth'
-import { RoleResponseBelongDto } from 'src/modules/role/dtos'
-import { IUserRoleTransformOptions } from '../interfaces'
+import { RoleResponseBelongDto } from 'modules/role/dtos'
+import { IUserRoleTransformOptions, IUserTransformOptions } from '../interfaces'
+import { UserTransformUtil } from '../helpers'
 
 export function ToUserRoles(
   options?: IUserRoleTransformOptions,
 ): (target: any, key: string) => void {
-  return Transform(({ obj: user, value }: IAuthUserTransformer) => {
+  return Transform(({ obj: user, value }: IUserTransformOptions) => {
     // console.log({ ToUserRoles: user })
     if (user?.pivotRoles !== undefined) {
-      const userRoles = AuthAbilityHelper.toUserRoles(user)
+      const userRoles = UserTransformUtil.toValidUserRoles(user)
 
       if (options?.key) {
         const userRoleIds = userRoles.map((role) => role.id)

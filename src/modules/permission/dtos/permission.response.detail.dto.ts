@@ -1,6 +1,6 @@
 import { ApiProperty, IntersectionType, OmitType } from '@nestjs/swagger'
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { Expose, Type } from 'class-transformer'
-import { ENUM_AUTH_ABILITY_ACTION, ENUM_AUTH_ABILITY_SUBJECT } from 'lib/nest-auth'
 import { ResponseUserBelongDto } from 'lib/nest-web'
 import { ToPermissionActions } from '../transforms'
 
@@ -20,11 +20,11 @@ class ResponseDataDetailDto {
 
   @Type(() => String)
   @Expose()
-  subject: ENUM_AUTH_ABILITY_SUBJECT
+  subject: ENUM_APP_ABILITY_SUBJECT
 
   @ToPermissionActions()
   @Expose()
-  actions: ENUM_AUTH_ABILITY_ACTION[]
+  actions: ENUM_APP_ABILITY_ACTION[]
 
   @Type(() => Boolean)
   @Expose()

@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { AuthAbilityHelper } from 'lib/nest-auth'
+import { AppAbilityUtil } from 'app/helpers'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList } from 'lib/nest-web'
 import { IPermissionCreateOptions, IPermissionUpdateOptions, TPermission } from '../interfaces'
@@ -52,7 +52,7 @@ export class PermissionService {
   ): Promise<TPermission> {
     const permission = await this.findOrFail(id, { include: { pivotRoles: true } })
     const rolePerms = permission?.pivotRoles ?? []
-    const bitwise = AuthAbilityHelper.toBitwise(options?.actions)
+    const bitwise = AppAbilityUtil.toBitwise(options?.actions)
 
     const updated = await this.prisma.$transaction(async (tx) => {
       for (const rolePerm of rolePerms) {
@@ -89,7 +89,7 @@ export class PermissionService {
     const created = await this.prisma.permission.create({
       data: {
         ...data,
-        bitwise: AuthAbilityHelper.toBitwise(options?.actions),
+        bitwise: AppAbilityUtil.toBitwise(options?.actions),
       },
     })
     return created

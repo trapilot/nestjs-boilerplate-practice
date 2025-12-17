@@ -3,8 +3,8 @@ import { Logger } from '@nestjs/common'
 import { ENUM_ORDER_SOURCE, ENUM_POINT_TYPE, Prisma } from '@prisma/client'
 import { AppHelper, HelperDateService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
+import { MemberService } from 'modules/member/services'
 import { Command, CommandRunner } from 'nest-commander'
-import { MemberService } from 'src/modules/member/services'
 import { CartService } from '../services'
 
 @Command({

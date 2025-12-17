@@ -1,7 +1,7 @@
 import { ApiProperty, IntersectionType } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
 import { ToUrl } from 'lib/nest-core'
-import { IUserPermission } from '../interfaces'
+import { IUserProfilePermission } from '../interfaces'
 import { ToUserPermissions, ToUserRoles } from '../transforms'
 
 export class ResponseUserProfileDto {
@@ -56,7 +56,7 @@ class ResponseUserProfileRelationDto {
 
   @ToUserPermissions()
   @Expose()
-  permissions: IUserPermission[]
+  permissions: IUserProfilePermission[]
 }
 
 export class UserProfileResponseDto extends IntersectionType(

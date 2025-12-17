@@ -1,12 +1,8 @@
 import { Controller, Delete, Get, Post, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@prisma/client'
-import {
-  AuthJwtPayload,
-  ENUM_AUTH_ABILITY_ACTION,
-  ENUM_AUTH_ABILITY_SUBJECT,
-  ENUM_AUTH_SCOPE_TYPE,
-} from 'lib/nest-auth'
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
+import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL, IFile } from 'lib/nest-core'
 import {
   ApiRequestData,
@@ -53,8 +49,8 @@ export class MediaAdminController {
         require: true,
         abilities: [
           {
-            subject: ENUM_AUTH_ABILITY_SUBJECT.MEDIA,
-            actions: [ENUM_AUTH_ABILITY_ACTION.READ],
+            subject: ENUM_APP_ABILITY_SUBJECT.MEDIA,
+            actions: [ENUM_APP_ABILITY_ACTION.READ],
           },
         ],
       },
@@ -130,8 +126,8 @@ export class MediaAdminController {
         require: true,
         abilities: [
           {
-            subject: ENUM_AUTH_ABILITY_SUBJECT.MEDIA,
-            actions: [ENUM_AUTH_ABILITY_ACTION.READ],
+            subject: ENUM_APP_ABILITY_SUBJECT.MEDIA,
+            actions: [ENUM_APP_ABILITY_ACTION.READ],
           },
         ],
       },
@@ -166,8 +162,8 @@ export class MediaAdminController {
         active: true,
         abilities: [
           {
-            subject: ENUM_AUTH_ABILITY_SUBJECT.MEDIA,
-            actions: [ENUM_AUTH_ABILITY_ACTION.READ, ENUM_AUTH_ABILITY_ACTION.CREATE],
+            subject: ENUM_APP_ABILITY_SUBJECT.MEDIA,
+            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.CREATE],
           },
         ],
       },
@@ -204,8 +200,8 @@ export class MediaAdminController {
         active: true,
         abilities: [
           {
-            subject: ENUM_AUTH_ABILITY_SUBJECT.MEDIA,
-            actions: [ENUM_AUTH_ABILITY_ACTION.READ, ENUM_AUTH_ABILITY_ACTION.UPDATE],
+            subject: ENUM_APP_ABILITY_SUBJECT.MEDIA,
+            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
           },
         ],
       },
@@ -237,8 +233,8 @@ export class MediaAdminController {
         active: true,
         abilities: [
           {
-            subject: ENUM_AUTH_ABILITY_SUBJECT.MEDIA,
-            actions: [ENUM_AUTH_ABILITY_ACTION.READ, ENUM_AUTH_ABILITY_ACTION.DELETE],
+            subject: ENUM_APP_ABILITY_SUBJECT.MEDIA,
+            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.DELETE],
           },
         ],
       },
