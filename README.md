@@ -171,20 +171,14 @@ yarn start:cli product:seed -i 100
 yarn start:cli member:seed -i 100
 yarn start:cli cart:seed
 
-# Apply new settings for permissions
-yarn permission:migrate
+# Apply new settings for roles & permissions
+yarn migrate:role
+yarn migrate:permission
 
-# Apply current permissions to system roles
-yarn role:migrate
-
-# Run the project in development mode
-yarn start:dev
-
-# Run the project in debug mode
-yarn start:debug
-
-# Run a specific CLI command
-yarn start:cli [command]
+# Run the project
+yarn start:dev              # development mode
+yarn start:debug            # debug mode
+yarn start:cli [command]    # run a specific CLI command
 
 # Generate a new module
 yarn schematics:generate

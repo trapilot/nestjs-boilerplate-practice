@@ -7,7 +7,7 @@ import { I18nService, I18nTranslation } from 'nestjs-i18n'
 import { IMessageError, IMessageErrorOptions, IMessageSetOptions } from '../interfaces'
 
 @Injectable()
-export class HelperMessageService {
+export class MessageService {
   private readonly debug: boolean
   private readonly defaultLanguage: string
   private readonly availableLanguages: string[]

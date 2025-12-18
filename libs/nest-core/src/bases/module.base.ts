@@ -26,5 +26,5 @@ export abstract class ModuleBase {
     return this._tasks
   }
 
-  static configure(_: MiddlewareConsumer) {}
+  static middleware(_: MiddlewareConsumer) {}
 }

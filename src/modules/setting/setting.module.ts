@@ -18,7 +18,7 @@ export class SettingModule extends ModuleBase {
     [ENUM_APP_CMD_TYPE.SEED]: [SettingSeedCommand],
   }
 
-  static configure(consumer: MiddlewareConsumer) {
+  static middleware(consumer: MiddlewareConsumer) {
     SettingMaintenanceMiddleware.configure(consumer) // Enable check maintenance mode
   }
 }

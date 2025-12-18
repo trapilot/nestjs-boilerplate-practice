@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ENUM_AUTH_SIGN_UP_FROM } from 'lib/nest-auth'
-import { HelperCryptoService, NEST_CLI } from 'lib/nest-core'
+import { CryptoService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner } from 'nest-commander'
 
@@ -15,23 +15,20 @@ export class UserSeedCommand extends CommandRunner {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-    private readonly helperCryptoService: HelperCryptoService,
+    private readonly cryptoService: CryptoService,
   ) {
     super()
   }
 
-  async run(passedParam: string[], options?: any): Promise<void> {
+  async run(_: string[], __?: any): Promise<void> {
     this.logger.warn(`${UserSeedCommand.name} is running...`)
 
     try {
       if (process.env.MOCK_USER_PASS && process.env.MOCK_USER_EMAIL) {
         const passwordSaltLength = this.config.get<number>('auth.password.saltLength')
-        const passwordSalt = this.helperCryptoService.randomSalt(passwordSaltLength)
+        const passwordSalt = this.cryptoService.randomSalt(passwordSaltLength)
 
-        const hashedPassword = this.helperCryptoService.bcrypt(
-          process.env.MOCK_USER_PASS,
-          passwordSalt,
-        )
+        const hashedPassword = this.cryptoService.bcrypt(process.env.MOCK_USER_PASS, passwordSalt)
 
         await this.prisma.user.upsert({
           where: { email: process.env.MOCK_USER_EMAIL },

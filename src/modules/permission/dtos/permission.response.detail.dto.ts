@@ -1,7 +1,11 @@
 import { ApiProperty, IntersectionType, OmitType } from '@nestjs/swagger'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
+import {
+  ENUM_APP_ABILITY_ACTION,
+  ENUM_APP_ABILITY_CONTEXT,
+  ENUM_APP_ABILITY_SUBJECT,
+} from 'app/enums'
 import { Expose, Type } from 'class-transformer'
-import { ResponseUserBelongDto } from 'lib/nest-web'
+import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
 import { ToPermissionActions } from '../transforms'
 
 class ResponseDataDetailDto {
@@ -12,11 +16,11 @@ class ResponseDataDetailDto {
 
   @Type(() => String)
   @Expose()
-  title: string
+  context: ENUM_APP_ABILITY_CONTEXT
 
-  @Type(() => String)
+  @Type(() => ResponseLocaleDto)
   @Expose()
-  description?: string
+  title: ResponseLocaleDto
 
   @Type(() => String)
   @Expose()

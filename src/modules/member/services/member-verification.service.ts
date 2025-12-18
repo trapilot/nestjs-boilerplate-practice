@@ -1,13 +1,8 @@
 import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
+import { APP_TIMEZONE, DateService, HelperService } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
-import {
-  APP_TIMEZONE,
-  HelperArrayService,
-  HelperDateService,
-  HelperStringService,
-} from 'lib/nest-core'
 import {
   IVerificationCodeData,
   IVerificationCreateOptions,
@@ -20,14 +15,13 @@ export class MemberVerificationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-    private readonly helperDateService: HelperDateService,
-    private readonly helperArrayService: HelperArrayService,
-    private readonly helperStringService: HelperStringService,
+    private readonly dateService: DateService,
+    private readonly helperService: HelperService,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { timeZone: APP_TIMEZONE })
   private async clearExpiredVerifyTokens() {
-    const dateNow = this.helperDateService.create()
+    const dateNow = this.dateService.create()
     await this.prisma.memberVerifyHistory.updateMany({
       where: { isActive: true, isExpired: true, expiresAt: { lte: dateNow } },
       data: { isActive: false },
@@ -38,7 +32,7 @@ export class MemberVerificationService {
     data: IVerificationCreateOptions,
     options: IVerificationRandomOptions & { maxAttempts: number },
   ): Promise<TMemberVerifyHistory> {
-    const dateRange = this.helperDateService.createRange()
+    const dateRange = this.dateService.createRange()
 
     const inspector = this.checkIsInspector(data)
     const todayAttempts = await this.prisma.memberVerifyHistory.count({
@@ -113,7 +107,7 @@ export class MemberVerificationService {
       })
     }
 
-    const dateNow = this.helperDateService.create()
+    const dateNow = this.dateService.create()
     if (dateNow >= token.expiresAt) {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
@@ -144,20 +138,14 @@ export class MemberVerificationService {
     if (data?.email) {
       const inspectors = this.config.get<string[]>('auth.token.email.inspectors', [])
       if (inspectors.length) {
-        return (
-          this.helperArrayService.includes(inspectors, '*') ||
-          this.helperArrayService.includes(inspectors, data.email)
-        )
+        return inspectors.includes('*') || inspectors.includes(data.email)
       }
     }
 
     if (data?.phone) {
       const inspectors = this.config.get<string[]>('auth.token.phone.inspectors', [])
       if (inspectors.length) {
-        return (
-          this.helperArrayService.includes(inspectors, '*') ||
-          this.helperArrayService.includes(inspectors, data.phone)
-        )
+        return inspectors.includes('*') || inspectors.includes(data.phone)
       }
     }
     return false
@@ -169,14 +157,14 @@ export class MemberVerificationService {
   }
 
   private createCodeRandom(options: IVerificationRandomOptions): IVerificationCodeData {
-    const dateNow = this.helperDateService.create()
-    const expired = this.helperDateService.forward(dateNow, { seconds: options.seconds })
+    const dateNow = this.dateService.create()
+    const expired = this.dateService.forward(dateNow, { seconds: options.seconds })
 
     const code = options?.code
       ? options.code
       : options?.inspector === true
         ? this.createCodeDefault(options.length, options.numeric)
-        : this.helperStringService.random(options.length, { numeric: options.numeric })
+        : this.helperService.randomString(options.length, { numeric: options.numeric })
 
     return { code, expired }
   }

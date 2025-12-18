@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common'
 import { REALTIME_CACHE, REALTIME_PUB, REALTIME_STREAM, REALTIME_SUB } from '../constants'
 
 @Injectable()
-export class HelperRealtimeService {
+export class RealtimeService {
   constructor(
     @Inject(REALTIME_PUB) private readonly pubClient: RedisClientType,
     @Inject(REALTIME_SUB) private readonly subClient: RedisClientType,

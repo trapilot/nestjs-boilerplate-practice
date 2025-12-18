@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ENUM_APP_API_TYPE, ENUM_APP_CMD_TYPE, ModuleBase } from 'lib/nest-core'
-import { PermissionSeedCommand } from './commands'
+import { PermissionMigrateCommand } from './commands'
 import { PermissionAdminController } from './controllers'
 import { PermissionService } from './services'
 
@@ -14,6 +14,6 @@ export class PermissionModule extends ModuleBase {
     [ENUM_APP_API_TYPE.CMS]: [PermissionAdminController],
   }
   static _commands = {
-    [ENUM_APP_CMD_TYPE.SEED]: [PermissionSeedCommand],
+    [ENUM_APP_CMD_TYPE.MIGRATE]: [PermissionMigrateCommand],
   }
 }

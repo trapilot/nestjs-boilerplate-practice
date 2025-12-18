@@ -12,7 +12,7 @@ import {
 } from '../interfaces'
 
 @Injectable()
-export class HelperDateService {
+export class DateService {
   calculateAge(dateOfBirth: Date, fromYear?: number): Duration {
     const timeZone = AppContext.timezone()
     const dateTime = DateTime.now().setZone(timeZone).plus({ day: 1 }).set({
@@ -129,7 +129,7 @@ export class HelperDateService {
   }
 
   static make(date?: Date, options?: IDateCreateOptions): Date {
-    return new HelperDateService().createInstance(date, options).toJSDate()
+    return new DateService().createInstance(date, options).toJSDate()
   }
 
   create(date?: Date, options?: IDateCreateOptions): Date {

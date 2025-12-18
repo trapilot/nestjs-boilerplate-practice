@@ -6,19 +6,19 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator'
-import { HelperDateService } from 'lib/nest-core'
+import { DateService } from 'lib/nest-core'
 
 @ValidatorConstraint({ async: true })
 @Injectable()
 export class AgeGreaterThanEqualConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly helperDateService: HelperDateService) {}
+  constructor(private readonly dateService: DateService) {}
 
   validate(value: string, args: ValidationArguments): boolean {
     const [age] = args.constraints
 
-    if (this.helperDateService.checkIso(value)) {
-      const date = this.helperDateService.createFromIso(value)
-      return this.helperDateService.calculateAge(date).years >= Number.parseInt(age)
+    if (this.dateService.checkIso(value)) {
+      const date = this.dateService.createFromIso(value)
+      return this.dateService.calculateAge(date).years >= Number.parseInt(age)
     }
     return false
   }
@@ -40,14 +40,14 @@ export function AgeGreaterThanEqual(age: number, validationOptions?: ValidationO
 @ValidatorConstraint({ async: true })
 @Injectable()
 export class AgeGreaterThanConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly helperDateService: HelperDateService) {}
+  constructor(private readonly dateService: DateService) {}
 
   validate(value: string, args: ValidationArguments): boolean {
     const [age] = args.constraints
 
-    if (this.helperDateService.checkIso(value)) {
-      const date = this.helperDateService.createFromIso(value)
-      return this.helperDateService.calculateAge(date).years > Number.parseInt(age)
+    if (this.dateService.checkIso(value)) {
+      const date = this.dateService.createFromIso(value)
+      return this.dateService.calculateAge(date).years > Number.parseInt(age)
     }
     return false
   }

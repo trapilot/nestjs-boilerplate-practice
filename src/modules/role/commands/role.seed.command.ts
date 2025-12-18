@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ENUM_AUTH_SIGN_UP_FROM } from 'lib/nest-auth'
-import { HelperCryptoService, NEST_CLI } from 'lib/nest-core'
+import { CryptoService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner } from 'nest-commander'
 
@@ -15,7 +15,7 @@ export class RoleSeedCommand extends CommandRunner {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-    private readonly helperCryptoService: HelperCryptoService,
+    private readonly cryptoService: CryptoService,
   ) {
     super()
   }
@@ -63,7 +63,7 @@ export class RoleSeedCommand extends CommandRunner {
         },
       }
 
-      const passwordSalt = this.helperCryptoService.randomSalt(
+      const passwordSalt = this.cryptoService.randomSalt(
         this.config.get<number>('auth.password.saltLength'),
       )
 
@@ -81,7 +81,7 @@ export class RoleSeedCommand extends CommandRunner {
         for (const user of users) {
           if (!user.email && !user.password) continue
 
-          const hashedPassword = this.helperCryptoService.bcrypt(user.password, passwordSalt)
+          const hashedPassword = this.cryptoService.bcrypt(user.password, passwordSalt)
           await this.prisma.user.upsert({
             where: { id: userId },
             create: {

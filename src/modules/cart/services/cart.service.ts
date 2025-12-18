@@ -8,15 +8,15 @@ import {
 } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 import { Prisma, Product } from '@prisma/client'
-import { AppHelper, HelperDateService } from 'lib/nest-core'
+import { AppHelper, DateService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { MemberService } from 'modules/member/services'
 import { OrderService } from 'modules/order/services'
 import { ProductService } from 'modules/product/services'
+import { CartUtil, CartValidator } from '../helpers'
 import { ICartCheckoutOptions, ICartItemAddOptions, TCart, TCartItem } from '../interfaces'
 import { CartItemInStockRule, CartItemIsActiveRule, CartItemMemberRequireRule } from '../rules'
-import { CartUtil, CartValidator } from '../helpers'
 
 @Injectable()
 export class CartService implements OnModuleInit {
@@ -38,7 +38,7 @@ export class CartService implements OnModuleInit {
   constructor(
     private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
-    private readonly helperDateService: HelperDateService,
+    private readonly dateService: DateService,
   ) {}
 
   onModuleInit() {
@@ -166,7 +166,7 @@ export class CartService implements OnModuleInit {
   }
 
   async checkout(id: number, options: ICartCheckoutOptions): Promise<TCart> {
-    const dateNow = this.helperDateService.create()
+    const dateNow = this.dateService.create()
     const issuedAt = options?.dateDebug || dateNow
 
     const cart = await this.findOrFail(id, {

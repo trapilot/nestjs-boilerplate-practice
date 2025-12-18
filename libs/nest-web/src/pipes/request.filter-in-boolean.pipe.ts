@@ -1,7 +1,7 @@
 import { Inject, Injectable, mixin, Type } from '@nestjs/common'
 import { ArgumentMetadata, PipeTransform, Scope } from '@nestjs/common/interfaces'
 import { REQUEST } from '@nestjs/core'
-import { HelperArrayService, IRequestApp } from 'lib/nest-core'
+import { HelperService, IRequestApp } from 'lib/nest-core'
 import { IRequestFilterOptions } from '../interfaces'
 
 export function RequestFilterInBooleanPipe(
@@ -13,10 +13,10 @@ export function RequestFilterInBooleanPipe(
   class MixinRequestFilterInBooleanPipe implements PipeTransform {
     constructor(
       @Inject(REQUEST) protected readonly request: IRequestApp,
-      private readonly helperArrayService: HelperArrayService,
+      private readonly helperService: HelperService,
     ) {}
 
-    async transform(value: string, metadata: ArgumentMetadata): Promise<Record<string, any>> {
+    async transform(value: string, _: ArgumentMetadata): Promise<Record<string, any>> {
       if (options?.raw) {
         this.addToRequestInstance(value)
         return {
@@ -26,7 +26,7 @@ export function RequestFilterInBooleanPipe(
 
       const finalValue: boolean[] =
         value && typeof value === 'string'
-          ? this.helperArrayService.unique(value.split(',').map((val: string) => val === 'true'))
+          ? this.helperService.arrayUnique(value.split(',').map((val: string) => val === 'true'))
           : defaultValue
 
       if (finalValue.length === 2) {

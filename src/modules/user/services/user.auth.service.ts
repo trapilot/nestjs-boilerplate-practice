@@ -20,13 +20,7 @@ import {
   IAuthValidator,
   IAuthValidatorOptions,
 } from 'lib/nest-auth'
-import {
-  APP_TIMEZONE,
-  HelperCryptoService,
-  HelperDateService,
-  HelperFileService,
-  IRequestApp,
-} from 'lib/nest-core'
+import { APP_TIMEZONE, CryptoService, DateService, FileService, IRequestApp } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { IResult } from 'ua-parser-js'
 import {
@@ -57,14 +51,14 @@ export class UserAuthService implements IAuthValidator<TUser> {
   constructor(
     private readonly prisma: PrismaService,
     private readonly authService: AuthService,
-    private readonly helperFileService: HelperFileService,
-    private readonly helperDateService: HelperDateService,
-    private readonly helperCryptoService: HelperCryptoService,
+    private readonly fileService: FileService,
+    private readonly dateService: DateService,
+    private readonly cryptoService: CryptoService,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_2AM, { timeZone: APP_TIMEZONE })
   private async clearExpiredRefreshTokens() {
-    const nowTime = this.helperDateService.create()
+    const nowTime = this.dateService.create()
     await this.prisma.userTokenHistory.deleteMany({
       where: { refreshExpired: { lte: nowTime } },
     })
@@ -132,7 +126,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
       })
     }
 
-    if (!userToken.isActive || this.helperDateService.after(userToken.refreshExpired)) {
+    if (!userToken.isActive || this.dateService.after(userToken.refreshExpired)) {
       // tracking spam refresh token
       await this.prisma.userTokenHistory.update({
         where: { id: userToken.id },
@@ -355,7 +349,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
             createdAt: payload.loginDate,
             updatedAt: payload.loginDate,
             refreshToken: userToken.refreshToken,
-            refreshExpired: this.helperDateService.forward(new Date(payload.loginDate), {
+            refreshExpired: this.dateService.forward(new Date(payload.loginDate), {
               seconds: userToken.refreshIn,
             }),
           },
@@ -461,7 +455,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
   async changeAvatar(user: TUser, data: Prisma.UserUncheckedUpdateInput): Promise<TUser> {
     return await this.prisma.$transaction(async (tx) => {
       const _user = await tx.user.update({ data, where: { id: user.id } })
-      await this.helperFileService.unlink(user.avatar)
+      await this.fileService.unlink(user.avatar)
       return _user
     })
   }
@@ -500,14 +494,14 @@ export class UserAuthService implements IAuthValidator<TUser> {
   }
 
   async createConfirmToken(user: TUser, passwordHash: string): Promise<string> {
-    const dateNow = this.helperDateService.create()
-    const timestamp = this.helperDateService.getTimestamp(dateNow)
+    const dateNow = this.dateService.create()
+    const timestamp = this.dateService.getTimestamp(dateNow)
     return [
-      this.helperCryptoService.createHmac(`${user.id}`, {
+      this.cryptoService.createHmac(`${user.id}`, {
         algorithm: 'md5',
         key: passwordHash,
       }),
-      this.helperCryptoService.createHmac(`${timestamp}`, {
+      this.cryptoService.createHmac(`${timestamp}`, {
         algorithm: 'sha256',
         key: passwordHash,
       }),
@@ -519,11 +513,11 @@ export class UserAuthService implements IAuthValidator<TUser> {
     const [md5, sha256, timestamp] = token.split(':')
 
     return (
-      this.helperCryptoService.compareHmac(`${user.id}`, md5, {
+      this.cryptoService.compareHmac(`${user.id}`, md5, {
         algorithm: 'md5',
         key: user.passwordConfirm,
       }) &&
-      this.helperCryptoService.compareHmac(`${timestamp}`, sha256, {
+      this.cryptoService.compareHmac(`${timestamp}`, sha256, {
         algorithm: 'sha256',
         key: user.passwordConfirm,
       })

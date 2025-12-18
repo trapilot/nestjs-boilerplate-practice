@@ -18,7 +18,7 @@ export class AppVersionModule extends ModuleBase {
     [ENUM_APP_CMD_TYPE.SEED]: [AppVersionSeedCommand],
   }
 
-  static configure(consumer: MiddlewareConsumer) {
+  static middleware(consumer: MiddlewareConsumer) {
     AppVersionMiddleware.configure(consumer) // Enable check mobile app version
   }
 }

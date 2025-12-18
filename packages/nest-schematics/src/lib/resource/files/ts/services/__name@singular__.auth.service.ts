@@ -21,7 +21,7 @@ import {
   IAuthValidatorOptions,
 } from 'lib/nest-auth'
 import { PrismaService } from 'lib/nest-prisma'
-import { APP_TIMEZONE, HelperDateService, HelperStringService, IRequestApp } from 'lib/nest-core'
+import { APP_TIMEZONE, DateService, HelperService, IRequestApp } from 'lib/nest-core'
 import { IResult } from 'ua-parser-js'
 import {
   <%= singular(classify(name)) %>RequestChangePasswordDto,
@@ -38,13 +38,13 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
   constructor(
     private readonly prisma: PrismaService,
     private readonly authService: AuthService,
-    private readonly helperDateService: HelperDateService,
-    private readonly helperStringService: HelperStringService,
+    private readonly dateService: DateService,
+    private readonly helperService: HelperService,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_2AM, { timeZone: APP_TIMEZONE })
   private async clearExpiredRefreshTokens() {
-    const nowTime = this.helperDateService.create()
+    const nowTime = this.dateService.create()
     await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.deleteMany({
       where: { refreshExpired: { lte: nowTime } },
     })
@@ -107,7 +107,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
       })
     }
 
-    if (!userToken.isActive || this.helperDateService.after(userToken.refreshExpired)) {
+    if (!userToken.isActive || this.dateService.after(userToken.refreshExpired)) {
       // tracking spam refresh token
       await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.update({
         where: { id: userToken.id },
@@ -166,7 +166,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
   }
 
   async credential(dto: <%= singular(classify(name)) %>RequestSignInDto) {
-    const { country, phone } = this.helperStringService.parsePhone(dto.phone)
+    const { country, phone } = this.helperService.parsePhone(dto.phone)
     const <%= singular(lowercased(name)) %> = await this.matchOrFail(
       { country, phone },
       { include: this.authRelation },
@@ -334,7 +334,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
             createdAt: payload.loginDate,
             updatedAt: payload.loginDate,
             refreshToken: userToken.refreshToken,
-            refreshExpired: this.helperDateService.forwardInSeconds(userToken.refreshIn, {
+            refreshExpired: this.dateService.forwardInSeconds(userToken.refreshIn, {
               fromDate: payload.loginDate,
             }),
           },

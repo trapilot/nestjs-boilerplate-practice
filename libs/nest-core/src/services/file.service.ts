@@ -15,7 +15,7 @@ import { v7 as uuidv7 } from 'uuid'
 import { IFile, IFileRange, IFileReadOptions, IFileRows, IFileZipOptions } from '../interfaces'
 
 @Injectable()
-export class HelperFileService {
+export class FileService {
   async writeCsv<T = any>(rows: IFileRows<T>): Promise<Buffer> {
     // Create a new workbook and add a worksheet
     const workbook = new Workbook()

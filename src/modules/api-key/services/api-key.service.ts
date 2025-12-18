@@ -1,12 +1,7 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Prisma } from '@prisma/client'
-import {
-  ENUM_APP_ENVIRONMENT,
-  HelperCryptoService,
-  HelperDateService,
-  HelperStringService,
-} from 'lib/nest-core'
+import { CryptoService, DateService, ENUM_APP_ENVIRONMENT, HelperService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { TApiKey } from '../interfaces'
@@ -18,9 +13,9 @@ export class ApiKeyService {
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly helperDateService: HelperDateService,
-    private readonly helperStringService: HelperStringService,
-    private readonly helperCryptoService: HelperCryptoService,
+    private readonly dateService: DateService,
+    private readonly cryptoService: CryptoService,
+    private readonly helperService: HelperService,
   ) {
     this.appEnv = config.get<ENUM_APP_ENVIRONMENT>('app.env')
   }
@@ -163,8 +158,8 @@ export class ApiKeyService {
   }
 
   async renew(apiKey: TApiKey, date: { startDate: Date; untilDate: Date }): Promise<TApiKey> {
-    const startDate = this.helperDateService.create(date.startDate, { startOfDay: true })
-    const untilDate = this.helperDateService.create(date.untilDate, { endOfDay: true })
+    const startDate = this.dateService.create(date.startDate, { startOfDay: true })
+    const untilDate = this.dateService.create(date.untilDate, { endOfDay: true })
 
     return await this.prisma.apiKey.update({
       data: { startDate, untilDate },
@@ -173,19 +168,19 @@ export class ApiKeyService {
   }
 
   private async createKey(): Promise<string> {
-    const random: string = this.helperStringService.random(25)
+    const random: string = this.helperService.randomString(25)
     return `${this.appEnv}_${random}`
   }
 
   private async createSecret(): Promise<string> {
-    return this.helperStringService.random(35)
+    return this.helperService.randomString(35)
   }
 
   async resetHashApiKey(id: number): Promise<TApiKey> {
     const apiKey = await this.findOrFail(id)
 
     const secret: string = await this.createSecret()
-    const hash = this.helperCryptoService.createHash(`${apiKey.key}:${secret}`, {
+    const hash = this.cryptoService.createHash(`${apiKey.key}:${secret}`, {
       algorithm: 'sha256',
     })
 
@@ -201,7 +196,7 @@ export class ApiKeyService {
     const key = await this.createKey()
     const secret = await this.createSecret()
 
-    const hash = this.helperCryptoService.createHash(`${key}:${secret}`, {
+    const hash = this.cryptoService.createHash(`${key}:${secret}`, {
       algorithm: 'sha256',
     })
     return { key, hash }

@@ -1,39 +1,39 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from '@nestjs/common'
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common'
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import {
   AppContext,
-  HelperDateService,
-  HelperMessageService,
+  DateService,
   IMessageError,
   IMessageProperties,
   IRequestApp,
   IResponseApp,
   IResponseException,
+  MessageService,
+  ResponseErrorDto,
+  ResponseMetadataDto,
 } from 'lib/nest-core'
-import { ResponseMetadataDto } from '../dtos'
-import { IResponseFailure } from '../interfaces'
 
-@Catch()
-export class AppExceptionFilter implements ExceptionFilter {
+@Catch(HttpException)
+export class HttpExceptionFilter implements ExceptionFilter {
   constructor(
-    private readonly helperDateService: HelperDateService,
-    private readonly helperMessageService: HelperMessageService,
+    private readonly dateService: DateService,
+    private readonly messageService: MessageService,
   ) {}
 
-  async catch(exception: unknown, host: ArgumentsHost): Promise<void> {
+  async catch(exception: HttpException, host: ArgumentsHost): Promise<void> {
     const ctx: HttpArgumentsHost = host.switchToHttp()
     const req: IRequestApp = ctx.getRequest<IRequestApp>()
     const res: IResponseApp = ctx.getResponse<IResponseApp>()
 
     // metadata
-    const dateNow = this.helperDateService.create()
+    const dateNow = this.dateService.create()
     const ctxData = AppContext.current()
     let metadata: ResponseMetadataDto = {
       path: req.path,
       language: ctxData?.language ?? AppContext.language(),
       timezone: ctxData?.timezone ?? AppContext.timezone(),
       version: ctxData?.apiVersion ?? AppContext.apiVersion(),
-      timestamp: this.helperDateService.getTimestamp(dateNow),
+      timestamp: this.dateService.getTimestamp(dateNow),
     }
 
     if (req.__filters) {
@@ -48,50 +48,41 @@ export class AppExceptionFilter implements ExceptionFilter {
     }
 
     // default
-    let statusHttp: number = HttpStatus.INTERNAL_SERVER_ERROR
+    const statusHttp: number = exception.getStatus()
     let statusCode: number = statusHttp
     let messagePath: string = `http.${statusHttp}`
     let messageDetails: IMessageError[] = []
     let messageProperties: IMessageProperties = undefined
 
     // restructure
-    if (exception instanceof HttpException) {
-      const responseException = exception.getResponse()
-      statusHttp = exception.getStatus()
-      statusCode = statusHttp
-      messagePath = `http.${statusHttp}`
+    const responseException = exception.getResponse()
+    if (this.isExceptionError(responseException)) {
+      const { metadata: _metadata } = responseException
 
-      if (this.isExceptionError(responseException)) {
-        const { metadata: _metadata } = responseException
+      statusCode = responseException.statusCode
+      messagePath = responseException.message
+      messageProperties = _metadata?.customProperty?.messageProperties
+      delete _metadata?.customProperty
 
-        statusCode = responseException.statusCode
-        messagePath = responseException.message
-        messageProperties = _metadata?.customProperty?.messageProperties
-        delete _metadata?.customProperty
+      metadata = {
+        ...metadata,
+        ..._metadata,
+      }
 
-        metadata = {
-          ...metadata,
-          ..._metadata,
-        }
-
-        // errors
-        if (this.hasResponseErrors(responseException)) {
-          messageDetails = this.helperMessageService.setValidationMessage(
-            responseException.errors,
-            {
-              customLanguage: metadata.language,
-            },
-          )
-        }
+      // errors
+      if (this.hasResponseErrors(responseException)) {
+        messageDetails = this.messageService.setValidationMessage(responseException.errors, {
+          customLanguage: metadata.language,
+        })
       }
     }
 
-    const message = this.helperMessageService.setMessage(messagePath, {
+    const message = this.messageService.setMessage(messagePath, {
       customLanguage: metadata.language,
       properties: messageProperties,
     })
 
-    const responseBody: IResponseFailure = {
+    const responseBody: ResponseErrorDto = {
       success: false,
       metadata,
       error: {

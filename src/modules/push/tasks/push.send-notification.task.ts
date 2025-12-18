@@ -1,6 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common'
 import { Cron, CronOptions } from '@nestjs/schedule'
-import { APP_TIMEZONE, AppHelper, HelperDateService } from 'lib/nest-core'
+import { APP_TIMEZONE, AppHelper, DateService } from 'lib/nest-core'
 import { LoggerService } from 'lib/nest-logger'
 import { PushService } from '../services'
 
@@ -17,7 +17,7 @@ export class PushSendNotificationTask {
   constructor(
     private readonly logger: LoggerService,
     private readonly pushService: PushService,
-    private readonly helperDateService: HelperDateService,
+    private readonly dateService: DateService,
   ) {
     this.logger.setContext(cronName)
   }
@@ -50,7 +50,7 @@ export class PushSendNotificationTask {
     const pushing = await this.pushService.getPushing()
     if (!pushing) return false
 
-    if (this.helperDateService.after(pushing.expiresAt)) {
+    if (this.dateService.after(pushing.expiresAt)) {
       this.logger.info(`Expire: #${pushing.id}`, cronName)
       await this.pushService.skip(pushing, this.logger)
       return false

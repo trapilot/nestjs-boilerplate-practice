@@ -3,7 +3,6 @@ import { ClassConstructor } from 'class-transformer'
 import {
   ENUM_FILE_MIME,
   IFileRows,
-  IMessageError,
   IMessageProperties,
   IResponseCacheOptions,
   IResponseMetadata,
@@ -36,22 +35,6 @@ export interface IResponseFileOptions<T> extends Omit<IResponseOptions<T>, 'dto'
 export interface IResponseFileExcelOptions<T> extends IResponseFileOptions<T> {
   serializer?: ClassConstructor<T>[]
   password?: string
-}
-
-// Response
-export interface IResponseSuccess<T = any> {
-  success: boolean
-  metadata: IResponseMetadata
-  result: T
-}
-
-export interface IResponseFailure<T = any> extends Omit<IResponseSuccess<T>, 'result'> {
-  error: {
-    message: string
-    code: string | number
-    details?: IMessageError[]
-    error?: string // Error message for debugging
-  }
 }
 
 // Response

@@ -5,7 +5,6 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator'
-import { HelperStringService } from 'lib/nest-core'
 
 @ValidatorConstraint({ async: true })
 @Injectable()
@@ -37,8 +36,6 @@ export function IsMAC(validationOptions?: ValidationOptions) {
 @ValidatorConstraint({ async: true })
 @Injectable()
 export class IsArrayMACConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly helperStringService: HelperStringService) {}
-
   validate(value: string[]): boolean {
     if (typeof value == 'string') {
       value = (value as string).split(',')

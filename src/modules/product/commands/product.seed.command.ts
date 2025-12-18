@@ -2,12 +2,7 @@ import { faker } from '@faker-js/faker'
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ENUM_PRODUCT_EXPIRY } from '@prisma/client'
-import {
-  ENUM_MESSAGE_LANGUAGE,
-  HelperDateService,
-  HelperStringService,
-  NEST_CLI,
-} from 'lib/nest-core'
+import { DateService, ENUM_MESSAGE_LANGUAGE, HelperService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner, Option } from 'nest-commander'
 
@@ -21,8 +16,8 @@ export class ProductSeedCommand extends CommandRunner {
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly helperDateService: HelperDateService,
-    private readonly helperStringService: HelperStringService,
+    private readonly dateService: DateService,
+    private readonly helperService: HelperService,
   ) {
     super()
   }
@@ -40,7 +35,7 @@ export class ProductSeedCommand extends CommandRunner {
       await this.prisma.$queryRaw`SET FOREIGN_KEY_CHECKS=1`
 
       const startDate = this.config.get<Date>('app.startDate')
-      const dateNow = this.helperDateService.create()
+      const dateNow = this.dateService.create()
 
       let categories = await this.prisma.productCategory.findMany()
       if (categories.length === 0) {
@@ -93,7 +88,7 @@ export class ProductSeedCommand extends CommandRunner {
         const salePoint = faker.number.int({ min: 0, max: 1_000 })
         const stockQty = faker.number.int({ min: 1, max: 999 })
         const duePaidDays = faker.number.int({ min: 7, max: 90 })
-        const code = this.helperStringService.padZero(i + 1, 8, 'P')
+        const code = this.helperService.padZero(i + 1, 8, 'P')
         const salePerPerson = faker.number.int({ min: 1, max: 10 })
 
         const hasShipment = faker.datatype.boolean()
@@ -107,7 +102,7 @@ export class ProductSeedCommand extends CommandRunner {
         let dynamicExpiryDays = faker.number.int({ min: 7, max: 30 })
         if (Math.floor(Math.random() * 2)) {
           expiryType = ENUM_PRODUCT_EXPIRY.STATIC
-          staticExpiryDate = this.helperDateService.create(faker.date.future(), { endOfDay: true })
+          staticExpiryDate = this.dateService.create(faker.date.future(), { endOfDay: true })
           dynamicExpiryDays = undefined
         }
 
@@ -166,7 +161,7 @@ export class ProductSeedCommand extends CommandRunner {
         })
 
         // if (products.length === 500 || i === options.numbers - 1) {
-        //   await this.prisma.$executeRaw(PrismaHelper.buildBulkInsert(products, tableName))
+        //   await this.prisma.$executeRaw(PrismaUtil.buildBulkInsert(products, tableName))
         //   products = []
         // }
       }

@@ -4,7 +4,7 @@ import { ApiTags } from '@nestjs/swagger'
 import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { Cache } from 'cache-manager'
 import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { HelperDateService, IDateRange } from 'lib/nest-core'
+import { DateService, IDateRange } from 'lib/nest-core'
 import { ApiRequestData, IResponseData } from 'lib/nest-web'
 import { DASHBOARD_DOC_OPERATION } from '../constants'
 import { DashboardSummaryResponseDto } from '../dtos'
@@ -16,11 +16,11 @@ export class DashboardAdminController {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
     protected readonly dashboardService: DashboardService,
-    protected readonly helperDateService: HelperDateService,
+    protected readonly dateService: DateService,
   ) {}
 
   private getDate(): IDateRange {
-    const dates = this.helperDateService.createRange()
+    const dates = this.dateService.createRange()
     return dates
   }
 

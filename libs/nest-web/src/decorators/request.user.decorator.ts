@@ -79,7 +79,10 @@ export const RequestUserGender: () => ParameterDecorator = createParamDecorator(
   (data: string, ctx: ExecutionContext): string => {
     const req = ctx.switchToHttp().getRequest<IRequestApp>()
     const userGender = (req.headers['x-user-gender'] as string) ?? undefined
-    return AppHelper.keyOfEnums<string>(ENUM_GENDER_TYPE, userGender?.toUpperCase(), data)
+    return AppHelper.getEnumKey<string>(userGender?.toUpperCase(), {
+      enum: ENUM_GENDER_TYPE,
+      fallback: data,
+    })
   },
 )
 

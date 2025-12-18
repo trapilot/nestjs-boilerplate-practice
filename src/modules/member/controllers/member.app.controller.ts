@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { HelperDateService, IFile } from 'lib/nest-core'
+import { DateService, IFile } from 'lib/nest-core'
 import {
   ApiRequestData,
   IResponseData,
@@ -27,7 +27,7 @@ import { MemberService } from '../services'
 export class MemberAppController {
   constructor(
     protected readonly memberService: MemberService,
-    protected readonly helperDateService: HelperDateService,
+    protected readonly dateService: DateService,
   ) {}
 
   @ApiRequestData({

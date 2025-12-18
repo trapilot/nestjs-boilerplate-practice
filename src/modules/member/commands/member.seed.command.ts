@@ -4,11 +4,11 @@ import { ConfigService } from '@nestjs/config'
 import { ENUM_MEMBER_TIER_ACTION, ENUM_MEMBER_TYPE } from '@prisma/client'
 import {
   AppHelper,
+  CryptoService,
+  DateService,
   ENUM_APP_LANGUAGE,
   ENUM_GENDER_TYPE,
-  HelperCryptoService,
-  HelperDateService,
-  HelperStringService,
+  HelperService,
   NEST_CLI,
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
@@ -26,9 +26,9 @@ export class MemberSeedCommand extends CommandRunner {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
     private readonly tierService: TierService,
-    private readonly helperDateService: HelperDateService,
-    private readonly helperStringService: HelperStringService,
-    private readonly helperCryptoService: HelperCryptoService,
+    private readonly dateService: DateService,
+    private readonly cryptoService: CryptoService,
+    private readonly helperService: HelperService,
   ) {
     super()
   }
@@ -39,19 +39,16 @@ export class MemberSeedCommand extends CommandRunner {
       return
     }
 
-    const dateNow = this.helperDateService.create()
+    const dateNow = this.dateService.create()
     const startDate = this.config.get<Date>('app.startDate')
     const codeDigits = this.config.getOrThrow<number>('app.membership.codeDigits')
 
     const chartIterator = this.tierService.getChartIterator()
-    const dateRange = this.helperDateService.createRange(dateNow)
+    const dateRange = this.dateService.createRange(dateNow)
 
     const passwordSaltLength = this.config.get<number>('auth.password.saltLength')
-    const passwordSalt = this.helperCryptoService.randomSalt(passwordSaltLength)
-    const hashedPassword = this.helperCryptoService.bcrypt(
-      process.env.MOCK_MEMBER_PASS,
-      passwordSalt,
-    )
+    const passwordSalt = this.cryptoService.randomSalt(passwordSaltLength)
+    const hashedPassword = this.cryptoService.bcrypt(process.env.MOCK_MEMBER_PASS, passwordSalt)
 
     try {
       await this.prisma.$queryRaw`SET FOREIGN_KEY_CHECKS=0`
@@ -70,9 +67,9 @@ export class MemberSeedCommand extends CommandRunner {
         const tierData = chartIterator.getTierStats(memberTier.id)
 
         const fullPhone = faker.phone.number({ style: 'international' })
-        const { country, phone } = this.helperStringService.parsePhone(fullPhone)
+        const { country, phone } = this.helperService.parsePhone(fullPhone)
 
-        const code = this.helperStringService.padZero(i + 1, codeDigits, 'T')
+        const code = this.helperService.padZero(i + 1, codeDigits, 'T')
         const invitedCode = referralCodes[Math.floor(Math.random() * referralCodes.length)]
         const hasReferrer = faker.datatype.boolean()
 
@@ -84,12 +81,12 @@ export class MemberSeedCommand extends CommandRunner {
         referralCodes.push(referralCode)
 
         const memberDate = isStaff
-          ? this.helperDateService.create(new Date('2099-12-31'), { endOfDay: true })
+          ? this.dateService.create(new Date('2099-12-31'), { endOfDay: true })
           : dateRange.endOfYear
         const birthDate = faker.date.birthdate({ mode: 'age', min: 20, max: 70 })
-        const dateOfBirth = this.helperDateService.create(birthDate, { startOfDay: true })
-        const extractDate = this.helperDateService.extract(dateOfBirth)
-        const expiryDate = this.helperDateService.create(memberDate, { endOfDay: true })
+        const dateOfBirth = this.dateService.create(birthDate, { startOfDay: true })
+        const extractDate = this.dateService.extract(dateOfBirth)
+        const expiryDate = this.dateService.create(memberDate, { endOfDay: true })
 
         await this.prisma.member.create({
           data: {
@@ -145,7 +142,7 @@ export class MemberSeedCommand extends CommandRunner {
         })
 
         // if (members.length === 500 || i === options.numbers - 1) {
-        //   await this.prisma.$executeRaw(PrismaHelper.buildBulkInsert(members, tableName))
+        //   await this.prisma.$executeRaw(PrismaUtil.buildBulkInsert(members, tableName))
         //   members = []
         // }
       }
@@ -183,7 +180,7 @@ export class MemberSeedCommand extends CommandRunner {
 
           if (memberTierHistories.length === 500) {
             await this.prisma.$executeRaw(
-              PrismaHelper.buildBulkInsert(memberTierHistories, tableTierName),
+              PrismaUtil.buildBulkInsert(memberTierHistories, tableTierName),
             )
             memberTierHistories = []
           }
@@ -191,7 +188,7 @@ export class MemberSeedCommand extends CommandRunner {
         running = notTierMembers.length === chunkNotTierMembers
       } while (running)
       await this.prisma.$executeRaw(
-        PrismaHelper.buildBulkInsert(memberTierHistories, tableTierName),
+        PrismaUtil.buildBulkInsert(memberTierHistories, tableTierName),
       )
       */
     } catch (err: any) {

@@ -430,9 +430,9 @@ model Role {
 
 model Permission {
   id        Int       @id @default(autoincrement())
-  subject   String    @unique
-  context   String?
   title     Json?
+  context   String?
+  subject   String    @unique
   bitwise   Int?      @default(0)
   sorting   Int?      @default(0)
   isVisible Boolean?  @default(true)
@@ -1299,4 +1299,3 @@ model AuditLogHttp {
 
   @@map("_audit_log_http")
 }
-

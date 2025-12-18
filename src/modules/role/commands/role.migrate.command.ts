@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common'
-import { HelperArrayService, NEST_CLI } from 'lib/nest-core'
+import { HelperService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner, Option } from 'nest-commander'
 
@@ -12,7 +12,7 @@ export class RoleMigrateCommand extends CommandRunner {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly helperArrayService: HelperArrayService,
+    private readonly helperService: HelperService,
   ) {
     super()
   }
@@ -51,10 +51,10 @@ export class RoleMigrateCommand extends CommandRunner {
           const oldPermissionIds = adminRole.pivotPermissions.map((rp) => rp.permissionId)
           const newPermissionIds = permissions.map((p) => p.id)
 
-          const diffIds = this.helperArrayService.getDifference(oldPermissionIds, newPermissionIds)
-          const oldIds = this.helperArrayService.getIntersection(oldPermissionIds, newPermissionIds)
-          const addIds = this.helperArrayService.getIntersection(diffIds, newPermissionIds)
-          const delIds = this.helperArrayService.getDifference(diffIds, addIds)
+          const diffIds = this.helperService.arrayDifference(oldPermissionIds, newPermissionIds)
+          const oldIds = this.helperService.arrayIntersection(oldPermissionIds, newPermissionIds)
+          const addIds = this.helperService.arrayIntersection(diffIds, newPermissionIds)
+          const delIds = this.helperService.arrayDifference(diffIds, addIds)
 
           await this.prisma.$transaction(async (tx) => {
             await tx.rolesPermissions.deleteMany({ where: { permissionId: { in: delIds } } })

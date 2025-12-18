@@ -8,7 +8,7 @@ import {
 import { ModuleRef } from '@nestjs/core'
 import { Prisma } from '@prisma/client'
 import { ENUM_AUTH_SIGN_UP_FROM, IAuthPassword } from 'lib/nest-auth'
-import { HelperFileService, HelperStringService } from 'lib/nest-core'
+import { FileService, HelperService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { RoleService } from '../../role/services'
@@ -20,8 +20,8 @@ export class UserService implements OnModuleInit {
   constructor(
     private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
-    private readonly helperFileService: HelperFileService,
-    private readonly helperStringService: HelperStringService,
+    private readonly fileService: FileService,
+    private readonly helperService: HelperService,
   ) {}
 
   onModuleInit() {
@@ -128,7 +128,7 @@ export class UserService implements OnModuleInit {
         }
       }
 
-      const { country, phone } = this.helperStringService.parsePhone(data.phone)
+      const { country, phone } = this.helperService.parsePhone(data.phone)
 
       return await this.prisma.user.create({
         data: {
@@ -141,7 +141,7 @@ export class UserService implements OnModuleInit {
         },
       })
     } catch (err: any) {
-      this.helperFileService.unlink(data?.avatar)
+      this.fileService.unlink(data?.avatar)
       throw err
     }
   }
@@ -163,7 +163,7 @@ export class UserService implements OnModuleInit {
       data.level = role.level
     }
 
-    const { country, phone } = this.helperStringService.parsePhone(`${data.phone}`)
+    const { country, phone } = this.helperService.parsePhone(`${data.phone}`)
 
     return await this.prisma.$transaction(async (tx) => {
       if (options?.roleId) {

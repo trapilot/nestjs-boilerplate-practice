@@ -2,18 +2,24 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nes
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import { Reflector } from '@nestjs/core'
 import { ClassConstructor, ClassTransformOptions, plainToInstance } from 'class-transformer'
-import { AppContext, HelperDateService, IRequestApp, IResponseApp } from 'lib/nest-core'
+import {
+  AppContext,
+  DateService,
+  IRequestApp,
+  IResponseApp,
+  ResponseMetadataDto,
+  ResponseSuccessDto,
+} from 'lib/nest-core'
 import { Observable, throwError } from 'rxjs'
 import { catchError, map } from 'rxjs/operators'
 import { RESPONSE_DTO_CONSTRUCTOR_METADATA, RESPONSE_DTO_OPTIONS_METADATA } from '../constants'
-import { ResponseMetadataDto } from '../dtos'
-import { IResponseData, IResponseSuccess } from '../interfaces'
+import { IResponseData } from '../interfaces'
 
 @Injectable()
 export class ResponseDataInterceptor<T> implements NestInterceptor<T, IResponseData> {
   constructor(
     private readonly reflector: Reflector,
-    private readonly helperDateService: HelperDateService,
+    private readonly dateService: DateService,
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -31,7 +37,7 @@ export class ResponseDataInterceptor<T> implements NestInterceptor<T, IResponseD
     return next.handle()
   }
 
-  private send(context: ExecutionContext, responseData: IResponseData): IResponseSuccess {
+  private send(context: ExecutionContext, responseData: IResponseData): ResponseSuccessDto {
     const ctx: HttpArgumentsHost = context.switchToHttp()
     const req: IRequestApp = ctx.getRequest<IRequestApp>()
     const res: IResponseApp = ctx.getResponse<IResponseApp>()
@@ -47,14 +53,14 @@ export class ResponseDataInterceptor<T> implements NestInterceptor<T, IResponseD
     )
 
     // metadata
-    const dateNow = this.helperDateService.create()
+    const dateNow = this.dateService.create()
     const ctxData = AppContext.current()
     let metadata: ResponseMetadataDto = {
       path: req.path,
       language: ctxData?.language ?? AppContext.language(),
       timezone: ctxData?.timezone ?? AppContext.timezone(),
       version: ctxData?.apiVersion ?? AppContext.apiVersion(),
-      timestamp: this.helperDateService.getTimestamp(dateNow),
+      timestamp: this.dateService.getTimestamp(dateNow),
     }
 
     const statusHttp = res.statusCode
