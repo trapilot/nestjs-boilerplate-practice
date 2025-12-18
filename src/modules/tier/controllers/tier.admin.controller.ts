@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client'
 import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
-import { PrismaHelper } from 'lib/nest-prisma'
+import { PrismaUtil } from 'lib/nest-prisma'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -169,12 +169,12 @@ export class TierAdminController {
   })
   @Post('/')
   async create(@RequestBody() body: TierRequestCreateDto): Promise<IResponseData> {
-    const { description, ...dto } = body
+    const { description, ...data } = body
+    const jsonLanguage = { description }
+
     const tier = await this.tierService.create({
-      ...dto,
-      languages: PrismaHelper.buildCreateLanguages({
-        description,
-      }),
+      ...data,
+      languages: PrismaUtil.buildLanguages(jsonLanguage),
     })
 
     return {
@@ -208,13 +208,16 @@ export class TierAdminController {
     @RequestBody() body: TierRequestUpdateDto,
     @RequestParam('id') id: number,
   ): Promise<IResponseData> {
-    const { description, ...dto } = body
+    const { description, ...data } = body
+    const jsonLanguage = { description }
+
     const tier = await this.tierService.update(id, {
-      ...dto,
-      languages: PrismaHelper.buildUpdateLanguages<Prisma.TierLanguageWhereInput>(
-        { description },
-        { tierId: id },
-      ),
+      ...data,
+      languages: PrismaUtil.buildLanguages<Prisma.TierLanguageWhereInput>(jsonLanguage, {
+        whereField: {
+          tierId: id,
+        },
+      }),
     })
 
     return {

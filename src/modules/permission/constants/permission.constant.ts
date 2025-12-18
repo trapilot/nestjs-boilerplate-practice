@@ -1,1 +1,1 @@
-export const PERMISSION_DOC_OPERATION = 'Permission'
+export const PERMISSION_UPLOAD_IMAGE_PATH = `public/uploads/images/permissions`

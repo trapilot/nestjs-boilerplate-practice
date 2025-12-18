@@ -25,6 +25,7 @@ module.exports = {
     '@typescript-eslint/no-duplicate-enum-values': 'warn',
     '@typescript-eslint/await-thenable': 'warn',
     'prettier/prettier': ['error'],
+    'prefer-const': 'off',
     'no-unused-vars': 'off',
   },
 }

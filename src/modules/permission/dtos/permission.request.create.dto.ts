@@ -11,12 +11,11 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsObject,
   IsOptional,
-  IsString,
-  MaxLength,
-  MinLength,
 } from 'class-validator'
-import { ToArray, ToBoolean, ToNumber, ToString } from 'lib/nest-core'
+import { ToArray, ToBoolean, ToNumber, ToObject, ToString } from 'lib/nest-core'
+import { RequestSentenceDto } from 'lib/nest-web'
 
 export class PermissionRequestCreateDto {
   @IsOptional()
@@ -34,23 +33,15 @@ export class PermissionRequestCreateDto {
   @IsNotEmpty()
   @ArrayNotEmpty()
   @IsArray()
-  @ToArray()
+  @ToArray({ type: ENUM_APP_ABILITY_ACTION })
   @ApiProperty({ required: true, isArray: true, enum: ENUM_APP_ABILITY_ACTION })
   actions: ENUM_APP_ABILITY_ACTION[]
 
   @IsNotEmpty()
-  @IsString()
-  @ToString()
-  @MinLength(3)
-  @MaxLength(30)
-  @ApiProperty({ required: true, example: 'ADMIN' })
-  title: string
-
-  @IsOptional()
-  @IsString()
-  @ToString()
-  @ApiProperty({ required: false, example: '' })
-  description?: string | null
+  @IsObject()
+  @ToObject({ type: RequestSentenceDto })
+  @ApiProperty({ required: true, type: RequestSentenceDto })
+  title: any
 
   @IsOptional()
   @IsNumber()

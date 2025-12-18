@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger'
 import { Prisma, Setting } from '@prisma/client'
 import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { FILE_SIZE_IN_BYTES, HelperCryptoService, HelperMessageService } from 'lib/nest-core'
+import { CryptoService, FILE_SIZE_IN_BYTES, MessageService } from 'lib/nest-core'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -40,8 +40,8 @@ import { SettingService } from '../services'
 export class SettingAdminController {
   constructor(
     protected readonly settingService: SettingService,
-    protected readonly helperCryptoService: HelperCryptoService,
-    private readonly helperMessageService: HelperMessageService,
+    protected readonly cryptoService: CryptoService,
+    private readonly messageService: MessageService,
   ) {}
 
   @ApiRequestData({
@@ -56,7 +56,7 @@ export class SettingAdminController {
     @RequestUserIp() userIp: string,
     @RequestUserAgent() userAgent: IResult,
   ): Promise<IResponseData> {
-    const languages: string[] = this.helperMessageService.getAvailableLanguages()
+    const languages: string[] = this.messageService.getAvailableLanguages()
 
     const tz: string = await this.settingService.getTimezone()
     const timezoneOffset: string = await this.settingService.getTimezoneOffset()
@@ -75,7 +75,7 @@ export class SettingAdminController {
         languages,
         file,
         timezone,
-        token: this.helperCryptoService.createUserToken(userIp, userAgent, true),
+        token: this.cryptoService.createUserToken(userIp, userAgent, true),
       },
     }
   }

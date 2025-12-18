@@ -3,10 +3,10 @@ import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { OAuth2Client, TokenInfo } from 'google-auth-library'
 import {
+  CryptoService,
+  DateService,
   ENUM_APP_ENVIRONMENT,
-  HelperCryptoService,
-  HelperDateService,
-  HelperStringService,
+  HelperService,
   IStringRandomOptions,
 } from 'lib/nest-core'
 import { IResult } from 'ua-parser-js'
@@ -57,9 +57,9 @@ export class AuthService {
   constructor(
     private readonly config: ConfigService,
     private readonly jwtService: JwtService,
-    private readonly helperDateService: HelperDateService,
-    private readonly helperStringService: HelperStringService,
-    private readonly helperCryptoService: HelperCryptoService,
+    private readonly dateService: DateService,
+    private readonly cryptoService: CryptoService,
+    private readonly helperService: HelperService,
   ) {
     this.appEnv = this.config.get<string>('app.env', ENUM_APP_ENVIRONMENT.PRODUCTION)
 
@@ -165,7 +165,7 @@ export class AuthService {
   }
 
   verify(passwordString: string, passwordHash: string): boolean {
-    return this.helperCryptoService.bcryptCompare(passwordString, passwordHash)
+    return this.cryptoService.bcryptCompare(passwordString, passwordHash)
   }
 
   async capture(user: any, options: IAuthRefetchOptions): Promise<boolean> {
@@ -202,18 +202,18 @@ export class AuthService {
   }
 
   createSalt(length: number): string {
-    return this.helperCryptoService.randomSalt(length)
+    return this.cryptoService.randomSalt(length)
   }
 
   createPassword(password: string, options?: IAuthPasswordOptions): IAuthPassword {
     const salt: string = this.createSalt(this.passwordSaltLength)
 
-    const dateNow = this.helperDateService.create()
-    const passwordExpired = this.helperDateService.forward(dateNow, {
+    const dateNow = this.dateService.create()
+    const passwordExpired = this.dateService.forward(dateNow, {
       seconds: options?.temporary ? this.passwordExpiredTemporary : this.passwordExpiredIn,
     })
-    const passwordCreated = this.helperDateService.create()
-    const passwordHash = this.helperCryptoService.bcrypt(password, salt)
+    const passwordCreated = this.dateService.create()
+    const passwordHash = this.cryptoService.bcrypt(password, salt)
     return {
       passwordHash,
       passwordExpired,
@@ -223,21 +223,21 @@ export class AuthService {
   }
 
   createPasswordRandom(length: number = 15, options?: IStringRandomOptions): string {
-    return this.helperStringService.random(length, options)
+    return this.helperService.randomString(length, options)
   }
 
   createToken(userIp: string, userAgent: IResult): string {
-    return this.helperCryptoService.createUserToken(userIp, userAgent)
+    return this.cryptoService.createUserToken(userIp, userAgent)
   }
 
   checkPasswordExpired(passwordExpired: Date): boolean {
-    const today = this.helperDateService.create()
-    const passwordExpiredConvert = this.helperDateService.create(passwordExpired)
+    const today = this.dateService.create()
+    const passwordExpiredConvert = this.dateService.create(passwordExpired)
     return today > passwordExpiredConvert
   }
 
   getLoginDate(): Date {
-    return this.helperDateService.create()
+    return this.dateService.create()
   }
 
   getTokenType(): string {
@@ -245,9 +245,9 @@ export class AuthService {
   }
 
   getRemainingExpirationTime(): number {
-    const dateNow = this.helperDateService.createInstance()
+    const dateNow = this.dateService.createInstance()
     return Math.floor(
-      this.helperDateService
+      this.dateService
         .createInstance(dateNow.toJSDate(), { endOfDay: true })
         .diff(dateNow, 'seconds').seconds,
     )

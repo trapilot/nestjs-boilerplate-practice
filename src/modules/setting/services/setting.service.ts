@@ -4,14 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { Prisma, Setting } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import {
-  APP_TIMEZONE,
-  ENUM_DATE_FORMAT,
-  HelperArrayService,
-  HelperDateService,
-  HelperNumberService,
-  HelperStringService,
-} from 'lib/nest-core'
+import { APP_TIMEZONE, DateService, ENUM_DATE_FORMAT, HelperService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { ENUM_SETTING_GROUP, ENUM_SETTING_TYPE } from '../enums'
@@ -26,15 +19,13 @@ export class SettingService {
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-    private readonly helperArrayService: HelperArrayService,
-    private readonly helperDateService: HelperDateService,
-    private readonly helperNumberService: HelperNumberService,
-    private readonly helperStringService: HelperStringService,
+    private readonly helperService: HelperService,
+    private readonly dateService: DateService,
   ) {
-    const dateNow = this.helperDateService.create()
+    const dateNow = this.dateService.create()
 
     this.timezone = this.config.get<string>('app.timezone')
-    this.timezoneOffset = this.helperDateService.format(dateNow, ENUM_DATE_FORMAT.TIMEZONE)
+    this.timezoneOffset = this.dateService.format(dateNow, ENUM_DATE_FORMAT.TIMEZONE)
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { timeZone: APP_TIMEZONE })
@@ -129,27 +120,25 @@ export class SettingService {
     return setting
   }
 
-  private isArray(type: string): boolean {
-    return this.helperArrayService.includes(
-      [ENUM_SETTING_TYPE.ARRAY_OF_NUMBER, ENUM_SETTING_TYPE.ARRAY_OF_STRING],
-      type,
-    )
+  private isArray(type: ENUM_SETTING_TYPE): boolean {
+    return [ENUM_SETTING_TYPE.ARRAY_OF_NUMBER, ENUM_SETTING_TYPE.ARRAY_OF_STRING].includes(type)
   }
 
-  private isBoolean(type: string): boolean {
-    return this.helperArrayService.includes(
-      [ENUM_SETTING_TYPE.BOOLEAN, ENUM_SETTING_TYPE.YESNO],
-      type,
-    )
+  private isBoolean(type: ENUM_SETTING_TYPE): boolean {
+    return [ENUM_SETTING_TYPE.BOOLEAN, ENUM_SETTING_TYPE.YESNO].includes(type)
   }
 
-  private isNumber(type: string): boolean {
+  private isNumber(type: ENUM_SETTING_TYPE): boolean {
     return ENUM_SETTING_TYPE.NUMBER == type
   }
 
-  private getValues(value: string): any[] {
+  private getValueBoolean(value: string): boolean {
+    return ['1', 'y', 'yes', 'ok', 'true'].includes(value.toLowerCase())
+  }
+
+  private getValueArray(value: string): any[] {
     const values = value.split(',')
-    const numbers = values.filter((i) => this.helperNumberService.check(i))
+    const numbers = values.filter((i) => this.helperService.checkNumberString(i))
     if (numbers.length == values.length) {
       return values.map((i) => parseInt(i))
     }
@@ -157,14 +146,15 @@ export class SettingService {
   }
 
   getValue<T>(setting: Setting): T {
-    if (this.isBoolean(setting.type)) {
-      return this.helperStringService.boolean(setting.value) as T
+    const type = setting.type as ENUM_SETTING_TYPE
+    if (this.isBoolean(type)) {
+      return this.getValueBoolean(setting.value) as T
     }
-    if (this.isNumber(setting.type)) {
-      return this.helperNumberService.create(setting.value) as T
+    if (this.isNumber(type)) {
+      return Number(setting.value) as T
     }
-    if (this.isArray(setting.type)) {
-      return this.getValues(setting.value) as T
+    if (this.isArray(type)) {
+      return this.getValueArray(setting.value) as T
     }
     return setting.value as T
   }
@@ -189,7 +179,7 @@ export class SettingService {
     return JSON.parse(cacheValue) as T
   }
 
-  private async getCache<T>(data: Prisma.SettingUncheckedCreateInput): Promise<T> {
+  private async getFromCache<T>(data: Prisma.SettingUncheckedCreateInput): Promise<T> {
     const cacheKey = this.createKey(data.code)
     let cacheValue = await this.cache.get(cacheKey)
 
@@ -207,16 +197,16 @@ export class SettingService {
 
   checkValue(value: string, type: string): boolean {
     if (type === ENUM_SETTING_TYPE.BOOLEAN) {
-      return this.helperArrayService.includes(['true', 'false'], value)
+      return ['true', 'false'].includes(value)
     }
     if (type === ENUM_SETTING_TYPE.YESNO) {
-      return this.helperArrayService.includes(['yes', 'no'], value)
+      return ['yes', 'no'].includes(value)
     }
     if (type === ENUM_SETTING_TYPE.ONOFF) {
-      return this.helperArrayService.includes(['on', 'off'], value)
+      return ['on', 'off'].includes(value)
     }
     if (type === ENUM_SETTING_TYPE.NUMBER) {
-      return this.helperNumberService.check(value)
+      return this.helperService.checkNumberString(value)
     }
     if (type === ENUM_SETTING_TYPE.STRING) {
       return true
@@ -228,12 +218,12 @@ export class SettingService {
   private async removeCache(code: string): Promise<boolean> {
     try {
       await this.cache.del(this.createKey(code))
-    } catch (err: unknown) {}
+    } catch (_: unknown) {}
     return true
   }
 
   async getMaintenance(): Promise<boolean> {
-    return await this.getCache<boolean>({
+    return await this.getFromCache<boolean>({
       name: 'Maintenance Mode',
       code: 'maintenance',
       description: 'Maintenance Mode',

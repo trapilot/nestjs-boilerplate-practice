@@ -197,9 +197,9 @@ CREATE TABLE `roles` (
 -- CreateTable
 CREATE TABLE `permissions` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `subject` VARCHAR(191) NOT NULL,
-    `context` VARCHAR(191) NULL,
     `title` JSON NULL,
+    `context` VARCHAR(191) NULL,
+    `subject` VARCHAR(191) NOT NULL,
     `bitwise` INTEGER NULL DEFAULT 0,
     `sorting` INTEGER NULL DEFAULT 0,
     `isVisible` BOOLEAN NULL DEFAULT true,

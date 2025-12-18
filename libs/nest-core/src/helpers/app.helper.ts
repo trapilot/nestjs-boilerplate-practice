@@ -11,13 +11,14 @@ import {
 } from '../enums'
 import {
   EnumLike,
+  EnumValue,
   IDateExtractData,
   IDateRequestOptions,
   IStringCurrencyOptions,
   IStringNumericOptions,
   IStringParseOptions,
 } from '../interfaces'
-import { HelperDateService } from '../services'
+import { DateService } from '../services'
 import { TimeHelper } from './time.helper'
 
 export class AppHelper {
@@ -53,6 +54,11 @@ export class AppHelper {
     return finalValue as T
   }
 
+  static isEnum(data: any): boolean {
+    if (!data || typeof data !== 'object') return false
+    return Object.values(data).some((v) => typeof v === 'string' || typeof v === 'number')
+  }
+
   static isEnv(env: ENUM_APP_ENVIRONMENT): boolean {
     return env === (process.env.APP_ENV || APP_ENV)
   }
@@ -85,18 +91,36 @@ export class AppHelper {
 
   static enumToStrings(value: EnumLike | string[]): string[] {
     if (Array.isArray(value)) return value
-
     return Object.values(value).filter((v): v is string => typeof v === 'string')
   }
 
-  static keyOfEnums<T = string | number>(enums: any, value: string, fallback: string = null): T {
-    for (const [key, val] of Object.entries(enums)) {
-      if (val === value) return key as T
+  static getEnumKey<T = EnumValue>(value: T, options: { enum: EnumLike<T>; fallback?: T }): T {
+    for (const [k, v] of Object.entries(options.enum)) {
+      if (v == value) return k as T
     }
-    if (fallback !== null) {
-      return this.keyOfEnums(enums, fallback)
+    if (options?.fallback !== undefined) {
+      return this.getEnumKey(options.fallback, { enum: options.enum })
     }
     return null
+  }
+
+  static getEnumKeys<T = EnumValue>(value: T, options: { enum: EnumLike<T>; fallback?: T }): T[] {
+    const keys = []
+    for (const [k, v] of Object.entries(options.enum)) {
+      if (v == value) keys.push(k)
+    }
+    if (keys.length === 0 && options?.fallback !== undefined) {
+      return this.getEnumKeys(options.fallback, { enum: options.enum })
+    }
+    return keys
+  }
+
+  static filterEnumValues<T = EnumValue>(value: T[], options: { enum: EnumLike<T> }): T[] {
+    const values = []
+    for (const [k, v] of Object.entries(options.enum)) {
+      if (value.includes(v)) values.push(k)
+    }
+    return values
   }
 
   static randomItems<T = any>(items: T[], count: number): T[] {
@@ -143,9 +167,10 @@ export class AppHelper {
   }
 
   static toNumber(number: number, options?: IStringNumericOptions): string {
-    const language = options?.language ?? MESSAGE_FALLBACK
-
-    const locale = this.keyOfEnums(ENUM_MESSAGE_LANGUAGE, language, MESSAGE_FALLBACK)
+    const locale = this.getEnumKey(options?.language, {
+      enum: ENUM_MESSAGE_LANGUAGE,
+      fallback: MESSAGE_FALLBACK,
+    })
     const formatter = new Intl.NumberFormat(ENUM_NUMBER_LANGUAGE[locale], {
       minimumFractionDigits: options?.minimumFractionDigits,
       maximumFractionDigits: options?.maximumFractionDigits ?? 10,
@@ -155,15 +180,16 @@ export class AppHelper {
   }
 
   static toCurrency(number: number, options?: IStringCurrencyOptions): string {
-    const language = options?.language ?? MESSAGE_FALLBACK
-
-    const locale = this.keyOfEnums(ENUM_MESSAGE_LANGUAGE, language, MESSAGE_FALLBACK)
+    const locale = this.getEnumKey(options?.language, {
+      enum: ENUM_MESSAGE_LANGUAGE,
+      fallback: MESSAGE_FALLBACK,
+    })
     const formatter = new Intl.NumberFormat(ENUM_NUMBER_LANGUAGE[locale], {
       style: 'currency',
       currency: ENUM_CURRENCY_LANGUAGE[locale],
       minimumFractionDigits: options?.minimumFractionDigits,
       maximumFractionDigits: options?.maximumFractionDigits ?? 10,
-      currencyDisplay: language === MESSAGE_FALLBACK ? 'narrowSymbol' : undefined,
+      currencyDisplay: options?.language === MESSAGE_FALLBACK ? 'narrowSymbol' : undefined,
       useGrouping: options?.useGrouping ?? false,
     })
     return formatter.format(number).trim()
@@ -180,7 +206,7 @@ export class AppHelper {
   }
 
   static extractDate(date: Date | string): IDateExtractData {
-    return new HelperDateService().extract(new Date(date))
+    return new DateService().extract(new Date(date))
   }
 
   static nowDate(options?: Omit<IDateRequestOptions, 'format'>): Date {
@@ -204,7 +230,7 @@ export class AppHelper {
       if (!options.durationSet?.millisecond) reqDate.setMilliseconds(0)
     }
 
-    const mDate = new HelperDateService().createInstance(reqDate, options)
+    const mDate = new DateService().createInstance(reqDate, options)
     return options?.format ? mDate.toFormat(options.format) : mDate.toJSDate()
   }
 

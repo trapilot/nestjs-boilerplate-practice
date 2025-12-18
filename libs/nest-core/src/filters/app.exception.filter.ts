@@ -1,6 +1,5 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Logger } from '@nestjs/common'
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
-import { Prisma } from '@prisma/client'
 import {
   AppContext,
   DateService,
@@ -11,20 +10,16 @@ import {
   ResponseMetadataDto,
 } from 'lib/nest-core'
 
-@Catch(
-  Prisma.PrismaClientKnownRequestError,
-  Prisma.PrismaClientInitializationError,
-  Prisma.PrismaClientValidationError,
-)
-export class PrismaFilter implements ExceptionFilter {
-  private readonly logger = new Logger(PrismaFilter.name)
+@Catch()
+export class AppExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(AppExceptionFilter.name)
 
   constructor(
     private readonly dateService: DateService,
     private readonly messageService: MessageService,
   ) {}
 
-  catch(exception: Prisma.PrismaClientKnownRequestError, host: ArgumentsHost) {
+  async catch(exception: unknown, host: ArgumentsHost): Promise<void> {
     const ctx: HttpArgumentsHost = host.switchToHttp()
     const req: IRequestApp = ctx.getRequest<IRequestApp>()
     const res: IResponseApp = ctx.getResponse<IResponseApp>()
@@ -43,11 +38,23 @@ export class PrismaFilter implements ExceptionFilter {
       timestamp: this.dateService.getTimestamp(dateNow),
     }
 
-    // message
-    const messageCode = exception?.code ? exception.code : 'P0000'
-    const message = this.messageService.setMessage(`prisma.${messageCode}`, {
+    if (req.__filters) {
+      metadata.availableSearch = req.__filters?.availableSearch ?? []
+      metadata.availableOrderBy = req.__filters?.availableOrderBy ?? []
+    }
+    if (req.__pagination) {
+      metadata.pagination = {
+        ...{ page: 1, perPage: 1, totalPage: 1, totalRecord: 0 },
+        ...req.__pagination,
+      }
+    }
+
+    // default
+    const statusHttp: number = HttpStatus.INTERNAL_SERVER_ERROR
+    const messagePath: string = `http.internalServerError`
+
+    const message = this.messageService.setMessage(messagePath, {
       customLanguage: metadata.language,
-      properties: exception?.meta,
     })
 
     const responseBody: ResponseErrorDto = {
@@ -55,8 +62,7 @@ export class PrismaFilter implements ExceptionFilter {
       metadata,
       error: {
         message,
-        code: messageCode,
-        error: this.shortErrorMessage(exception),
+        code: statusHttp,
       },
     }
 
@@ -64,24 +70,10 @@ export class PrismaFilter implements ExceptionFilter {
       .setHeader('x-language', metadata.language)
       .setHeader('x-timezone', metadata.timezone)
       .setHeader('x-version', metadata.version)
-      .status(HttpStatus.BAD_REQUEST)
+      .status(statusHttp)
       .json(responseBody)
 
     return
-  }
-
-  private shortErrorMessage(exception: any): any {
-    const { message, code } = exception
-
-    const trimMessage = message.trim('→')
-    const shortMessage = trimMessage.substring(trimMessage.indexOf('→'))
-
-    if (!code) {
-      const sqlMessage = shortMessage.substring(shortMessage.indexOf('→'))
-      const sqlError = sqlMessage.substring(sqlMessage.indexOf('\n\n'))
-      return sqlError.substring(sqlError.indexOf('\n')).replace(/\n/g, '').trim('')
-    }
-    return shortMessage.substring(shortMessage.indexOf('\n')).replace(/\n/g, '').trim()
   }
 
   captureException(exception: unknown): void {

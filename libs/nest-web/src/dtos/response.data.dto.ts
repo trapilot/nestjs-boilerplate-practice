@@ -1,29 +1,13 @@
 import { ApiHideProperty, ApiProperty, PickType } from '@nestjs/swagger'
-import { APP_LANGUAGE, APP_TIMEZONE, APP_VERSION_NUMBER } from 'lib/nest-core'
+import {
+  APP_LANGUAGE,
+  APP_TIMEZONE,
+  APP_VERSION_NUMBER,
+  ResponseListingMetadataDto,
+  ResponseMetadataDto,
+  ResponsePagingMetadataDto,
+} from 'lib/nest-core'
 import { REQUEST_DEFAULT_PER_PAGE } from '../constants'
-
-export class ResponseMetadataDto {
-  language: string
-  timestamp: number
-  timezone: string
-  version: string
-  path: string;
-  [key: string]: any
-}
-
-export class ResponseListingMetadataDto extends ResponseMetadataDto {
-  availableSearch: string[]
-  availableOrderBy: string[]
-}
-
-export class ResponsePagingMetadataDto extends ResponseMetadataDto {
-  pagination: {
-    page: number
-    perPage: number
-    totalRecord: number
-    totalPage: number
-  }
-}
 
 export class ResponseDataDto<T = any> {
   @ApiProperty({

@@ -29,8 +29,8 @@ import { UserModule } from 'modules/user'
   imports: [
     SettingModule,
     RoleModule,
-    PermissionModule,
     UserModule,
+    PermissionModule,
     FactModule,
     ApiKeyModule,
     AppVersionModule,

@@ -14,7 +14,7 @@ import {
   ENUM_AUTH_LOGIN_WITH,
   ENUM_AUTH_SCOPE_TYPE,
 } from 'lib/nest-auth'
-import { HelperStringService, IRequestApp } from 'lib/nest-core'
+import { IRequestApp } from 'lib/nest-core'
 import {
   ApiRequestData,
   IResponseData,
@@ -44,7 +44,6 @@ import { MemberAuthService } from '../services'
 export class MemberAuthController {
   constructor(
     @Inject(ENUM_AUTH_SCOPE_TYPE.MEMBER) protected readonly authService: MemberAuthService,
-    protected readonly helperStringService: HelperStringService,
   ) {}
 
   @ApiRequestData({

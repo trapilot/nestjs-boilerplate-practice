@@ -1,11 +1,6 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ENUM_PUSH_STATUS, ENUM_PUSH_TYPE, Notification, Prisma } from '@prisma/client'
-import {
-  ENUM_DATE_FORMAT,
-  HelperArrayService,
-  HelperDateService,
-  MESSAGE_LANGUAGES,
-} from 'lib/nest-core'
+import { DateService, ENUM_DATE_FORMAT, HelperService, MESSAGE_LANGUAGES } from 'lib/nest-core'
 import { LoggerService } from 'lib/nest-logger'
 import { NotifierService } from 'lib/nest-notifier'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
@@ -17,8 +12,8 @@ export class PushService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifier: NotifierService,
-    private readonly helperDateService: HelperDateService,
-    private readonly helperArrayService: HelperArrayService,
+    private readonly dateService: DateService,
+    private readonly helperService: HelperService,
   ) {}
 
   async findOne(kwargs?: Prisma.PushFindUniqueArgs): Promise<TPush> {
@@ -163,14 +158,11 @@ export class PushService {
   }
 
   async getPending(): Promise<TPush> {
-    const dateNow = this.helperDateService.create()
-    const dateExtract = this.helperDateService.extract(dateNow)
+    const dateNow = this.dateService.create()
+    const dateExtract = this.dateService.extract(dateNow)
 
     const currentDate = dateExtract.date
-    const currentTime = this.helperDateService.format(
-      dateExtract.date,
-      ENUM_DATE_FORMAT.DURATION_LONG,
-    )
+    const currentTime = this.dateService.format(dateExtract.date, ENUM_DATE_FORMAT.DURATION_LONG)
 
     const _where: Prisma.PushWhereInput = {
       isActive: true,
@@ -312,12 +304,12 @@ export class PushService {
       return await this.skip(push, logger)
     }
 
-    const dateNow = this.helperDateService.create()
-    const expiresAt = this.helperDateService.forward(push.untilDate || dateNow, {
+    const dateNow = this.dateService.create()
+    const expiresAt = this.dateService.forward(push.untilDate || dateNow, {
       minutes: 5,
     })
 
-    let scheduledAt = this.helperDateService.set(push.scheduledAt, {
+    let scheduledAt = this.dateService.set(push.scheduledAt, {
       hour: push.hours,
       minute: push.minutes,
       second: push.seconds,
@@ -326,16 +318,16 @@ export class PushService {
 
     switch (push.type) {
       case ENUM_PUSH_TYPE.DAILY:
-        scheduledAt = this.helperDateService.forward(push.scheduledAt, { days: 1 })
+        scheduledAt = this.dateService.forward(push.scheduledAt, { days: 1 })
         break
       case ENUM_PUSH_TYPE.WEEKLY:
-        scheduledAt = this.helperDateService.forward(push.scheduledAt, { days: 7 })
+        scheduledAt = this.dateService.forward(push.scheduledAt, { days: 7 })
         break
       case ENUM_PUSH_TYPE.MONTHLY:
-        scheduledAt = this.helperDateService.forward(push.scheduledAt, { month: 1 })
+        scheduledAt = this.dateService.forward(push.scheduledAt, { month: 1 })
         break
       case ENUM_PUSH_TYPE.YEARLY:
-        scheduledAt = this.helperDateService.forward(push.scheduledAt, { year: 1 })
+        scheduledAt = this.dateService.forward(push.scheduledAt, { year: 1 })
         break
       default:
         break
@@ -402,7 +394,7 @@ export class PushService {
       })
     }
 
-    const chunks = this.helperArrayService.chunk(memberMessageHistories, 1_000)
+    const chunks = this.helperService.arrayChunk(memberMessageHistories, 1_000)
     for (const data of chunks) {
       await this.prisma.memberNotifyHistory.createMany({ data })
     }
@@ -486,13 +478,13 @@ export class PushService {
   }
 
   async success(push: TPush, logger: LoggerService): Promise<TPush> {
-    const dateNow = this.helperDateService.create()
-    const dateExtract = this.helperDateService.extract(dateNow)
+    const dateNow = this.dateService.create()
+    const dateExtract = this.dateService.extract(dateNow)
 
     let completed = push.type === ENUM_PUSH_TYPE.INSTANT
 
     if (push.type === ENUM_PUSH_TYPE.DATETIME) {
-      completed = this.helperDateService.after(push.expiresAt, {
+      completed = this.dateService.after(push.expiresAt, {
         sinceDate: dateExtract.date,
       })
     }
@@ -504,7 +496,7 @@ export class PushService {
       push.type === ENUM_PUSH_TYPE.YEARLY
     ) {
       if (push.untilDate) {
-        completed = this.helperDateService.after(push.untilDate, {
+        completed = this.dateService.after(push.untilDate, {
           sinceDate: push.scheduledAt,
         })
       }

@@ -27,12 +27,12 @@ import {
 import {
   APP_TIMEZONE,
   AppHelper,
-  HelperCryptoService,
-  HelperDateService,
-  HelperFileService,
-  HelperMessageService,
-  HelperStringService,
+  CryptoService,
+  DateService,
+  FileService,
+  HelperService,
   IRequestApp,
+  MessageService,
 } from 'lib/nest-core'
 import { NotifierService } from 'lib/nest-notifier'
 import { PrismaService } from 'lib/nest-prisma'
@@ -66,16 +66,16 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
     private readonly emitter: EventEmitter2,
     private readonly notifier: NotifierService,
     private readonly authService: AuthService,
-    private readonly helperFileService: HelperFileService,
-    private readonly helperDateService: HelperDateService,
-    private readonly helperStringService: HelperStringService,
-    private readonly helperCryptoService: HelperCryptoService,
-    private readonly helperMessageService: HelperMessageService,
+    private readonly fileService: FileService,
+    private readonly dateService: DateService,
+    private readonly cryptoService: CryptoService,
+    private readonly messageService: MessageService,
+    private readonly helperService: HelperService,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_6AM, { timeZone: APP_TIMEZONE })
   private async clearExpiredRefreshTokens() {
-    const dateNow = this.helperDateService.create()
+    const dateNow = this.dateService.create()
     await this.prisma.memberTokenHistory.deleteMany({
       where: { refreshExpired: { lte: dateNow } },
     })
@@ -129,7 +129,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
       })
     }
 
-    if (!userToken.isActive || this.helperDateService.after(userToken.refreshExpired)) {
+    if (!userToken.isActive || this.dateService.after(userToken.refreshExpired)) {
       // tracking spam refresh token
       await this.prisma.memberTokenHistory.update({
         where: { id: userToken.id },
@@ -360,7 +360,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
             createdAt: payload.loginDate,
             updatedAt: payload.loginDate,
             refreshToken: userToken.refreshToken,
-            refreshExpired: this.helperDateService.forward(new Date(payload.loginDate), {
+            refreshExpired: this.dateService.forward(new Date(payload.loginDate), {
               seconds: userToken.refreshIn,
             }),
           },
@@ -468,16 +468,14 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
 
     const content = options?.text
       ? options.text
-      : this.helperFileService.readText(
-          AppHelper.getTemplatePath(options.template, options?.language),
-        )
+      : this.fileService.readText(AppHelper.getTemplatePath(options.template, options?.language))
 
     await this.notifier.sendSms({
       to: phone,
-      subject: this.helperMessageService.setMessage(options?.subject, {
+      subject: this.messageService.setMessage(options?.subject, {
         customLanguage: options?.language,
       }),
-      content: this.helperMessageService.setMessage(content, {
+      content: this.messageService.setMessage(content, {
         properties: {
           code: verify.code,
           ...(options?.properties || {}),
@@ -506,23 +504,19 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
       },
     )
 
-    const token = this.helperCryptoService.base64Encrypt(
-      JSON.stringify({ email, code: verify.code }),
-    )
+    const token = this.cryptoService.base64Encrypt(JSON.stringify({ email, code: verify.code }))
 
     const content = options?.text
       ? options.text
-      : this.helperFileService.readText(
-          AppHelper.getTemplatePath(options.template, options?.language),
-        )
+      : this.fileService.readText(AppHelper.getTemplatePath(options.template, options?.language))
 
     await this.notifier.sendEmail({
       to: email,
-      content: this.helperMessageService.setMessage(content, {
+      content: this.messageService.setMessage(content, {
         properties: {
           url: token,
           token,
-          subject: this.helperMessageService.setMessage(options?.subject, {
+          subject: this.messageService.setMessage(options?.subject, {
             customLanguage: options?.language,
           }),
           ...(options?.properties || {}),
@@ -570,7 +564,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
       })
     }
 
-    const { country, phone } = this.helperStringService.parsePhone(dto.phone)
+    const { country, phone } = this.helperService.parsePhone(dto.phone)
     const { passwordHash } = this.authService.createPassword(dto.password)
 
     const normalTier = this.tierService.getChartIterator().getNormalTier()

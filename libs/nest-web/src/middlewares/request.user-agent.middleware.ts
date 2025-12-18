@@ -4,8 +4,8 @@ import {
   APP_TIMEZONE,
   AppContext,
   AppHelper,
-  HelperArrayService,
-  HelperDateService,
+  DateService,
+  HelperService,
   INextFunction,
   IRequestApp,
   IRequestContext,
@@ -16,8 +16,8 @@ import {
 export class RequestUserAgentMiddleware implements NestMiddleware {
   constructor(
     private readonly config: ConfigService,
-    private readonly helperDateService: HelperDateService,
-    private readonly helperArrayService: HelperArrayService,
+    private readonly dateService: DateService,
+    private readonly helperService: HelperService,
   ) {}
 
   async use(req: IRequestApp, _res: IResponseApp, next: INextFunction): Promise<void> {
@@ -59,7 +59,7 @@ export class RequestUserAgentMiddleware implements NestMiddleware {
       const reqLanguage: string = req.headers['x-language'] as string
       if (reqLanguage) {
         const availableLanguages = this.config.get<string[]>('app.message.availableList')
-        const languages: string[] = this.helperArrayService.getIntersection(
+        const languages: string[] = this.helperService.arrayIntersection(
           [reqLanguage],
           availableLanguages,
         )
@@ -68,17 +68,17 @@ export class RequestUserAgentMiddleware implements NestMiddleware {
           return reqLanguage
         }
       }
-    } catch (err: unknown) {}
+    } catch (_: unknown) {}
     return language
   }
 
   private parseUserTimezone(req: IRequestApp): string {
     try {
       const userTz = req.headers['x-timezone'] as string
-      if (userTz && this.helperDateService.checkZone(userTz)) {
+      if (userTz && this.dateService.checkZone(userTz)) {
         return userTz
       }
-    } catch (err: unknown) {}
+    } catch (_: unknown) {}
     return APP_TIMEZONE
   }
 }

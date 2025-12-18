@@ -9,13 +9,7 @@ import { AppEnvDto } from 'app/dtos'
 import { plainToInstance } from 'class-transformer'
 import { useContainer, validate } from 'class-validator'
 import compression from 'compression'
-import {
-  HelperMessageService,
-  INextFunction,
-  IRequestApp,
-  IResponseApp,
-  ROOT_PATH,
-} from 'lib/nest-core'
+import { INextFunction, IRequestApp, IResponseApp, MessageService, ROOT_PATH } from 'lib/nest-core'
 import { CommandFactory } from 'nest-commander'
 import { join } from 'path'
 import docSetup from 'src/swagger'
@@ -77,7 +71,7 @@ async function bootstrap() {
   const classEnv = plainToInstance(AppEnvDto, process.env)
   const errors = await validate(classEnv)
   if (errors.length > 0) {
-    const messageService = app.get(HelperMessageService)
+    const messageService = app.get(MessageService)
     const messageErrors = messageService.setValidationMessage(errors)
 
     throw new Error('Env Variable Invalid', {
@@ -119,4 +113,10 @@ async function bootstrap() {
 }
 
 const isCli = process.argv.length >= 3
-isCli ? CommandFactory.run(CliModule, ['warn', 'debug', 'error', 'fatal']) : bootstrap()
+if (isCli) {
+  CommandFactory.run(CliModule, ['warn', 'debug', 'error', 'fatal'])
+    .then(() => process.exit(0))
+    .catch((_) => process.exit(1))
+} else {
+  bootstrap()
+}

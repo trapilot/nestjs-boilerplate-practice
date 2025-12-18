@@ -2,29 +2,29 @@ import { Logger } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { AppAbilityUtil } from 'app/helpers'
-import { HelperDateService, NEST_CLI } from 'lib/nest-core'
+import { DateService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner } from 'nest-commander'
 
 @Command({
-  name: 'permission:seed',
-  description: 'Seed permissions',
+  name: 'permission:migrate',
+  description: 'Migrate permissions',
 })
-export class PermissionSeedCommand extends CommandRunner {
+export class PermissionMigrateCommand extends CommandRunner {
   private readonly logger = new Logger(NEST_CLI)
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly helperDateService: HelperDateService,
+    private readonly dateService: DateService,
   ) {
     super()
   }
 
   async run(): Promise<void> {
-    this.logger.warn(`${PermissionSeedCommand.name} is running...`)
+    this.logger.warn(`${PermissionMigrateCommand.name} is running...`)
 
     try {
-      const updatedAt = this.helperDateService.create()
+      const updatedAt = this.dateService.create()
       const permissions = this.getAllPermissions()
 
       await this.cleanAllPermissions()
@@ -79,14 +79,14 @@ export class PermissionSeedCommand extends CommandRunner {
 
     Object.values(ENUM_APP_ABILITY_SUBJECT).forEach((subject) => {
       const actions = AppAbilityUtil.getSubjectActions(subject)
-      const permission = AppAbilityUtil.toPermission<Prisma.PermissionUncheckedCreateInput>(
-        subject,
-        actions,
-        _disables,
-        _invisibles,
-      )
-
-      permissions.push(permission)
+      permissions.push({
+        subject: subject.toString(),
+        bitwise: AppAbilityUtil.toBitwise(actions),
+        title: AppAbilityUtil.toSubject(subject),
+        context: AppAbilityUtil.findContext(subject),
+        isActive: !_disables.includes(subject),
+        isVisible: !_invisibles.includes(subject),
+      })
     })
     return permissions
   }

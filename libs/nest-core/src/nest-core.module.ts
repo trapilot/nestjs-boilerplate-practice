@@ -4,6 +4,7 @@ import { BullModule } from '@nestjs/bullmq'
 import { CacheModule, CacheOptions } from '@nestjs/cache-manager'
 import { DynamicModule, Module } from '@nestjs/common'
 import { ConfigFactory, ConfigModule, ConfigService } from '@nestjs/config'
+import { APP_FILTER } from '@nestjs/core'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ScheduleModule } from '@nestjs/schedule'
 import { NestLoggerModule } from 'lib/nest-logger'
@@ -12,15 +13,14 @@ import { HeaderResolver, I18nJsonLoader, I18nModule } from 'nestjs-i18n'
 import { join } from 'path'
 import { APP_PATH, REALTIME_CACHE, REALTIME_PUB, REALTIME_STREAM, REALTIME_SUB } from './constants'
 import { ENUM_MESSAGE_LANGUAGE } from './enums'
+import { AppExceptionFilter } from './filters'
 import {
-  HelperArrayService,
-  HelperCryptoService,
-  HelperDateService,
-  HelperFileService,
-  HelperMessageService,
-  HelperNumberService,
-  HelperRealtimeService,
-  HelperStringService,
+  CryptoService,
+  DateService,
+  FileService,
+  HelperService,
+  MessageService,
+  RealtimeService,
 } from './services'
 
 @Module({})
@@ -34,24 +34,27 @@ export class NestCoreModule {
       global: true,
       module: NestCoreModule,
       exports: [
-        HelperFileService,
-        HelperArrayService,
-        HelperDateService,
-        HelperCryptoService,
-        HelperNumberService,
-        HelperStringService,
-        HelperMessageService,
-        HelperRealtimeService,
+        FileService,
+        DateService,
+        CryptoService,
+        MessageService,
+        RealtimeService,
+        HelperService,
       ],
       providers: [
-        HelperFileService,
-        HelperArrayService,
-        HelperDateService,
-        HelperCryptoService,
-        HelperNumberService,
-        HelperStringService,
-        HelperMessageService,
-        HelperRealtimeService,
+        FileService,
+        DateService,
+        CryptoService,
+        MessageService,
+        RealtimeService,
+        HelperService,
+        {
+          provide: APP_FILTER,
+          useFactory: (dateService: DateService, messageService: MessageService) => {
+            return new AppExceptionFilter(dateService, messageService)
+          },
+          inject: [DateService, MessageService],
+        },
         {
           provide: REALTIME_PUB,
           inject: [ConfigService],

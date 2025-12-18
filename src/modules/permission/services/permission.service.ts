@@ -1,9 +1,8 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { AppAbilityUtil } from 'app/helpers'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList } from 'lib/nest-web'
-import { IPermissionCreateOptions, IPermissionUpdateOptions, TPermission } from '../interfaces'
+import { TPermission } from '../interfaces'
 
 @Injectable()
 export class PermissionService {
@@ -48,13 +47,13 @@ export class PermissionService {
   async update(
     id: number,
     data: Prisma.PermissionUncheckedUpdateInput,
-    options?: IPermissionUpdateOptions,
+    kwargs: Omit<Prisma.PermissionFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TPermission> {
     const permission = await this.findOrFail(id, { include: { pivotRoles: true } })
     const rolePerms = permission?.pivotRoles ?? []
-    const bitwise = AppAbilityUtil.toBitwise(options?.actions)
 
     const updated = await this.prisma.$transaction(async (tx) => {
+      const bitwise = Number(data.bitwise)
       for (const rolePerm of rolePerms) {
         const roleBitwise = rolePerm.bitwise & bitwise
         const roleWhere: Prisma.RolesPermissionsWhereUniqueInput = {
@@ -75,7 +74,8 @@ export class PermissionService {
       }
 
       return await tx.permission.update({
-        data: { ...data, bitwise },
+        ...kwargs,
+        data,
         where: { id: permission.id },
       })
     })
@@ -84,13 +84,11 @@ export class PermissionService {
 
   async create(
     data: Prisma.PermissionUncheckedCreateInput,
-    options?: IPermissionCreateOptions,
+    kwargs: Omit<Prisma.PermissionFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TPermission> {
     const created = await this.prisma.permission.create({
-      data: {
-        ...data,
-        bitwise: AppAbilityUtil.toBitwise(options?.actions),
-      },
+      ...kwargs,
+      data,
     })
     return created
   }

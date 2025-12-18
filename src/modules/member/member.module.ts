@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common'
 import { ENUM_APP_API_TYPE, ENUM_APP_CMD_TYPE, ModuleBase } from 'lib/nest-core'
+import { InvoiceModule } from 'modules/invoice'
 import { TierModule } from 'modules/tier'
 import { MemberSeedCommand } from './commands'
 import { MemberAdminController, MemberAppController } from './controllers'
@@ -16,7 +17,7 @@ import {
 @Module({
   providers: [MemberService],
   exports: [MemberService],
-  imports: [TierModule],
+  imports: [TierModule, InvoiceModule],
 })
 export class MemberModule extends ModuleBase {
   static _tasks = [

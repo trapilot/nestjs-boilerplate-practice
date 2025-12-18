@@ -5,6 +5,8 @@ import {
   Transform,
   TransformFnParams,
 } from 'class-transformer'
+import { AppHelper } from '../helpers'
+import { EnumLike } from '../interfaces'
 
 export function TransformIf(conditionFn: Function): (target: any, key: string) => void {
   return Transform((params: TransformFnParams) => {
@@ -26,7 +28,7 @@ export function ToObject(transform: {
 
 export function ToArray(
   transform?: {
-    type?: ClassConstructor<any>
+    type?: ClassConstructor<any> | EnumLike
   } & ClassTransformOptions,
 ): (target: any, key: string) => void {
   return Transform(({ value }: any) => {
@@ -40,9 +42,18 @@ export function ToArray(
       value = value.replace('},"{', '},{')
       value = value.replace('["{', '[{')
       value = value.replace('}"]', '}]')
-      value = JSON.parse(`[${value}]`.replace(/\[\[/, '[').replace(/\]\]/, ']'))
+      try {
+        const parsed = JSON.parse(`[${value}]`.replace(/\[\[/, '[').replace(/\]\]/, ']'))
+        value = parsed
+      } catch {}
     }
-    return type ? plainToInstance(type, value, options) : value
+    if (type) {
+      if (AppHelper.isEnum(type)) {
+        return AppHelper.filterEnumValues(value.split(','), { enum: type as EnumLike })
+      }
+      return plainToInstance(type as ClassConstructor<any>, value, options)
+    }
+    return value
   })
 }
 

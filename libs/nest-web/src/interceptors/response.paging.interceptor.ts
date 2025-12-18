@@ -5,13 +5,15 @@ import { ClassConstructor, ClassTransformOptions, plainToInstance } from 'class-
 import { stream, Workbook, Worksheet } from 'exceljs'
 import {
   AppContext,
+  DateService,
   ENUM_FILE_TYPE_EXCEL,
   FileHelper,
-  HelperDateService,
-  HelperMessageService,
   IRequestApp,
   IResponseApp,
+  MessageService,
   MetadataHelper,
+  ResponsePagingMetadataDto,
+  ResponseSuccessDto,
 } from 'lib/nest-core'
 import { Observable, throwError } from 'rxjs'
 import { catchError, mergeMap } from 'rxjs/operators'
@@ -21,15 +23,15 @@ import {
   RESPONSE_DTO_OPTIONS_METADATA,
   RESPONSE_FILE_EXPORT_METADATA,
 } from '../constants'
-import { ResponsePagingMetadataDto, ResponseUserBelongDto } from '../dtos'
-import { IDataIterator, IDataPaging, IResponsePaging, IResponseSuccess } from '../interfaces'
+import { ResponseUserBelongDto } from '../dtos'
+import { IDataIterator, IDataPaging, IResponsePaging } from '../interfaces'
 
 @Injectable()
 export class ResponsePagingInterceptor<T> implements NestInterceptor<T, IResponsePaging> {
   constructor(
     private readonly reflector: Reflector,
-    private readonly helperDateService: HelperDateService,
-    private readonly helperMessageService: HelperMessageService,
+    private readonly dateService: DateService,
+    private readonly messageService: MessageService,
   ) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
@@ -61,7 +63,7 @@ export class ResponsePagingInterceptor<T> implements NestInterceptor<T, IRespons
   private async send(
     context: ExecutionContext,
     responsePaging: IDataPaging,
-  ): Promise<IResponseSuccess> {
+  ): Promise<ResponseSuccessDto> {
     const ctx: HttpArgumentsHost = context.switchToHttp()
     const req: IRequestApp = ctx.getRequest<IRequestApp>()
     const res: IResponseApp = ctx.getResponse<IResponseApp>()
@@ -77,14 +79,14 @@ export class ResponsePagingInterceptor<T> implements NestInterceptor<T, IRespons
     )
 
     // metadata
-    const dateNow = this.helperDateService.create()
+    const dateNow = this.dateService.create()
     const ctxData = AppContext.current()
     let metadata: ResponsePagingMetadataDto = {
       path: req.path,
       language: ctxData?.language ?? AppContext.language(),
       timezone: ctxData?.timezone ?? AppContext.timezone(),
       version: ctxData?.apiVersion ?? AppContext.apiVersion(),
-      timestamp: this.helperDateService.getTimestamp(dateNow),
+      timestamp: this.dateService.getTimestamp(dateNow),
       availableSearch: req.__filters?.availableSearch ?? [],
       availableOrderBy: req.__filters?.availableOrderBy ?? [],
       pagination: {
@@ -151,12 +153,10 @@ export class ResponsePagingInterceptor<T> implements NestInterceptor<T, IRespons
       context.getHandler(),
     )
 
-    const dateNow = this.helperDateService.create()
+    const dateNow = this.dateService.create()
     const fileExcel = exportType === ENUM_FILE_TYPE_EXCEL.XLSX
     const filePrefix = responseIterator?.filePrefix ?? 'export'
-    const fileSuffix = responseIterator?.fileTimestamp
-      ? this.helperDateService.getTimestamp(dateNow)
-      : ''
+    const fileSuffix = responseIterator?.fileTimestamp ? this.dateService.getTimestamp(dateNow) : ''
 
     const filename = `${[filePrefix, fileSuffix].filter((i) => i).join('_')}.${exportType}`
 
@@ -204,10 +204,10 @@ export class ResponsePagingInterceptor<T> implements NestInterceptor<T, IRespons
           sheetHeaders = sheetFields.map((field) => {
             const { message, domain } = exportProperties.get(field) || {}
             if (message) {
-              return this.helperMessageService.setMessage(`${message}`)
+              return this.messageService.setMessage(`${message}`)
             }
             if (domain) {
-              return this.helperMessageService.setMessage(['export', domain, field].join('.'))
+              return this.messageService.setMessage(['export', domain, field].join('.'))
             }
             return field
               .replace(/([a-z0-9])([A-Z])/g, '$1 $2')

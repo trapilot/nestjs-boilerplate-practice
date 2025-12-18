@@ -19,7 +19,7 @@ import {
 } from '../interfaces'
 
 @Injectable()
-export class HelperCryptoService {
+export class CryptoService {
   base62Encrypt(data: number, options: IEncryptionTypeOptions): string {
     let chars = '0123456789'
     if (options.lowercase) chars += 'abcdefghijklmnopqrstuvwxyz'

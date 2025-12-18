@@ -12,10 +12,10 @@ import { Prisma } from '@prisma/client'
 import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { AuthJwtPayload, AuthService, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import {
+  DateService,
   ENUM_FILE_MIME,
   ENUM_FILE_TYPE_EXCEL,
   FILE_SIZE_IN_BYTES,
-  HelperDateService,
   IFile,
 } from 'lib/nest-core'
 import {
@@ -57,7 +57,7 @@ export class UserAdminController {
   constructor(
     protected readonly authService: AuthService,
     protected readonly userService: UserService,
-    protected readonly helperDateService: HelperDateService,
+    protected readonly dateService: DateService,
   ) {}
 
   @ApiRequestPaging({
@@ -188,9 +188,9 @@ export class UserAdminController {
     @RequestQuery('month', { pipes: [RequestRequiredMonthPipe] }) month: number,
     @RequestQuery('year', { pipes: [RequestRequiredYearPipe] }) year: number,
   ): Promise<IResponseList> {
-    const dateNow = this.helperDateService.create()
-    const dateReq = this.helperDateService.set(dateNow, { year, month })
-    const dates = this.helperDateService.createRange(dateReq)
+    const dateNow = this.dateService.create()
+    const dateReq = this.dateService.set(dateNow, { year, month })
+    const dates = this.dateService.createRange(dateReq)
 
     const _where: Prisma.UserLoginHistoryWhereInput = {
       ..._search,

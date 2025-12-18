@@ -10,10 +10,10 @@ import { Reflector } from '@nestjs/core'
 import archiver from 'archiver'
 import * as fs from 'fs'
 import {
+  DateService,
   ENUM_FILE_MIME,
   FileHelper,
-  HelperDateService,
-  HelperFileService,
+  FileService,
   IRequestApp,
   IResponseApp,
   ROOT_PATH,
@@ -30,8 +30,8 @@ import { IDataFileBuffer, IDataFilePath, IResponseFile } from '../interfaces'
 export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseFile> {
   constructor(
     private readonly reflector: Reflector,
-    private readonly helperFileService: HelperFileService,
-    private readonly helperDateService: HelperDateService,
+    private readonly fileService: FileService,
+    private readonly dateService: DateService,
   ) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
@@ -77,7 +77,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
 
       if (zipFileTemporary) {
         // Create the ZIP file
-        await this.helperFileService.zipFiles(responseData.file, {
+        await this.fileService.zipFiles(responseData.file, {
           zipFilePath,
           zipFileRelative,
         })
@@ -221,10 +221,10 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
       context.getHandler(),
     )
 
-    const dateNow = this.helperDateService.create()
+    const dateNow = this.dateService.create()
     const fileBuffer = responseData.file
     const filePrefix = responseData.name
-    const fileSuffix = responseData?.timestamp ? this.helperDateService.getTimestamp(dateNow) : ''
+    const fileSuffix = responseData?.timestamp ? this.dateService.getTimestamp(dateNow) : ''
 
     // set headers
     const filename = [

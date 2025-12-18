@@ -1,1 +1,1 @@
-export * from './permission.seed.command'
+export * from './permission.migrate.command'

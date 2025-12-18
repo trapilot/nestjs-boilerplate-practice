@@ -6,7 +6,7 @@ import {
   PreconditionFailedException,
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { HelperCryptoService, IRequestApp } from 'lib/nest-core'
+import { CryptoService, IRequestApp } from 'lib/nest-core'
 
 const usedNonces = new Map<string, number>()
 
@@ -18,7 +18,7 @@ export class RequestSecurityGuard implements CanActivate {
 
   constructor(
     private readonly config: ConfigService,
-    private readonly helperCryptoService: HelperCryptoService,
+    private readonly cryptoService: CryptoService,
   ) {
     this.securityEnabled = this.config.get<boolean>('middleware.security.enable')
     this.securityKey = this.config.get<string>('middleware.security.key')
@@ -114,7 +114,7 @@ export class RequestSecurityGuard implements CanActivate {
     },
   ): boolean {
     // Hash body of request on server
-    const serverBodyHash = this.helperCryptoService.createHash(bodyPayload, {
+    const serverBodyHash = this.cryptoService.createHash(bodyPayload, {
       algorithm: 'sha256',
     })
 
@@ -128,7 +128,7 @@ export class RequestSecurityGuard implements CanActivate {
 
     // Create dataToValidate with only metadata and hash of body
     const dataToValidate = `${checkOpts.nonce}${checkOpts.timestamp}${bodyHash}`
-    const validated = this.helperCryptoService.compareHmac(dataToValidate, checkOpts.signature, {
+    const validated = this.cryptoService.compareHmac(dataToValidate, checkOpts.signature, {
       algorithm: 'sha256',
       key: this.securityKey,
     })

@@ -2,12 +2,12 @@ import { HttpStatus, Injectable, UnsupportedMediaTypeException } from '@nestjs/c
 import { PipeTransform } from '@nestjs/common/interfaces'
 import { ENUM_FILE_MIME } from '../enums'
 import { IFile, IFileRows } from '../interfaces'
-import { HelperFileService } from '../services'
+import { FileService } from '../services'
 
 // Support excel and csv
 @Injectable()
 export class FileExcelExtractPipe<T> implements PipeTransform {
-  constructor(private readonly fileService: HelperFileService) {}
+  constructor(private readonly fileService: FileService) {}
 
   async transform(value: IFile): Promise<IFileRows<T>[]> {
     if (!value) {

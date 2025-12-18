@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client'
 import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL, IFile } from 'lib/nest-core'
-import { PrismaHelper } from 'lib/nest-prisma'
+import { PrismaUtil } from 'lib/nest-prisma'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -203,13 +203,16 @@ export class ProductAdminController {
     @UploadedFile() file: IFile,
   ): Promise<IResponseData> {
     const { content, termAndCond, ...dto } = body
-    const languageData = { content, termAndCond }
+    const jsonLanguage = { content, termAndCond }
+
     const data: Prisma.ProductUncheckedUpdateInput = {
       ...dto,
       updatedBy,
       thumbnail: file?.path,
-      languages: PrismaHelper.buildUpdateLanguages<Prisma.ProductLanguageWhereInput>(languageData, {
-        productId: id,
+      languages: PrismaUtil.buildLanguages<Prisma.ProductLanguageWhereInput>(jsonLanguage, {
+        whereField: {
+          productId: id,
+        },
       }),
     }
     const updated = await this.productService.update(id, data, {
@@ -254,15 +257,15 @@ export class ProductAdminController {
     @UploadedFile(new RequestFileRequiredPipe()) file: IFile,
   ): Promise<IResponseData> {
     const { content, termAndCond, ...dto } = body
+    const jsonLanguage = { content, termAndCond }
+
     const data: Prisma.ProductUncheckedCreateInput = {
       ...dto,
       createdBy,
       thumbnail: file?.path,
-      languages: PrismaHelper.buildCreateLanguages({
-        content,
-        termAndCond,
-      }),
+      languages: PrismaUtil.buildLanguages(jsonLanguage),
     }
+
     const created = await this.productService.create(data, {
       include: {
         languages: true,

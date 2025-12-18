@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@prisma/client'
 import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { AuthJwtPayload, AuthService, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { ENUM_FILE_TYPE_EXCEL, HelperDateService, IFile } from 'lib/nest-core'
+import { ENUM_FILE_TYPE_EXCEL, IFile } from 'lib/nest-core'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -44,7 +44,6 @@ export class MemberAdminController {
   constructor(
     protected readonly authService: AuthService,
     protected readonly memberService: MemberService,
-    protected readonly helperDateService: HelperDateService,
   ) {}
 
   @ApiRequestPaging({

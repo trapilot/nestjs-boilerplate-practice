@@ -18,8 +18,8 @@ import { join } from 'path'
 import { collectDefaultMetrics, Registry } from 'prom-client'
 import { REQUEST_METRICS_CONFIG_TOKEN } from './constants'
 import { HealthController, MetricsController } from './controllers'
-import { AppExceptionFilter } from './filters'
-import { ResponseHeadersInterceptor, ResponseTimeoutInterceptor } from './interceptors'
+import { HttpExceptionFilter } from './filters'
+import { RequestContextInterceptor } from './interceptors'
 import { IRequestMetricsConfig } from './interfaces'
 import {
   RequestBodyParserMiddleware,
@@ -125,9 +125,8 @@ export class NestWebModule implements NestModule {
       module: NestWebModule,
       providers: [
         ...providers,
-        { provide: APP_FILTER, useClass: AppExceptionFilter },
-        { provide: APP_INTERCEPTOR, useClass: ResponseTimeoutInterceptor },
-        { provide: APP_INTERCEPTOR, useClass: ResponseHeadersInterceptor },
+        { provide: APP_FILTER, useClass: HttpExceptionFilter },
+        { provide: APP_INTERCEPTOR, useClass: RequestContextInterceptor },
         { provide: APP_GUARD, useClass: ThrottlerGuard },
         {
           provide: APP_PIPE,

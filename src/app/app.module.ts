@@ -46,8 +46,8 @@ import { WorkerModule } from './worker'
       middleware: {
         imports: [SettingModule, AppVersionModule],
         configure: (consumer: MiddlewareConsumer) => {
-          AppVersionModule.configure(consumer)
-          SettingModule.configure(consumer)
+          AppVersionModule.middleware(consumer)
+          SettingModule.middleware(consumer)
         },
       },
     }),

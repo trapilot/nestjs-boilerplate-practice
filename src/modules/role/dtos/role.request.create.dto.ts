@@ -43,7 +43,7 @@ export class RoleRequestCreateDto {
 
   @IsOptional()
   @IsArray()
-  @ToArray()
+  @ToArray({ type: RolePermissionRequestCreateDto })
   @ApiProperty({ required: true, isArray: true, type: () => RolePermissionRequestCreateDto })
   permissions?: RolePermissionRequestCreateDto[]
 }

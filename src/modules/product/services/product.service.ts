@@ -7,8 +7,8 @@ import {
 } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 import { Prisma } from '@prisma/client'
+import { DateService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
-import { HelperDateService } from 'lib/nest-core'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { TProduct } from '../interfaces'
 
@@ -17,7 +17,7 @@ export class ProductService implements OnModuleInit {
   constructor(
     private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
-    private readonly helperDateService: HelperDateService,
+    private readonly dateService: DateService,
   ) {}
 
   onModuleInit() {}
@@ -119,7 +119,7 @@ export class ProductService implements OnModuleInit {
           isActive: false,
           isDeleted: true,
           deletedBy,
-          deletedAt: this.helperDateService.create(),
+          deletedAt: this.dateService.create(),
         },
       })
       return true
