@@ -39,7 +39,7 @@
     "db:deploy": "npx prisma migrate deploy",
     "package:upgrade": "npx npm-check-updates -u",
     "package:check": "npx npm-check-updates -i",
-    "lint": "eslint",
+    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "lint:staged": "lint-staged",
     "lint:fix": "eslint --fix",
     "test": "jest --config test/jest-e2e.json --passWithNoTests --forceExit",

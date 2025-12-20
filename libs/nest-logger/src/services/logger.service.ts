@@ -12,8 +12,8 @@ export class LoggerService
 {
   static readonly root: pino.Logger
 
-  protected context = ''
-  protected readonly contextName: string
+  protected contextValue = ''
+  protected readonly contextKey: string
   protected readonly errorKey: string = 'err'
 
   constructor(@Inject(LOGGER_MODULE_OPTIONS) { pinoHttp, renameContext }: LoggerOptions) {
@@ -41,7 +41,7 @@ export class LoggerService
       }
     }
 
-    this.contextName = renameContext || 'context'
+    this.contextKey = renameContext || 'context'
   }
 
   get logger(): pino.Logger {
@@ -87,7 +87,7 @@ export class LoggerService
   }
 
   setContext(value: string) {
-    this.context = value
+    this.contextValue = value
   }
 
   assign(fields: pino.Bindings) {
@@ -100,19 +100,22 @@ export class LoggerService
   }
 
   protected call(method: pino.Level, ...args: Parameters<LoggerFn>) {
-    if (this.context) {
+    if (this.contextValue) {
       if (isFirstArgObject(args)) {
         const firstArg = args[0]
         if (firstArg instanceof Error) {
           args = [
-            Object.assign({ [this.contextName]: this.context }, { [this.errorKey]: firstArg }),
+            Object.assign({ [this.contextKey]: this.contextValue }, { [this.errorKey]: firstArg }),
             ...args.slice(1),
           ]
         } else {
-          args = [Object.assign({ [this.contextName]: this.context }, firstArg), ...args.slice(1)]
+          args = [
+            Object.assign({ [this.contextKey]: this.contextValue }, firstArg),
+            ...args.slice(1),
+          ]
         }
       } else {
-        args = [{ [this.contextName]: this.context }, ...args]
+        args = [{ [this.contextKey]: this.contextValue }, ...args]
       }
     }
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

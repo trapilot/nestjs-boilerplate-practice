@@ -96,7 +96,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
   async getUserData(userId: number): Promise<TUser> {
     const userData = await this.prisma.user
       .findUniqueOrThrow({ include: this.authRelation, where: { id: userId } })
-      .catch((err: unknown) => {
+      .catch((_: unknown) => {
         throw new ForbiddenException({
           statusCode: HttpStatus.FORBIDDEN,
           message: 'auth.error.inactive',
@@ -162,7 +162,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
   ): Promise<TUser> {
     return await this.prisma.user
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'auth.error.notFound',
@@ -176,7 +176,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
   ): Promise<TUser> {
     const user = await this.prisma.user
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'auth.error.notFound',
@@ -327,7 +327,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
   }
 
   async capture(user: TUser, options: IAuthRefetchOptions): Promise<boolean> {
-    const { payload, userToken, userAgent, userRequest } = options
+    const { payload, userToken, userRequest } = options
 
     try {
       await this.prisma.user.update({
