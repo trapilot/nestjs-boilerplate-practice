@@ -39,7 +39,7 @@ export class PermissionService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IResponseList> {
-    return await this.prisma.$listing(async (ex) => {
+    return await this.prisma.$extension(async (ex) => {
       return await ex.permission.list(where, params, options)
     })
   }

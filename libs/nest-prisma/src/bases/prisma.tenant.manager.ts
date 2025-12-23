@@ -1,8 +1,6 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client/extension'
 
-@Injectable()
-export class PrismaManager implements OnModuleDestroy {
+export class PrismaTenantManager {
   private clients: { [key: string]: PrismaClient } = {}
 
   async getClient(tenantId: string): Promise<PrismaClient> {
@@ -22,9 +20,5 @@ export class PrismaManager implements OnModuleDestroy {
     }
 
     return client
-  }
-
-  async onModuleDestroy() {
-    await Promise.all(Object.values(this.clients).map((client) => client.$disconnect()))
   }
 }

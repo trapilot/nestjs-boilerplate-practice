@@ -77,7 +77,7 @@ export class PushService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IResponseList> {
-    return await this.prisma.$listing(async (ex) => {
+    return await this.prisma.$extension(async (ex) => {
       return await ex.push.list(where, params, options)
     })
   }
@@ -87,7 +87,7 @@ export class PushService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IResponsePaging> {
-    return await this.prisma.$paginate(async (ex) => {
+    return await this.prisma.$extension(async (ex) => {
       return await ex.push.paginate(where, params, options)
     })
   }

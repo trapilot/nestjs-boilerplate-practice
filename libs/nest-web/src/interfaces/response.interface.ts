@@ -75,8 +75,8 @@ export interface IDataFilePath {
   temporary?: boolean
 }
 
-export type IResponseList = IDataList | IDataIterator
-export type IResponsePaging = IDataPaging | IDataIterator
+export type IResponseList = IDataIterator | IDataList
+export type IResponsePaging = IDataIterator | IDataPaging
 export type IResponseFile = IDataFileBuffer | IDataFilePath
 
 export interface IResponseFileExcel {

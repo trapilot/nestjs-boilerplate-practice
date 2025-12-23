@@ -69,7 +69,7 @@ export class ProductReviewService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IResponseList> {
-    return await this.prisma.$listing(async (ex) => {
+    return await this.prisma.$extension(async (ex) => {
       return await ex.productReview.list(where, params, options)
     })
   }
@@ -79,7 +79,7 @@ export class ProductReviewService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IResponsePaging> {
-    return await this.prisma.$paginate(async (ex) => {
+    return await this.prisma.$extension(async (ex) => {
       return await ex.productReview.paginate(where, params, options)
     })
   }

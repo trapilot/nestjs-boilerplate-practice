@@ -26,7 +26,7 @@ export class <%= singular(classify(name)) %>Service {
   ): Promise<T<%= singular(classify(name)) %>> {
     const <%= singular(lowercased(name)) %> = await this.prisma.<%= singular(lowercased(name)) %>
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.<%= singular(lowercased(name)) %>.notFound',
@@ -41,7 +41,7 @@ export class <%= singular(classify(name)) %>Service {
   ): Promise<T<%= singular(classify(name)) %>> {
     const <%= singular(lowercased(name)) %> = await this.prisma.<%= singular(lowercased(name)) %>
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.<%= singular(lowercased(name)) %>.notFound',
@@ -69,7 +69,7 @@ export class <%= singular(classify(name)) %>Service {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IResponseList> {
-    return await this.prisma.$listing(async (ex) => {
+    return await this.prisma.$extension(async (ex) => {
       return await ex.<%= singular(lowercased(name)) %>.list(where, params, options)
     })
   }
@@ -79,7 +79,7 @@ export class <%= singular(classify(name)) %>Service {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IResponsePaging> {
-    return await this.prisma.$paginate(async (ex) => {
+    return await this.prisma.$extension(async (ex) => {
       return await ex.<%= singular(lowercased(name)) %>.paginate(where, params, options)
     })
   }

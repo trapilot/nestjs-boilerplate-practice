@@ -1,21 +1,21 @@
-import { Prisma, PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
+import { PrismaClient as PrismaClientExt } from '@prisma/client/extension'
 import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
-import { withList, withPaginate, withReplica, withYield } from '../extensions'
+import { withExtension } from '../extensions'
 
-export const _primaClient = new PrismaClient()
+/* eslint-disable @typescript-eslint/no-unused-vars */
+const __client = new PrismaClient()
+const __clientWithExtension = __client.$extends(withExtension)
+export type ClientWithExtension = typeof __clientWithExtension
 
-const pagingPrismaClient = _primaClient.$extends(withPaginate)
-const listingPrismaClient = _primaClient.$extends(withList)
-const yieldPrismaClient = _primaClient.$extends(withYield)
-const replicaPrismaClient = _primaClient.$extends(withReplica)
+export interface IPrismaReplicaOptions {
+  replicas: PrismaClientExt[]
+  defaultReadClient: 'primary' | 'replica'
+}
 
-export type PagingPrismaClient = typeof pagingPrismaClient
-export type ListingPrismaClient = typeof listingPrismaClient
-export type YieldPrismaClient = typeof yieldPrismaClient
-export type ReplicaPrismaClient = typeof replicaPrismaClient
-
-export interface IPrismaContext {
-  prisma?: Prisma.TransactionClient | null
+export interface IPrismaReplicaParams {
+  master: ClientWithExtension
+  slave: ClientWithExtension
 }
 
 export interface IPrismaParams {

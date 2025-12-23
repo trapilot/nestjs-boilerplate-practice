@@ -46,7 +46,7 @@ export class UserService implements OnModuleInit {
   ): Promise<TUser> {
     return await this.prisma.user
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.user.notFound',
@@ -74,7 +74,7 @@ export class UserService implements OnModuleInit {
   ): Promise<TUser> {
     const user = await this.prisma.user
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.user.notFound',
@@ -88,7 +88,7 @@ export class UserService implements OnModuleInit {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IResponseList> {
-    return await this.prisma.$listing(async (ex) => {
+    return await this.prisma.$extension(async (ex) => {
       return await ex.user.list(where, params, options)
     })
   }
@@ -98,7 +98,7 @@ export class UserService implements OnModuleInit {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IResponsePaging> {
-    return await this.prisma.$paginate(async (ex) => {
+    return await this.prisma.$extension(async (ex) => {
       return await ex.user.paginate(where, params, options)
     })
   }
@@ -195,7 +195,7 @@ export class UserService implements OnModuleInit {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IResponseList> {
-    return await this.prisma.$listing(async (ex) => {
+    return await this.prisma.$extension(async (ex) => {
       return await ex.userLoginHistory.list(where, params, options)
     })
   }
