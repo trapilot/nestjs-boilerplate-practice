@@ -1,115 +1,126 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Prisma, PrismaClient } from '@prisma/client'
-import { AsyncLocalStorage } from 'async_hooks'
 import { ENUM_APP_ENVIRONMENT } from 'lib/nest-core'
 import { ENUM_LOGGER_TYPE, LoggerService } from 'lib/nest-logger'
-import { IResponseList, IResponsePaging } from 'lib/nest-web'
-import { PrismaServiceBase } from '../bases'
-import { withList, withPaginate, withReplica, withYield } from '../extensions'
-import {
-  ClientWithList,
-  ClientWithPaginate,
-  ClientWithYield,
-  ExtendedPrismaClient,
-  IPrismaContext,
-} from '../interfaces'
+import { PrismaReplicaManager } from '../bases/prisma.replica.manager'
+import { withExtension } from '../extensions/prisma.extension'
+import { ClientWithExtension, IPrismaReplicaParams } from '../interfaces'
 
 @Injectable()
-export class PrismaService extends PrismaServiceBase implements OnModuleInit, OnModuleDestroy {
-  private env: ENUM_APP_ENVIRONMENT
-  private debug: boolean
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+  private readonly env: ENUM_APP_ENVIRONMENT
+  private readonly lazy: boolean
+  private readonly debug: boolean
+
+  private master!: ClientWithExtension
+  private replicaManager!: PrismaReplicaManager
 
   constructor(
-    protected readonly config: ConfigService,
-    protected readonly logger: LoggerService,
-    protected readonly storage: AsyncLocalStorage<IPrismaContext>,
+    private readonly logger: LoggerService,
+    private readonly config: ConfigService,
   ) {
-    const env = config.get<ENUM_APP_ENVIRONMENT>('app.env')
     const debug = config.get<boolean>('database.debug', false)
+    super(debug ? { log: [{ emit: 'event', level: 'query' }] } : {})
 
-    super(debug ? { log: [{ emit: 'event', level: 'query' }] } : {}, storage)
-
-    this.env = env
+    this.env = config.get<ENUM_APP_ENVIRONMENT>('app.env')
+    this.lazy = config.get<boolean>('database.lazy', false)
     this.debug = debug
 
     this.logger.setContext(ENUM_LOGGER_TYPE.MYSQL)
-
-    this.registerDebugLog(this)
-  }
-
-  registerDebugLog(client: PrismaClient) {
-    if (!this.debug) return
-
-    client.$on('query', (e: Prisma.QueryEvent) => {
-      if (e.query === 'SELECT 1') return
-
-      const params = JSON.parse(e.params)
-      let k = 0
-      let query = e.query
-        .split('?')
-        .map((s) => `$${k++}${s}`)
-        .join('')
-        .substring(k ? 2 : 0)
-
-      for (let i = 0; i < params.length; i++) {
-        // Negative lookahead for no more numbers, ie. replace $1 in '$1' but not '$11'
-        const re = new RegExp('\\$' + ((i as number) + 1) + '(?!\\d)', 'g')
-        if (typeof params[i] === 'string') {
-          params[i] = "'" + params[i].replace("'", "\\'") + "'"
-        }
-        query = query.replace(re, params[i])
-      }
-
-      if (e.duration >= 3000) {
-        this.logger.warn(`[SLOW] ${query} - ${e.duration}ms`)
-      } else {
-        this.logger.debug(`${query} - ${e.duration}ms`)
-      }
-    })
   }
 
   async onModuleInit() {
-    this._extendedClient = this.$extends(withYield)
-      .$extends(withList)
-      .$extends(withPaginate) as unknown as ExtendedPrismaClient
+    this.master = this.createExtendedClient(this)
 
-    this._replicaClients = (process.env.REPLICA_URL?.split(',') || []).map((url) => {
-      const client = new PrismaClient({
-        datasourceUrl: url,
-        log: this.debug ? [{ emit: 'event', level: 'query' }] : [],
-      })
-      return client.$extends(withReplica) as unknown as PrismaClient
+    this.replicaManager = new PrismaReplicaManager({
+      replicas: this.createReplicaClients(),
+      defaultReadClient: 'replica',
     })
 
-    await this.connect()
+    if (!this.lazy) {
+      await this.connect()
+    }
   }
 
   async onModuleDestroy() {
     await this.disconnect()
   }
 
-  // -------------------
-  // Extension Wrappers
-  // -------------------
-
-  async $paginate(fn: (ex: ClientWithPaginate) => Promise<IResponsePaging>) {
-    return fn(this._extendedClient)
+  private async connect() {
+    await Promise.all([this.$connect(), this.replicaManager?.connect()])
   }
 
-  async $listing(fn: (ex: ClientWithList) => Promise<IResponseList>) {
-    return fn(this._extendedClient)
+  private async disconnect() {
+    await Promise.allSettled([this.$disconnect(), this.replicaManager?.disconnect()])
   }
 
-  async $yield(fn: (ex: ClientWithYield) => Promise<any>) {
-    return fn(this._extendedClient)
+  private createExtendedClient(client: PrismaClient): ClientWithExtension {
+    if (this.debug) {
+      this.attachQueryLogger(client)
+    }
+    return client.$extends(withExtension)
   }
 
-  withReplica(): PrismaClient | Prisma.TransactionClient {
-    return super.getReplica()
+  private createReplicaClients(): ClientWithExtension[] {
+    const urls = process.env.REPLICA_URL?.split(',') ?? []
+
+    return urls.map((url) =>
+      this.createExtendedClient(
+        new PrismaClient({
+          datasourceUrl: url,
+          log: this.debug ? [{ emit: 'event', level: 'query' }] : [],
+        }),
+      ),
+    )
   }
 
-  withChannel(): Prisma.TransactionClient {
-    return super.getChannel()
+  private attachQueryLogger(client: PrismaClient, slowMs: number = 3000): void {
+    client.$on('query', (e: Prisma.QueryEvent) => {
+      if (e.query === 'SELECT 1') return
+
+      try {
+        const query = this.formatQuery(e.query, e.params)
+        const duration = e.duration
+
+        if (duration >= slowMs) {
+          this.logger.warn(`[SLOW] ${query} - ${duration}ms`)
+        } else {
+          this.logger.debug(`${query};`)
+        }
+      } catch {
+        /* ignore log error */
+      }
+    })
+  }
+
+  private formatQuery(query: string, paramsRaw: string): string {
+    const params = JSON.parse(paramsRaw)
+    let index = 0
+
+    let sql = query
+      .split('?')
+      .map((s) => `$${index++}${s}`)
+      .join('')
+      .substring(index ? 2 : 0)
+
+    params.forEach((value: unknown, i: number) => {
+      const re = new RegExp(`\\$${i + 1}(?!\\d)`, 'g')
+      const escaped = typeof value === 'string' ? `'${value.replace(/'/g, "\\'")}'` : value
+      sql = sql.replace(re, String(escaped))
+    })
+
+    return sql
+  }
+
+  async $replication<T>(fn: ({ master, slave }: IPrismaReplicaParams) => Promise<T>) {
+    return fn({
+      master: this.master,
+      slave: this.replicaManager.pick(),
+    })
+  }
+
+  async $extension<T>(fn: (ex: ClientWithExtension) => Promise<T>) {
+    return fn(this.master)
   }
 }

@@ -1,4 +1,4 @@
-import { Inject, Injectable, Scope } from '@nestjs/common'
+import { Inject, Injectable, LoggerService as NestLoggerService, Scope } from '@nestjs/common'
 import pino from 'pino'
 import { LOGGER_MODULE_OPTIONS } from '../constants'
 import { LoggerFn, LoggerOptions } from '../interfaces'
@@ -7,9 +7,7 @@ import { LoggerHelper, storage } from '../utils'
 let outOfContext: pino.Logger | undefined
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class LoggerService
-  implements Pick<pino.Logger, 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal'>
-{
+export class LoggerService implements NestLoggerService {
   static readonly root: pino.Logger
 
   protected contextValue = ''
@@ -65,6 +63,12 @@ export class LoggerService
   info(msg: string, ...args: any[]): void
   info(obj: unknown, msg?: string, ...args: any[]): void
   info(...args: Parameters<LoggerFn>) {
+    this.call('info', ...args)
+  }
+
+  log(msg: string, ...args: any[]): void
+  log(obj: unknown, msg?: string, ...args: any[]): void
+  log(...args: Parameters<LoggerFn>) {
     this.call('info', ...args)
   }
 

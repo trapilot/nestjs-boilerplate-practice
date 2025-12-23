@@ -1,1 +1,2 @@
-export * from './prisma.service.base'
+export * from './prisma.replica.manager'
+export * from './prisma.tenant.manager'

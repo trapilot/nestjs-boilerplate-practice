@@ -69,7 +69,7 @@ export class <%= singular(classify(name)) %>Service {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IResponseList> {
-    return await this.prisma.$listing(async (ex) => {
+    return await this.prisma.$extension(async (ex) => {
       return await ex.<%= singular(lowercased(name)) %>.list(where, params, options)
     })
   }
@@ -79,7 +79,7 @@ export class <%= singular(classify(name)) %>Service {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IResponsePaging> {
-    return await this.prisma.$paginate(async (ex) => {
+    return await this.prisma.$extension(async (ex) => {
       return await ex.<%= singular(lowercased(name)) %>.paginate(where, params, options)
     })
   }
