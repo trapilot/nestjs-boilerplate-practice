@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client/extension'
 import { PrismaReplicaManager } from '../bases'
+import { PrismaContext } from '../contexts'
 import { IPrismaReplicaOptions } from '../interfaces'
 
 const readOperations = [
@@ -58,17 +59,26 @@ export const withReplica = (options: IPrismaReplicaOptions) =>
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           __internalParams: { transaction },
         }) {
+          // transaction → primary
           if (transaction) {
             return query(args)
           }
 
-          if (readOperations.includes(operation) && options.defaultReadClient === 'replica') {
+          // context force primary
+          const store = PrismaContext.getStore()
+          if (store?.forcePrimary) {
+            return query(args)
+          }
+
+          // read operation + default = replica
+          if (readOperations.includes(operation)) {
             const replica = replicaManager.pick()
             if (replica) {
               return model ? replica[model][operation](args) : replica[operation](args)
             }
           }
 
+          // fallback
           return query(args)
         },
       },

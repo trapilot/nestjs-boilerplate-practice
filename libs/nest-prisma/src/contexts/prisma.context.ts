@@ -1,4 +1,3 @@
-// tenant-context.ts
 import { AsyncLocalStorage } from 'node:async_hooks'
 
 export interface TenantStore {
@@ -7,6 +6,7 @@ export interface TenantStore {
 
 export interface PrismaStore {
   tx?: any
+  forcePrimary?: boolean
 }
 
 export const PrismaContext = new AsyncLocalStorage<PrismaStore>()

@@ -1,20 +1,14 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Prisma, PrismaClient } from '@prisma/client'
-import { ENUM_APP_ENVIRONMENT } from 'lib/nest-core'
 import { ENUM_LOGGER_TYPE, LoggerService } from 'lib/nest-logger'
-import { PrismaReplicaManager } from '../bases/prisma.replica.manager'
-import { withExtension } from '../extensions/prisma.extension'
-import { ClientWithExtension, IPrismaReplicaParams } from '../interfaces'
+import { PrismaContext } from '../contexts'
+import { withExtension, withReplica } from '../extensions'
+import { ClientWithExtension } from '../interfaces'
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
-  private readonly env: ENUM_APP_ENVIRONMENT
-  private readonly lazy: boolean
   private readonly debug: boolean
-
-  private master!: ClientWithExtension
-  private replicaManager!: PrismaReplicaManager
 
   constructor(
     private readonly logger: LoggerService,
@@ -23,56 +17,49 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     const debug = config.get<boolean>('database.debug', false)
     super(debug ? { log: [{ emit: 'event', level: 'query' }] } : {})
 
-    this.env = config.get<ENUM_APP_ENVIRONMENT>('app.env')
-    this.lazy = config.get<boolean>('database.lazy', false)
     this.debug = debug
 
     this.logger.setContext(ENUM_LOGGER_TYPE.MYSQL)
+
+    const replicas = this.createReplicaClients()
+    return this.createExtendedClient(this, replicas) as unknown as PrismaService
   }
 
   async onModuleInit() {
-    this.master = this.createExtendedClient(this)
-
-    this.replicaManager = new PrismaReplicaManager({
-      replicas: this.createReplicaClients(),
-      defaultReadClient: 'replica',
-    })
-
-    if (!this.lazy) {
-      await this.connect()
-    }
+    await this.$connect()
   }
 
   async onModuleDestroy() {
-    await this.disconnect()
+    await this.$disconnect()
   }
 
-  private async connect() {
-    await Promise.all([this.$connect(), this.replicaManager?.connect()])
-  }
-
-  private async disconnect() {
-    await Promise.allSettled([this.$disconnect(), this.replicaManager?.disconnect()])
-  }
-
-  private createExtendedClient(client: PrismaClient): ClientWithExtension {
+  private createExtendedClient(client: PrismaClient, replicas: PrismaClient[] = []): any {
     if (this.debug) {
       this.attachQueryLogger(client)
     }
+
+    if (replicas.length) {
+      return client.$extends(withExtension).$extends(
+        withReplica({
+          replicas: replicas.map((replica) => {
+            return this.createExtendedClient(replica)
+          }),
+        }),
+      )
+    }
+
     return client.$extends(withExtension)
   }
 
-  private createReplicaClients(): ClientWithExtension[] {
+  private createReplicaClients(): PrismaClient[] {
     const urls = process.env.REPLICA_URL?.split(',') ?? []
 
-    return urls.map((url) =>
-      this.createExtendedClient(
-        new PrismaClient({
-          datasourceUrl: url,
-          log: this.debug ? [{ emit: 'event', level: 'query' }] : [],
-        }),
-      ),
-    )
+    return urls.map((url) => {
+      return new PrismaClient({
+        datasourceUrl: url,
+        log: this.debug ? [{ emit: 'event', level: 'query' }] : [],
+      })
+    })
   }
 
   private attachQueryLogger(client: PrismaClient, slowMs: number = 3000): void {
@@ -113,14 +100,13 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     return sql
   }
 
-  async $replication<T>(fn: ({ master, slave }: IPrismaReplicaParams) => Promise<T>) {
-    return fn({
-      master: this.master,
-      slave: this.replicaManager.pick(),
-    })
+  async $extension<T>(fn: (ex: ClientWithExtension) => Promise<T>) {
+    return fn(this as ClientWithExtension)
   }
 
-  async $extension<T>(fn: (ex: ClientWithExtension) => Promise<T>) {
-    return fn(this.master)
+  async $execution<T>(fn: (ex: ClientWithExtension) => Promise<T>) {
+    return PrismaContext.run({ tx: this, forcePrimary: true }, () =>
+      fn(this as ClientWithExtension),
+    )
   }
 }
