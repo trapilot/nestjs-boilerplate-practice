@@ -2,7 +2,7 @@ import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common'
 import { readFileSync, unlinkSync } from 'fs'
 import imageSize from 'image-size'
 import {
-  AlgorithmHelper,
+  AlgorithmUtil,
   FILE_RATIO_MAX_ROUNDING,
   FILE_SIZE_MAX_ROUNDING,
   IFile,
@@ -82,7 +82,7 @@ export class RequestFileSizePipe implements PipeTransform {
       const aspectRatio = width / height
       const adjustRatio = Math.abs(imageRatio - aspectRatio)
       if (adjustRatio > FILE_RATIO_MAX_ROUNDING) {
-        const commonDivisor = AlgorithmHelper.getGCD(width, height)
+        const commonDivisor = AlgorithmUtil.getGCD(width, height)
         const ratioDivisor = `${width / commonDivisor}:${height / commonDivisor}`
 
         this.validationBuilder.addError({

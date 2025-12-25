@@ -11,19 +11,19 @@ import {
   NoFilesInterceptor,
 } from '@nestjs/platform-express'
 import { FILE_SIZE_IN_BYTES } from '../constants'
-import { FileHelper } from '../helpers'
 import {
   IFileUploadMultiple,
   IFileUploadMultipleField,
   IFileUploadMultipleFieldOptions,
   IFileUploadSingle,
 } from '../interfaces'
+import { DiskStorage } from '../storages'
 
 export function FileUploadSingle(options: IFileUploadSingle): MethodDecorator {
   return applyDecorators(
     UseInterceptors(
       FileInterceptor(options?.field ?? 'file', {
-        storage: FileHelper.createDiskStorage(options?.filePath, options?.fileUser),
+        storage: new DiskStorage({ directory: options?.filePath, userPath: options?.fileUser }),
         limits: {
           fileSize: options?.fileSize ?? FILE_SIZE_IN_BYTES,
           files: 1,
@@ -37,7 +37,7 @@ export function FileUploadMultiple(options: IFileUploadMultiple): MethodDecorato
   return applyDecorators(
     UseInterceptors(
       FilesInterceptor(options?.field ?? 'files', options?.maxFiles ?? 2, {
-        storage: FileHelper.createDiskStorage(options?.filePath, options?.fileUser),
+        storage: new DiskStorage({ directory: options?.filePath, userPath: options?.fileUser }),
         limits: {
           fileSize: options?.fileSize ?? FILE_SIZE_IN_BYTES,
         },
@@ -58,7 +58,7 @@ export function FileUploadMultipleFields(
           maxCount: e.maxFiles,
         })),
         {
-          storage: FileHelper.createDiskStorage(options?.filePath, options?.fileUser),
+          storage: new DiskStorage({ directory: options?.filePath, userPath: options?.fileUser }),
           limits: {
             fileSize: options?.fileSize ?? FILE_SIZE_IN_BYTES,
           },
@@ -73,7 +73,7 @@ export function NoFilesUpload(): MethodDecorator {
 }
 
 export const FilePartNumber: () => ParameterDecorator = createParamDecorator(
-  (data: string, ctx: ExecutionContext): number => {
+  (_data: string, ctx: ExecutionContext): number => {
     const request = ctx.switchToHttp().getRequest()
     const { headers } = request
     return headers['x-part-number'] ? Number(headers['x-part-number']) : 0

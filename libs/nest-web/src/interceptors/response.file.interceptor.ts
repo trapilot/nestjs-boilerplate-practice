@@ -10,10 +10,10 @@ import { Reflector } from '@nestjs/core'
 import archiver from 'archiver'
 import * as fs from 'fs'
 import {
-  DateService,
   ENUM_FILE_MIME,
-  FileHelper,
   FileService,
+  FileUtil,
+  HelperService,
   IResponseApp,
   ROOT_PATH,
 } from 'lib/nest-core'
@@ -30,7 +30,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
   constructor(
     private readonly reflector: Reflector,
     private readonly fileService: FileService,
-    private readonly dateService: DateService,
+    private readonly helperService: HelperService,
   ) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
@@ -68,7 +68,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
 
       // Set headers for ZIP response
       res
-        .setHeader('Content-Type', FileHelper.toFileMimetype(zipFileName))
+        .setHeader('Content-Type', FileUtil.parseMimetype(zipFileName))
         .setHeader('Content-Disposition', `${disposition}; filename=${zipFileName}`)
         .setHeader('Transfer-Encoding', 'chunked')
         .setHeader('X-Accel-Buffering', 'no') // Disable buffering in proxies
@@ -187,7 +187,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
       const streamableFile = new StreamableFile(fileBuffer)
 
       res
-        .setHeader('Content-Type', FileHelper.toFileMimetype(filePath))
+        .setHeader('Content-Type', FileUtil.parseMimetype(filePath))
         .setHeader('Content-Length', fileBuffer.length)
         .setHeader('Content-Disposition', `${disposition}; filename=${fileName}`)
 
@@ -218,15 +218,15 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
       context.getHandler(),
     )
 
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
     const fileBuffer = responseData.file
     const filePrefix = responseData.name
-    const fileSuffix = responseData?.timestamp ? this.dateService.getTimestamp(dateNow) : ''
+    const fileSuffix = responseData?.timestamp ? this.helperService.dateGetTimestamp(dateNow) : ''
 
     // set headers
     const filename = [
       [filePrefix, fileSuffix].filter((i) => i).join('_'),
-      FileHelper.mapFileMimetype(fileType),
+      FileUtil.mapMimetype(fileType),
     ].join('.')
 
     res

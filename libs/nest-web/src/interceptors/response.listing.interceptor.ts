@@ -5,13 +5,14 @@ import { ClassConstructor, ClassTransformOptions, plainToInstance } from 'class-
 import { stream, Workbook, Worksheet } from 'exceljs'
 import {
   AppContext,
-  DateService,
   ENUM_FILE_TYPE_EXCEL,
-  FileHelper,
+  FileUtil,
+  HelperService,
+  IExportableMetadata,
   IRequestApp,
   IResponseApp,
   MessageService,
-  MetadataHelper,
+  MetadataUtil,
   ResponseListingMetadataDto,
   ResponseSuccessDto,
 } from 'lib/nest-core'
@@ -30,8 +31,8 @@ import { IDataIterator, IDataList, IResponseList } from '../interfaces'
 export class ResponseListingInterceptor<T> implements NestInterceptor<T, IResponseList> {
   constructor(
     private readonly reflector: Reflector,
-    private readonly dateService: DateService,
     private readonly messageService: MessageService,
+    private readonly helperService: HelperService,
   ) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
@@ -79,14 +80,14 @@ export class ResponseListingInterceptor<T> implements NestInterceptor<T, IRespon
     )
 
     // metadata
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
     const ctxData = AppContext.current()
     let metadata: ResponseListingMetadataDto = {
       path: req.path,
       language: ctxData?.language ?? AppContext.language(),
       timezone: ctxData?.timezone ?? AppContext.timezone(),
       version: ctxData?.apiVersion ?? AppContext.apiVersion(),
-      timestamp: this.dateService.getTimestamp(dateNow),
+      timestamp: this.helperService.dateGetTimestamp(dateNow),
       availableSearch: req.__filters?.availableSearch ?? [],
       availableOrderBy: req.__filters?.availableOrderBy ?? [],
     }
@@ -148,16 +149,18 @@ export class ResponseListingInterceptor<T> implements NestInterceptor<T, IRespon
       context.getHandler(),
     )
 
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
     const fileExcel = exportType === ENUM_FILE_TYPE_EXCEL.XLSX
     const filePrefix = responseIterator?.filePrefix ?? 'export'
-    const fileSuffix = responseIterator?.fileTimestamp ? this.dateService.getTimestamp(dateNow) : ''
+    const fileSuffix = responseIterator?.fileTimestamp
+      ? this.helperService.dateGetTimestamp(dateNow)
+      : ''
 
     const filename = `${[filePrefix, fileSuffix].filter((i) => i).join('_')}.${exportType}`
 
     // set headers
     res
-      .setHeader('Content-Type', FileHelper.toFileMimetype(filename))
+      .setHeader('Content-Type', FileUtil.parseMimetype(filename))
       .setHeader('Content-Disposition', `attachment; filename=${filename}`)
 
     const workbook = fileExcel
@@ -171,7 +174,7 @@ export class ResponseListingInterceptor<T> implements NestInterceptor<T, IRespon
     }
 
     const userKeys = Object.keys(plainToInstance(ResponseUserBelongDto, {}, dtoSerializeOptions))
-    const exportProperties = MetadataHelper.getExportableProperties(dtoClass)
+    const exportProperties = MetadataUtil.getProperties<IExportableMetadata>(dtoClass)
     const serializeMetadata = responseIterator?._metadata?.customProperty?.serializeProperties ?? {}
 
     let rowIndex = 0

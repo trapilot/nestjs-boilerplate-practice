@@ -7,9 +7,9 @@ import {
   RequestMethod,
 } from '@nestjs/common'
 import { LOGGER_MODULE_OPTIONS } from './constants'
-import { LoggerOptionService, LoggerService } from './services'
-import { LoggerUtil } from './helpers'
 import { ILoggerOptions } from './interfaces'
+import { LoggerOptionService, LoggerService } from './services'
+import { LoggerUtil } from './utils'
 
 @Module({})
 export class NestLoggerModule implements NestModule {

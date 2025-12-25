@@ -15,7 +15,7 @@ import {
   ENUM_REDEMPTION_STATUS,
   Prisma,
 } from '@prisma/client'
-import { DateService } from 'lib/nest-core'
+import { HelperService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { TCart } from 'modules/cart/interfaces'
@@ -27,10 +27,11 @@ import { IOrderPlaceOptions, TOrder } from '../interfaces'
 export class OrderService implements OnModuleInit {
   private memberService: MemberService
   private invoiceService: InvoiceService
+
   constructor(
     private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
-    private readonly dateService: DateService,
+    private readonly helperService: HelperService,
   ) {}
 
   onModuleInit() {
@@ -170,7 +171,7 @@ export class OrderService implements OnModuleInit {
       })
     }
 
-    const endOfDay = this.dateService.create(options.issuedAt, { endOfDay: true })
+    const endOfDay = this.helperService.dateCreate(options.issuedAt, { endOfDay: true })
     const orderNumber = await this.memberService.getOrderNumber(options.issuedAt)
     const invoiceNumber = await this.memberService.getInvoiceNumber(options.issuedAt)
     const recentPoints = await this.memberService.getPointRecents(cart.memberId, finalPoint)
@@ -181,7 +182,7 @@ export class OrderService implements OnModuleInit {
       .map((item) => item.product.duePaidDays)
 
     const dueDate = duePaidDays.length
-      ? this.dateService.forward(endOfDay, { days: Math.min(...duePaidDays) })
+      ? this.helperService.dateForward(endOfDay, { days: Math.min(...duePaidDays) })
       : undefined
 
     const [order] = await this.prisma.$transaction([

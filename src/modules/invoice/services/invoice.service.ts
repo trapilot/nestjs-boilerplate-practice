@@ -8,7 +8,7 @@ import {
   ENUM_REDEMPTION_STATUS,
   Prisma,
 } from '@prisma/client'
-import { DateService, ENUM_DATE_FORMAT } from 'lib/nest-core'
+import { ENUM_DATE_FORMAT, HelperService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { IInvoiceAddPaymentOptions, IInvoiceGroup, TInvoice } from '../interfaces'
@@ -18,7 +18,7 @@ export class InvoiceService {
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly dateService: DateService,
+    private readonly helperService: HelperService,
   ) {}
 
   async findOne(kwargs?: Prisma.InvoiceFindUniqueArgs): Promise<TInvoice> {
@@ -114,7 +114,7 @@ export class InvoiceService {
   }
 
   async create(data: Prisma.InvoiceUncheckedCreateInput): Promise<TInvoice> {
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
     const invoice = await this.prisma.invoice.create({
       data: {
         ...data,
@@ -148,7 +148,7 @@ export class InvoiceService {
 
   async addPayment(invoice: TInvoice, options: IInvoiceAddPaymentOptions): Promise<TInvoice> {
     const isFullPaid = invoice.finalPrice - invoice.paidPrice <= options.amount
-    const issuedAt = options?.issuedAt || this.dateService.create()
+    const issuedAt = options?.issuedAt || this.helperService.dateCreate()
 
     return await this.prisma.invoice.update({
       where: { id: invoice.id },
@@ -197,7 +197,7 @@ export class InvoiceService {
   }
 
   async getFirstInvoice(issuedAt: Date): Promise<TInvoice> {
-    const startOfDay = this.dateService.create(issuedAt, { startOfDay: true })
+    const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
     return await this.prisma.invoice.findFirst({
       where: {
         isEarned: false,
@@ -210,8 +210,8 @@ export class InvoiceService {
 
   async getEarnInvoices(issuedAt: Date): Promise<IInvoiceGroup> {
     const firstTransactionDays = this.config.get<number>('app.membership.firstTransaction', 1)
-    const startOfDay = this.dateService.create(issuedAt, { startOfDay: true })
-    const cutOffDay = this.dateService.backward(startOfDay, { days: firstTransactionDays })
+    const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
+    const cutOffDay = this.helperService.dateBackward(startOfDay, { days: firstTransactionDays })
 
     const invoices = await this.prisma.invoice.findMany({
       orderBy: [{ issuedAt: 'asc' }, { createdAt: 'asc' }],
@@ -257,8 +257,8 @@ export class InvoiceService {
     const formatDate = ENUM_DATE_FORMAT.DATE_REFERENCE
     const groupInvoices: IInvoiceGroup = {}
     for (const inv of invoices) {
-      const _cDate = this.dateService.format(inv.createdAt, formatDate)
-      const _iDate = this.dateService.format(inv.issuedAt, formatDate)
+      const _cDate = this.helperService.dateFormat(inv.createdAt, formatDate)
+      const _iDate = this.helperService.dateFormat(inv.issuedAt, formatDate)
 
       const _groupKey = `${_iDate}|${_cDate}`
       if (!(_groupKey in groupInvoices)) {
@@ -272,7 +272,7 @@ export class InvoiceService {
 
   async expireOverDue(issuedAt: Date): Promise<void> {
     const batchSize: number = 500
-    const startOfDay = this.dateService.create(issuedAt, { startOfDay: true })
+    const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
 
     let loop: boolean = false
     do {

@@ -1,5 +1,4 @@
 export * from './crypto.service'
-export * from './date.service'
 export * from './file.service'
 export * from './helper.service'
 export * from './message.service'

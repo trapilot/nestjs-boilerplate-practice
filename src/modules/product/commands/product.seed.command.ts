@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ENUM_PRODUCT_EXPIRY } from '@prisma/client'
-import { DateService, ENUM_MESSAGE_LANGUAGE, HelperService, NEST_CLI } from 'lib/nest-core'
+import { ENUM_MESSAGE_LANGUAGE, HelperService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner, Option } from 'nest-commander'
 
@@ -16,13 +16,12 @@ export class ProductSeedCommand extends CommandRunner {
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly dateService: DateService,
     private readonly helperService: HelperService,
   ) {
     super()
   }
 
-  async run(passedParam: string[], options?: any): Promise<void> {
+  async run(_passedParam: string[], options?: any): Promise<void> {
     this.logger.warn(`${ProductSeedCommand.name} is running...`)
 
     try {
@@ -35,7 +34,7 @@ export class ProductSeedCommand extends CommandRunner {
       await this.prisma.$queryRaw`SET FOREIGN_KEY_CHECKS=1`
 
       const startDate = this.config.get<Date>('app.startDate')
-      const dateNow = this.dateService.create()
+      const dateNow = this.helperService.dateCreate()
 
       let categories = await this.prisma.productCategory.findMany()
       if (categories.length === 0) {
@@ -102,7 +101,7 @@ export class ProductSeedCommand extends CommandRunner {
         let dynamicExpiryDays = faker.number.int({ min: 7, max: 30 })
         if (Math.floor(Math.random() * 2)) {
           expiryType = ENUM_PRODUCT_EXPIRY.STATIC
-          staticExpiryDate = this.dateService.create(faker.date.future(), { endOfDay: true })
+          staticExpiryDate = this.helperService.dateCreate(faker.date.future(), { endOfDay: true })
           dynamicExpiryDays = undefined
         }
 

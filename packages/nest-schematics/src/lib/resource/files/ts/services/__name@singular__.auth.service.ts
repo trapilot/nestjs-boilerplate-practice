@@ -21,7 +21,7 @@ import {
   IAuthValidatorOptions,
 } from 'lib/nest-auth'
 import { PrismaService } from 'lib/nest-prisma'
-import { APP_TIMEZONE, DateService, HelperService, IRequestApp } from 'lib/nest-core'
+import { APP_TIMEZONE, HelperService, IRequestApp } from 'lib/nest-core'
 import { IResult } from 'ua-parser-js'
 import {
   <%= singular(classify(name)) %>RequestChangePasswordDto,
@@ -39,13 +39,12 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
   constructor(
     private readonly prisma: PrismaService,
     private readonly authService: AuthService,
-    private readonly dateService: DateService,
     private readonly helperService: HelperService,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_2AM, { timeZone: APP_TIMEZONE })
   private async clearExpiredRefreshTokens() {
-    const nowTime = this.dateService.create()
+    const nowTime = this.helperService.dateCreate()
     await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.deleteMany({
       where: { refreshExpired: { lte: nowTime } },
     })
@@ -108,7 +107,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
       })
     }
 
-    if (!userToken.isActive || this.dateService.after(userToken.refreshExpired)) {
+    if (!userToken.isActive || this.helperService.dateCheckAfter(userToken.refreshExpired)) {
       // tracking spam refresh token
       await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.update({
         where: { id: userToken.id },
@@ -343,8 +342,8 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
             createdAt: payload.loginDate,
             updatedAt: payload.loginDate,
             refreshToken: userToken.refreshToken,
-            refreshExpired: this.dateService.forwardInSeconds(userToken.refreshIn, {
-              fromDate: payload.loginDate,
+            refreshExpired: this.helperService.dateForward(payload.loginDate, {
+              seconds: userToken.refreshIn,
             }),
           },
         })

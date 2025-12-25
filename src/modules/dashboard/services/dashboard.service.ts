@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit } from '@nestjs/common'
 import { ENUM_INVOICE_STATUS } from '@prisma/client'
-import { DateService } from 'lib/nest-core'
+import { HelperService } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { TDashboard } from '../interfaces'
 
@@ -8,14 +8,14 @@ import { TDashboard } from '../interfaces'
 export class DashboardService implements OnModuleInit {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly dateService: DateService,
+    private readonly helperService: HelperService,
   ) {}
 
   onModuleInit() {}
 
   async getSummary(startDate: Date, untilDate: Date): Promise<TDashboard> {
-    const startTime = this.dateService.create(startDate, { startOfDay: true })
-    const untilTime = this.dateService.create(untilDate, { endOfDay: true })
+    const startTime = this.helperService.dateCreate(startDate, { startOfDay: true })
+    const untilTime = this.helperService.dateCreate(untilDate, { endOfDay: true })
 
     const [
       totalMembers,

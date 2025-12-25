@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer'
-import { AppHelper } from 'lib/nest-core'
+import { LocaleUtil } from 'lib/nest-core'
 import { UserAbilityUtil } from 'shared/helpers'
 import { TRole } from '../interfaces'
 
@@ -17,7 +17,7 @@ export function ToRolePermissions(): (target: any, key: string) => void {
           const { context, subject, title, bitwise } = perm
           if (!(subject in mappedPermissions)) {
             mappedPermissions[subject] = {
-              title: AppHelper.toLocaleValue(title),
+              title: LocaleUtil.parseValue(title),
               context,
               subject,
               actions: [],

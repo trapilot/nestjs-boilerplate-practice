@@ -43,11 +43,11 @@ import {
   AuthUserScopeProtected,
 } from 'lib/nest-auth'
 import {
-  AppHelper,
   ENUM_FILE_DISPOSITION,
   ENUM_FILE_MIME,
   ENUM_FILE_TYPE_EXCEL,
   ENUM_GENDER_TYPE,
+  EnvUtil,
   FileUploadMultiple,
   FileUploadMultipleFields,
   FileUploadSingle,
@@ -371,7 +371,7 @@ function HttpRequest(
     )
   }
 
-  if (options?.docExclude === true && !AppHelper.isDevelopment()) {
+  if (options?.docExclude === true && !EnvUtil.isDevelopment()) {
     decorators.push(ApiExcludeEndpoint())
   }
 

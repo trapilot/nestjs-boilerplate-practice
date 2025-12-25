@@ -350,7 +350,7 @@ export class MemberAdminController {
   })
   @Put('/:id/change-avatar')
   async update(
-    @RequestBody() body: MemberChangeAvatarRequestDto,
+    @RequestBody() _body: MemberChangeAvatarRequestDto,
     @RequestParam('id') memberId: number,
     @AuthJwtPayload('user.id') updatedBy: number,
     @UploadedFile(

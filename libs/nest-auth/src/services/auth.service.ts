@@ -4,7 +4,6 @@ import { JwtService } from '@nestjs/jwt'
 import { OAuth2Client, TokenInfo } from 'google-auth-library'
 import {
   CryptoService,
-  DateService,
   ENUM_APP_ENVIRONMENT,
   HelperService,
   IStringRandomOptions,
@@ -57,7 +56,6 @@ export class AuthService {
   constructor(
     private readonly config: ConfigService,
     private readonly jwtService: JwtService,
-    private readonly dateService: DateService,
     private readonly cryptoService: CryptoService,
     private readonly helperService: HelperService,
   ) {
@@ -208,11 +206,11 @@ export class AuthService {
   createPassword(password: string, options?: IAuthPasswordOptions): IAuthPassword {
     const salt: string = this.createSalt(this.passwordSaltLength)
 
-    const dateNow = this.dateService.create()
-    const passwordExpired = this.dateService.forward(dateNow, {
+    const dateNow = this.helperService.dateCreate()
+    const passwordExpired = this.helperService.dateForward(dateNow, {
       seconds: options?.temporary ? this.passwordExpiredTemporary : this.passwordExpiredIn,
     })
-    const passwordCreated = this.dateService.create()
+    const passwordCreated = this.helperService.dateCreate()
     const passwordHash = this.cryptoService.bcrypt(password, salt)
     return {
       passwordHash,
@@ -231,13 +229,13 @@ export class AuthService {
   }
 
   checkPasswordExpired(passwordExpired: Date): boolean {
-    const today = this.dateService.create()
-    const passwordExpiredConvert = this.dateService.create(passwordExpired)
+    const today = this.helperService.dateCreate()
+    const passwordExpiredConvert = this.helperService.dateCreate(passwordExpired)
     return today > passwordExpiredConvert
   }
 
   getLoginDate(): Date {
-    return this.dateService.create()
+    return this.helperService.dateCreate()
   }
 
   getTokenType(): string {
@@ -245,10 +243,10 @@ export class AuthService {
   }
 
   getRemainingExpirationTime(): number {
-    const dateNow = this.dateService.createInstance()
+    const dateNow = this.helperService.dateInstance()
     return Math.floor(
-      this.dateService
-        .createInstance(dateNow.toJSDate(), { endOfDay: true })
+      this.helperService
+        .dateInstance(dateNow.toJSDate(), { endOfDay: true })
         .diff(dateNow, 'seconds').seconds,
     )
   }

@@ -3,8 +3,8 @@ import { ConfigService } from '@nestjs/config'
 import {
   APP_TIMEZONE,
   AppContext,
-  AppHelper,
-  DateService,
+  ENUM_APP_API_ROUTE,
+  ENUM_APP_API_TYPE,
   HelperService,
   INextFunction,
   IRequestApp,
@@ -16,7 +16,6 @@ import {
 export class RequestUserAgentMiddleware implements NestMiddleware {
   constructor(
     private readonly config: ConfigService,
-    private readonly dateService: DateService,
     private readonly helperService: HelperService,
   ) {}
 
@@ -32,11 +31,22 @@ export class RequestUserAgentMiddleware implements NestMiddleware {
 
   private parseDataContext(req: IRequestApp): IRequestContext {
     return {
-      apiType: AppHelper.getApiType(req.originalUrl),
+      apiType: this.parseApiType(req.originalUrl),
       apiVersion: this.parseApiVersion(req),
       language: this.parseUserLanguage(req),
       timezone: this.parseUserTimezone(req),
     }
+  }
+
+  private parseApiType(originalUrl: string): ENUM_APP_API_TYPE {
+    if (originalUrl.includes(ENUM_APP_API_ROUTE.CMS)) {
+      return ENUM_APP_API_TYPE.CMS
+    } else if (originalUrl.includes(ENUM_APP_API_ROUTE.APP)) {
+      return ENUM_APP_API_TYPE.APP
+    } else if (originalUrl.includes(ENUM_APP_API_ROUTE.WEB)) {
+      return ENUM_APP_API_TYPE.WEB
+    }
+    return ENUM_APP_API_TYPE.PUB
   }
 
   private parseApiVersion(req: IRequestApp): string {
@@ -75,7 +85,7 @@ export class RequestUserAgentMiddleware implements NestMiddleware {
   private parseUserTimezone(req: IRequestApp): string {
     try {
       const userTz = req.headers['x-timezone'] as string
-      if (userTz && this.dateService.checkZone(userTz)) {
+      if (userTz && this.helperService.dateCheckZone(userTz)) {
         return userTz
       }
     } catch (_err: unknown) {}

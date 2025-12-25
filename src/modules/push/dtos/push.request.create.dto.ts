@@ -12,7 +12,7 @@ import {
   TransformIf,
 } from 'lib/nest-core'
 import { IsDuration } from 'lib/nest-web'
-import { PushHelper } from '../helpers'
+import { PushUtil } from '../utils'
 
 export class PushRequestCreateDto {
   @IsNotEmpty()
@@ -30,49 +30,49 @@ export class PushRequestCreateDto {
   @IsNotEmpty()
   @IsDuration()
   @ToDuration()
-  @TransformIf((obj: PushRequestCreateDto) => !PushHelper.isInstant(obj.type))
+  @TransformIf((obj: PushRequestCreateDto) => !PushUtil.isInstant(obj.type))
   @ApiProperty({ required: true, example: '' })
   executeTime: string
 
   @IsNotEmpty()
   @IsDate()
   @ToDate({ format: ENUM_DATE_FORMAT.DB_DATE })
-  @TransformIf((obj: PushRequestCreateDto) => PushHelper.isSpecDate(obj.type))
+  @TransformIf((obj: PushRequestCreateDto) => PushUtil.isSpecDate(obj.type))
   @ApiProperty({ required: true, example: faker.date.future() })
   executeDate: string
 
   @IsOptional()
   @IsNumber()
   @ToNumber()
-  @TransformIf((obj: PushRequestCreateDto) => PushHelper.canWeekday(obj.type))
+  @TransformIf((obj: PushRequestCreateDto) => PushUtil.canWeekday(obj.type))
   @ApiProperty({ required: false, example: '' })
   weekday: number
 
   @IsOptional()
   @IsNumber()
   @ToNumber()
-  @TransformIf((obj: PushRequestCreateDto) => PushHelper.canDay(obj.type))
+  @TransformIf((obj: PushRequestCreateDto) => PushUtil.canDay(obj.type))
   @ApiProperty({ required: false, example: '' })
   day: number
 
   @IsOptional()
   @IsNumber()
   @ToNumber()
-  @TransformIf((obj: PushRequestCreateDto) => PushHelper.canMonth(obj.type))
+  @TransformIf((obj: PushRequestCreateDto) => PushUtil.canMonth(obj.type))
   @ApiProperty({ required: false, example: '' })
   month: number
 
   @IsOptional()
   @IsDate()
   @ToDate({ startOfDay: true })
-  @TransformIf((obj: PushRequestCreateDto) => PushHelper.isLoop(obj.type))
+  @TransformIf((obj: PushRequestCreateDto) => PushUtil.isLoop(obj.type))
   @ApiProperty({ required: false, example: faker.date.future() })
   startDate: Date
 
   @IsOptional()
   @IsDate()
   @ToDate({ endOfDay: true })
-  @TransformIf((obj: PushRequestCreateDto) => PushHelper.isLoop(obj.type))
+  @TransformIf((obj: PushRequestCreateDto) => PushUtil.isLoop(obj.type))
   @ApiProperty({ required: false, example: faker.date.future() })
   untilDate: Date
 

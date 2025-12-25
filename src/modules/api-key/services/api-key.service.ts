@@ -1,7 +1,7 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Prisma } from '@prisma/client'
-import { CryptoService, DateService, ENUM_APP_ENVIRONMENT, HelperService } from 'lib/nest-core'
+import { CryptoService, ENUM_APP_ENVIRONMENT, HelperService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { TApiKey } from '../interfaces'
@@ -13,7 +13,6 @@ export class ApiKeyService {
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly dateService: DateService,
     private readonly cryptoService: CryptoService,
     private readonly helperService: HelperService,
   ) {
@@ -158,8 +157,8 @@ export class ApiKeyService {
   }
 
   async renew(apiKey: TApiKey, date: { startDate: Date; untilDate: Date }): Promise<TApiKey> {
-    const startDate = this.dateService.create(date.startDate, { startOfDay: true })
-    const untilDate = this.dateService.create(date.untilDate, { endOfDay: true })
+    const startDate = this.helperService.dateCreate(date.startDate, { startOfDay: true })
+    const untilDate = this.helperService.dateCreate(date.untilDate, { endOfDay: true })
 
     return await this.prisma.apiKey.update({
       data: { startDate, untilDate },

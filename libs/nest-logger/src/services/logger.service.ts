@@ -2,8 +2,8 @@ import { Inject, Injectable, LoggerService as NestLoggerService, Scope } from '@
 import pino from 'pino'
 import { LOGGER_CONTEXT_KEY, LOGGER_MODULE_OPTIONS } from '../constants'
 import { LoggerContext } from '../contexts'
-import { LoggerUtil } from '../helpers'
 import { ILoggerOptions, TLoggerFn } from '../interfaces'
+import { LoggerUtil } from '../utils'
 
 let outOfContext: pino.Logger | undefined
 

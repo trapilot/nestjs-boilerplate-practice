@@ -1,4 +1,4 @@
-export class AlgorithmHelper {
+export class AlgorithmUtil {
   static lowerBound<T>(array: readonly T[], value: T, comparator: (a: T, b: T) => number): number {
     let first = 0
     let count = array.length

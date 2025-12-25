@@ -8,12 +8,12 @@ import {
 import { Prisma } from '@prisma/client'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
-import { TierChartIterator } from '../helpers'
+import { TierChart } from '../helpers'
 import { TTier } from '../interfaces'
 
 @Injectable()
 export class TierService implements OnModuleInit {
-  private chartIterator: TierChartIterator
+  private chart: TierChart
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -21,11 +21,11 @@ export class TierService implements OnModuleInit {
     const tierCharts = await this.findAll({
       include: { charts: true },
     })
-    this.chartIterator = new TierChartIterator(tierCharts)
+    this.chart = new TierChart(tierCharts)
   }
 
-  getChartIterator(): TierChartIterator {
-    return this.chartIterator
+  getChart(): TierChart {
+    return this.chart
   }
 
   async findOne(kwargs?: Prisma.TierFindUniqueArgs): Promise<TTier> {

@@ -9,8 +9,8 @@ import { Jimp } from 'jimp'
 import { DiskStorageOptions, StorageEngine } from 'multer'
 import { basename, join } from 'path'
 import { ENUM_FILE_MIME } from '../enums'
-import { FileHelper } from '../helpers'
 import { IFile } from '../interfaces'
+import { FileUtil, UrlUtil } from '../utils'
 
 // Set the path to the ffmpeg binary
 ffmpeg.setFfmpegPath(ffmpegPath)
@@ -46,7 +46,7 @@ export class DiskStorage implements StorageEngine {
     if (typeof opts.destination === 'string') {
       mkdirSync(opts.destination, { recursive: true })
       this.getDestination =
-        () => (req: any, file: IFile, cb: (error: any, destination: string) => void) => {
+        () => (_req: any, _file: IFile, cb: (error: any, destination: string) => void) => {
           cb(null, opts.destination as string)
         }
     } else {
@@ -73,13 +73,13 @@ export class DiskStorage implements StorageEngine {
    * @returns The new filename.
    */
   private createFileName(fileName: string, milliseconds: number = 0): string {
-    return FileHelper.createFileName(fileName, milliseconds)
+    return FileUtil.format(fileName, milliseconds)
   }
 
   /**
    * Default method for getting the filename.
    */
-  private defaultGetFilename(req: any, file: IFile, cb: (error: any, filename: string) => void) {
+  private defaultGetFilename(_req: any, file: IFile, cb: (error: any, filename: string) => void) {
     cb(null, this.createFileName(file.originalname))
   }
 
@@ -88,7 +88,7 @@ export class DiskStorage implements StorageEngine {
    */
   private defaultGetDestination(
     req: any,
-    file: IFile,
+    _file: IFile,
     cb: (error: any, destination: string) => void,
   ) {
     let directory = this.directory
@@ -131,7 +131,7 @@ export class DiskStorage implements StorageEngine {
     filename: string,
     extension: string,
   ): Promise<any> {
-    const [_extension, isHEI] = FileHelper.isHighEfficiency(file.originalname)
+    const [_extension, isHEI] = FileUtil.isHighEfficiency(file.originalname)
 
     // If HEIC transcoding is enabled and the file is HEIC
     if (isHEI && this.transcoding.heic) {
@@ -169,8 +169,8 @@ export class DiskStorage implements StorageEngine {
       return {
         originalname: outputName,
         filename: basename(outputPath),
-        destination: FileHelper.normalizePath(destination),
-        path: FileHelper.normalizePath(outputPath),
+        destination: UrlUtil.normalize(destination),
+        path: UrlUtil.normalize(outputPath),
         mimetype: outputType.mimetype,
         width: dimension?.width ?? undefined,
         height: dimension?.height ?? undefined,
@@ -192,7 +192,7 @@ export class DiskStorage implements StorageEngine {
     filename: string,
     extension: string,
   ): Promise<any> {
-    const [_extension, _isHEI, isHEV] = FileHelper.isHighEfficiency(file.originalname)
+    const [_extension, _isHEI, isHEV] = FileUtil.isHighEfficiency(file.originalname)
 
     // If HEVC transcoding is enabled and the file is HEVC
     if (isHEV && this.transcoding.hevc) {
@@ -231,8 +231,8 @@ export class DiskStorage implements StorageEngine {
       return {
         originalname: outputName,
         filename: basename(outputPath),
-        destination: FileHelper.normalizePath(destination),
-        path: FileHelper.normalizePath(outputPath),
+        destination: UrlUtil.normalize(destination),
+        path: UrlUtil.normalize(outputPath),
         mimetype: outputType.mimetype,
         size: fileStat.size,
         width: undefined,
@@ -268,9 +268,9 @@ export class DiskStorage implements StorageEngine {
     return {
       originalname: file.originalname,
       filename: filename,
-      destination: FileHelper.normalizePath(destination),
-      path: FileHelper.normalizePath(finalPath),
-      mimetype: FileHelper.toFileMimetype(file.originalname) || file.mimetype,
+      destination: UrlUtil.normalize(destination),
+      path: UrlUtil.normalize(finalPath),
+      mimetype: FileUtil.parseMimetype(file.originalname, file.mimetype),
       width: imgWidth,
       height: imgHeight,
       size: fileStat.size,
@@ -299,14 +299,14 @@ export class DiskStorage implements StorageEngine {
           file,
           destination,
           filename,
-          FileHelper.toFileExtension(file.originalname),
+          FileUtil.parseExtension(file.originalname),
         )
       } else if (isVideo) {
         info = await this.handleFileVideo(
           file,
           destination,
           filename,
-          FileHelper.toFileExtension(file.originalname),
+          FileUtil.parseExtension(file.originalname),
         )
       } else {
         info = await this.handleFileNormal(file, destination, filename)
@@ -320,7 +320,7 @@ export class DiskStorage implements StorageEngine {
   /**
    * Removes a file from the disk.
    */
-  public async _removeFile(req: any, file: IFile, cb: (error: any) => void) {
+  public async _removeFile(_req: any, file: IFile, cb: (error: any) => void) {
     const filePath = file.path
 
     // Clean up file properties

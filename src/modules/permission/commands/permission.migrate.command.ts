@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { DateService, NEST_CLI } from 'lib/nest-core'
+import { HelperService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner } from 'nest-commander'
 import { ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
@@ -15,7 +15,7 @@ export class PermissionMigrateCommand extends CommandRunner {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly dateService: DateService,
+    private readonly helperService: HelperService,
   ) {
     super()
   }
@@ -24,7 +24,7 @@ export class PermissionMigrateCommand extends CommandRunner {
     this.logger.warn(`${PermissionMigrateCommand.name} is running...`)
 
     try {
-      const updatedAt = this.dateService.create()
+      const updatedAt = this.helperService.dateCreate()
       const permissions = this.getAllPermissions()
 
       await this.cleanAllPermissions()

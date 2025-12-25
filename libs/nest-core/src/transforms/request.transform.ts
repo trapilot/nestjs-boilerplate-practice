@@ -5,8 +5,8 @@ import {
   Transform,
   TransformFnParams,
 } from 'class-transformer'
-import { AppHelper } from '../helpers'
 import { EnumLike } from '../interfaces'
+import { EnumUtil } from '../utils'
 
 export function TransformIf(conditionFn: Function): (target: any, key: string) => void {
   return Transform((params: TransformFnParams) => {
@@ -48,8 +48,8 @@ export function ToArray(
       } catch {}
     }
     if (type) {
-      if (AppHelper.isEnum(type)) {
-        return AppHelper.filterEnumValues(value.split(','), { enum: type as EnumLike })
+      if (EnumUtil.isEnum(type)) {
+        return EnumUtil.filterEnumValues(value.split(','), { enum: type as EnumLike })
       }
       return plainToInstance(type as ClassConstructor<any>, value, options)
     }
