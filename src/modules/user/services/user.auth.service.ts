@@ -12,10 +12,10 @@ import {
   AuthJwtAccessPayloadDto,
   AuthJwtRefreshPayloadDto,
   AuthService,
+  AuthTokenResponseDto,
   ENUM_AUTH_SIGN_UP_FROM,
   IAuthPayloadOptions,
   IAuthRefetchOptions,
-  IAuthToken,
   IAuthUserValidatorDto,
   IAuthValidator,
   IAuthValidatorOptions,
@@ -27,6 +27,7 @@ import {
   UserRequestChangePasswordDto,
   UserRequestSignInDto,
   UserRequestSignUpDto,
+  UserResponseLoginDto,
   UserResponsePayloadDto,
 } from '../dtos'
 import { TUser } from '../interfaces'
@@ -219,7 +220,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
     userAgent: IResult,
     userRequest: IRequestApp,
     options: Partial<IAuthPayloadOptions>,
-  ): Promise<IAuthToken> {
+  ): Promise<UserResponseLoginDto> {
     if (!user.isActive) {
       throw new BadRequestException({
         statusCode: HttpStatus.FORBIDDEN,
@@ -268,20 +269,28 @@ export class UserAuthService implements IAuthValidator<TUser> {
       refreshIn,
     )
 
-    await this.capture(user, {
+    await this.handleLogin(user, {
       payload: payloadAccessToken,
       userToken: { refreshToken, refreshIn },
       userRequest,
     })
 
-    return { tokenType, expiresIn, accessToken, refreshToken }
+    return {
+      isTwoFactorEnable: false,
+      token: {
+        tokenType,
+        expiresIn,
+        accessToken,
+        refreshToken,
+      },
+    }
   }
 
   async refresh(
     user: TUser,
     refreshToken: string,
     refreshPayload: AuthJwtRefreshPayloadDto,
-  ): Promise<IAuthToken> {
+  ): Promise<AuthTokenResponseDto> {
     if (!refreshPayload?.loginRotate) {
       throw new ForbiddenException({
         statusCode: HttpStatus.FORBIDDEN,
@@ -318,7 +327,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
 
     refreshToken = this.authService.createRefreshToken(user.id, payloadRefreshToken, refreshIn)
 
-    await this.capture(user, {
+    await this.handleLogin(user, {
       payload: payloadAccessToken,
       userToken: { refreshToken, refreshIn },
     })
@@ -326,7 +335,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
     return { tokenType, expiresIn, accessToken, refreshToken }
   }
 
-  async capture(user: TUser, options: IAuthRefetchOptions): Promise<boolean> {
+  async handleLogin(user: TUser, options: IAuthRefetchOptions): Promise<boolean> {
     const { payload, userToken, userRequest } = options
 
     try {

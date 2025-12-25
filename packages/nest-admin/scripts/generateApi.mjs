@@ -105,10 +105,7 @@ function getRequestBodyType(op) {
 
 function generateService(tag, operations) {
   const lines = []
-  const usePublic = operations.find((op) => detectSecurity(op.op) === false)
-  operations.find((op) => detectSecurity(op.op) === false)
-    ? lines.push(`import { privateAxios, publicAxios } from '../lib/httpClient'`)
-    : lines.push(`import { privateAxios } from '../lib/httpClient'`)
+  lines.push(`import { _privateAxios, _publicAxios } from '../lib/httpClient'`)
   lines.push(`import type { components } from '../types/api'`)
   lines.push(`// @ts-ignore`)
   lines.push(`type schemas = components['schemas']`)
@@ -143,7 +140,7 @@ function generateService(tag, operations) {
     lines.push(`    ${buildQueryParamsSnippet()}`)
     lines.push(`    const baseUrl = ${pathExpr}`)
     lines.push(`    const url = qs ? baseUrl + '?' + qs : baseUrl`)
-    lines.push(`    const client = ${usePrivate ? 'privateAxios' : 'publicAxios'}`)
+    lines.push(`    const client = ${usePrivate ? '_privateAxios' : '_publicAxios'}`)
     lines.push(`    const config = options?.config || {}`)
     lines.push(`    const data = await client.${method}(url${hasBody ? ', body' : ''}, config)`)
     lines.push(`    return data as T`)

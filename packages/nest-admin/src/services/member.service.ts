@@ -1,4 +1,4 @@
-import { privateAxios } from '../lib/httpClient'
+import { _privateAxios, _publicAxios } from '../lib/httpClient'
 import type { components } from '../types/api'
 // @ts-ignore
 type schemas = components['schemas']
@@ -17,7 +17,7 @@ export const memberService = {
     const qs = search.toString()
     const baseUrl = '/members'
     const url = qs ? baseUrl + '?' + qs : baseUrl
-    const client = privateAxios
+    const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
@@ -36,7 +36,7 @@ export const memberService = {
     const qs = search.toString()
     const baseUrl = '/members'
     const url = qs ? baseUrl + '?' + qs : baseUrl
-    const client = privateAxios
+    const client = _privateAxios
     const config = options?.config || {}
     const data = await client.post(url, body, config)
     return data as T
@@ -54,7 +54,7 @@ export const memberService = {
     const qs = search.toString()
     const baseUrl = '/members/map-shorted'
     const url = qs ? baseUrl + '?' + qs : baseUrl
-    const client = privateAxios
+    const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
@@ -73,7 +73,7 @@ export const memberService = {
     const qs = search.toString()
     const baseUrl = '/members/' + String(params.id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
-    const client = privateAxios
+    const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
@@ -93,7 +93,7 @@ export const memberService = {
     const qs = search.toString()
     const baseUrl = '/members/' + String(params.id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
-    const client = privateAxios
+    const client = _privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
     return data as T
@@ -113,7 +113,7 @@ export const memberService = {
     const qs = search.toString()
     const baseUrl = '/members/' + String(params.id) + '/inactive'
     const url = qs ? baseUrl + '?' + qs : baseUrl
-    const client = privateAxios
+    const client = _privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
     return data as T
@@ -133,7 +133,7 @@ export const memberService = {
     const qs = search.toString()
     const baseUrl = '/members/' + String(params.id) + '/active'
     const url = qs ? baseUrl + '?' + qs : baseUrl
-    const client = privateAxios
+    const client = _privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
     return data as T
@@ -153,7 +153,7 @@ export const memberService = {
     const qs = search.toString()
     const baseUrl = '/members/' + String(params.id) + '/change-avatar'
     const url = qs ? baseUrl + '?' + qs : baseUrl
-    const client = privateAxios
+    const client = _privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
     return data as T
@@ -173,7 +173,7 @@ export const memberService = {
     const qs = search.toString()
     const baseUrl = '/members/' + String(params.id) + '/points'
     const url = qs ? baseUrl + '?' + qs : baseUrl
-    const client = privateAxios
+    const client = _privateAxios
     const config = options?.config || {}
     const data = await client.post(url, body, config)
     return data as T

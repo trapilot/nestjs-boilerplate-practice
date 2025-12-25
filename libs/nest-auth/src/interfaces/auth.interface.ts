@@ -17,13 +17,6 @@ export interface AuthModuleOptions {
   actions: EnumLike | string[]
 }
 
-export interface IAuthToken {
-  expiresIn: number
-  tokenType: string
-  accessToken: string
-  refreshToken: string
-}
-
 export interface IAuthPassword {
   salt: string
   passwordHash: string

@@ -4,6 +4,40 @@
  */
 
 export interface paths {
+  '/api/health/ready': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Check app ready */
+    get: operations['HealthController_ready']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/health/live': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Check app live */
+    get: operations['HealthController_live']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/admin/auth/sign-up': {
     parameters: {
       query?: never
@@ -31,7 +65,41 @@ export interface paths {
     get?: never
     put?: never
     /** Authentication */
-    post: operations['UserAuthController_login']
+    post: operations['UserAuthController_loginWithCredential']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/admin/auth/login/social/google': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Authentication */
+    post: operations['UserAuthController_loginWithGoogle']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/admin/auth/login/social/apple': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Authentication */
+    post: operations['UserAuthController_loginWithApple']
     delete?: never
     options?: never
     head?: never
@@ -417,6 +485,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/admin/app-versions/map-shorted': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Api Version */
+    get: operations['AppVersionAdminController_mapShorted']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/admin/app-versions/{id}': {
     parameters: {
       query?: never
@@ -655,6 +740,24 @@ export interface paths {
     /** Permission */
     get: operations['PermissionAdminController_list']
     put?: never
+    /** Permission */
+    post: operations['PermissionAdminController_create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/admin/permissions/{id}': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    /** Permission */
+    put: operations['PermissionAdminController_update']
     post?: never
     delete?: never
     options?: never
@@ -801,6 +904,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/admin/tier-histories/map-shorted': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Tier History */
+    get: operations['TierHistoryAdminController_mapShorted']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/admin/tier-histories/{id}': {
     parameters: {
       query?: never
@@ -838,6 +958,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/admin/point-histories/map-shorted': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Point History */
+    get: operations['PointHistoryAdminController_mapShorted']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/admin/point-histories/{id}': {
     parameters: {
       query?: never
@@ -869,6 +1006,23 @@ export interface paths {
     put?: never
     /** Product History */
     post: operations['ProductHistoryAdminController_create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/admin/product-histories/map-shorted': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Product History */
+    get: operations['ProductHistoryAdminController_mapShorted']
+    put?: never
+    post?: never
     delete?: never
     options?: never
     head?: never
@@ -966,6 +1120,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/admin/product-brands/map-shorted': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Product Brand */
+    get: operations['ProductBrandAdminController_mapShorted']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/admin/product-brands/{id}': {
     parameters: {
       query?: never
@@ -997,6 +1168,23 @@ export interface paths {
     put?: never
     /** Product Category */
     post: operations['ProductCategoryAdminController_create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/admin/product-categories/map-shorted': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Product Category */
+    get: operations['ProductCategoryAdminController_mapShorted']
+    put?: never
+    post?: never
     delete?: never
     options?: never
     head?: never
@@ -1040,6 +1228,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/admin/product-reviews/map-shorted': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Product Review */
+    get: operations['ProductReviewAdminController_mapShorted']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/admin/product-reviews/{id}': {
     parameters: {
       query?: never
@@ -1069,7 +1274,11 @@ export interface paths {
     /** Fact */
     get: operations['FactAdminController_list']
     put?: never
-    post?: never
+    /**
+     * Fact
+     * @deprecated
+     */
+    post: operations['FactAdminController_create']
     delete?: never
     options?: never
     head?: never
@@ -1088,7 +1297,11 @@ export interface paths {
     /** Fact */
     put: operations['FactAdminController_update']
     post?: never
-    delete?: never
+    /**
+     * Fact
+     * @deprecated
+     */
+    delete: operations['FactAdminController_delete']
     options?: never
     head?: never
     patch?: never
@@ -1138,7 +1351,8 @@ export interface paths {
     /** Tier */
     get: operations['TierAdminController_list']
     put?: never
-    post?: never
+    /** Tier */
+    post: operations['TierAdminController_create']
     delete?: never
     options?: never
     head?: never
@@ -1174,7 +1388,8 @@ export interface paths {
     /** Tier */
     put: operations['TierAdminController_update']
     post?: never
-    delete?: never
+    /** Tier */
+    delete: operations['TierAdminController_delete']
     options?: never
     head?: never
     patch?: never
@@ -1192,6 +1407,23 @@ export interface paths {
     put?: never
     /** Order */
     post: operations['OrderAdminController_create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/admin/orders/map-shorted': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Order */
+    get: operations['OrderAdminController_mapShorted']
+    put?: never
+    post?: never
     delete?: never
     options?: never
     head?: never
@@ -1235,6 +1467,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/admin/invoices/map-shorted': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Invoice */
+    get: operations['InvoiceAdminController_mapShorted']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/admin/invoices/{id}': {
     parameters: {
       query?: never
@@ -1266,6 +1515,23 @@ export interface paths {
     put?: never
     /** Notification */
     post: operations['NotificationAdminController_create']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/api/admin/notifications/map-shorted': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Notification */
+    get: operations['NotificationAdminController_mapShorted']
+    put?: never
+    post?: never
     delete?: never
     options?: never
     head?: never
@@ -1343,6 +1609,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/admin/pushes/map-shorted': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Push */
+    get: operations['PushAdminController_mapShorted']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/admin/pushes/{id}': {
     parameters: {
       query?: never
@@ -1414,6 +1697,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/api/admin/media/map-shorted': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    /** Media */
+    get: operations['MediaAdminController_mapShorted']
+    put?: never
+    post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/api/admin/media/{id}': {
     parameters: {
       query?: never
@@ -1465,16 +1765,16 @@ export interface components {
     UserRequestSignUpDto: {
       /** @example admin@example.com */
       email: string
-      /** @example Leuschke */
+      /** @example Abernathy */
       name: string
-      /** @example 645 Mount Street */
+      /** @example 13707 Sporer Crossroad */
       address: string
       /** Format: binary */
       avatar?: string
       /** @example admin123 */
       password: string
     }
-    AuthAccessResponseDto: {
+    AuthTokenResponseDto: {
       /** @example Bearer */
       tokenType: string
       /**
@@ -1484,14 +1784,57 @@ export interface components {
       expiresIn: number
       /**
        * @description Will be valid JWT Encode string
-       * @example EqZMIgVY0eOFx7IwjzA2KcGSmI7kcv
+       * @example 7n8cVUtpqRkSvdjq8oYs3hk9BmnHyD
        */
       accessToken: string
       /**
        * @description Will be valid JWT Encode string
-       * @example f3pS7FYFVYbt1XcbuofaYOlax8nWmQ
+       * @example wGwYSopZWWpenhnbFRxlBcai4fRH2U
        */
       refreshToken: string
+    }
+    UserResponseTwoFactorDto: {
+      /**
+       * @description Base32 encoded secret to be stored in authenticator apps
+       * @example JBSWY3DPEHPK3PXP
+       */
+      secret: string
+      /**
+       * @description otpauth URL compatible with Google Authenticator and similar apps
+       * @example otpauth://totp/ACK%20Auth:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=ACK
+       */
+      otpauthUrl: string
+      /**
+       * @description Indicates whether the user is required to set up 2FA upon next login
+       * @example false
+       */
+      isRequiredSetup: boolean
+      /**
+       * @description Challenge token to be used for completing 2FA login
+       * @example 2b5b8933f0a44a94b3e1a96f8d2e2f21
+       */
+      challengeToken: string
+      /**
+       * @description Challenge token TTL in milliseconds
+       * @example 300
+       */
+      challengeExpiresInMs: number
+      /**
+       * @description Remaining backup codes count for the account
+       * @example 8
+       */
+      backupCodesRemaining?: number
+    }
+    UserResponseLoginDto: {
+      /**
+       * @description Indicates whether an additional 2FA verification step is enable
+       * @example false
+       */
+      isTwoFactorEnable: boolean
+      /** @description Provides access and refresh tokens upon successful login */
+      token?: components['schemas']['AuthTokenResponseDto']
+      /** @description Provides details for completing the 2FA verification step */
+      twoFactor?: components['schemas']['UserResponseTwoFactorDto']
     }
     UserRequestSignInDto: {
       /** @example admin@example.com */
@@ -1504,33 +1847,14 @@ export interface components {
       email: string
       /** @example 85200000000 */
       phone?: string
-      /** @example Leuschke */
+      /** @example Abernathy */
       name: string
-      /** @example 645 Mount Street */
+      /** @example 13707 Sporer Crossroad */
       address: string
       /** @example true */
       isActive: boolean
       /** @example 1 */
       roleId: number
-    }
-    AuthRefreshResponseDto: {
-      /** @example Bearer */
-      tokenType: string
-      /**
-       * @description Expire in timestamp
-       * @example 1660190937231
-       */
-      expiresIn: number
-      /**
-       * @description Will be valid JWT Encode string
-       * @example EqZMIgVY0eOFx7IwjzA2KcGSmI7kcv
-       */
-      accessToken: string
-      /**
-       * @description Will be valid JWT Encode string
-       * @example f3pS7FYFVYbt1XcbuofaYOlax8nWmQ
-       */
-      refreshToken: string
     }
     UserRequestChangePasswordDto: {
       /**
@@ -1633,13 +1957,13 @@ export interface components {
       /**
        * Format: date-time
        * @description Date created at
-       * @example 2025-04-08T10:39:53.523Z
+       * @example 2025-02-02T05:50:51.925Z
        */
       createdAt: string
       /**
        * Format: date-time
        * @description Date updated at
-       * @example 2025-08-29T20:11:47.593Z
+       * @example 2025-12-25T08:21:33.903Z
        */
       updatedAt: string
     }
@@ -1679,13 +2003,13 @@ export interface components {
       /**
        * Format: date-time
        * @description Date created at
-       * @example 2025-04-08T10:39:53.523Z
+       * @example 2025-02-02T05:50:51.925Z
        */
       createdAt: string
       /**
        * Format: date-time
        * @description Date updated at
-       * @example 2025-08-29T20:11:47.593Z
+       * @example 2025-12-25T08:21:33.903Z
        */
       updatedAt: string
     }
@@ -1733,17 +2057,17 @@ export interface components {
     UserBelongInfo: {
       /**
        * @description Id that representative with your target data
-       * @example 11
+       * @example 54
        */
       id: number
       /**
        * @description Name that representative with your target data
-       * @example Amparo80
+       * @example Santa18
        */
       name: string
     }
     ApiKeyResponseListDto: {
-      /** @example 1 */
+      /** @example 10 */
       id: number
       /**
        * @description Type of api key
@@ -1753,17 +2077,17 @@ export interface components {
       type: 'SYSTEM' | 'CLIENT' | 'DEFAULT'
       /**
        * @description Alias name of api key
-       * @example Investor Factors Manager
+       * @example Dynamic Applications Engineer
        */
       name: string
       /**
        * @description Unique key of api key
-       * @example PDSiBAuqPYvmhkJ
+       * @example bWBlAOTdbVaIUBs
        */
       key: string
       /**
        * @description Hash key of api key
-       * @example vCsJvLiDhrtcbczQKkxIaSOpyMpHVsMV
+       * @example SIviUwkAOLwSCvsXsxoPBTCDplcYtCbX
        */
       hash: string
       /** @example false */
@@ -1773,23 +2097,23 @@ export interface components {
       /**
        * Format: date-time
        * @description Api Key start date
-       * @example 2025-03-03T16:13:03.097Z
+       * @example 2025-05-31T15:09:47.428Z
        */
       startDate?: string
       /**
        * Format: date-time
        * @description Api Key end date
-       * @example 2026-01-20T04:12:39.349Z
+       * @example 2026-01-27T19:16:26.293Z
        */
       untilDate?: string
       /**
        * Format: date-time
-       * @example 2025-08-09T22:52:30.442Z
+       * @example 2025-10-29T22:01:58.834Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T22:40:01.062Z
+       * @example 2025-12-25T01:40:22.184Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -1798,7 +2122,7 @@ export interface components {
       assignedBy: components['schemas']['UserBelongInfo']
     }
     ApiKeyResponseDetailDto: {
-      /** @example 1 */
+      /** @example 10 */
       id: number
       /**
        * @description Type of api key
@@ -1808,17 +2132,17 @@ export interface components {
       type: 'SYSTEM' | 'CLIENT' | 'DEFAULT'
       /**
        * @description Alias name of api key
-       * @example Investor Factors Manager
+       * @example Dynamic Applications Engineer
        */
       name: string
       /**
        * @description Unique key of api key
-       * @example PDSiBAuqPYvmhkJ
+       * @example bWBlAOTdbVaIUBs
        */
       key: string
       /**
        * @description Hash key of api key
-       * @example vCsJvLiDhrtcbczQKkxIaSOpyMpHVsMV
+       * @example SIviUwkAOLwSCvsXsxoPBTCDplcYtCbX
        */
       hash: string
       /** @example false */
@@ -1828,23 +2152,23 @@ export interface components {
       /**
        * Format: date-time
        * @description Api Key start date
-       * @example 2025-03-03T16:13:03.097Z
+       * @example 2025-05-31T15:09:47.428Z
        */
       startDate?: string
       /**
        * Format: date-time
        * @description Api Key end date
-       * @example 2026-01-20T04:12:39.349Z
+       * @example 2026-01-27T19:16:26.293Z
        */
       untilDate?: string
       /**
        * Format: date-time
-       * @example 2025-08-09T22:52:30.442Z
+       * @example 2025-10-29T22:01:58.834Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T22:40:01.062Z
+       * @example 2025-12-25T01:40:22.184Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -1861,38 +2185,38 @@ export interface components {
       type: 'SYSTEM' | 'CLIENT' | 'DEFAULT'
       /**
        * @description Api Key name
-       * @example Heidenreich and Sons
+       * @example Metz, Hintz and Von
        */
       name: string
       /**
        * Format: date-time
        * @description Api Key start date
-       * @example 2025-08-29T21:22:50.284Z
+       * @example 2025-12-24T11:39:45.713Z
        */
       startDate?: string
       /**
        * Format: date-time
        * @description Api Key end date
-       * @example 2026-02-28T10:16:25.996Z
+       * @example 2026-04-03T22:56:57.185Z
        */
       untilDate?: string
     }
     ApiKeyRequestUpdateDto: {
       /**
        * @description Api Key name
-       * @example Heidenreich and Sons
+       * @example Metz, Hintz and Von
        */
       name: string
       /**
        * Format: date-time
        * @description Api Key start date
-       * @example 2025-08-29T21:22:50.284Z
+       * @example 2025-12-24T11:39:45.713Z
        */
       startDate?: string
       /**
        * Format: date-time
        * @description Api Key end date
-       * @example 2026-02-28T10:16:25.996Z
+       * @example 2026-04-03T22:56:57.185Z
        */
       untilDate?: string
     }
@@ -1900,18 +2224,18 @@ export interface components {
       /**
        * Format: date-time
        * @description Api Key start date
-       * @example 2025-08-29T10:33:54.285Z
+       * @example 2025-12-25T03:47:25.674Z
        */
       startDate?: string
       /**
        * Format: date-time
        * @description Api Key end date
-       * @example 2026-08-18T23:58:05.668Z
+       * @example 2026-03-25T10:14:11.206Z
        */
       untilDate?: string
     }
     AppVersionResponseListDto: {
-      /** @example 6 */
+      /** @example 2 */
       id: number
       /**
        * @example IOS
@@ -1922,7 +2246,7 @@ export interface components {
       name: string
       /** @example 0.0.1 */
       version: string
-      /** @example https://regular-bob.net */
+      /** @example https://queasy-swordfish.info/ */
       url: string
       /** @example false */
       isForce: boolean
@@ -1930,12 +2254,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-01-14T17:19:52.620Z
+       * @example 2025-08-17T02:33:50.909Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T16:19:58.701Z
+       * @example 2025-12-24T17:28:55.718Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -1944,7 +2268,7 @@ export interface components {
       assignedBy: components['schemas']['UserBelongInfo']
     }
     AppVersionResponseDetailDto: {
-      /** @example 6 */
+      /** @example 2 */
       id: number
       /**
        * @example IOS
@@ -1955,7 +2279,7 @@ export interface components {
       name: string
       /** @example 0.0.1 */
       version: string
-      /** @example https://regular-bob.net */
+      /** @example https://queasy-swordfish.info/ */
       url: string
       /** @example false */
       isForce: boolean
@@ -1963,12 +2287,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-01-14T17:19:52.620Z
+       * @example 2025-08-17T02:33:50.909Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T16:19:58.701Z
+       * @example 2025-12-24T17:28:55.718Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -1995,7 +2319,7 @@ export interface components {
       version: string
       /**
        * @description Api share link
-       * @example https://wrong-address.com
+       * @example https://ajar-fledgling.org/
        */
       url: string
     }
@@ -2012,7 +2336,7 @@ export interface components {
       version: string
       /**
        * @description Api share link
-       * @example https://wrong-address.com
+       * @example https://ajar-fledgling.org/
        */
       url: string
     }
@@ -2045,9 +2369,9 @@ export interface components {
       email: string
       /** @example 85200000000 */
       phone?: string
-      /** @example Leuschke */
+      /** @example Abernathy */
       name: string
-      /** @example 645 Mount Street */
+      /** @example 13707 Sporer Crossroad */
       address: string
       /** Format: binary */
       avatar?: string
@@ -2063,9 +2387,9 @@ export interface components {
       email: string
       /** @example 85200000000 */
       phone?: string
-      /** @example Leuschke */
+      /** @example Abernathy */
       name: string
-      /** @example 645 Mount Street */
+      /** @example 13707 Sporer Crossroad */
       address: string
       /** @example true */
       isActive?: boolean
@@ -2147,26 +2471,136 @@ export interface components {
       deletedBy: components['schemas']['UserBelongInfo']
       assignedBy: components['schemas']['UserBelongInfo']
     }
-    ResponseLocaleDto: {
-      /** @example Tolero arbustum appositus super arma. */
+    PermissionResponseDetailDto: {
+      /** @example 1 */
+      id: number
+      createdBy: components['schemas']['UserBelongInfo']
+      updatedBy: components['schemas']['UserBelongInfo']
+      deletedBy: components['schemas']['UserBelongInfo']
+      assignedBy: components['schemas']['UserBelongInfo']
+    }
+    RequestSentenceDto: {
+      /** @example Culpo vulgaris cornu. */
       en: string
-      /** @example Apostolus conqueror tabgo veritas spiritus sperno spoliatio perferendis nemo vitium. */
+      /** @example Nesciunt clibanus a ab. */
+      vi: string
+    }
+    PermissionRequestUpdateDto: {
+      /** @enum {string} */
+      context?:
+        | 'DASHBOARD'
+        | 'SETTING_MANAGEMENT'
+        | 'USER_MANAGEMENT'
+        | 'MEMBER_MANAGEMENT'
+        | 'INVENTORY_MANAGEMENT'
+        | 'SALE_MANAGEMENT'
+        | 'NOTIFICATION_MANAGEMENT'
+      /** @enum {string} */
+      subject:
+        | 'DASHBOARD'
+        | 'SETTING'
+        | 'MEDIA'
+        | 'API_KEY'
+        | 'APP_VERSION'
+        | 'ROLE'
+        | 'PERMISSION'
+        | 'USER'
+        | 'FACT'
+        | 'COUNTRY'
+        | 'DISTRICT'
+        | 'MEMBER'
+        | 'TIER_HISTORY'
+        | 'POINT_HISTORY'
+        | 'NOTIFICATION_HISTORY'
+        | 'PRODUCT'
+        | 'PRODUCT_BRAND'
+        | 'PRODUCT_CATEGORY'
+        | 'PRODUCT_REVIEW'
+        | 'PRODUCT_HISTORY'
+        | 'CART'
+        | 'INVOICE'
+        | 'ORDER'
+        | 'TIER'
+        | 'NOTIFICATION'
+        | 'PUSH'
+        | 'PUSH_GROUP'
+      actions: ('read' | 'create' | 'update' | 'delete' | 'export' | 'import')[]
+      title: components['schemas']['RequestSentenceDto']
+      /** @example 0 */
+      sorting: number
+      /** @example true */
+      isVisible: boolean
+      /** @example true */
+      isActive: boolean
+    }
+    PermissionRequestCreateDto: {
+      /** @enum {string} */
+      context?:
+        | 'DASHBOARD'
+        | 'SETTING_MANAGEMENT'
+        | 'USER_MANAGEMENT'
+        | 'MEMBER_MANAGEMENT'
+        | 'INVENTORY_MANAGEMENT'
+        | 'SALE_MANAGEMENT'
+        | 'NOTIFICATION_MANAGEMENT'
+      /** @enum {string} */
+      subject:
+        | 'DASHBOARD'
+        | 'SETTING'
+        | 'MEDIA'
+        | 'API_KEY'
+        | 'APP_VERSION'
+        | 'ROLE'
+        | 'PERMISSION'
+        | 'USER'
+        | 'FACT'
+        | 'COUNTRY'
+        | 'DISTRICT'
+        | 'MEMBER'
+        | 'TIER_HISTORY'
+        | 'POINT_HISTORY'
+        | 'NOTIFICATION_HISTORY'
+        | 'PRODUCT'
+        | 'PRODUCT_BRAND'
+        | 'PRODUCT_CATEGORY'
+        | 'PRODUCT_REVIEW'
+        | 'PRODUCT_HISTORY'
+        | 'CART'
+        | 'INVOICE'
+        | 'ORDER'
+        | 'TIER'
+        | 'NOTIFICATION'
+        | 'PUSH'
+        | 'PUSH_GROUP'
+      actions: ('read' | 'create' | 'update' | 'delete' | 'export' | 'import')[]
+      title: components['schemas']['RequestSentenceDto']
+      /** @example 0 */
+      sorting: number
+      /** @example true */
+      isVisible: boolean
+      /** @example true */
+      isActive: boolean
+    }
+    ResponseLocaleDto: {
+      /** @example Temeritas assentator carmen adulescens sodalitas volo odio deserunt quae. */
+      en: string
+      /** @example Quod delectus apparatus voluptatibus summopere suasoria volup asporto. */
       vi: string
     }
     ResponseDataChartDto: {
-      /** @example 5 */
+      /** @example 10 */
       id: number
-      /** @example 1 */
+      /** @example 2 */
       currId: number
-      /** @example 6 */
+      /** @example 1 */
       nextId: number
-      /** @example 7 */
+      /** @example 3 */
       requireSpending: number
       /** @example true */
       isActive: boolean
     }
     TierResponseBelongDto: {
-      /** @example 5 */
+      /** @example 8 */
       id: number
       /** @example NORMAL */
       code: string
@@ -2178,9 +2612,9 @@ export interface components {
       charts: components['schemas']['ResponseDataChartDto'][]
     }
     MemberResponseListDto: {
-      /** @example 14 */
+      /** @example 99 */
       id: number
-      /** @example 2 */
+      /** @example 1 */
       tierId: number
       /** @example  */
       code: string
@@ -2191,15 +2625,15 @@ export interface components {
       type: 'STAFF' | 'NORMAL' | 'MASTER'
       /** @example  */
       cardId: string
-      /** @example Pietro39@yahoo.com */
+      /** @example Fleta_Kozey67@gmail.com */
       email: string
-      /** @example Balistreri */
+      /** @example Reilly */
       name: string
       /** @example  */
       phone: string
       /** @example en */
       locale: string
-      /** @example 55585 Swift Mission */
+      /** @example 19936 N Central Avenue */
       address: string
       /** @example  */
       referralCode: string
@@ -2225,12 +2659,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-08-29T16:21:44.600Z
+       * @example 2025-12-25T01:27:16.377Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-31T04:06:39.893Z
+       * @example 2025-12-25T19:39:13.335Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2240,9 +2674,9 @@ export interface components {
       tier: components['schemas']['TierResponseBelongDto']
     }
     MemberResponseDetailDto: {
-      /** @example 14 */
+      /** @example 99 */
       id: number
-      /** @example 2 */
+      /** @example 1 */
       tierId: number
       /** @example  */
       code: string
@@ -2253,15 +2687,15 @@ export interface components {
       type: 'STAFF' | 'NORMAL' | 'MASTER'
       /** @example  */
       cardId: string
-      /** @example Pietro39@yahoo.com */
+      /** @example Fleta_Kozey67@gmail.com */
       email: string
-      /** @example Balistreri */
+      /** @example Reilly */
       name: string
       /** @example  */
       phone: string
       /** @example en */
       locale: string
-      /** @example 55585 Swift Mission */
+      /** @example 19936 N Central Avenue */
       address: string
       /** @example  */
       referralCode: string
@@ -2287,12 +2721,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-08-29T16:21:44.600Z
+       * @example 2025-12-25T01:27:16.377Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-31T04:06:39.893Z
+       * @example 2025-12-25T19:39:13.335Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2302,7 +2736,7 @@ export interface components {
       tier: components['schemas']['TierResponseBelongDto']
     }
     MemberRequestCreateDto: {
-      /** @example Langworth */
+      /** @example Lemke */
       name: string
       /** @example 84332170915 */
       phone: string
@@ -2310,11 +2744,11 @@ export interface components {
       email?: string
       /** @example X5785184 */
       cardId?: string
-      /** @example 903 Heller Ridge Suite 560 */
+      /** @example 212 Bruen Burgs Apt. 663 */
       address?: string
       /**
        * Format: date-time
-       * @example 1983-10-14T16:59:39.862Z
+       * @example 1964-03-14T20:15:39.239Z
        */
       birthDate?: string
       /** Format: binary */
@@ -2330,7 +2764,7 @@ export interface components {
       password: string
     }
     MemberRequestUpdateDto: {
-      /** @example Langworth */
+      /** @example Lemke */
       name: string
       /** @example 84332170915 */
       phone: string
@@ -2338,11 +2772,11 @@ export interface components {
       email?: string
       /** @example X5785184 */
       cardId?: string
-      /** @example 903 Heller Ridge Suite 560 */
+      /** @example 212 Bruen Burgs Apt. 663 */
       address?: string
       /**
        * Format: date-time
-       * @example 1983-10-14T16:59:39.862Z
+       * @example 1964-03-14T20:15:39.239Z
        */
       birthDate?: string
       /**
@@ -2364,17 +2798,17 @@ export interface components {
       point: number
     }
     MemberResponseBelongDto: {
-      /** @example 14 */
+      /** @example 99 */
       id: number
       /** @example  */
       code: string
-      /** @example Balistreri */
+      /** @example Reilly */
       name: string
       /** @example  */
       phone: string
     }
     ProductBrandResponseBelongDto: {
-      /** @example 5 */
+      /** @example 4 */
       id: number
       name: components['schemas']['ResponseLocaleDto']
       /** @example true */
@@ -2385,7 +2819,7 @@ export interface components {
       assignedBy: components['schemas']['UserBelongInfo']
     }
     ProductCategoryResponseBelongDto: {
-      /** @example 1 */
+      /** @example 5 */
       id: number
       name: components['schemas']['ResponseLocaleDto']
       /** @example true */
@@ -2415,13 +2849,13 @@ export interface components {
       category: components['schemas']['ProductCategoryResponseBelongDto']
     }
     ResponseDataItemDto: {
-      /** @example 1 */
+      /** @example 3 */
       id: number
-      /** @example 6 */
+      /** @example 2 */
       orderId: number
       /** @example 8 */
       productId: number
-      /** @example 10 */
+      /** @example 1 */
       promotionId: number
       /** @example 0 */
       quantity: number
@@ -2435,41 +2869,41 @@ export interface components {
       finalPoint: number
       /**
        * Format: date-time
-       * @example 2024-09-06T02:09:33.008Z
+       * @example 2025-12-07T14:41:17.833Z
        */
       expiryDate: string
       /**
        * Format: date-time
-       * @example 2025-06-30T05:26:50.794Z
+       * @example 2025-10-21T19:39:03.842Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T20:00:41.185Z
+       * @example 2025-12-25T01:24:53.133Z
        */
       updatedAt: string
       product: components['schemas']['ProductResponseBelongDto']
     }
     OrderResponseDetailDto: {
-      /** @example 5 */
+      /** @example 1 */
       id: number
       /** @example  */
       code: string
       /** @example 4 */
       memberId: number
-      /** @example 4 */
+      /** @example 8 */
       promotionId: number
       /** @example  */
       totalPrice: number
-      /** @example 2 */
+      /** @example 8 */
       totalPoint: number
       /** @example  */
       discPrice: number
-      /** @example 1 */
+      /** @example 9 */
       discPoint: number
-      /** @example 1 */
+      /** @example 8 */
       finalPrice: number
-      /** @example 10 */
+      /** @example 8 */
       finalPoint: number
       /** @example SYSTEM */
       source: string
@@ -2479,22 +2913,22 @@ export interface components {
       isBirth: boolean
       /**
        * Format: date-time
-       * @example 2025-03-11T19:01:26.973Z
+       * @example 2025-06-27T02:52:36.845Z
        */
       issueDate: string
       /**
        * Format: date-time
-       * @example 2025-05-14T13:13:02.559Z
+       * @example 2025-11-21T22:11:59.729Z
        */
       issuedAt: string
       /**
        * Format: date-time
-       * @example 2025-02-04T02:50:42.141Z
+       * @example 2025-08-01T19:06:52.699Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-30T04:22:11.477Z
+       * @example 2025-12-24T13:03:56.795Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2505,19 +2939,19 @@ export interface components {
       items: components['schemas']['ResponseDataItemDto'][]
     }
     InvoiceResponseBelongDto: {
-      /** @example 1 */
+      /** @example 6 */
       id: number
       /** @example  */
       code: string
-      /** @example 3 */
+      /** @example 2 */
       finalPrice: number
-      /** @example 4 */
+      /** @example 7 */
       finalPoint: number
       /** @example FULLY_PAID */
       status: string
       /**
        * Format: date-time
-       * @example 2025-07-07T22:03:10.484Z
+       * @example 2025-08-06T14:23:36.451Z
        */
       issueDate: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2528,47 +2962,47 @@ export interface components {
       member: components['schemas']['MemberResponseBelongDto']
     }
     TierHistoryResponseListDto: {
-      /** @example 9 */
+      /** @example 3 */
       id: number
-      /** @example 6 */
-      memberId: number
-      /** @example 7 */
-      invoiceId: number
       /** @example 1 */
+      memberId: number
+      /** @example 9 */
+      invoiceId: number
+      /** @example 9 */
       prevTierId: number
-      /** @example 6 */
+      /** @example 3 */
       currTierId: number
       /** @example 9 */
       minTierId: number
       /** @example SYSTEM */
       type: string
-      /** @example 50.77 */
+      /** @example 4.06 */
       maximumSpending: number
-      /** @example 67.17 */
+      /** @example 44.77 */
       personalSpending: number
-      /** @example 13.18 */
+      /** @example 89.59 */
       referralSpending: number
-      /** @example 70.06 */
+      /** @example 90.6 */
       excessSpending: number
-      /** @example 53.8 */
+      /** @example 72.35 */
       renewalSpending: number
-      /** @example 80.3 */
+      /** @example 88.15 */
       upgradeSpending: number
       /**
        * Format: date-time
-       * @example 2025-02-02T00:54:45.889Z
+       * @example 2025-05-25T11:13:32.453Z
        */
       expiryDate: string
       /** @example true */
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2024-11-19T14:09:48.880Z
+       * @example 2025-01-20T16:35:02.206Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T09:30:09.456Z
+       * @example 2025-12-24T17:16:12.365Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2581,47 +3015,47 @@ export interface components {
       currTier: components['schemas']['TierResponseBelongDto']
     }
     TierHistoryResponseDetailDto: {
-      /** @example 9 */
+      /** @example 3 */
       id: number
-      /** @example 6 */
-      memberId: number
-      /** @example 7 */
-      invoiceId: number
       /** @example 1 */
+      memberId: number
+      /** @example 9 */
+      invoiceId: number
+      /** @example 9 */
       prevTierId: number
-      /** @example 6 */
+      /** @example 3 */
       currTierId: number
       /** @example 9 */
       minTierId: number
       /** @example SYSTEM */
       type: string
-      /** @example 50.77 */
+      /** @example 4.06 */
       maximumSpending: number
-      /** @example 67.17 */
+      /** @example 44.77 */
       personalSpending: number
-      /** @example 13.18 */
+      /** @example 89.59 */
       referralSpending: number
-      /** @example 70.06 */
+      /** @example 90.6 */
       excessSpending: number
-      /** @example 53.8 */
+      /** @example 72.35 */
       renewalSpending: number
-      /** @example 80.3 */
+      /** @example 88.15 */
       upgradeSpending: number
       /**
        * Format: date-time
-       * @example 2025-02-02T00:54:45.889Z
+       * @example 2025-05-25T11:13:32.453Z
        */
       expiryDate: string
       /** @example true */
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2024-11-19T14:09:48.880Z
+       * @example 2025-01-20T16:35:02.206Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T09:30:09.456Z
+       * @example 2025-12-24T17:16:12.365Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2634,41 +3068,41 @@ export interface components {
       currTier: components['schemas']['TierResponseBelongDto']
     }
     TierHistoryRequestCreateDto: {
-      /** @example 5933829225714968 */
+      /** @example 6372307179016183 */
       memberId: number
-      /** @example 107404619110971 */
+      /** @example 203775003573155 */
       prevTierId: number
-      /** @example 5881769175894243 */
+      /** @example 136206540921795 */
       currTierId: number
     }
     TierHistoryRequestUpdateDto: {
-      /** @example 5933829225714968 */
+      /** @example 6372307179016183 */
       memberId: number
-      /** @example 107404619110971 */
+      /** @example 203775003573155 */
       prevTierId: number
-      /** @example 5881769175894243 */
+      /** @example 136206540921795 */
       currTierId: number
     }
     PointHistoryResponseListDto: {
-      /** @example 1 */
+      /** @example 9 */
       id: number
-      /** @example 5 */
+      /** @example 7 */
       tierId: number
-      /** @example 1 */
+      /** @example 6 */
       memberId: number
-      /** @example 2 */
+      /** @example 1 */
       refereeId: number
       /** @example 3 */
       invoiceId: number
-      /** @example 5150 */
+      /** @example 1567 */
       invoiceAmount: number
       /** @example PURCHASE */
       type: string
-      /** @example 849 */
+      /** @example 90 */
       point: number
-      /** @example 917 */
+      /** @example 911 */
       pointBalance: number
-      /** @example 0.2862223946911101 */
+      /** @example 0.5947487801374859 */
       multipleRatio: number
       /** @example false */
       isFirst: boolean
@@ -2680,27 +3114,27 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-04-16T16:01:25.658Z
+       * @example 2025-10-22T11:19:20.893Z
        */
       expiryDate: string
       /**
        * Format: date-time
-       * @example 2026-05-29T11:02:31.268Z
+       * @example 2026-01-02T05:29:22.604Z
        */
       releaseDate: string
       /**
        * Format: date-time
-       * @example 2025-06-27T23:26:21.207Z
+       * @example 2025-06-03T18:34:39.947Z
        */
       createdDate: string
       /**
        * Format: date-time
-       * @example 2025-03-20T04:45:50.127Z
+       * @example 2025-03-08T03:47:38.143Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T15:58:58.475Z
+       * @example 2025-12-24T13:59:04.155Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2713,25 +3147,25 @@ export interface components {
       invoice: components['schemas']['InvoiceResponseBelongDto']
     }
     PointHistoryResponseDetailDto: {
-      /** @example 1 */
+      /** @example 9 */
       id: number
-      /** @example 5 */
+      /** @example 7 */
       tierId: number
-      /** @example 1 */
+      /** @example 6 */
       memberId: number
-      /** @example 2 */
+      /** @example 1 */
       refereeId: number
       /** @example 3 */
       invoiceId: number
-      /** @example 5150 */
+      /** @example 1567 */
       invoiceAmount: number
       /** @example PURCHASE */
       type: string
-      /** @example 849 */
+      /** @example 90 */
       point: number
-      /** @example 917 */
+      /** @example 911 */
       pointBalance: number
-      /** @example 0.2862223946911101 */
+      /** @example 0.5947487801374859 */
       multipleRatio: number
       /** @example false */
       isFirst: boolean
@@ -2743,27 +3177,27 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-04-16T16:01:25.658Z
+       * @example 2025-10-22T11:19:20.893Z
        */
       expiryDate: string
       /**
        * Format: date-time
-       * @example 2026-05-29T11:02:31.268Z
+       * @example 2026-01-02T05:29:22.604Z
        */
       releaseDate: string
       /**
        * Format: date-time
-       * @example 2025-06-27T23:26:21.207Z
+       * @example 2025-06-03T18:34:39.947Z
        */
       createdDate: string
       /**
        * Format: date-time
-       * @example 2025-03-20T04:45:50.127Z
+       * @example 2025-03-08T03:47:38.143Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T15:58:58.475Z
+       * @example 2025-12-24T13:59:04.155Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2776,33 +3210,33 @@ export interface components {
       invoice: components['schemas']['InvoiceResponseBelongDto']
     }
     PointHistoryRequestCreateDto: {
-      /** @example 3152384184684328 */
+      /** @example 8679832833257948 */
       memberId: number
-      /** @example 8905804810674676 */
+      /** @example 8733971058279405 */
       point: number
     }
     PointHistoryRequestUpdateDto: {
-      /** @example 3152384184684328 */
+      /** @example 8679832833257948 */
       memberId: number
-      /** @example 8905804810674676 */
+      /** @example 8733971058279405 */
       point: number
     }
     OrderResponseBelongDto: {
-      /** @example 5 */
+      /** @example 1 */
       id: number
       /** @example  */
       code: string
       /** @example  */
       totalPrice: number
-      /** @example 2 */
+      /** @example 8 */
       totalPoint: number
       /** @example  */
       discPrice: number
-      /** @example 1 */
+      /** @example 9 */
       discPoint: number
-      /** @example 1 */
+      /** @example 8 */
       finalPrice: number
-      /** @example 10 */
+      /** @example 8 */
       finalPoint: number
       createdBy: components['schemas']['UserBelongInfo']
       updatedBy: components['schemas']['UserBelongInfo']
@@ -2812,19 +3246,19 @@ export interface components {
       items: components['schemas']['ResponseDataItemDto'][]
     }
     ProductHistoryResponseListDto: {
-      /** @example 10 */
+      /** @example 6 */
       id: number
-      /** @example 3 */
+      /** @example 2 */
       memberId: number
-      /** @example 9 */
+      /** @example 2 */
       productId: number
-      /** @example 4 */
+      /** @example 1 */
       orderId: number
-      /** @example 3 */
+      /** @example 9 */
       promotionId: number
-      /** @example 600.9329381176551 */
+      /** @example 671.5393462715164 */
       redeemPrice: number
-      /** @example 98 */
+      /** @example 88 */
       redeemPoint: number
       /** @example ORDER */
       source: string
@@ -2834,47 +3268,47 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2024-09-08T13:06:12.072Z
+       * @example 2025-03-28T01:59:30.409Z
        */
       startDate: string
       /**
        * Format: date-time
-       * @example 2026-07-09T11:13:31.600Z
+       * @example 2026-03-07T01:18:26.981Z
        */
       untilDate: string
       /**
        * Format: date-time
-       * @example 2025-12-24T04:00:41.423Z
+       * @example 2026-03-13T22:30:11.586Z
        */
       expiryDate: string
       /**
        * Format: date-time
-       * @example 2025-01-04T10:25:23.539Z
+       * @example 2025-03-16T16:53:25.180Z
        */
       issuedDate: string
       /**
        * Format: date-time
-       * @example 2025-08-10T15:12:45.731Z
+       * @example 2025-12-07T21:18:38.099Z
        */
       usedDate: string
       /**
        * Format: date-time
-       * @example 2024-11-29T06:19:12.056Z
+       * @example 2025-04-07T09:55:54.042Z
        */
       usedAt: string
       /**
        * Format: date-time
-       * @example 2025-08-19T08:52:27.086Z
+       * @example 2025-01-27T02:15:40.159Z
        */
       issuedAt: string
       /**
        * Format: date-time
-       * @example 2025-04-09T11:02:44.597Z
+       * @example 2025-03-05T13:34:20.317Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-30T02:06:07.468Z
+       * @example 2025-12-24T11:00:33.391Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2886,19 +3320,19 @@ export interface components {
       order: components['schemas']['OrderResponseBelongDto']
     }
     ProductHistoryResponseDetailDto: {
-      /** @example 10 */
+      /** @example 6 */
       id: number
-      /** @example 3 */
+      /** @example 2 */
       memberId: number
-      /** @example 9 */
+      /** @example 2 */
       productId: number
-      /** @example 4 */
+      /** @example 1 */
       orderId: number
-      /** @example 3 */
+      /** @example 9 */
       promotionId: number
-      /** @example 600.9329381176551 */
+      /** @example 671.5393462715164 */
       redeemPrice: number
-      /** @example 98 */
+      /** @example 88 */
       redeemPoint: number
       /** @example ORDER */
       source: string
@@ -2908,47 +3342,47 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2024-09-08T13:06:12.072Z
+       * @example 2025-03-28T01:59:30.409Z
        */
       startDate: string
       /**
        * Format: date-time
-       * @example 2026-07-09T11:13:31.600Z
+       * @example 2026-03-07T01:18:26.981Z
        */
       untilDate: string
       /**
        * Format: date-time
-       * @example 2025-12-24T04:00:41.423Z
+       * @example 2026-03-13T22:30:11.586Z
        */
       expiryDate: string
       /**
        * Format: date-time
-       * @example 2025-01-04T10:25:23.539Z
+       * @example 2025-03-16T16:53:25.180Z
        */
       issuedDate: string
       /**
        * Format: date-time
-       * @example 2025-08-10T15:12:45.731Z
+       * @example 2025-12-07T21:18:38.099Z
        */
       usedDate: string
       /**
        * Format: date-time
-       * @example 2024-11-29T06:19:12.056Z
+       * @example 2025-04-07T09:55:54.042Z
        */
       usedAt: string
       /**
        * Format: date-time
-       * @example 2025-08-19T08:52:27.086Z
+       * @example 2025-01-27T02:15:40.159Z
        */
       issuedAt: string
       /**
        * Format: date-time
-       * @example 2025-04-09T11:02:44.597Z
+       * @example 2025-03-05T13:34:20.317Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-30T02:06:07.468Z
+       * @example 2025-12-24T11:00:33.391Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -2960,15 +3394,15 @@ export interface components {
       order: components['schemas']['OrderResponseBelongDto']
     }
     ProductHistoryRequestCreateDto: {
-      /** @example 1 */
+      /** @example 4 */
       memberId: number
-      /** @example 8 */
+      /** @example 7 */
       productId: number
     }
     ProductHistoryRequestUpdateDto: {
-      /** @example 1 */
+      /** @example 4 */
       memberId: number
-      /** @example 8 */
+      /** @example 7 */
       productId: number
     }
     ProductResponseListDto: {
@@ -2980,7 +3414,7 @@ export interface components {
       categoryId: number
       /** @example P01 */
       sku: string
-      /** @example https://picsum.photos/seed/P874Ar/3418/59 */
+      /** @example https://picsum.photos/seed/aPIjmLMOo/2483/652 */
       thumbnail: string
       name: components['schemas']['ResponseLocaleDto']
       content: components['schemas']['ResponseLocaleDto'][]
@@ -3010,9 +3444,9 @@ export interface components {
       expiryType: 'STATIC' | 'DYNAMIC'
       /** @example 0 */
       dynamicExpiryDays: number
-      /** @example 2026-06-01T09:02:18.823Z */
+      /** @example 2026-08-14T07:08:07.924Z */
       dynamicExpiryDate: string
-      /** @example 2026-08-13T10:50:57.477Z */
+      /** @example 2026-06-23T01:45:47.224Z */
       staticExpiryDate: string
       /** @example true */
       hasShipment: boolean
@@ -3042,12 +3476,12 @@ export interface components {
       isDeleted: boolean
       /**
        * Format: date-time
-       * @example 2025-08-30T07:14:50.833Z
+       * @example 2025-12-25T05:55:37.482Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-31T04:37:20.838Z
+       * @example 2025-12-26T08:04:15.212Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3066,7 +3500,7 @@ export interface components {
       categoryId: number
       /** @example P01 */
       sku: string
-      /** @example https://picsum.photos/seed/P874Ar/3418/59 */
+      /** @example https://picsum.photos/seed/aPIjmLMOo/2483/652 */
       thumbnail: string
       name: components['schemas']['ResponseLocaleDto']
       content: components['schemas']['ResponseLocaleDto'][]
@@ -3096,9 +3530,9 @@ export interface components {
       expiryType: 'STATIC' | 'DYNAMIC'
       /** @example 0 */
       dynamicExpiryDays: number
-      /** @example 2026-06-01T09:02:18.823Z */
+      /** @example 2026-08-14T07:08:07.924Z */
       dynamicExpiryDate: string
-      /** @example 2026-08-13T10:50:57.477Z */
+      /** @example 2026-06-23T01:45:47.224Z */
       staticExpiryDate: string
       /** @example true */
       hasShipment: boolean
@@ -3128,12 +3562,12 @@ export interface components {
       isDeleted: boolean
       /**
        * Format: date-time
-       * @example 2025-08-30T07:14:50.833Z
+       * @example 2025-12-25T05:55:37.482Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-31T04:37:20.838Z
+       * @example 2025-12-26T08:04:15.212Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3143,16 +3577,10 @@ export interface components {
       brand: components['schemas']['ProductBrandResponseBelongDto']
       category: components['schemas']['ProductCategoryResponseBelongDto']
     }
-    RequestSentenceDto: {
-      /** @example Aeternus cupio surculus vorago minima. */
-      en: string
-      /** @example Amissio tyrannus suscipio curso catena conicio agnosco vaco adinventitias cattus. */
-      vi: string
-    }
     RequestParagraphDto: {
-      /** @example Tergum audeo subiungo suffoco. Suus volo ater voluntarius vereor spes terreo temperantia acidus. Omnis supplanto itaque defessus adopto. */
+      /** @example Minus bos viscus beatus color aegrus. Concido adhuc architecto correptius vae. Ter amo culpa explicabo textus cinis versus tempore vel concedo. */
       en: string
-      /** @example Coaegresco vociferor volup eveniet thesaurus labore conor viriliter. Timidus subito adstringo laudantium adsuesco conturbo pecco acsi. Cunabula crudelis alias cunctatio. */
+      /** @example Comes earum sopor aestas vinculum confero. Confero blandior comburo. Votum strenuus curia ciminatio voluptates eius trucido tristis ventus turpis. */
       vi: string
     }
     ProductRequestUpdateDto: {
@@ -3186,7 +3614,7 @@ export interface components {
       dynamicExpiryDays?: number
       /**
        * Format: date-time
-       * @example 2026-06-12T17:47:11.372Z
+       * @example 2026-06-30T00:03:57.173Z
        */
       staticExpiryDate?: string
       /** @example false */
@@ -3219,7 +3647,7 @@ export interface components {
       brandId: number
       /** @example 1 */
       categoryId: number
-      /** @example P0062 */
+      /** @example P0071 */
       sku: string
       name: components['schemas']['RequestSentenceDto']
       termAndCond: components['schemas']['RequestParagraphDto']
@@ -3247,7 +3675,7 @@ export interface components {
       dynamicExpiryDays?: number
       /**
        * Format: date-time
-       * @example 2026-06-12T17:47:11.372Z
+       * @example 2026-06-30T00:03:57.173Z
        */
       staticExpiryDate?: string
       /** @example false */
@@ -3276,7 +3704,7 @@ export interface components {
       thumbnail?: string
     }
     ProductBrandResponseListDto: {
-      /** @example 5 */
+      /** @example 4 */
       id: number
       name: components['schemas']['ResponseLocaleDto']
       /** @example  */
@@ -3291,12 +3719,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-02-21T08:18:03.256Z
+       * @example 2025-01-08T10:00:02.071Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-30T01:55:21.328Z
+       * @example 2025-12-24T23:31:34.621Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3305,7 +3733,7 @@ export interface components {
       assignedBy: components['schemas']['UserBelongInfo']
     }
     ProductBrandResponseDetailDto: {
-      /** @example 5 */
+      /** @example 4 */
       id: number
       name: components['schemas']['ResponseLocaleDto']
       /** @example  */
@@ -3320,12 +3748,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-02-21T08:18:03.256Z
+       * @example 2025-01-08T10:00:02.071Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-30T01:55:21.328Z
+       * @example 2025-12-24T23:31:34.621Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3344,19 +3772,19 @@ export interface components {
       isActive?: boolean
     }
     ProductCategoryResponseListDto: {
-      /** @example 1 */
+      /** @example 5 */
       id: number
       name: components['schemas']['ResponseLocaleDto']
       /** @example true */
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-04-12T18:49:21.597Z
+       * @example 2025-12-18T14:36:55.895Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T10:22:58.569Z
+       * @example 2025-12-24T11:07:43.111Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3365,19 +3793,19 @@ export interface components {
       assignedBy: components['schemas']['UserBelongInfo']
     }
     ProductCategoryResponseDetailDto: {
-      /** @example 1 */
+      /** @example 5 */
       id: number
       name: components['schemas']['ResponseLocaleDto']
       /** @example true */
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-04-12T18:49:21.597Z
+       * @example 2025-12-18T14:36:55.895Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T10:22:58.569Z
+       * @example 2025-12-24T11:07:43.111Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3402,12 +3830,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-04-21T22:01:38.645Z
+       * @example 2025-10-08T03:19:17.498Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-30T05:50:15.716Z
+       * @example 2025-12-24T16:13:02.190Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3422,12 +3850,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-04-21T22:01:38.645Z
+       * @example 2025-10-08T03:19:17.498Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-30T05:50:15.716Z
+       * @example 2025-12-24T16:13:02.190Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3467,6 +3895,14 @@ export interface components {
       deletedBy: components['schemas']['UserBelongInfo']
       assignedBy: components['schemas']['UserBelongInfo']
     }
+    FactRequestCreateDto: {
+      title: components['schemas']['RequestSentenceDto']
+      content: components['schemas']['RequestSentenceDto']
+      /** @enum {string} */
+      type: 'TERM_AND_CONDITION' | 'ABOUT_US' | 'PRIVACY' | 'FACT_REASON'
+      /** Format: binary */
+      thumbnail?: string
+    }
     FactRequestUpdateDto: {
       title: components['schemas']['RequestSentenceDto']
       content: components['schemas']['RequestSentenceDto']
@@ -3474,7 +3910,7 @@ export interface components {
       thumbnail?: string
     }
     TierResponseListDto: {
-      /** @example 5 */
+      /** @example 8 */
       id: number
       /** @example NORMAL */
       code: string
@@ -3499,7 +3935,7 @@ export interface components {
       charts: components['schemas']['ResponseDataChartDto'][]
     }
     TierResponseDetailDto: {
-      /** @example 5 */
+      /** @example 8 */
       id: number
       /** @example NORMAL */
       code: string
@@ -3525,12 +3961,12 @@ export interface components {
       cardCover: string
       /**
        * Format: date-time
-       * @example 2025-01-21T05:47:13.533Z
+       * @example 2025-07-07T08:51:16.341Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-30T02:09:20.497Z
+       * @example 2025-12-24T15:19:01.072Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3538,6 +3974,27 @@ export interface components {
       deletedBy: components['schemas']['UserBelongInfo']
       assignedBy: components['schemas']['UserBelongInfo']
       charts: components['schemas']['ResponseDataChartDto'][]
+    }
+    TierRequestCreateDto: {
+      name: components['schemas']['RequestSentenceDto']
+      description: components['schemas']['RequestSentenceDto']
+      /**
+       * @example NORMAL
+       * @enum {string}
+       */
+      code: 'NORMAL' | 'BLUE' | 'SILVER' | 'GOLD' | 'BLACK' | 'PLATINUM' | 'DIAMOND'
+      /** @example 0 */
+      rewardPoint: number
+      /** @example 1 */
+      birthdayRatio: number
+      /** @example 0 */
+      limitSpending: number
+      /** @example 10000 */
+      initialRate: number
+      /** @example 10000 */
+      personalRate: number
+      /** @example 10000 */
+      referralRate: number
     }
     TierRequestUpdateDto: {
       name: components['schemas']['RequestSentenceDto']
@@ -3556,25 +4013,25 @@ export interface components {
       referralRate: number
     }
     OrderResponseListDto: {
-      /** @example 5 */
+      /** @example 1 */
       id: number
       /** @example  */
       code: string
       /** @example 4 */
       memberId: number
-      /** @example 4 */
+      /** @example 8 */
       promotionId: number
       /** @example  */
       totalPrice: number
-      /** @example 2 */
+      /** @example 8 */
       totalPoint: number
       /** @example  */
       discPrice: number
-      /** @example 1 */
+      /** @example 9 */
       discPoint: number
-      /** @example 1 */
+      /** @example 8 */
       finalPrice: number
-      /** @example 10 */
+      /** @example 8 */
       finalPoint: number
       /** @example SYSTEM */
       source: string
@@ -3584,22 +4041,22 @@ export interface components {
       isBirth: boolean
       /**
        * Format: date-time
-       * @example 2025-03-11T19:01:26.973Z
+       * @example 2025-06-27T02:52:36.845Z
        */
       issueDate: string
       /**
        * Format: date-time
-       * @example 2025-05-14T13:13:02.559Z
+       * @example 2025-11-21T22:11:59.729Z
        */
       issuedAt: string
       /**
        * Format: date-time
-       * @example 2025-02-04T02:50:42.141Z
+       * @example 2025-08-01T19:06:52.699Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-30T04:22:11.477Z
+       * @example 2025-12-24T13:03:56.795Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3622,27 +4079,27 @@ export interface components {
       orderId: number
     }
     InvoiceResponseListDto: {
-      /** @example 1 */
+      /** @example 6 */
       id: number
       /** @example  */
       code: string
-      /** @example 4 */
-      memberId: number
-      /** @example 9 */
-      orderId: number
       /** @example 6 */
+      memberId: number
+      /** @example 8 */
+      orderId: number
+      /** @example 1 */
       promotionId: number
       /** @example  */
       invoiceRef: string
       /** @example  */
       invoicePath: string
-      /** @example 9 */
+      /** @example 6 */
       paidPrice: number
-      /** @example 9 */
+      /** @example 7 */
       paidPoint: number
-      /** @example 3 */
+      /** @example 2 */
       finalPrice: number
-      /** @example 4 */
+      /** @example 7 */
       finalPoint: number
       /** @example FULLY_PAID */
       status: string
@@ -3654,27 +4111,27 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-11-15T13:25:50.488Z
+       * @example 2026-03-21T07:14:15.288Z
        */
       dueDate: string
       /**
        * Format: date-time
-       * @example 2025-07-07T22:03:10.484Z
+       * @example 2025-08-06T14:23:36.451Z
        */
       issueDate: string
       /**
        * Format: date-time
-       * @example 2024-11-18T00:28:35.806Z
+       * @example 2025-01-28T05:47:10.105Z
        */
       issuedAt: string
       /**
        * Format: date-time
-       * @example 2025-04-01T12:59:08.850Z
+       * @example 2025-07-30T13:19:43.159Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T19:50:02.072Z
+       * @example 2025-12-24T14:39:49.522Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3685,27 +4142,27 @@ export interface components {
       member: components['schemas']['MemberResponseBelongDto']
     }
     InvoiceResponseDetailDto: {
-      /** @example 1 */
+      /** @example 6 */
       id: number
       /** @example  */
       code: string
-      /** @example 4 */
-      memberId: number
-      /** @example 9 */
-      orderId: number
       /** @example 6 */
+      memberId: number
+      /** @example 8 */
+      orderId: number
+      /** @example 1 */
       promotionId: number
       /** @example  */
       invoiceRef: string
       /** @example  */
       invoicePath: string
-      /** @example 9 */
+      /** @example 6 */
       paidPrice: number
-      /** @example 9 */
+      /** @example 7 */
       paidPoint: number
-      /** @example 3 */
+      /** @example 2 */
       finalPrice: number
-      /** @example 4 */
+      /** @example 7 */
       finalPoint: number
       /** @example FULLY_PAID */
       status: string
@@ -3717,27 +4174,27 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-11-15T13:25:50.488Z
+       * @example 2026-03-21T07:14:15.288Z
        */
       dueDate: string
       /**
        * Format: date-time
-       * @example 2025-07-07T22:03:10.484Z
+       * @example 2025-08-06T14:23:36.451Z
        */
       issueDate: string
       /**
        * Format: date-time
-       * @example 2024-11-18T00:28:35.806Z
+       * @example 2025-01-28T05:47:10.105Z
        */
       issuedAt: string
       /**
        * Format: date-time
-       * @example 2025-04-01T12:59:08.850Z
+       * @example 2025-07-30T13:19:43.159Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T19:50:02.072Z
+       * @example 2025-12-24T14:39:49.522Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3760,17 +4217,17 @@ export interface components {
       orderId: number
     }
     PushResponseBelongDto: {
-      /** @example 2 */
+      /** @example 10 */
       id: number
-      /** @example 5 */
+      /** @example 6 */
       notificationId: number
       /** @example DAILY */
       type: string
       /** @example COMPLETED */
       status: string
-      /** @example 2025-08-17T12:55:21.604Z */
+      /** @example 2025-05-08T20:57:18.663Z */
       executeTime: string
-      /** @example 2025-08-08T05:07:12.357Z */
+      /** @example 2025-10-27T08:43:32.253Z */
       executeDate: string
       /** @example 1 */
       weekday: number
@@ -3780,12 +4237,12 @@ export interface components {
       month: number
       /**
        * Format: date-time
-       * @example 2025-05-25T15:41:43.175Z
+       * @example 2025-12-14T07:36:52.335Z
        */
       startDate: string
       /**
        * Format: date-time
-       * @example 2025-01-02T23:18:49.682Z
+       * @example 2025-03-15T08:30:58.981Z
        */
       untilDate: string
       /** @example 1 */
@@ -3794,22 +4251,22 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2026-01-02T05:38:55.556Z
+       * @example 2026-07-04T10:46:41.038Z
        */
       expiresAt: string
       /**
        * Format: date-time
-       * @example 2025-11-20T12:49:02.390Z
+       * @example 2026-01-27T14:51:02.049Z
        */
       scheduledAt: string
       /**
        * Format: date-time
-       * @example 2025-07-13T01:58:28.609Z
+       * @example 2025-02-06T01:56:03.146Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T07:25:19.037Z
+       * @example 2025-12-24T11:26:24.581Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3819,7 +4276,7 @@ export interface components {
       notification: Record<string, never>
     }
     ResponseGroupRelationDto: {
-      /** @example 8 */
+      /** @example 3 */
       id: number
       title: components['schemas']['ResponseLocaleDto']
       /** @example [] */
@@ -3828,19 +4285,19 @@ export interface components {
       emails: string[]
       /** @example [] */
       phones: string[]
-      /** @example 2024-12-05T21:09:59.836Z */
+      /** @example 2025-10-29T13:33:58.532Z */
       joinSinceDate: string[]
-      /** @example 2025-08-08T14:59:23.039Z */
+      /** @example 2025-06-15T10:55:50.240Z */
       joinUntilDate: string[]
     }
     NotificationResponseListDto: {
-      /** @example 5 */
+      /** @example 1 */
       id: number
       /** @example SMS */
       channel: string
       /** @example TEXT */
       type: string
-      /** @example 2 */
+      /** @example 5 */
       refId: number
       /** @example TEXT */
       refType: string
@@ -3851,12 +4308,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-03-25T08:35:48.261Z
+       * @example 2025-07-06T01:33:08.964Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T08:28:06.771Z
+       * @example 2025-12-24T21:14:52.457Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3867,13 +4324,13 @@ export interface components {
       groups: components['schemas']['ResponseGroupRelationDto'][]
     }
     NotificationResponseDetailDto: {
-      /** @example 5 */
+      /** @example 1 */
       id: number
       /** @example SMS */
       channel: string
       /** @example TEXT */
       type: string
-      /** @example 2 */
+      /** @example 5 */
       refId: number
       /** @example TEXT */
       refType: string
@@ -3884,12 +4341,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-03-25T08:35:48.261Z
+       * @example 2025-07-06T01:33:08.964Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T08:28:06.771Z
+       * @example 2025-12-24T21:14:52.457Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -3900,9 +4357,9 @@ export interface components {
       groups: components['schemas']['ResponseGroupRelationDto'][]
     }
     RequestContentDto: {
-      /** @example <p>Aestas creator adnuo coepi peccatus antea. Vere solvo esse curis civitas. Tristis iusto aequitas vulgo colo velit aggredior fugiat.</p>Dolorem defendo casso. Crustulum repudiandae coerceo dolorum ratione viscus denuncio vindico teneo sublime. Quae creptio ver coepi acer delibero vilis anser.</p>Territo tolero nemo aufero vorago vomer somnus. Cunae spero tui corrigo corroboro aeger caput. Aspernatur aqua bardus collum cubicularis magni.</p>Catena vinco sol saepe urbanus. Damno curiositas optio consequuntur facere cognatus. Contra ancilla vomito umbra amplitudo spes autus testimonium somnus colo.</p> */
+      /** @example <p>Cito caveo pariatur viridis fugit. Depopulo amplus tepidus utor. Cursim vapulus catena spero deorsum officia.</p>Suppono tot tergeo voveo caelestis veritas. Ventus speciosus coma tamdiu templum color constans temeritas subvenio. Amplitudo demoror desolo libero conscendo aduro voveo tersus.</p>Combibo vociferor cras adinventitias voluptate succurro nobis sol fuga. Valde absens unus deprecator consequatur. Aeger bardus occaecati claustrum delego tenus derelinquo mollitia spes amaritudo.</p>Vorax abeo subnecto consuasor ipsa. Vomito confero ea vulticulus spero suspendo totidem subnecto. Asper tardus officiis vomito consuasor sub tempore surgo.</p> */
       en: string
-      /** @example <p>Autus tribuo vinitor deludo. Tracto verbum amita totus utrum accedo thymbra ustulo volo. Ars accusator compono vix ceno acerbitas cubitum.</p>Timidus blandior verbera. Taedium quod fugiat deduco eveniet repudiandae statim textilis. Adsuesco cupio corrigo alii vapulus ventito ventito antiquus.</p>Vinitor acidus tempus audentia turba accendo territo. Tabernus necessitatibus adhuc vobis denique. Coaegresco acquiro amicitia comburo defleo conforto peccatus nihil villa altus.</p>Videlicet capillus laudantium degusto adsidue ventus consequatur vetus decretum corrumpo. Blanditiis utroque bellicus commodo terreo accendo traho sulum. Decimus vomer tutamen.</p> */
+      /** @example <p>Vinum pax adimpleo. Charisma textilis nobis volo statim totam unus appello cum. Creo ustulo consectetur aqua sui commodi vergo.</p>Cotidie cupiditas balbus cado cohibeo. Balbus somniculosus amitto adipisci. Bene aggero territo perferendis incidunt stultus vergo.</p>Volutabrum aeternus aqua adaugeo dolore suppono colligo delibero vulticulus. Ademptio asporto adflicto numquam minus veniam virgo somniculosus. Ustilo tertius alias odit veniam abundans.</p> */
       vi: string
     }
     NotificationPushCreateDto: {
@@ -3913,7 +4370,7 @@ export interface components {
       type: 'INSTANT' | 'DATETIME' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
       /** @example  */
       executeTime: string
-      /** @example 2026-04-06T19:51:35.370Z */
+      /** @example 2026-01-09T00:15:52.299Z */
       executeDate: string
       /** @example  */
       weekday?: number
@@ -3923,12 +4380,12 @@ export interface components {
       month?: number
       /**
        * Format: date-time
-       * @example 2026-04-08T14:26:23.096Z
+       * @example 2026-02-28T12:27:16.357Z
        */
       startDate?: string
       /**
        * Format: date-time
-       * @example 2026-07-31T05:51:37.370Z
+       * @example 2026-05-01T09:28:13.283Z
        */
       untilDate?: string
       /** @example true */
@@ -3977,17 +4434,17 @@ export interface components {
       groupIds?: number[]
     }
     PushResponseListDto: {
-      /** @example 2 */
+      /** @example 10 */
       id: number
-      /** @example 5 */
+      /** @example 6 */
       notificationId: number
       /** @example DAILY */
       type: string
       /** @example COMPLETED */
       status: string
-      /** @example 2025-08-17T12:55:21.604Z */
+      /** @example 2025-05-08T20:57:18.663Z */
       executeTime: string
-      /** @example 2025-08-08T05:07:12.357Z */
+      /** @example 2025-10-27T08:43:32.253Z */
       executeDate: string
       /** @example 1 */
       weekday: number
@@ -3997,12 +4454,12 @@ export interface components {
       month: number
       /**
        * Format: date-time
-       * @example 2025-05-25T15:41:43.175Z
+       * @example 2025-12-14T07:36:52.335Z
        */
       startDate: string
       /**
        * Format: date-time
-       * @example 2025-01-02T23:18:49.682Z
+       * @example 2025-03-15T08:30:58.981Z
        */
       untilDate: string
       /** @example 1 */
@@ -4011,22 +4468,22 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2026-01-02T05:38:55.556Z
+       * @example 2026-07-04T10:46:41.038Z
        */
       expiresAt: string
       /**
        * Format: date-time
-       * @example 2025-11-20T12:49:02.390Z
+       * @example 2026-01-27T14:51:02.049Z
        */
       scheduledAt: string
       /**
        * Format: date-time
-       * @example 2025-07-13T01:58:28.609Z
+       * @example 2025-02-06T01:56:03.146Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T07:25:19.037Z
+       * @example 2025-12-24T11:26:24.581Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -4036,17 +4493,17 @@ export interface components {
       notification: Record<string, never>
     }
     PushResponseDetailDto: {
-      /** @example 2 */
+      /** @example 10 */
       id: number
-      /** @example 5 */
+      /** @example 6 */
       notificationId: number
       /** @example DAILY */
       type: string
       /** @example COMPLETED */
       status: string
-      /** @example 2025-08-17T12:55:21.604Z */
+      /** @example 2025-05-08T20:57:18.663Z */
       executeTime: string
-      /** @example 2025-08-08T05:07:12.357Z */
+      /** @example 2025-10-27T08:43:32.253Z */
       executeDate: string
       /** @example 1 */
       weekday: number
@@ -4056,12 +4513,12 @@ export interface components {
       month: number
       /**
        * Format: date-time
-       * @example 2025-05-25T15:41:43.175Z
+       * @example 2025-12-14T07:36:52.335Z
        */
       startDate: string
       /**
        * Format: date-time
-       * @example 2025-01-02T23:18:49.682Z
+       * @example 2025-03-15T08:30:58.981Z
        */
       untilDate: string
       /** @example 1 */
@@ -4070,22 +4527,22 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2026-01-02T05:38:55.556Z
+       * @example 2026-07-04T10:46:41.038Z
        */
       expiresAt: string
       /**
        * Format: date-time
-       * @example 2025-11-20T12:49:02.390Z
+       * @example 2026-01-27T14:51:02.049Z
        */
       scheduledAt: string
       /**
        * Format: date-time
-       * @example 2025-07-13T01:58:28.609Z
+       * @example 2025-02-06T01:56:03.146Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-29T07:25:19.037Z
+       * @example 2025-12-24T11:26:24.581Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -4104,7 +4561,7 @@ export interface components {
       type: 'INSTANT' | 'DATETIME' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
       /** @example  */
       executeTime: string
-      /** @example 2026-04-06T19:51:35.370Z */
+      /** @example 2026-01-09T00:15:52.299Z */
       executeDate: string
       /** @example  */
       weekday?: number
@@ -4114,12 +4571,12 @@ export interface components {
       month?: number
       /**
        * Format: date-time
-       * @example 2026-04-08T14:26:23.096Z
+       * @example 2026-02-28T12:27:16.357Z
        */
       startDate?: string
       /**
        * Format: date-time
-       * @example 2026-07-31T05:51:37.370Z
+       * @example 2026-05-01T09:28:13.283Z
        */
       untilDate?: string
       /** @example true */
@@ -4135,7 +4592,7 @@ export interface components {
       type: 'INSTANT' | 'DATETIME' | 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'
       /** @example  */
       executeTime: string
-      /** @example 2026-04-06T19:51:35.370Z */
+      /** @example 2026-01-09T00:15:52.299Z */
       executeDate: string
       /** @example  */
       weekday?: number
@@ -4145,26 +4602,26 @@ export interface components {
       month?: number
       /**
        * Format: date-time
-       * @example 2026-04-08T14:26:23.096Z
+       * @example 2026-02-28T12:27:16.357Z
        */
       startDate?: string
       /**
        * Format: date-time
-       * @example 2026-07-31T05:51:37.370Z
+       * @example 2026-05-01T09:28:13.283Z
        */
       untilDate?: string
       /** @example true */
       isActive?: boolean
     }
     MediaResponseListDto: {
-      /** @example 6 */
+      /** @example 4 */
       id: number
       /**
        * @example BANNER
        * @enum {string}
        */
       type: 'BANNER' | 'SLIDER'
-      /** @example https://picsum.photos/seed/XfQQJ/1157/2959 */
+      /** @example https://loremflickr.com/3304/3020?lock=4940587361164137 */
       url: string
       /** @example  */
       mime: string
@@ -4180,12 +4637,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-05-19T18:12:57.673Z
+       * @example 2025-11-30T23:38:38.851Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-30T05:47:00.953Z
+       * @example 2025-12-24T12:34:03.346Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -4194,14 +4651,14 @@ export interface components {
       assignedBy: components['schemas']['UserBelongInfo']
     }
     MediaResponseDetailDto: {
-      /** @example 6 */
+      /** @example 4 */
       id: number
       /**
        * @example BANNER
        * @enum {string}
        */
       type: 'BANNER' | 'SLIDER'
-      /** @example https://picsum.photos/seed/XfQQJ/1157/2959 */
+      /** @example https://loremflickr.com/3304/3020?lock=4940587361164137 */
       url: string
       /** @example  */
       mime: string
@@ -4217,12 +4674,12 @@ export interface components {
       isActive: boolean
       /**
        * Format: date-time
-       * @example 2025-05-19T18:12:57.673Z
+       * @example 2025-11-30T23:38:38.851Z
        */
       createdAt: string
       /**
        * Format: date-time
-       * @example 2025-08-30T05:47:00.953Z
+       * @example 2025-12-24T12:34:03.346Z
        */
       updatedAt: string
       createdBy: components['schemas']['UserBelongInfo']
@@ -4283,6 +4740,44 @@ export interface components {
 }
 export type $defs = Record<string, never>
 export interface operations {
+  HealthController_ready: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': string
+        }
+      }
+    }
+  }
+  HealthController_live: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': string
+        }
+      }
+    }
+  }
   UserAuthController_signUp: {
     parameters: {
       query?: never
@@ -4313,7 +4808,7 @@ export interface operations {
       }
     }
   }
-  UserAuthController_login: {
+  UserAuthController_loginWithCredential: {
     parameters: {
       query?: never
       header?: {
@@ -4337,7 +4832,57 @@ export interface operations {
         }
         content: {
           'application/json': {
-            data?: components['schemas']['AuthAccessResponseDto']
+            data?: components['schemas']['UserResponseLoginDto']
+          } & components['schemas']['ResponseDataDto']
+        }
+      }
+    }
+  }
+  UserAuthController_loginWithGoogle: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['AuthTokenResponseDto']
+          } & components['schemas']['ResponseDataDto']
+        }
+      }
+    }
+  }
+  UserAuthController_loginWithApple: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['AuthTokenResponseDto']
           } & components['schemas']['ResponseDataDto']
         }
       }
@@ -4417,7 +4962,7 @@ export interface operations {
         }
         content: {
           'application/json': {
-            data?: components['schemas']['AuthRefreshResponseDto']
+            data?: components['schemas']['AuthTokenResponseDto']
           } & components['schemas']['ResponseDataDto']
         }
       }
@@ -5093,6 +5638,31 @@ export interface operations {
       }
     }
   }
+  AppVersionAdminController_mapShorted: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['AppVersionResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
+        }
+      }
+    }
+  }
   AppVersionAdminController_get: {
     parameters: {
       query?: never
@@ -5666,9 +6236,9 @@ export interface operations {
   }
   PermissionAdminController_list: {
     parameters: {
-      query: {
-        isActive: components['schemas']['RequestFilterDto']
-        isVisible: components['schemas']['RequestFilterDto']
+      query?: {
+        isActive?: boolean
+        isVisible?: boolean
       }
       header?: {
         'x-language'?: 'en' | 'vi'
@@ -5688,6 +6258,68 @@ export interface operations {
           'application/json': {
             data?: components['schemas']['PermissionResponseListDto'][]
           } & components['schemas']['ResponseListingDto']
+        }
+      }
+    }
+  }
+  PermissionAdminController_create: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PermissionRequestCreateDto']
+        'application/x-www-form-urlencoded': components['schemas']['PermissionRequestCreateDto']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['PermissionResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
+      }
+    }
+  }
+  PermissionAdminController_update: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PermissionRequestUpdateDto']
+        'application/x-www-form-urlencoded': components['schemas']['PermissionRequestUpdateDto']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['PermissionResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
         }
       }
     }
@@ -6020,6 +6652,31 @@ export interface operations {
       }
     }
   }
+  TierHistoryAdminController_mapShorted: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['TierHistoryResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
+        }
+      }
+    }
+  }
   TierHistoryAdminController_get: {
     parameters: {
       query?: never
@@ -6165,6 +6822,33 @@ export interface operations {
       }
     }
   }
+  PointHistoryAdminController_mapShorted: {
+    parameters: {
+      query?: {
+        memberCode?: string
+      }
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['PointHistoryResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
+        }
+      }
+    }
+  }
   PointHistoryAdminController_get: {
     parameters: {
       query?: never
@@ -6305,6 +6989,31 @@ export interface operations {
           'application/json': {
             data?: components['schemas']['ProductHistoryResponseDetailDto']
           } & components['schemas']['ResponseDataDto']
+        }
+      }
+    }
+  }
+  ProductHistoryAdminController_mapShorted: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductHistoryResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
         }
       }
     }
@@ -6620,6 +7329,31 @@ export interface operations {
       }
     }
   }
+  ProductBrandAdminController_mapShorted: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductBrandResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
+        }
+      }
+    }
+  }
   ProductBrandAdminController_get: {
     parameters: {
       query?: never
@@ -6760,6 +7494,31 @@ export interface operations {
           'application/json': {
             data?: components['schemas']['ProductCategoryResponseDetailDto']
           } & components['schemas']['ResponseDataDto']
+        }
+      }
+    }
+  }
+  ProductCategoryAdminController_mapShorted: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductCategoryResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
         }
       }
     }
@@ -6908,6 +7667,31 @@ export interface operations {
       }
     }
   }
+  ProductReviewAdminController_mapShorted: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['ProductReviewResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
+        }
+      }
+    }
+  }
   ProductReviewAdminController_get: {
     parameters: {
       query?: never
@@ -7021,6 +7805,36 @@ export interface operations {
       }
     }
   }
+  FactAdminController_create: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['FactRequestCreateDto']
+        'application/x-www-form-urlencoded': components['schemas']['FactRequestCreateDto']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['FactResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
+        }
+      }
+    }
+  }
   FactAdminController_get: {
     parameters: {
       query?: never
@@ -7077,6 +7891,29 @@ export interface operations {
             data?: components['schemas']['FactResponseDetailDto']
           } & components['schemas']['ResponseDataDto']
         }
+      }
+    }
+  }
+  FactAdminController_delete: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
       }
     }
   }
@@ -7160,6 +7997,36 @@ export interface operations {
           'application/json': {
             data?: components['schemas']['TierResponseListDto'][]
           } & components['schemas']['ResponsePagingDto']
+        }
+      }
+    }
+  }
+  TierAdminController_create: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['TierRequestCreateDto']
+        'application/x-www-form-urlencoded': components['schemas']['TierRequestCreateDto']
+      }
+    }
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['TierResponseDetailDto']
+          } & components['schemas']['ResponseDataDto']
         }
       }
     }
@@ -7248,6 +8115,29 @@ export interface operations {
       }
     }
   }
+  TierAdminController_delete: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path: {
+        id: number
+      }
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+    }
+  }
   OrderAdminController_list: {
     parameters: {
       query?: {
@@ -7306,6 +8196,31 @@ export interface operations {
           'application/json': {
             data?: components['schemas']['OrderResponseDetailDto']
           } & components['schemas']['ResponseDataDto']
+        }
+      }
+    }
+  }
+  OrderAdminController_mapShorted: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['OrderResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
         }
       }
     }
@@ -7454,6 +8369,31 @@ export interface operations {
       }
     }
   }
+  InvoiceAdminController_mapShorted: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['InvoiceResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
+        }
+      }
+    }
+  }
   InvoiceAdminController_get: {
     parameters: {
       query?: never
@@ -7594,6 +8534,31 @@ export interface operations {
           'application/json': {
             data?: components['schemas']['NotificationResponseDetailDto']
           } & components['schemas']['ResponseDataDto']
+        }
+      }
+    }
+  }
+  NotificationAdminController_mapShorted: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['NotificationResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
         }
       }
     }
@@ -7796,6 +8761,31 @@ export interface operations {
       }
     }
   }
+  PushAdminController_mapShorted: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['PushResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
+        }
+      }
+    }
+  }
   PushAdminController_get: {
     parameters: {
       query?: never
@@ -7989,6 +8979,31 @@ export interface operations {
           'application/json': {
             data?: components['schemas']['MediaResponseDetailDto']
           } & components['schemas']['ResponseDataDto']
+        }
+      }
+    }
+  }
+  MediaAdminController_mapShorted: {
+    parameters: {
+      query?: never
+      header?: {
+        'x-language'?: 'en' | 'vi'
+        /** @description Timezone header */
+        'x-timezone'?: 'UTC' | 'Asia/Ho_Chi_Minh'
+      }
+      path?: never
+      cookie?: never
+    }
+    requestBody?: never
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': {
+            data?: components['schemas']['MediaResponseListDto'][]
+          } & components['schemas']['ResponseListingDto']
         }
       }
     }

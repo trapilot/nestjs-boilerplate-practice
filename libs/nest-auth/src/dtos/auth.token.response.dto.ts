@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
 
-export class AuthAccessResponseDto {
+export class AuthTokenResponseDto {
   @ApiProperty({ example: 'Bearer' })
   @Type(() => String)
   @Expose()

@@ -1,4 +1,4 @@
-import { privateAxios } from '../lib/httpClient'
+import { _privateAxios, _publicAxios } from '../lib/httpClient'
 import type { components } from '../types/api'
 // @ts-ignore
 type schemas = components['schemas']
@@ -17,7 +17,7 @@ export const productService = {
     const qs = search.toString()
     const baseUrl = '/products'
     const url = qs ? baseUrl + '?' + qs : baseUrl
-    const client = privateAxios
+    const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
@@ -36,7 +36,7 @@ export const productService = {
     const qs = search.toString()
     const baseUrl = '/products'
     const url = qs ? baseUrl + '?' + qs : baseUrl
-    const client = privateAxios
+    const client = _privateAxios
     const config = options?.config || {}
     const data = await client.post(url, body, config)
     return data as T
@@ -54,7 +54,7 @@ export const productService = {
     const qs = search.toString()
     const baseUrl = '/products/map-shorted'
     const url = qs ? baseUrl + '?' + qs : baseUrl
-    const client = privateAxios
+    const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
@@ -73,7 +73,7 @@ export const productService = {
     const qs = search.toString()
     const baseUrl = '/products/' + String(params.id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
-    const client = privateAxios
+    const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
@@ -93,7 +93,7 @@ export const productService = {
     const qs = search.toString()
     const baseUrl = '/products/' + String(params.id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
-    const client = privateAxios
+    const client = _privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
     return data as T
@@ -112,7 +112,7 @@ export const productService = {
     const qs = search.toString()
     const baseUrl = '/products/' + String(params.id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
-    const client = privateAxios
+    const client = _privateAxios
     const config = options?.config || {}
     const data = await client.delete(url, config)
     return data as T

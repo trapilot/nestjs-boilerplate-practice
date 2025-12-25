@@ -2,13 +2,12 @@ import { Controller, HttpStatus, Inject, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ENUM_VERIFICATION_CHANNEL, ENUM_VERIFICATION_TYPE } from '@prisma/client'
 import {
-  AuthAccessResponseDto,
   AuthJwtPayload,
   AuthJwtRefreshPayloadDto,
   AuthJwtToken,
-  AuthRefreshResponseDto,
   AuthSocialAppleProtected,
   AuthSocialGoogleProtected,
+  AuthTokenResponseDto,
   ENUM_AUTH_LOGIN_FROM,
   ENUM_AUTH_LOGIN_TYPE,
   ENUM_AUTH_LOGIN_WITH,
@@ -35,6 +34,7 @@ import {
   MemberRequestSignUpDto,
   MemberRequestTokenDto,
   MemberResetPasswordRequestDto,
+  MemberResponseLoginDto,
   MemberSignInRequestDto,
 } from '../dtos'
 import { MemberAuthService } from '../services'
@@ -82,20 +82,20 @@ export class MemberAuthController {
       medium: { limit: 10, seconds: 60 },
     },
     response: {
-      dto: AuthAccessResponseDto,
+      dto: MemberResponseLoginDto,
       docExpansion: true,
       statusCode: HttpStatus.OK,
     },
   })
   @Post('/login')
-  async login(
+  async loginWithCredential(
     @RequestUserIp() userIp: string,
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: ENUM_AUTH_LOGIN_FROM,
     @RequestApp() userRequest: IRequestApp,
     @RequestBody() body: MemberSignInRequestDto,
-  ): Promise<IResponseData> {
+  ): Promise<IResponseData<MemberResponseLoginDto>> {
     const member = await this.authService.validateCredentials(body)
     const auth = await this.authService.login(member, userIp, userAgent, userRequest, {
       scopeType: ENUM_AUTH_SCOPE_TYPE.MEMBER,
@@ -117,7 +117,7 @@ export class MemberAuthController {
       medium: { limit: 10, seconds: 60 },
     },
     response: {
-      dto: AuthAccessResponseDto,
+      dto: AuthTokenResponseDto,
       docExpansion: true,
     },
   })
@@ -151,7 +151,7 @@ export class MemberAuthController {
       medium: { limit: 10, seconds: 60 },
     },
     response: {
-      dto: AuthAccessResponseDto,
+      dto: AuthTokenResponseDto,
       docExpansion: true,
     },
   })
@@ -184,7 +184,7 @@ export class MemberAuthController {
       medium: { limit: 5, seconds: 60 },
     },
     response: {
-      dto: AuthRefreshResponseDto,
+      dto: AuthTokenResponseDto,
       docExpansion: true,
       statusCode: HttpStatus.OK,
     },

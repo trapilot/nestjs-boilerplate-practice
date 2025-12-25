@@ -17,9 +17,9 @@ import {
   AuthJwtAccessPayloadDto,
   AuthJwtRefreshPayloadDto,
   AuthService,
+  AuthTokenResponseDto,
   IAuthPayloadOptions,
   IAuthRefetchOptions,
-  IAuthToken,
   IAuthUserValidatorDto,
   IAuthValidator,
   IAuthValidatorOptions,
@@ -43,6 +43,7 @@ import {
   MemberPayloadResponseDto,
   MemberRequestSignUpDto,
   MemberResetPasswordRequestDto,
+  MemberResponseLoginDto,
   MemberSignInRequestDto,
 } from '../dtos'
 import { MemberSignInEvent } from '../events'
@@ -235,7 +236,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
     userAgent: IResult,
     userRequest: IRequestApp,
     options: Partial<IAuthPayloadOptions>,
-  ): Promise<IAuthToken> {
+  ): Promise<MemberResponseLoginDto> {
     if (!member.isActive) {
       throw new BadRequestException({
         statusCode: HttpStatus.FORBIDDEN,
@@ -282,21 +283,29 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
       refreshIn,
     )
 
-    await this.capture(member, {
+    await this.handleLogin(member, {
       payload: payloadAccessToken,
       userToken: { refreshToken, refreshIn },
       userAgent,
       userRequest,
     })
 
-    return { tokenType, expiresIn, accessToken, refreshToken }
+    return {
+      isTwoFactorEnable: false,
+      token: {
+        tokenType,
+        expiresIn,
+        accessToken,
+        refreshToken,
+      },
+    }
   }
 
   async refresh(
     member: TMember,
     refreshToken: string,
     refreshPayload: AuthJwtRefreshPayloadDto,
-  ): Promise<IAuthToken> {
+  ): Promise<AuthTokenResponseDto> {
     if (!refreshPayload?.loginRotate) {
       throw new ForbiddenException({
         statusCode: HttpStatus.FORBIDDEN,
@@ -328,7 +337,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
 
     refreshToken = this.authService.createRefreshToken(member.id, payloadRefreshToken, refreshIn)
 
-    await this.capture(member, {
+    await this.handleLogin(member, {
       payload: payloadAccessToken,
       userToken: { refreshToken, refreshIn },
     })
@@ -336,7 +345,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
     return { tokenType, expiresIn, accessToken, refreshToken }
   }
 
-  async capture(member: TMember, options: IAuthRefetchOptions): Promise<boolean> {
+  async handleLogin(member: TMember, options: IAuthRefetchOptions): Promise<boolean> {
     const { payload, userToken, userAgent, userRequest: _userRequest } = options
 
     try {
