@@ -491,33 +491,62 @@ model User {
   createdBy       Int?
   updatedBy       Int?
 
-  createdPermissions   Permission[]           @relation("createdByUser")
-  updatedPermissions   Permission[]           @relation("updatedByUser")
-  createdNotifications Notification[]         @relation("createdByUser")
-  updatedNotifications Notification[]         @relation("updatedByUser")
-  createdPushes        Push[]                 @relation("createdByUser")
-  updatedPushes        Push[]                 @relation("updatedByUser")
-  createdFacts         Fact[]                 @relation("createdByUser")
-  updatedFacts         Fact[]                 @relation("updatedByUser")
-  createdMembers       Member[]               @relation("createdByUser")
-  updatedMembers       Member[]               @relation("updatedByUser")
-  deletedMembers       Member[]               @relation("deletedByUser")
-  createdProducts      Product[]              @relation("createdByUser")
-  updatedProducts      Product[]              @relation("updatedByUser")
-  deletedProducts      Product[]              @relation("deletedByUser")
-  createdPoints        MemberPointHistory[]   @relation("createdByUser")
-  updatedPoints        MemberPointHistory[]   @relation("updatedByUser")
-  createdRedeems       MemberProductHistory[] @relation("createdByUser")
-  updatedRedeems       MemberProductHistory[] @relation("updatedByUser")
-  createdPromotions    Promotion[]            @relation("createdByUser")
-  updatedPromotions    Promotion[]            @relation("updatedByUser")
+  createdUserTwoFactor   UserTwoFactor[]        @relation("createdByUser")
+  updatedUserTwoFactor   UserTwoFactor[]        @relation("updatedByUser")
+  createdMemberTwoFactor MemberTwoFactor[]      @relation("createdByUser")
+  updatedMemberTwoFactor MemberTwoFactor[]      @relation("updatedByUser")
+  createdPermissions     Permission[]           @relation("createdByUser")
+  updatedPermissions     Permission[]           @relation("updatedByUser")
+  createdNotifications   Notification[]         @relation("createdByUser")
+  updatedNotifications   Notification[]         @relation("updatedByUser")
+  createdPushes          Push[]                 @relation("createdByUser")
+  updatedPushes          Push[]                 @relation("updatedByUser")
+  createdFacts           Fact[]                 @relation("createdByUser")
+  updatedFacts           Fact[]                 @relation("updatedByUser")
+  createdMembers         Member[]               @relation("createdByUser")
+  updatedMembers         Member[]               @relation("updatedByUser")
+  deletedMembers         Member[]               @relation("deletedByUser")
+  createdProducts        Product[]              @relation("createdByUser")
+  updatedProducts        Product[]              @relation("updatedByUser")
+  deletedProducts        Product[]              @relation("deletedByUser")
+  createdPoints          MemberPointHistory[]   @relation("createdByUser")
+  updatedPoints          MemberPointHistory[]   @relation("updatedByUser")
+  createdRedeems         MemberProductHistory[] @relation("createdByUser")
+  updatedRedeems         MemberProductHistory[] @relation("updatedByUser")
+  createdPromotions      Promotion[]            @relation("createdByUser")
+  updatedPromotions      Promotion[]            @relation("updatedByUser")
 
+  twoFactor       UserTwoFactor?
   loginHistories  UserLoginHistory[]
   tokenHistories  UserTokenHistory[]
   verifyHistories UserVerifyHistory[]
   pivotRoles      UsersRoles[]
 
   @@map("users")
+}
+
+model UserTwoFactor {
+  id            Int       @id @default(autoincrement())
+  userId        Int       @unique()
+  secret        String?
+  iv            String?
+  backupCodes   Json
+  enabled       Boolean   @default(false)
+  requiredSetup Boolean   @default(false)
+  confirmedAt   DateTime?
+  lastUsedAt    DateTime?
+  attempt       Int       @default(0)
+  createdAt     DateTime? @default(now())
+  updatedAt     DateTime? @updatedAt
+  createdBy     Int?
+  updatedBy     Int?
+
+  createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
+  updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("user_two_factors")
 }
 
 model UserTokenHistory {
@@ -658,9 +687,11 @@ model Member {
   updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
   deletedByUser User? @relation("deletedByUser", fields: [deletedBy], references: [id])
 
-  tier     Tier?     @relation(fields: [tierId], references: [id])
-  district District? @relation(fields: [districtId], references: [id])
-  country  Country?  @relation(fields: [countryId], references: [id])
+  tier      Tier?            @relation(fields: [tierId], references: [id])
+  district  District?        @relation(fields: [districtId], references: [id])
+  country   Country?         @relation(fields: [countryId], references: [id])
+  twoFactor MemberTwoFactor?
+  cart      Cart?
 
   deleteReasons    MemberDeleteReason[]
   deviceHistories  MemberDeviceHistory[]
@@ -670,12 +701,35 @@ model Member {
   productHistories MemberProductHistory[]
   pointHistories   MemberPointHistory[]   @relation(name: "member")
   referralPoints   MemberPointHistory[]   @relation(name: "referee")
-  cart             Cart?
   orders           Order[]
   invoices         Invoice[]
   wishlist         Wishlist[]
 
   @@map("members")
+}
+
+model MemberTwoFactor {
+  id            Int       @id @default(autoincrement())
+  memberId      Int       @unique()
+  secret        String?
+  iv            String?
+  backupCodes   Json
+  enabled       Boolean   @default(false)
+  requiredSetup Boolean   @default(false)
+  confirmedAt   DateTime?
+  lastUsedAt    DateTime?
+  attempt       Int       @default(0)
+  createdAt     DateTime? @default(now())
+  updatedAt     DateTime? @updatedAt
+  createdBy     Int?
+  updatedBy     Int?
+
+  createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
+  updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
+
+  member Member @relation(fields: [memberId], references: [id])
+
+  @@map("member_two_factors")
 }
 
 model MemberDeleteReason {

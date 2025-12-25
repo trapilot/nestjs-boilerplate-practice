@@ -12,9 +12,9 @@ import {
   AuthJwtAccessPayloadDto,
   AuthJwtRefreshPayloadDto,
   AuthService,
+  AuthTokenResponseDto,
   IAuthPassword,
   IAuthPayloadOptions,
-  IAuthToken,
   IAuthRefetchOptions,
   IAuthUserValidatorDto,
   IAuthValidator,
@@ -27,6 +27,7 @@ import {
   <%= singular(classify(name)) %>RequestChangePasswordDto,
   <%= singular(classify(name)) %>RequestSignInDto,
   <%= singular(classify(name)) %>RequestSignUpDto,
+  <%= singular(classify(name)) %>ResponseLoginDto,
   <%= singular(classify(name)) %>ResponsePayloadDto,
 } from '../dtos'
 import { T<%= singular(classify(name)) %> } from '../interfaces'
@@ -195,7 +196,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
     userAgent: IResult,
     userRequest: IRequestApp,
     options: Partial<IAuthPayloadOptions>,
-  ): Promise<IAuthToken> {
+  ): Promise<<%= singular(classify(name)) %>ResponseLoginDto> {
     if (!<%= singular(lowercased(name)) %>.isActive) {
       throw new BadRequestException({
         statusCode: HttpStatus.FORBIDDEN,
@@ -249,20 +250,28 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
       refreshIn,
     )
 
-    await this.capture(<%= singular(lowercased(name)) %>, {
+    await this.handleLogin(<%= singular(lowercased(name)) %>, {
       payload: payloadAccessToken,
       userToken: { refreshToken, refreshIn },
       userRequest,
     })
 
-    return { tokenType, expiresIn, accessToken, refreshToken }
+    return {
+      isTwoFactorEnable: false,
+      token: {
+        tokenType,
+        expiresIn,
+        accessToken,
+        refreshToken,
+      },
+    }
   }
 
   async refresh(
     <%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>,
     refreshToken: string,
     refreshPayload: AuthJwtRefreshPayloadDto,
-  ): Promise<IAuthToken> {
+  ): Promise<AuthTokenResponseDto> {
     if (!refreshPayload?.loginRotate) {
       throw new ForbiddenException({
         statusCode: HttpStatus.FORBIDDEN,
@@ -303,7 +312,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
       refreshIn,
     )
 
-    await this.capture(<%= singular(lowercased(name)) %>, {
+    await this.handleLogin(<%= singular(lowercased(name)) %>, {
       payload: payloadAccessToken,
       userToken: { refreshToken, refreshIn },
     })
@@ -311,7 +320,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
     return { tokenType, expiresIn, accessToken, refreshToken }
   }
 
-  async capture(<%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>, options: IAuthRefetchOptions): Promise<boolean> {
+  async handleLogin(<%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>, options: IAuthRefetchOptions): Promise<boolean> {
     const { payload, userToken, userAgent, userRequest } = options
 
     try {

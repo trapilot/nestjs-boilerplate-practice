@@ -168,7 +168,7 @@ export class AuthService {
     return this.cryptoService.bcryptCompare(passwordString, passwordHash)
   }
 
-  async capture(_user: any, _options: IAuthRefetchOptions): Promise<boolean> {
+  async handleLogin(_user: any, _options: IAuthRefetchOptions): Promise<boolean> {
     return false
   }
 

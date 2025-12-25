@@ -83,31 +83,16 @@ function handleResponse(response: AxiosResponse<IResponseBody>) {
   }
 }
 
-export const publicAxios = axios.create({
+const publicAxios = axios.create({
   baseURL: ENV.apiBaseURL,
   withCredentials: false,
 })
-
 publicAxios.interceptors.request.use(attachCommonHeaders)
 publicAxios.interceptors.response.use(handleResponse, (error: AxiosError) => Promise.reject(error))
 
-export const privateAxios = axios.create({
-  baseURL: ENV.apiBaseURL,
-  withCredentials: false,
-})
-
-privateAxios.interceptors.request.use((config) => {
-  config = attachCommonHeaders(config)
-  const token = getAccessToken()
-  if (token) config.headers['Authorization'] = `Bearer ${token}`
-  return config
-})
-
 // --- Refresh Token Logic ---
-
 let isRefreshing = false
 let failedQueue: any[] = []
-
 function processQueue(error: any, token: string | null = null) {
   failedQueue.forEach((prom) => {
     if (error) prom.reject(error)
@@ -116,6 +101,16 @@ function processQueue(error: any, token: string | null = null) {
   failedQueue = []
 }
 
+const privateAxios = axios.create({
+  baseURL: ENV.apiBaseURL,
+  withCredentials: false,
+})
+privateAxios.interceptors.request.use((config) => {
+  config = attachCommonHeaders(config)
+  const token = getAccessToken()
+  if (token) config.headers['Authorization'] = `Bearer ${token}`
+  return config
+})
 privateAxios.interceptors.response.use(
   handleResponse, // Use the same success handler for private requests
   async (error: AxiosError) => {
@@ -162,3 +157,5 @@ privateAxios.interceptors.response.use(
     return Promise.reject(error)
   },
 )
+
+export { publicAxios as _publicAxios, privateAxios as _privateAxios }

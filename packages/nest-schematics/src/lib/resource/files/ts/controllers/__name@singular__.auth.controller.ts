@@ -1,13 +1,12 @@
 import { Controller, Get, HttpStatus, Inject, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import {
-  AuthAccessResponseDto,
   AuthJwtPayload,
   AuthJwtRefreshPayloadDto,
   AuthJwtToken,
-  AuthRefreshResponseDto,
   AuthSocialAppleProtected,
   AuthSocialGoogleProtected,
+  AuthTokenResponseDto,
   ENUM_AUTH_LOGIN_FROM,
   ENUM_AUTH_LOGIN_TYPE,
   ENUM_AUTH_LOGIN_WITH,
@@ -59,13 +58,13 @@ export class <%= singular(classify(name)) %>AuthController {
       medium: { limit: 10, seconds: 10 },
     },
     response: {
-      dto: AuthAccessResponseDto,
+      dto: AuthTokenResponseDto,
       docExpansion: true,
       statusCode: HttpStatus.OK,
     },
   })
   @Post('/login')
-  async login(
+  async loginWithCredential(
     @RequestUserIp() userIp: string,
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
@@ -94,7 +93,7 @@ export class <%= singular(classify(name)) %>AuthController {
       medium: { limit: 10, seconds: 60 },
     },
     response: {
-      dto: AuthAccessResponseDto,
+      dto: AuthTokenResponseDto,
       docExpansion: true,
     },
   })
@@ -128,7 +127,7 @@ export class <%= singular(classify(name)) %>AuthController {
       medium: { limit: 10, seconds: 60 },
     },
     response: {
-      dto: AuthAccessResponseDto,
+      dto: AuthTokenResponseDto,
       docExpansion: true,
     },
   })
@@ -186,7 +185,7 @@ export class <%= singular(classify(name)) %>AuthController {
       medium: { limit: 5, seconds: 60 },
     },
     response: {
-      dto: AuthRefreshResponseDto,
+      dto: AuthTokenResponseDto,
       docExpansion: true,
       statusCode: HttpStatus.OK,
     },

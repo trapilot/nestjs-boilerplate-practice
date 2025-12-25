@@ -1,6 +1,7 @@
 import { INextFunction, IRequestApp, IResponseApp } from 'lib/nest-core'
 import { pinoHttp } from 'pino-http'
 import { v7 as uuidv7 } from 'uuid'
+import { LoggerContext, LoggerStore } from '../contexts'
 import { ENUM_LOGGER_TYPE } from '../enums'
 import { ILoggerEntry, ILoggerOptions, TPassedLogger } from '../interfaces'
 import { LoggerService } from '../services'
@@ -77,7 +78,7 @@ export class LoggerUtil {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore: run requires arguments for next but should not because it can
       // be called without arguments
-      storage.run(new LoggerStore(log, resLog), next)
+      LoggerContext.run(new LoggerStore(log, resLog), next)
     }
   }
 }

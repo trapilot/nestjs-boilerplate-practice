@@ -77,14 +77,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
       setError(null)
 
       // Login and get tokens
-      const loginResult = await authenticationService.login({ email, password })
+      const loginResult = await authenticationService.loginWithCredential({ email, password })
 
       // Store tokens
-      if (loginResult.accessToken) {
-        setAccessToken(loginResult.accessToken)
-      }
-      if (loginResult.refreshToken) {
-        setRefreshToken(loginResult.refreshToken)
+      if (loginResult?.token) {
+        if (loginResult.token.accessToken) {
+          setAccessToken(loginResult.token.accessToken)
+        }
+        if (loginResult.token.refreshToken) {
+          setRefreshToken(loginResult.token.refreshToken)
+        }
       }
 
       // Fetch profile with new token

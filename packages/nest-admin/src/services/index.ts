@@ -1,3 +1,4 @@
+export * from './health.service'
 export * from './authentication.service'
 export * from './setting.service'
 export * from './dashboard.service'

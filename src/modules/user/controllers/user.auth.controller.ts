@@ -1,13 +1,12 @@
 import { Controller, Get, HttpStatus, Inject, Post, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import {
-  AuthAccessResponseDto,
   AuthJwtPayload,
   AuthJwtRefreshPayloadDto,
   AuthJwtToken,
-  AuthRefreshResponseDto,
   AuthSocialAppleProtected,
   AuthSocialGoogleProtected,
+  AuthTokenResponseDto,
   ENUM_AUTH_LOGIN_FROM,
   ENUM_AUTH_LOGIN_TYPE,
   ENUM_AUTH_LOGIN_WITH,
@@ -36,6 +35,7 @@ import {
   UserRequestChangePasswordDto,
   UserRequestSignInDto,
   UserRequestSignUpDto,
+  UserResponseLoginDto,
   UserVerifyPasswordRequestDto,
 } from '../dtos'
 import { UserIsSuperAdmin } from '../guards'
@@ -70,20 +70,20 @@ export class UserAuthController {
       medium: { limit: 10, seconds: 60 },
     },
     response: {
-      dto: AuthAccessResponseDto,
+      dto: UserResponseLoginDto,
       docExpansion: true,
       statusCode: HttpStatus.OK,
     },
   })
   @Post('/login')
-  async login(
+  async loginWithCredential(
     @RequestUserIp() userIp: string,
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: ENUM_AUTH_LOGIN_FROM,
     @RequestApp() userRequest: IRequestApp,
     @RequestBody() body: UserRequestSignInDto,
-  ): Promise<IResponseData> {
+  ): Promise<IResponseData<UserResponseLoginDto>> {
     const user = await this.authService.validateCredentials(body)
     const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
       scopeType: ENUM_AUTH_SCOPE_TYPE.USER,
@@ -105,7 +105,7 @@ export class UserAuthController {
       medium: { limit: 10, seconds: 60 },
     },
     response: {
-      dto: AuthAccessResponseDto,
+      dto: AuthTokenResponseDto,
       docExpansion: true,
     },
   })
@@ -139,7 +139,7 @@ export class UserAuthController {
       medium: { limit: 10, seconds: 60 },
     },
     response: {
-      dto: AuthAccessResponseDto,
+      dto: AuthTokenResponseDto,
       docExpansion: true,
     },
   })
@@ -235,7 +235,7 @@ export class UserAuthController {
       medium: { limit: 5, seconds: 60 },
     },
     response: {
-      dto: AuthRefreshResponseDto,
+      dto: AuthTokenResponseDto,
       docExpansion: true,
       statusCode: HttpStatus.OK,
     },
@@ -245,7 +245,7 @@ export class UserAuthController {
     @AuthJwtToken() refreshToken: string,
     @AuthJwtPayload() refreshPayload: AuthJwtRefreshPayloadDto,
     @AuthJwtPayload('user.id') userId: number,
-  ): Promise<IResponseData> {
+  ): Promise<IResponseData<AuthTokenResponseDto>> {
     const user = await this.authService.getUserData(userId)
     const auth = await this.authService.refresh(user, refreshToken, refreshPayload)
 
