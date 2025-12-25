@@ -12,8 +12,8 @@ import * as fs from 'fs'
 import {
   DateService,
   ENUM_FILE_MIME,
-  FileHelper,
   FileService,
+  FileUtil,
   IResponseApp,
   ROOT_PATH,
 } from 'lib/nest-core'
@@ -68,7 +68,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
 
       // Set headers for ZIP response
       res
-        .setHeader('Content-Type', FileHelper.toFileMimetype(zipFileName))
+        .setHeader('Content-Type', FileUtil.parseMimetype(zipFileName))
         .setHeader('Content-Disposition', `${disposition}; filename=${zipFileName}`)
         .setHeader('Transfer-Encoding', 'chunked')
         .setHeader('X-Accel-Buffering', 'no') // Disable buffering in proxies
@@ -187,7 +187,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
       const streamableFile = new StreamableFile(fileBuffer)
 
       res
-        .setHeader('Content-Type', FileHelper.toFileMimetype(filePath))
+        .setHeader('Content-Type', FileUtil.parseMimetype(filePath))
         .setHeader('Content-Length', fileBuffer.length)
         .setHeader('Content-Disposition', `${disposition}; filename=${fileName}`)
 
@@ -226,7 +226,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
     // set headers
     const filename = [
       [filePrefix, fileSuffix].filter((i) => i).join('_'),
-      FileHelper.mapFileMimetype(fileType),
+      FileUtil.mapMimetype(fileType),
     ].join('.')
 
     res

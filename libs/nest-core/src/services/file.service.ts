@@ -6,7 +6,7 @@ import ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
 import { stat } from 'fs/promises'
 import imageSize from 'image-size'
-import { FileHelper, ROOT_PATH } from 'lib/nest-core'
+import { FileUtil, ROOT_PATH } from 'lib/nest-core'
 import { dirname, extname, join, relative } from 'path'
 import PDFDocument from 'pdfkit'
 import RangeParser, { Range } from 'range-parser'
@@ -103,7 +103,7 @@ export class FileService {
 
       // For each row, convert to a record (key-value pair based on the header)
       const rowData: Record<string, CellValue | string | number | Date> = {}
-      worksheet.getRow(1).eachCell((cell, colNumber) => {
+      worksheet.getRow(1).eachCell((_cell, colNumber) => {
         const header = worksheet.getCell(1, colNumber).value as string
         const cellValue = row.getCell(colNumber).value
         rowData[header] = cellValue
@@ -324,7 +324,7 @@ export class FileService {
 
   async handleHEVC(filePath: string, outputPath?: string): Promise<boolean> {
     if (!outputPath) {
-      const fileExtension = FileHelper.toFileExtension(filePath)
+      const fileExtension = FileUtil.parseExtension(filePath)
       outputPath = join(ROOT_PATH, 'public', 'temporary', `${uuidv7()}.${fileExtension}`)
     }
 

@@ -42,7 +42,11 @@ export class AppContext {
     return this.current()?.apiVersion ?? APP_VERSION_NUMBER
   }
 
-  static isAdmin(): boolean {
+  static isAdminRequest(): boolean {
     return this.apiType() === ENUM_APP_API_TYPE.CMS
+  }
+
+  static isAppRequest(): boolean {
+    return this.apiType() === ENUM_APP_API_TYPE.APP
   }
 }

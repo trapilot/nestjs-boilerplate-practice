@@ -1,6 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common'
 import { Cron, CronOptions } from '@nestjs/schedule'
-import { APP_TIMEZONE, AppHelper, DateService } from 'lib/nest-core'
+import { APP_TIMEZONE, DateService, EnvUtil } from 'lib/nest-core'
 import { LoggerService } from 'lib/nest-logger'
 import { PushService } from '../services'
 
@@ -9,7 +9,7 @@ const cronName = 'task_push_send_notification'
 const cronOptions: CronOptions = {
   name: cronName,
   timeZone: APP_TIMEZONE,
-  disabled: !cronTime && AppHelper.isDevelopment(),
+  disabled: !cronTime && EnvUtil.isDevelopment(),
 }
 
 @Injectable()

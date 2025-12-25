@@ -1,4 +1,8 @@
-export class TimeHelper {
+export class TimeUtil {
+  static sleep(val: string | number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, this.ms(val)))
+  }
+
   static ms(val: number | string): number {
     if (`${val}`.length > 0) {
       return this.parse(val)

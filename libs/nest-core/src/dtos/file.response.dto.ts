@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose, Transform, Type } from 'class-transformer'
-import { AppHelper } from 'lib/nest-core'
+import { UrlUtil } from 'lib/nest-core'
 
 export class FileResponseDto {
   @ApiProperty({ type: 'number', example: 2 })
@@ -14,7 +14,7 @@ export class FileResponseDto {
   @ApiProperty({ type: 'string', example: '' })
   @Transform(({ obj }) => {
     if (obj.type === 'FILE') {
-      return obj?.fullPath ? AppHelper.toUrl(obj.fullPath) : AppHelper.toUrl(obj.path)
+      return UrlUtil.build(obj?.fullPath ?? obj.path)
     }
     return null
   })

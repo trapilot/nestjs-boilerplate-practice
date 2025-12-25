@@ -1,7 +1,7 @@
 import { Writable } from 'stream'
 import { ENUM_LOGGER_TYPE } from '../enums'
-import { LoggerUtil } from '../helpers'
 import { ILoggerEntry } from '../interfaces'
+import { LoggerUtil } from '../utils'
 
 export class LoggerRemoteDriver extends Writable {
   private readonly apiUrl: string

@@ -208,7 +208,7 @@ export class LoggerFileDriver extends Writable {
    * @param encoding The string encoding.
    * @param callback The callback to signal completion.
    */
-  async _write(logStr: string, encoding: string, callback: (error?: Error | null) => void) {
+  async _write(logStr: string, _encoding: string, callback: (error?: Error | null) => void) {
     // Wrap the write operation in a function to add to the queue
     const writeOperation = () => {
       try {

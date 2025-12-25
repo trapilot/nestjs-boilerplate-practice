@@ -1,5 +1,5 @@
 import { registerAs } from '@nestjs/config'
-import { TimeHelper } from 'lib/nest-core'
+import { TimeUtil } from 'lib/nest-core'
 
 export default registerAs(
   'auth',
@@ -7,12 +7,12 @@ export default registerAs(
     jwt: {
       accessToken: {
         secretKey: process.env.AUTH_JWT_ACCESS_TOKEN_SECRET_KEY ?? `${process.env.APP_NAME}_as_k`,
-        expirationTime: TimeHelper.seconds(process.env.AUTH_JWT_ACCESS_TOKEN_EXPIRED || '30m'),
+        expirationTime: TimeUtil.seconds(process.env.AUTH_JWT_ACCESS_TOKEN_EXPIRED || '30m'),
       },
 
       refreshToken: {
         secretKey: process.env.AUTH_JWT_REFRESH_TOKEN_SECRET_KEY ?? `${process.env.APP_NAME}_rs_k`,
-        expirationTime: TimeHelper.seconds(process.env.AUTH_JWT_REFRESH_TOKEN_EXPIRED || '2h'),
+        expirationTime: TimeUtil.seconds(process.env.AUTH_JWT_REFRESH_TOKEN_EXPIRED || '2h'),
       },
 
       audience: process.env.AUTH_JWT_AUDIENCE ?? process.env.APP_NAME,
@@ -25,9 +25,9 @@ export default registerAs(
       attempt: true,
       maxAttempt: 5,
       saltLength: 8,
-      expiredIn: TimeHelper.seconds('182d'), // 0.5 years
-      expiredInTemporary: TimeHelper.seconds('3d'), // 3 days
-      period: TimeHelper.seconds('90d'), // 3 months
+      expiredIn: TimeUtil.seconds('182d'), // 0.5 years
+      expiredInTemporary: TimeUtil.seconds('3d'), // 3 days
+      period: TimeUtil.seconds('90d'), // 3 months
     },
 
     apple: {
@@ -46,7 +46,7 @@ export default registerAs(
 
     xApiKey: { header: 'x-api-key' },
 
-    otp: { length: 6, maxAttempts: 5, ttl: TimeHelper.seconds('5m') },
-    token: { length: 32, maxAttempts: 3, ttl: TimeHelper.seconds('1d') },
+    otp: { length: 6, maxAttempts: 5, ttl: TimeUtil.seconds('5m') },
+    token: { length: 32, maxAttempts: 3, ttl: TimeUtil.seconds('1d') },
   }),
 )

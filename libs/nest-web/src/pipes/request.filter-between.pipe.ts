@@ -2,7 +2,7 @@ import { Inject, Injectable, mixin, Type } from '@nestjs/common'
 import { ArgumentMetadata, PipeTransform, Scope } from '@nestjs/common/interfaces'
 import { REQUEST } from '@nestjs/core'
 import { ValidationError } from 'class-validator'
-import { AppHelper, IRequestApp } from 'lib/nest-core'
+import { IRequestApp, StringUtil } from 'lib/nest-core'
 import { EntityValidateException } from '../exceptions'
 import { IRequestFilterEqualOptions } from '../interfaces'
 
@@ -43,8 +43,8 @@ export function RequestFilterBetweenPipe(
         }
       }
 
-      const finalMin = AppHelper.parse(min, options)
-      const finalMax = AppHelper.parse(max || min, options)
+      const finalMin = StringUtil.parse(min, options)
+      const finalMax = StringUtil.parse(max || min, options)
 
       this.addToRequestInstance([finalMin, finalMax].join('-'))
       return {

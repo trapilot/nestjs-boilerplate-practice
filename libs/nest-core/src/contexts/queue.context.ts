@@ -1,5 +1,5 @@
 import { EventEmitter2 } from '@nestjs/event-emitter'
-import { AlgorithmHelper } from '../helpers'
+import { AlgorithmUtil } from '../utils'
 import { TimeoutContext, TimeoutError } from './timeout.context'
 
 type RunFunction = () => Promise<unknown>
@@ -476,7 +476,7 @@ export default class PriorityQueue implements Queue<RunFunction, PriorityQueueOp
       return
     }
 
-    const index = AlgorithmHelper.lowerBound(
+    const index = AlgorithmUtil.lowerBound(
       this.#queue,
       element,
       (a: Readonly<PriorityQueueOptions>, b: Readonly<PriorityQueueOptions>) =>

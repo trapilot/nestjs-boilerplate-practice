@@ -1,13 +1,13 @@
 import { Transform } from 'class-transformer'
-import { AppHelper } from 'lib/nest-core'
+import { ArrayUtil, LocaleUtil } from 'lib/nest-core'
 import { UserAbilityUtil } from 'shared/helpers'
-import { UserTransformUtil } from '../helpers'
 import {
   IContextUserPermission,
   IUserDataPermission,
   IUserProfilePermission,
   IUserTransformOptions,
 } from '../interfaces'
+import { UserUtil } from '../utils'
 
 export function ToUserPermissions(): (target: any, key: string) => void {
   return Transform(({ obj: user, value }: IUserTransformOptions): IUserProfilePermission[] => {
@@ -15,7 +15,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
     if (user?.pivotRoles !== undefined) {
       const grpContextPermission: IContextUserPermission = {}
       const userPermissions: IUserDataPermission[] = []
-      const userRoles = UserTransformUtil.toValidUserRoles(user)
+      const userRoles = UserUtil.parseRoles(user)
 
       for (const userRole of userRoles) {
         const userRolePermissions = userRole?.pivotPermissions ?? []
@@ -31,7 +31,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
               isVisible,
               sorting,
               subject,
-              title: AppHelper.toLocaleValue(title),
+              title: LocaleUtil.parseValue(title),
               bitwise: roleBitwise & bitwise,
             })
           }
@@ -57,7 +57,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
           (data) => data.subject === subject,
         )
         if (exist) {
-          exist.actions = AppHelper.toUnique([
+          exist.actions = ArrayUtil.unique([
             ...exist.actions,
             ...UserAbilityUtil.toActions(bitwise),
           ])

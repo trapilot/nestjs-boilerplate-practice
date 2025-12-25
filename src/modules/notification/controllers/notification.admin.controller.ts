@@ -16,7 +16,7 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { PushHelper } from 'modules/push/helpers'
+import { PushUtil } from 'modules/push/utils'
 import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
 import { NOTIFICATION_DOC_ADMIN_QUERY_LIST, NOTIFICATION_DOC_OPERATION } from '../constants'
 import {
@@ -247,7 +247,7 @@ export class NotificationAdminController {
       },
       pushes: {
         createMany: {
-          data: PushHelper.makeDtos(pushes),
+          data: PushUtil.makeDtos(pushes),
         },
       },
     })
@@ -294,7 +294,7 @@ export class NotificationAdminController {
       },
       pushes: {
         createMany: {
-          data: PushHelper.makeDtos(pushes),
+          data: PushUtil.makeDtos(pushes),
         },
       },
     })

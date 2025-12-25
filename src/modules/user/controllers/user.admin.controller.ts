@@ -347,7 +347,7 @@ export class UserAdminController {
   })
   @Put('/:id/change-avatar')
   async changeAvatar(
-    @RequestBody() body: UserRequestChangeAvatarDto,
+    @RequestBody() _body: UserRequestChangeAvatarDto,
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') updatedBy: number,
     @UploadedFile(

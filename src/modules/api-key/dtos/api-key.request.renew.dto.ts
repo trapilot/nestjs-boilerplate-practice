@@ -1,14 +1,14 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDate, IsNotEmpty, IsOptional } from 'class-validator'
-import { AppHelper, ToDate } from 'lib/nest-core'
+import { DateUtil, ToDate } from 'lib/nest-core'
 import { DateGreaterThanEqual, PropertyGreaterThan } from 'lib/nest-web'
 
 export class ApiKeyRequestRenewDto {
   @IsOptional()
   @IsDate()
   @ToDate({ startOfDay: true })
-  @DateGreaterThanEqual(AppHelper.nowDate())
+  @DateGreaterThanEqual(DateUtil.nowDate())
   @ApiProperty({
     description: 'Api Key start date',
     example: faker.date.recent(),

@@ -5,7 +5,7 @@ import {
   SetMetadata,
   UseGuards,
 } from '@nestjs/common'
-import { AppHelper, IRequestApp, IStringParseOptions } from 'lib/nest-core'
+import { IRequestApp, IStringParseOptions, StringUtil } from 'lib/nest-core'
 import { AUTH_ABILITY_META_KEY, AUTH_SCOPE_META_KEY } from '../constants'
 import { ENUM_AUTH_SCOPE_TYPE } from '../enums'
 import {
@@ -40,7 +40,7 @@ export const AuthJwtPayload = createParamDecorator(
     }
 
     // // Handle runtime type parsing
-    payload = AppHelper.parse(payload, {
+    payload = StringUtil.parse(payload, {
       ...options,
       errorAs: options?.parseAs === 'id' ? 0 : undefined,
     })
@@ -50,7 +50,7 @@ export const AuthJwtPayload = createParamDecorator(
 )
 
 export const AuthJwtType = createParamDecorator(
-  (data: string, context: ExecutionContext): string => {
+  (_data: string, context: ExecutionContext): string => {
     const { headers } = context.switchToHttp().getRequest<IRequestApp>()
     const { authorization } = headers
     const authorizations: string[] = authorization.split(' ')
@@ -60,7 +60,7 @@ export const AuthJwtType = createParamDecorator(
 )
 
 export const AuthJwtToken = createParamDecorator(
-  (data: string, context: ExecutionContext): string => {
+  (_data: string, context: ExecutionContext): string => {
     const { headers } = context.switchToHttp().getRequest<IRequestApp>()
     const { authorization } = headers
     const authorizations: string[] = authorization.split(' ')

@@ -11,8 +11,8 @@ import {
   LOGGER_SENSITIVE_PATHS,
 } from '../constants'
 import { LoggerFileDriver, LoggerRemoteDriver } from '../drivers'
-import { LoggerUtil } from '../helpers'
 import { ILoggerDebugInfo, ILoggerOptions } from '../interfaces'
+import { LoggerUtil } from '../utils'
 
 @Injectable()
 export class LoggerOptionService {

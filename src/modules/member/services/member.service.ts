@@ -19,19 +19,19 @@ import { ENUM_AUTH_SCOPE_TYPE, IAuthPassword } from 'lib/nest-auth'
 import {
   APP_LANGUAGE,
   AppContext,
-  AppHelper,
   CryptoService,
   DateService,
   ENUM_DATE_FORMAT,
   HelperService,
   MessageService,
+  NumberUtil,
 } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
-import { InvoiceUtil } from 'modules/invoice/helpers'
 import { InvoiceService } from 'modules/invoice/services'
-import { TierUtil } from 'modules/tier/helpers'
+import { InvoiceUtil } from 'modules/invoice/utils'
 import { TierService } from 'modules/tier/services'
+import { TierUtil } from 'modules/tier/utils'
 import { MemberChangePasswordRequestDto } from '../dtos'
 import { MemberData } from '../helpers'
 import { ISlipCounterOptions, TMember, TMemberMetadata } from '../interfaces'
@@ -168,7 +168,7 @@ export class MemberService implements OnModuleInit {
     const dateRange = this.dateService.createRange(dateNow)
     const { country, phone } = this.helperService.parsePhone(data.phone)
 
-    const normalTier = this.tierService.getChartIterator().getNormalTier()
+    const normalTier = this.tierService.getChart().getNormalTier()
 
     return await this.prisma.member.create({
       data: {
@@ -367,8 +367,6 @@ export class MemberService implements OnModuleInit {
   private async getMetadata(member: TMember): Promise<TMemberMetadata> {
     const messages: string[] = []
 
-    // const chartIterator = this.tierService.getChartIterator()
-
     if (member.expiryDate) {
       messages.push(
         this.messageService.setMessage('module.member.memberTierExpiresIn', {
@@ -400,7 +398,7 @@ export class MemberService implements OnModuleInit {
           this.messageService.setMessage('module.member.memberPointExpiresIn', {
             customLanguage: AppContext.language(),
             properties: {
-              pointExpireValue: AppHelper.toNumber(totalExpiredPoints._sum.point, {
+              pointExpireValue: NumberUtil.numeric(totalExpiredPoints._sum.point, {
                 useGrouping: true,
               }),
               pointExpireDate: this.dateService.format(
@@ -720,7 +718,7 @@ export class MemberService implements OnModuleInit {
     const dateRange = this.dateService.createRange(issuedAt)
     const batchSize: number = 500
 
-    const chartIterator = this.tierService.getChartIterator()
+    const tierChart = this.tierService.getChart()
 
     let loop: boolean = false
     do {
@@ -738,7 +736,7 @@ export class MemberService implements OnModuleInit {
         const maximumSpending = Math.max(personalSpending, referralSpending, 0)
         const extendDate = this.getTierExpirationDate(tierHistory.expiryDate)
 
-        const { tierData } = chartIterator.getTierData(
+        const { tierData } = tierChart.getData(
           tierHistory.currTierId,
           tierHistory.minTierId,
           maximumSpending,
@@ -815,8 +813,8 @@ export class MemberService implements OnModuleInit {
       return MemberData.make(member, tierRecent)
     }
 
-    const chartIterator = this.tierService.getChartIterator()
-    const tierData = chartIterator.getTierStats(member.tierId)
+    const tierChart = this.tierService.getChart()
+    const tierData = tierChart.getStats(member.tierId)
     const newTierHistory = await this.prisma.memberTierHistory.create({
       data: {
         memberId: member.id,
@@ -864,8 +862,8 @@ export class MemberService implements OnModuleInit {
       })
 
       if (birthPoint) {
-        const chartIterator = this.tierService.getChartIterator()
-        const memberTier = chartIterator.getTierInfo(member.tierId)
+        const tierChart = this.tierService.getChart()
+        const memberTier = tierChart.getInfo(member.tierId)
         const newPoint = TierUtil.round(birthPoint.point * (memberTier.birthdayRatio - 1))
 
         await this.prisma.member.update({
@@ -900,7 +898,7 @@ export class MemberService implements OnModuleInit {
     const sinceInvoice = await this.invoiceService.getFirstInvoice(issuedAt)
     if (!sinceInvoice) return
 
-    const chartIterator = this.tierService.getChartIterator()
+    const tierChart = this.tierService.getChart()
 
     let sinceDate = this.dateService.create(sinceInvoice.issuedAt, { startOfDay: true })
     const untilDate = this.dateService.create(issuedAt, { startOfDay: true })
@@ -916,7 +914,7 @@ export class MemberService implements OnModuleInit {
           const member = await this.findOrFail(invoice.memberId)
           const memberData = await this.getRecentData(member)
 
-          const memberTier = chartIterator.getTierInfo(member.tierId)
+          const memberTier = tierChart.getInfo(member.tierId)
           const memberRatio = member.hasFirstPurchased
             ? TierUtil.ratio(memberTier.personalRate)
             : TierUtil.ratio(memberTier.initialRate)
@@ -927,8 +925,8 @@ export class MemberService implements OnModuleInit {
           // const invoiceData = this.getDataFromInvoices(memberInvoices)
           const invoiceData = InvoiceUtil.getData(memberInvoices)
           const { tierData, tierValue, invoiceIds } = memberData.hasFirstPurchased
-            ? chartIterator.calculateTierData(memberData, invoiceData)
-            : chartIterator.calculateTierDataInFirstPurchase(memberData, invoiceData)
+            ? tierChart.calculateData(memberData, invoiceData)
+            : tierChart.calculateDataInFirstPurchase(memberData, invoiceData)
 
           const pointExpiryDate = this.getPointExpirationDate(sinceDate)
           const tierExpiryDate = this.getTierExpirationDate(sinceDate)
@@ -1003,10 +1001,7 @@ export class MemberService implements OnModuleInit {
           if (!member.hasFirstPurchased) {
             const referrerData = await this.getReferrerData(member)
             if (referrerData && referrerData.isActive) {
-              const { tierData, tierValue } = chartIterator.calculateTierData(
-                referrerData,
-                invoiceData,
-              )
+              const { tierData, tierValue } = tierChart.calculateData(referrerData, invoiceData)
 
               if (tierData.isUpgrade()) {
                 referrerData.addTierHistory({

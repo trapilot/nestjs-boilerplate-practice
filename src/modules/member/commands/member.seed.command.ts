@@ -3,11 +3,11 @@ import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ENUM_MEMBER_TIER_ACTION, ENUM_MEMBER_TYPE } from '@prisma/client'
 import {
-  AppHelper,
   CryptoService,
   DateService,
   ENUM_APP_LANGUAGE,
   ENUM_GENDER_TYPE,
+  EnvUtil,
   HelperService,
   NEST_CLI,
 } from 'lib/nest-core'
@@ -33,9 +33,9 @@ export class MemberSeedCommand extends CommandRunner {
     super()
   }
 
-  async run(passedParam: string[], options?: any): Promise<void> {
+  async run(_passedParam: string[], options?: any): Promise<void> {
     this.logger.warn(`${MemberSeedCommand.name} is running...`)
-    if (AppHelper.isProduction()) {
+    if (EnvUtil.isProduction()) {
       return
     }
 
@@ -43,7 +43,7 @@ export class MemberSeedCommand extends CommandRunner {
     const startDate = this.config.get<Date>('app.startDate')
     const codeDigits = this.config.getOrThrow<number>('app.membership.codeDigits')
 
-    const chartIterator = this.tierService.getChartIterator()
+    const tierChart = this.tierService.getChart()
     const dateRange = this.dateService.createRange(dateNow)
 
     const passwordSaltLength = this.config.get<number>('auth.password.saltLength')
@@ -63,8 +63,8 @@ export class MemberSeedCommand extends CommandRunner {
       for (let i = 0; i < options.numbers; i++) {
         const isStaff = faker.datatype.boolean()
         const isFemale = faker.datatype.boolean()
-        const memberTier = isStaff ? chartIterator.getStaffTier() : chartIterator.getNormalTier()
-        const tierData = chartIterator.getTierStats(memberTier.id)
+        const memberTier = isStaff ? tierChart.getStaffTier() : tierChart.getNormalTier()
+        const tierData = tierChart.getStats(memberTier.id)
 
         const fullPhone = faker.phone.number({ style: 'international' })
         const { country, phone } = this.helperService.parsePhone(fullPhone)

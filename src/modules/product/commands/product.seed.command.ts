@@ -22,7 +22,7 @@ export class ProductSeedCommand extends CommandRunner {
     super()
   }
 
-  async run(passedParam: string[], options?: any): Promise<void> {
+  async run(_passedParam: string[], options?: any): Promise<void> {
     this.logger.warn(`${ProductSeedCommand.name} is running...`)
 
     try {

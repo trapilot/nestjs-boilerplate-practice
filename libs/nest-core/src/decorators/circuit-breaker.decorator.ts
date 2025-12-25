@@ -64,7 +64,7 @@ export function CircuitBreaker(
 ) {
   return function (
     target: object,
-    propertyKey: string | symbol,
+    _propertyKey: string | symbol,
     descriptor: PropertyDescriptor,
   ): void {
     const opts = input?.options ?? {}

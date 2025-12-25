@@ -1,13 +1,15 @@
 export type EnumValue = string | number
 export type EnumLike<T = EnumValue> = Record<string, T>
 
-export interface IContextPayload {
-  tenantId: string
-}
-
 export interface IStep<T> {
   invoke(input: T): any
   compensate(input: T): any
+}
+
+export interface IExportableMetadata {
+  sorting?: number
+  domain?: string
+  message?: string
 }
 
 export interface IClientData {

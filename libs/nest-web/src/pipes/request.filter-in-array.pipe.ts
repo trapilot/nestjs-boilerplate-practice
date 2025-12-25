@@ -1,7 +1,7 @@
 import { Inject, Injectable, mixin, Type } from '@nestjs/common'
 import { ArgumentMetadata, PipeTransform, Scope } from '@nestjs/common/interfaces'
 import { REQUEST } from '@nestjs/core'
-import { AppHelper, IRequestApp } from 'lib/nest-core'
+import { IRequestApp, StringUtil } from 'lib/nest-core'
 import { IRequestFilterEqualOptions } from '../interfaces'
 
 export function RequestFilterInArrayPipe<T>(
@@ -28,7 +28,7 @@ export function RequestFilterInArrayPipe<T>(
         .split(',')
         .map((val: string) => val.trim())
         .filter((val: string) => val)
-        .map((val: string) => AppHelper.parse<T>(val, options))
+        .map((val: string) => StringUtil.parse<T>(val, options))
 
       this.addToRequestInstance(finalValue)
       return {

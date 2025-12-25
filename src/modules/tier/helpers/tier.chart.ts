@@ -4,7 +4,7 @@ import { MemberData } from 'modules/member/helpers'
 import { TTier, TTierChart } from '../interfaces'
 import { TierData, TierValue } from './tier.data'
 
-export class TierChartIterator {
+export class TierChart {
   private readonly jumpOnFirstPurchase: boolean = true
   private infos: { [tierId: string]: TTier } = {}
   private charts: { [tierId: string]: TTierChart[] } = {}
@@ -29,11 +29,11 @@ export class TierChartIterator {
     }
   }
 
-  getTierInfo(tierId: number): TTier {
+  getInfo(tierId: number): TTier {
     return this.infos[tierId]
   }
 
-  getTierStats(tierId: number, originalId?: number): TierData {
+  getStats(tierId: number, originalId?: number): TierData {
     const tierIds = Object.keys(this.infos)
     const index = tierIds.indexOf(`${tierId}`)
 
@@ -45,14 +45,14 @@ export class TierChartIterator {
     )
   }
 
-  getTierDataInFirstPurchase(
+  getDataInFirstPurchase(
     tierId: number,
     tierMinId: number,
     oldSpending: number,
     newSpending: number = 0,
   ): { tierData: TierData; tierValue: TierValue } {
     if (this.jumpOnFirstPurchase === false) {
-      return this.getTierData(tierId, tierMinId, oldSpending, newSpending)
+      return this.getData(tierId, tierMinId, oldSpending, newSpending)
     }
 
     const tierSpending = oldSpending + newSpending
@@ -60,15 +60,15 @@ export class TierChartIterator {
     for (const index in charts) {
       const chart = charts[index]
       if (chart.nextId === tierMinId || chart.requireSpending <= tierSpending) {
-        const tierData = this.getTierStats(chart.nextId, tierId)
+        const tierData = this.getStats(chart.nextId, tierId)
         return { tierData, tierValue: tierData.calculate(oldSpending, newSpending) }
       }
     }
-    const tierData = this.getTierStats(tierId)
+    const tierData = this.getStats(tierId)
     return { tierData, tierValue: tierData.calculate(oldSpending, newSpending) }
   }
 
-  getTierData(
+  getData(
     tierId: number,
     tierMinId: number,
     oldSpending: number,
@@ -79,20 +79,20 @@ export class TierChartIterator {
     for (const index in charts) {
       const chart = charts[index]
       if (chart.isActive && (chart.nextId === tierMinId || chart.requireSpending <= tierSpending)) {
-        const tierData = this.getTierStats(chart.nextId, tierId)
+        const tierData = this.getStats(chart.nextId, tierId)
         return { tierData, tierValue: tierData.calculate(oldSpending, newSpending) }
       }
     }
-    const tierData = this.getTierStats(tierId)
+    const tierData = this.getStats(tierId)
     return { tierData, tierValue: tierData.calculate(oldSpending, newSpending) }
   }
 
-  calculateTierDataInFirstPurchase(
+  calculateDataInFirstPurchase(
     memberData: MemberData,
     invoiceData: InvoiceData,
   ): { tierData: TierData; tierValue: TierValue; invoiceIds: number[] } {
     if (this.jumpOnFirstPurchase === false) {
-      return this.calculateTierData(memberData, invoiceData)
+      return this.calculateData(memberData, invoiceData)
     }
 
     const memberSpending = memberData.getRecentSpending()
@@ -102,7 +102,7 @@ export class TierChartIterator {
     for (const index in charts) {
       const chart = charts[index]
       if (chart.nextId === memberData.minTierId || chart.requireSpending <= totalSpending) {
-        const tierData = this.getTierStats(chart.nextId, memberData.tierId)
+        const tierData = this.getStats(chart.nextId, memberData.tierId)
         return {
           tierData,
           tierValue: tierData.calculate(memberSpending, invoiceData.totalAmount),
@@ -110,7 +110,7 @@ export class TierChartIterator {
         }
       }
     }
-    const tierData = this.getTierStats(memberData.tierId)
+    const tierData = this.getStats(memberData.tierId)
     return {
       tierData,
       tierValue: tierData.calculate(memberSpending, invoiceData.totalAmount),
@@ -118,7 +118,7 @@ export class TierChartIterator {
     }
   }
 
-  calculateTierData(
+  calculateData(
     memberData: MemberData,
     invoiceData: InvoiceData,
   ): { tierData: TierData; tierValue: TierValue; invoiceIds: number[] } {
@@ -132,7 +132,7 @@ export class TierChartIterator {
         chart.isActive &&
         (chart.nextId === memberData.minTierId || chart.requireSpending <= totalSpending)
       ) {
-        const tierData = this.getTierStats(chart.nextId, memberData.tierId)
+        const tierData = this.getStats(chart.nextId, memberData.tierId)
         return {
           tierData,
           tierValue: tierData.calculate(memberSpending, invoiceData.totalAmount),
@@ -140,7 +140,7 @@ export class TierChartIterator {
         }
       }
     }
-    const tierData = this.getTierStats(memberData.tierId)
+    const tierData = this.getStats(memberData.tierId)
     return {
       tierData,
       tierValue: tierData.calculate(memberSpending, invoiceData.totalAmount),

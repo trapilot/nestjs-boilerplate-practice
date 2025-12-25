@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import { Logger } from '@nestjs/common'
 import { ENUM_ORDER_SOURCE, ENUM_POINT_TYPE, Prisma } from '@prisma/client'
-import { AppHelper, DateService, NEST_CLI } from 'lib/nest-core'
+import { DateService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { MemberService } from 'modules/member/services'
 import { Command, CommandRunner } from 'nest-commander'
@@ -42,7 +42,7 @@ export class CartSeedCommand extends CommandRunner {
       const products = await this.prisma.product.findMany()
 
       for (const member of members) {
-        const pointBalance = AppHelper.randomNumber(2_000, 20_000, 500)
+        const pointBalance = this.randomNumber(2_000, 20_000, 500)
         await this.prisma.member.update({
           where: { id: member.id },
           data: {
@@ -64,11 +64,10 @@ export class CartSeedCommand extends CommandRunner {
 
       for (const member of members) {
         try {
-          const productList = AppHelper.randomItems(products, AppHelper.randomNumber(1, 2))
-
+          const productList = this.pickProducts(products)
           const cartItems: Prisma.CartItemUncheckedCreateWithoutCartInput[] = []
           for (const product of productList) {
-            const quantity = AppHelper.randomNumber(1, 2)
+            const quantity = this.randomNumber(1, 2)
 
             cartItems.push({
               productId: product.id,
@@ -112,5 +111,16 @@ export class CartSeedCommand extends CommandRunner {
     }
 
     return
+  }
+
+  private pickProducts(products: any[]) {
+    const shuffled = products.sort(() => 0.5 - Math.random())
+    return shuffled.slice(0, this.randomNumber(1, 2))
+  }
+
+  private randomNumber(min: number, max: number, step: number = 1) {
+    const range = Math.floor((max - min) / step) + 1
+    const randomStep = Math.floor(Math.random() * range)
+    return min + randomStep * step
   }
 }

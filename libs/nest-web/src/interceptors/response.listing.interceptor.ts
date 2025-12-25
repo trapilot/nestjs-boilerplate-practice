@@ -7,11 +7,12 @@ import {
   AppContext,
   DateService,
   ENUM_FILE_TYPE_EXCEL,
-  FileHelper,
+  FileUtil,
+  IExportableMetadata,
   IRequestApp,
   IResponseApp,
   MessageService,
-  MetadataHelper,
+  MetadataUtil,
   ResponseListingMetadataDto,
   ResponseSuccessDto,
 } from 'lib/nest-core'
@@ -157,7 +158,7 @@ export class ResponseListingInterceptor<T> implements NestInterceptor<T, IRespon
 
     // set headers
     res
-      .setHeader('Content-Type', FileHelper.toFileMimetype(filename))
+      .setHeader('Content-Type', FileUtil.parseMimetype(filename))
       .setHeader('Content-Disposition', `attachment; filename=${filename}`)
 
     const workbook = fileExcel
@@ -171,7 +172,7 @@ export class ResponseListingInterceptor<T> implements NestInterceptor<T, IRespon
     }
 
     const userKeys = Object.keys(plainToInstance(ResponseUserBelongDto, {}, dtoSerializeOptions))
-    const exportProperties = MetadataHelper.getExportableProperties(dtoClass)
+    const exportProperties = MetadataUtil.getProperties<IExportableMetadata>(dtoClass)
     const serializeMetadata = responseIterator?._metadata?.customProperty?.serializeProperties ?? {}
 
     let rowIndex = 0

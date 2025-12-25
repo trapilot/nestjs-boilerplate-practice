@@ -309,7 +309,7 @@ export class UserAuthController {
   })
   @Put('/change-avatar')
   async changeAvatar(
-    @RequestBody() body: UserRequestChangeAvatarDto,
+    @RequestBody() _body: UserRequestChangeAvatarDto,
     @AuthJwtPayload('user.id') userId: number,
     @UploadedFile(
       new RequestFileRequiredPipe('avatar'),

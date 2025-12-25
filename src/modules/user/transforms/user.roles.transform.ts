@@ -1,7 +1,7 @@
 import { plainToInstance, Transform } from 'class-transformer'
 import { RoleResponseBelongDto } from 'modules/role/dtos'
 import { IUserRoleTransformOptions, IUserTransformOptions } from '../interfaces'
-import { UserTransformUtil } from '../helpers'
+import { UserUtil } from '../utils'
 
 export function ToUserRoles(
   options?: IUserRoleTransformOptions,
@@ -9,7 +9,7 @@ export function ToUserRoles(
   return Transform(({ obj: user, value }: IUserTransformOptions) => {
     // console.log({ ToUserRoles: user })
     if (user?.pivotRoles !== undefined) {
-      const userRoles = UserTransformUtil.toValidUserRoles(user)
+      const userRoles = UserUtil.parseRoles(user)
 
       if (options?.key) {
         const userRoleIds = userRoles.map((role) => role.id)

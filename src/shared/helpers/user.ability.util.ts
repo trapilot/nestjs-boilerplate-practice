@@ -1,4 +1,4 @@
-import { AppHelper, ENUM_MESSAGE_LANGUAGE } from 'lib/nest-core'
+import { ENUM_MESSAGE_LANGUAGE, LocaleUtil } from 'lib/nest-core'
 import {
   ENUM_APP_ABILITY_ACTION,
   ENUM_APP_ABILITY_CONTEXT,
@@ -318,7 +318,7 @@ export class UserAbilityUtil {
 
   static toContext(context: string, language?: string): string {
     const jsonTitle = this.getContexts()[context]?.title || {}
-    return AppHelper.toLocaleValue(jsonTitle, language)
+    return LocaleUtil.parseValue(jsonTitle, language)
   }
 
   static findContext(subject: ENUM_APP_ABILITY_SUBJECT): string {

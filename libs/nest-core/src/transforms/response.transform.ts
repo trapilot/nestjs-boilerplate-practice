@@ -1,10 +1,10 @@
 import { ClassConstructor, plainToInstance, Transform } from 'class-transformer'
 import { AppContext } from '../contexts'
-import { AppHelper } from '../helpers'
 import { IDateRequestOptions, IStringNumericOptions } from '../interfaces'
+import { DateUtil, LocaleUtil, NumberUtil, UrlUtil } from '../utils'
 
 export function ToUrl(host?: string): (target: any, key: string) => void {
-  return Transform(({ value }: any) => AppHelper.toUrl(value, host))
+  return Transform(({ value }: any) => UrlUtil.build(value, host))
 }
 
 export function ToDate(
@@ -13,7 +13,7 @@ export function ToDate(
   return Transform(({ value, obj }: any) => {
     const { ref, ...options } = transform ?? {}
     if (ref) value = obj[ref] ?? undefined
-    return value ? AppHelper.toDate(value, options) : value
+    return value ? DateUtil.format(value, options) : value
   })
 }
 
@@ -73,8 +73,8 @@ export function ToDecimal(options?: IStringNumericOptions): (target: any, key: s
   return Transform(({ value, obj, key }: any) => {
     const decimal = value ?? obj[key.replace('Format', '')]
     if (typeof decimal === 'number') {
-      return AppHelper.toNumber(decimal ?? 0, {
-        useGrouping: !AppContext.isAdmin(),
+      return NumberUtil.numeric(decimal ?? 0, {
+        useGrouping: !AppContext.isAdminRequest(),
         ...options,
       })
     }
@@ -84,8 +84,8 @@ export function ToDecimal(options?: IStringNumericOptions): (target: any, key: s
 
 export function ToCurrency(options?: IStringNumericOptions): (target: any, key: string) => void {
   return Transform(({ value, obj, key }: any) => {
-    return AppHelper.toCurrency(value ?? obj[key.replace('Format', '')] ?? 0, {
-      useGrouping: !AppContext.isAdmin(),
+    return NumberUtil.currency(value ?? obj[key.replace('Format', '')] ?? 0, {
+      useGrouping: !AppContext.isAdminRequest(),
       ...options,
     })
   })
@@ -187,7 +187,7 @@ export function ToLocaleField<T>(transform: {
       }
 
       if (data) {
-        data = AppHelper.toLocaleField(data, key)
+        data = LocaleUtil.buildFields(data, key)
       }
 
       if (data && transform?.type) {

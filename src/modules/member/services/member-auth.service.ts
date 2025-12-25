@@ -26,10 +26,10 @@ import {
 } from 'lib/nest-auth'
 import {
   APP_TIMEZONE,
-  AppHelper,
   CryptoService,
   DateService,
   FileService,
+  FileUtil,
   HelperService,
   IRequestApp,
   MessageService,
@@ -477,7 +477,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
 
     const content = options?.text
       ? options.text
-      : this.fileService.readText(AppHelper.getTemplatePath(options.template, options?.language))
+      : this.fileService.readText(FileUtil.getTemplate(options.template, options?.language))
 
     await this.notifier.sendSms({
       to: phone,
@@ -517,7 +517,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
 
     const content = options?.text
       ? options.text
-      : this.fileService.readText(AppHelper.getTemplatePath(options.template, options?.language))
+      : this.fileService.readText(FileUtil.getTemplate(options.template, options?.language))
 
     await this.notifier.sendEmail({
       to: email,
@@ -576,7 +576,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
     const { country, phone } = this.helperService.parsePhone(dto.phone)
     const { passwordHash } = this.authService.createPassword(dto.password)
 
-    const normalTier = this.tierService.getChartIterator().getNormalTier()
+    const normalTier = this.tierService.getChart().getNormalTier()
     const member = await this.prisma.member.create({
       data: {
         ...dto,
