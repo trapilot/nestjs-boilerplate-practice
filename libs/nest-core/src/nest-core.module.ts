@@ -16,7 +16,6 @@ import { ENUM_MESSAGE_LANGUAGE } from './enums'
 import { AppExceptionFilter } from './filters'
 import {
   CryptoService,
-  DateService,
   FileService,
   HelperService,
   MessageService,
@@ -33,27 +32,19 @@ export class NestCoreModule {
     return {
       global: true,
       module: NestCoreModule,
-      exports: [
-        FileService,
-        DateService,
-        CryptoService,
-        MessageService,
-        RealtimeService,
-        HelperService,
-      ],
+      exports: [FileService, CryptoService, MessageService, RealtimeService, HelperService],
       providers: [
         FileService,
-        DateService,
         CryptoService,
         MessageService,
         RealtimeService,
         HelperService,
         {
           provide: APP_FILTER,
-          useFactory: (dateService: DateService, messageService: MessageService) => {
-            return new AppExceptionFilter(dateService, messageService)
+          useFactory: (messageService: MessageService, helperService: HelperService) => {
+            return new AppExceptionFilter(messageService, helperService)
           },
-          inject: [DateService, MessageService],
+          inject: [MessageService, HelperService],
         },
         {
           provide: REALTIME_PUB,

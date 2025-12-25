@@ -1,7 +1,7 @@
 import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
-import { APP_TIMEZONE, DateService, HelperService } from 'lib/nest-core'
+import { APP_TIMEZONE, HelperService } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import {
   IVerificationCodeData,
@@ -15,13 +15,12 @@ export class MemberVerificationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-    private readonly dateService: DateService,
     private readonly helperService: HelperService,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { timeZone: APP_TIMEZONE })
   private async clearExpiredVerifyTokens() {
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
     await this.prisma.memberVerifyHistory.updateMany({
       where: { isActive: true, isExpired: true, expiresAt: { lte: dateNow } },
       data: { isActive: false },
@@ -32,7 +31,8 @@ export class MemberVerificationService {
     data: IVerificationCreateOptions,
     options: IVerificationRandomOptions & { maxAttempts: number },
   ): Promise<TMemberVerifyHistory> {
-    const dateRange = this.dateService.createRange()
+    const dateNow = this.helperService.dateCreate()
+    const dateRange = this.helperService.dateRange(dateNow)
 
     const inspector = this.checkIsInspector(data)
     const todayAttempts = await this.prisma.memberVerifyHistory.count({
@@ -107,7 +107,7 @@ export class MemberVerificationService {
       })
     }
 
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
     if (dateNow >= token.expiresAt) {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
@@ -157,8 +157,8 @@ export class MemberVerificationService {
   }
 
   private createCodeRandom(options: IVerificationRandomOptions): IVerificationCodeData {
-    const dateNow = this.dateService.create()
-    const expired = this.dateService.forward(dateNow, { seconds: options.seconds })
+    const dateNow = this.helperService.dateCreate()
+    const expired = this.helperService.dateForward(dateNow, { seconds: options.seconds })
 
     const code = options?.code
       ? options.code

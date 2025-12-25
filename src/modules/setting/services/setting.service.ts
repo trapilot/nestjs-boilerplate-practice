@@ -4,7 +4,7 @@ import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { Prisma, Setting } from '@prisma/client'
 import { Cache } from 'cache-manager'
-import { APP_TIMEZONE, DateService, ENUM_DATE_FORMAT, HelperService } from 'lib/nest-core'
+import { APP_TIMEZONE, ENUM_DATE_FORMAT, HelperService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { ENUM_SETTING_GROUP, ENUM_SETTING_TYPE } from '../enums'
@@ -20,12 +20,11 @@ export class SettingService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly helperService: HelperService,
-    private readonly dateService: DateService,
   ) {
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
 
     this.timezone = this.config.get<string>('app.timezone')
-    this.timezoneOffset = this.dateService.format(dateNow, ENUM_DATE_FORMAT.TIMEZONE)
+    this.timezoneOffset = this.helperService.dateFormat(dateNow, ENUM_DATE_FORMAT.TIMEZONE)
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { timeZone: APP_TIMEZONE })

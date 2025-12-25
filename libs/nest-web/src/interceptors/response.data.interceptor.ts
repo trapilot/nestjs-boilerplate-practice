@@ -4,7 +4,7 @@ import { Reflector } from '@nestjs/core'
 import { ClassConstructor, ClassTransformOptions, plainToInstance } from 'class-transformer'
 import {
   AppContext,
-  DateService,
+  HelperService,
   IRequestApp,
   IResponseApp,
   ResponseMetadataDto,
@@ -19,7 +19,7 @@ import { IResponseData } from '../interfaces'
 export class ResponseDataInterceptor<T> implements NestInterceptor<T, IResponseData> {
   constructor(
     private readonly reflector: Reflector,
-    private readonly dateService: DateService,
+    private readonly helperService: HelperService,
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -53,14 +53,14 @@ export class ResponseDataInterceptor<T> implements NestInterceptor<T, IResponseD
     )
 
     // metadata
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
     const ctxData = AppContext.current()
     let metadata: ResponseMetadataDto = {
       path: req.path,
       language: ctxData?.language ?? AppContext.language(),
       timezone: ctxData?.timezone ?? AppContext.timezone(),
       version: ctxData?.apiVersion ?? AppContext.apiVersion(),
-      timestamp: this.dateService.getTimestamp(dateNow),
+      timestamp: this.helperService.dateGetTimestamp(dateNow),
     }
 
     const statusHttp = res.statusCode

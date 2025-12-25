@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { DateService, ENUM_APP_LANGUAGE, ENUM_TIER_CODE, NEST_CLI } from 'lib/nest-core'
+import { ENUM_APP_LANGUAGE, ENUM_TIER_CODE, HelperService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner } from 'nest-commander'
 
@@ -13,7 +13,7 @@ export class TierSeedCommand extends CommandRunner {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly dateService: DateService,
+    private readonly helperService: HelperService,
   ) {
     super()
   }
@@ -22,7 +22,7 @@ export class TierSeedCommand extends CommandRunner {
     this.logger.warn(`${TierSeedCommand.name} is running...`)
 
     try {
-      const dateNow = this.dateService.create()
+      const dateNow = this.helperService.dateCreate()
       const tiers: Prisma.TierUncheckedCreateInput[] = [
         {
           code: ENUM_TIER_CODE.NORMAL,

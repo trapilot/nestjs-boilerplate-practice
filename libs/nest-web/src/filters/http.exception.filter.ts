@@ -2,7 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/co
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import {
   AppContext,
-  DateService,
+  HelperService,
   IMessageError,
   IMessageProperties,
   IRequestApp,
@@ -16,8 +16,8 @@ import {
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   constructor(
-    private readonly dateService: DateService,
     private readonly messageService: MessageService,
+    private readonly helperService: HelperService,
   ) {}
 
   async catch(exception: HttpException, host: ArgumentsHost): Promise<void> {
@@ -26,14 +26,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const res: IResponseApp = ctx.getResponse<IResponseApp>()
 
     // metadata
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
     const ctxData = AppContext.current()
     let metadata: ResponseMetadataDto = {
       path: req.path,
       language: ctxData?.language ?? AppContext.language(),
       timezone: ctxData?.timezone ?? AppContext.timezone(),
       version: ctxData?.apiVersion ?? AppContext.apiVersion(),
-      timestamp: this.dateService.getTimestamp(dateNow),
+      timestamp: this.helperService.dateGetTimestamp(dateNow),
     }
 
     if (req.__filters) {

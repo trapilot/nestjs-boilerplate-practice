@@ -1,7 +1,17 @@
 import { Injectable } from '@nestjs/common'
+import { DateObjectUnits, DateTime, Duration, DurationLikeObject } from 'luxon'
 import RandExp from 'randexp'
-import { ENUM_COUNTRY_CODE } from '../enums'
-import { IStringEmailValidation, IStringRandomOptions } from '../interfaces'
+import { AppContext } from '../contexts'
+import { ENUM_COUNTRY_CODE, ENUM_DATE_FORMAT } from '../enums'
+import {
+  IDateCompareOptions,
+  IDateCreateOptions,
+  IDateExtractData,
+  IDateRange,
+  IStringEmailValidation,
+  IStringRandomOptions,
+} from '../interfaces'
+import { DateUtil } from '../utils'
 
 @Injectable()
 export class HelperService {
@@ -72,6 +82,28 @@ export class HelperService {
       tValue = 0
     }
     return Number.parseFloat((tValue * 100).toFixed(2))
+  }
+
+  calculateAge(dateOfBirth: Date, fromYear?: number): Duration {
+    const timeZone = AppContext.timezone()
+    const dateTime = DateTime.now().setZone(timeZone).plus({ day: 1 }).set({
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
+    })
+    const dateTimeDob = DateTime.fromJSDate(dateOfBirth).setZone(timeZone).set({
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
+    })
+
+    if (fromYear) {
+      dateTime.set({ year: fromYear })
+    }
+
+    return dateTime.diff(dateTimeDob)
   }
 
   randomString(length: number, options?: IStringRandomOptions): string {
@@ -244,5 +276,113 @@ export class HelperService {
       country,
       phone: phone.slice(country.length).trim(),
     }
+  }
+
+  dateCreate(date?: Date, options?: IDateCreateOptions): Date {
+    return DateUtil.create(date, options).toJSDate()
+  }
+
+  dateInstance(date?: Date, options?: IDateCreateOptions): DateTime {
+    return DateUtil.create(date, options)
+  }
+
+  dateCreateFromIso(iso: string, options?: IDateCreateOptions): Date {
+    const timezone = options?.timezone ?? AppContext.timezone()
+    let mDate = DateTime.fromISO(iso).setZone(timezone)
+
+    if (options?.startOfDay) {
+      mDate = mDate.startOf('day')
+    } else if (options?.endOfDay) {
+      mDate = mDate.endOf('day')
+    } else if (options?.duration) {
+      const [hours, minutes, seconds, millisecond] = options.duration.split(':').map(Number)
+      mDate = mDate.plus(Duration.fromObject({ hours, minutes, seconds, millisecond }))
+    }
+
+    return mDate.toJSDate()
+  }
+
+  dateGetZone(date: Date): string {
+    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).zone.name
+  }
+
+  dateGetZoneOffset(date: Date): string {
+    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).offsetNameShort
+  }
+
+  dateGetTimestamp(date: Date): number {
+    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).toMillis()
+  }
+
+  dateFormat(date: Date, dateFormat: ENUM_DATE_FORMAT): string {
+    return DateUtil.create(date).toFormat(dateFormat)
+  }
+
+  dateRange(date: Date): IDateRange {
+    return DateUtil.rangeDate(date)
+  }
+
+  dateExtract(date: Date): IDateExtractData {
+    return DateUtil.extractDate(date)
+  }
+
+  dateSet(date: Date, units: DateObjectUnits): Date {
+    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).set(units).toJSDate()
+  }
+
+  dateForward(date: Date, duration: DurationLikeObject): Date {
+    return DateTime.fromJSDate(date)
+      .setZone(AppContext.timezone())
+      .plus(Duration.fromObject(duration))
+      .toJSDate()
+  }
+
+  dateBackward(date: Date, duration: DurationLikeObject): Date {
+    return DateTime.fromJSDate(date)
+      .setZone(AppContext.timezone())
+      .minus(Duration.fromObject(duration))
+      .toJSDate()
+  }
+
+  dateCheckAfter(dateOne: Date, options?: IDateCompareOptions): boolean {
+    const dtDateOne = DateUtil.create(dateOne)
+    const dtDateTwo = DateUtil.create(options?.sinceDate, {
+      ...options,
+      timezone: this.dateGetZone(dtDateOne.toJSDate()),
+    })
+    return dtDateTwo > dtDateOne
+  }
+
+  dateCheckBefore(dateOne: Date, options?: IDateCompareOptions): boolean {
+    const dtDateOne = DateUtil.create(dateOne)
+    const dtDateTwo = DateUtil.create(options?.sinceDate, {
+      ...options,
+      timezone: this.dateGetZone(dtDateOne.toJSDate()),
+    })
+    return dtDateTwo < dtDateOne
+  }
+
+  dateCheckSet(date: Date, options: Partial<Omit<IDateExtractData, 'date'>>): boolean {
+    const extractDate = this.dateExtract(date)
+    if (options?.year && extractDate.year != options.year) return false
+    if (options?.month && extractDate.month != options.month) return false
+    if (options?.day && extractDate.day != options.day) return false
+    if (options?.weekday && extractDate.weekday != options.weekday) return false
+    if (options?.hour && extractDate.hour != options.hour) return false
+    if (options?.minute && extractDate.minute != options.minute) return false
+    if (options?.second && extractDate.second != options.second) return false
+    return true
+  }
+
+  dateCheckIso(date: string): boolean {
+    return DateTime.fromISO(date).setZone(AppContext.timezone()).isValid
+  }
+
+  dateCheckTimestamp(timestamp: number): boolean {
+    return DateTime.fromMillis(timestamp).setZone(AppContext.timezone()).isValid
+  }
+
+  dateCheckZone(timezone: string): boolean {
+    return DateTime.fromObject({}, { zone: timezone }).isValid
   }
 }

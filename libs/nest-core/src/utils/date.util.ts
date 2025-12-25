@@ -1,6 +1,11 @@
 import { DateTime } from 'luxon'
 import { AppContext } from '../contexts'
-import { IDateCreateOptions, IDateExtractData, IDateRequestOptions } from '../interfaces'
+import {
+  IDateCreateOptions,
+  IDateExtractData,
+  IDateRange,
+  IDateRequestOptions,
+} from '../interfaces'
 
 export class DateUtil {
   static format<T = Date | string>(date: Date | string, options?: IDateRequestOptions): T {
@@ -12,11 +17,11 @@ export class DateUtil {
       if (!options.durationSet?.millisecond) reqDate.setMilliseconds(0)
     }
 
-    const mDate = DateUtil.createInstance(reqDate, options)
+    const mDate = this.create(reqDate, options)
     return (options?.format ? mDate.toFormat(options.format) : mDate.toJSDate()) as T
   }
 
-  static createInstance(date?: Date, options?: IDateCreateOptions): DateTime {
+  static create(date?: Date, options?: IDateCreateOptions): DateTime {
     const timezone = options?.timezone ?? AppContext.timezone()
     let mDate = date
       ? DateTime.fromJSDate(date).setZone(timezone)
@@ -34,18 +39,37 @@ export class DateUtil {
     return mDate
   }
 
-  static mergeDate(date: Date | string, duration: string): Date {
+  static getDate(date: Date | string, options?: IDateCreateOptions): Date {
     if (typeof date === 'string') {
       const [day, month, year] = date.split('/')
       date = `${year}-${month}-${day}`
     }
 
-    const mDate = this.createInstance(new Date(date), { duration })
-    return mDate.toJSDate()
+    return this.create(new Date(date), options).toJSDate()
+  }
+
+  static mergeDate(date: Date | string, duration: string): Date {
+    if (typeof date === 'string') {
+      const [day, month, year] = date.split('/')
+      date = `${year}-${month}-${day}`
+    }
+    return this.create(new Date(date), { duration }).toJSDate()
+  }
+
+  static rangeDate(date: Date | string): IDateRange {
+    const mDate = this.create(new Date(date))
+    return {
+      startOfDay: mDate.startOf('day').toJSDate(),
+      endOfDay: mDate.endOf('day').toJSDate(),
+      startOfMonth: mDate.startOf('month').toJSDate(),
+      endOfMonth: mDate.endOf('month').toJSDate(),
+      startOfYear: mDate.startOf('year').toJSDate(),
+      endOfYear: mDate.endOf('year').toJSDate(),
+    }
   }
 
   static extractDate(date: Date | string): IDateExtractData {
-    const mDate = this.createInstance(new Date(date))
+    const mDate = this.create(new Date(date))
     return {
       date: mDate.toJSDate(),
       second: mDate.second,
@@ -67,8 +91,6 @@ export class DateUtil {
       if (!options.durationSet?.second) reqDate.setSeconds(0)
       if (!options.durationSet?.millisecond) reqDate.setMilliseconds(0)
     }
-
-    const mDate = this.createInstance(reqDate, options)
-    return mDate.toJSDate()
+    return this.create(reqDate, options).toJSDate()
   }
 }

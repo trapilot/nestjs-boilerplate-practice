@@ -3,7 +3,7 @@ import { Controller, Get, Inject } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Cache } from 'cache-manager'
 import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { DateService, IDateRange } from 'lib/nest-core'
+import { HelperService, IDateRange } from 'lib/nest-core'
 import { ApiRequestData, IResponseData } from 'lib/nest-web'
 import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
 import { DASHBOARD_DOC_OPERATION } from '../constants'
@@ -16,12 +16,13 @@ export class DashboardAdminController {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
     protected readonly dashboardService: DashboardService,
-    protected readonly dateService: DateService,
+    protected readonly helperService: HelperService,
   ) {}
 
-  private getDate(): IDateRange {
-    const dates = this.dateService.createRange()
-    return dates
+  private getDates(): IDateRange {
+    const dateNow = this.helperService.dateCreate()
+    const dateRange = this.helperService.dateRange(dateNow)
+    return dateRange
   }
 
   @ApiRequestData({
@@ -47,7 +48,7 @@ export class DashboardAdminController {
   })
   @Get('/view-summary')
   async get(): Promise<IResponseData> {
-    const dates = this.getDate()
+    const dates = this.getDates()
     const dashboard = await this.dashboardService.getSummary(dates.startOfMonth, dates.endOfMonth)
 
     return {
@@ -77,7 +78,7 @@ export class DashboardAdminController {
   })
   @Get('/refresh-summary')
   async refresh(): Promise<IResponseData> {
-    const dates = this.getDate()
+    const dates = this.getDates()
     const dashboard = await this.dashboardService.getSummary(dates.startOfMonth, dates.endOfMonth)
 
     await this.cache.set(DashboardSummaryResponseDto.name, dashboard)
@@ -109,7 +110,7 @@ export class DashboardAdminController {
   })
   @Get('/view-data-list')
   async viewDataList(): Promise<IResponseData> {
-    const dates = this.getDate()
+    const dates = this.getDates()
     const dataList = await this.dashboardService.viewDataList(dates.startOfMonth, dates.endOfMonth)
 
     await this.cache.set(DashboardSummaryResponseDto.name, dataList)

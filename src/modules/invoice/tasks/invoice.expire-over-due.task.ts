@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Cron, CronExpression, CronOptions } from '@nestjs/schedule'
 import { ENUM_INVOICE_STATUS, ENUM_PAYMENT_METHOD } from '@prisma/client'
-import { APP_TIMEZONE, DateService } from 'lib/nest-core'
+import { APP_TIMEZONE, HelperService } from 'lib/nest-core'
 import { LoggerService } from 'lib/nest-logger'
 import { InvoiceService } from '../services'
 
@@ -16,15 +16,15 @@ const cronOptions: CronOptions = {
 export class InvoiceExpireOverDueTask {
   constructor(
     private readonly logger: LoggerService,
-    private readonly dateService: DateService,
     private readonly invoiceService: InvoiceService,
+    private readonly helperService: HelperService,
   ) {
     this.logger.setContext(cronName)
   }
 
   @Cron(cronTime || CronExpression.EVERY_DAY_AT_MIDNIGHT, cronOptions)
   async execute() {
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
     this.logger.info(`${InvoiceExpireOverDueTask.name} ${dateNow}`, cronName)
 
     // Process task
@@ -35,7 +35,7 @@ export class InvoiceExpireOverDueTask {
     disabled: process.env.INVOICE_AUTO_ADD_PAYMENT !== 'true',
   })
   async cronToAddPayment(): Promise<void> {
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
     const methods = Object.values(ENUM_PAYMENT_METHOD)
     const invoices = await this.invoiceService.findAll({
       where: { status: ENUM_INVOICE_STATUS.PARTIALLY_PAID },
@@ -48,7 +48,7 @@ export class InvoiceExpireOverDueTask {
       await this.invoiceService.addPayment(invoice, {
         method: methods[Math.floor(Math.random() * methods.length)],
         amount: amountRemaining <= 1_000 ? amountRemaining : amountRandom,
-        issuedAt: this.dateService.backward(dateNow, { days: 2 }),
+        issuedAt: this.helperService.dateBackward(dateNow, { days: 2 }),
       })
     }
   }

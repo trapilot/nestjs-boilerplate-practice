@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 import { Prisma, Product } from '@prisma/client'
-import { DateService, EnvUtil } from 'lib/nest-core'
+import { EnvUtil, HelperService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { MemberService } from 'modules/member/services'
@@ -39,7 +39,7 @@ export class CartService implements OnModuleInit {
   constructor(
     private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
-    private readonly dateService: DateService,
+    private readonly helperService: HelperService,
   ) {}
 
   onModuleInit() {
@@ -167,7 +167,7 @@ export class CartService implements OnModuleInit {
   }
 
   async checkout(id: number, options: ICartCheckoutOptions): Promise<TCart> {
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
     const issuedAt = options?.dateDebug || dateNow
 
     const cart = await this.findOrFail(id, {

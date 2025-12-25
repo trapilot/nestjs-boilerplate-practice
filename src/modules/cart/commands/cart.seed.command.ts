@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import { Logger } from '@nestjs/common'
 import { ENUM_ORDER_SOURCE, ENUM_POINT_TYPE, Prisma } from '@prisma/client'
-import { DateService, NEST_CLI } from 'lib/nest-core'
+import { HelperService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { MemberService } from 'modules/member/services'
 import { Command, CommandRunner } from 'nest-commander'
@@ -18,7 +18,7 @@ export class CartSeedCommand extends CommandRunner {
     private readonly prisma: PrismaService,
     private readonly memberService: MemberService,
     private readonly cartService: CartService,
-    private readonly dateService: DateService,
+    private readonly helperService: HelperService,
   ) {
     super()
   }
@@ -33,8 +33,8 @@ export class CartSeedCommand extends CommandRunner {
       await this.prisma.$queryRawUnsafe(`TRUNCATE TABLE member_point_histories`)
       await this.prisma.$queryRaw`SET FOREIGN_KEY_CHECKS=1`
 
-      const dateNow = this.dateService.create()
-      const issuedAt = this.dateService.backward(dateNow, { day: 1 })
+      const dateNow = this.helperService.dateCreate()
+      const issuedAt = this.helperService.dateBackward(dateNow, { day: 1 })
 
       const members = await this.prisma.member.findMany({
         select: { id: true, birthMonth: true, phone: true },

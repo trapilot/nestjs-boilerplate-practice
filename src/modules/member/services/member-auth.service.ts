@@ -27,7 +27,6 @@ import {
 import {
   APP_TIMEZONE,
   CryptoService,
-  DateService,
   FileService,
   FileUtil,
   HelperService,
@@ -68,7 +67,6 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
     private readonly notifier: NotifierService,
     private readonly authService: AuthService,
     private readonly fileService: FileService,
-    private readonly dateService: DateService,
     private readonly cryptoService: CryptoService,
     private readonly messageService: MessageService,
     private readonly helperService: HelperService,
@@ -76,7 +74,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
 
   @Cron(CronExpression.EVERY_DAY_AT_6AM, { timeZone: APP_TIMEZONE })
   private async clearExpiredRefreshTokens() {
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
     await this.prisma.memberTokenHistory.deleteMany({
       where: { refreshExpired: { lte: dateNow } },
     })
@@ -130,7 +128,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
       })
     }
 
-    if (!userToken.isActive || this.dateService.after(userToken.refreshExpired)) {
+    if (!userToken.isActive || this.helperService.dateCheckAfter(userToken.refreshExpired)) {
       // tracking spam refresh token
       await this.prisma.memberTokenHistory.update({
         where: { id: userToken.id },
@@ -369,7 +367,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
             createdAt: payload.loginDate,
             updatedAt: payload.loginDate,
             refreshToken: userToken.refreshToken,
-            refreshExpired: this.dateService.forward(new Date(payload.loginDate), {
+            refreshExpired: this.helperService.dateForward(new Date(payload.loginDate), {
               seconds: userToken.refreshIn,
             }),
           },

@@ -20,7 +20,6 @@ import {
   APP_LANGUAGE,
   AppContext,
   CryptoService,
-  DateService,
   ENUM_DATE_FORMAT,
   HelperService,
   MessageService,
@@ -46,7 +45,6 @@ export class MemberService implements OnModuleInit {
     private readonly ref: ModuleRef,
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly dateService: DateService,
     private readonly cryptoService: CryptoService,
     private readonly messageService: MessageService,
     private readonly helperService: HelperService,
@@ -157,15 +155,15 @@ export class MemberService implements OnModuleInit {
     })
 
     if (data?.birthDate) {
-      const dateOfBirth = this.dateService.create(new Date(`${data.birthDate}`))
-      const extractDate = this.dateService.extract(dateOfBirth)
+      const dateOfBirth = this.helperService.dateCreate(new Date(`${data.birthDate}`))
+      const extractDate = this.helperService.dateExtract(dateOfBirth)
       data.birthDay = extractDate.day
       data.birthMonth = extractDate.month
       data.birthYear = extractDate.year
     }
 
-    const dateNow = this.dateService.create()
-    const dateRange = this.dateService.createRange(dateNow)
+    const dateNow = this.helperService.dateCreate()
+    const dateRange = this.helperService.dateRange(dateNow)
     const { country, phone } = this.helperService.parsePhone(data.phone)
 
     const normalTier = this.tierService.getChart().getNormalTier()
@@ -275,7 +273,7 @@ export class MemberService implements OnModuleInit {
   async addPoint(id: number, data: { point: number; createdBy: number }): Promise<Member> {
     const member = await this.findOrFail(id)
 
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
 
     return await this.prisma.member.update({
       where: { id },
@@ -300,8 +298,8 @@ export class MemberService implements OnModuleInit {
     const member = await this.find(id)
     if (member && member?.isActive) {
       // clear all personal information and associated data
-      const dateNow = this.dateService.create()
-      const timestamp = this.dateService.getTimestamp(dateNow)
+      const dateNow = this.helperService.dateCreate()
+      const timestamp = this.helperService.dateGetTimestamp(dateNow)
       await this.prisma.member.update({
         data: {
           isActive: false,
@@ -372,13 +370,16 @@ export class MemberService implements OnModuleInit {
         this.messageService.setMessage('module.member.memberTierExpiresIn', {
           customLanguage: AppContext.language(),
           properties: {
-            tierExpireDate: this.dateService.format(member.expiryDate, ENUM_DATE_FORMAT.HUMAN_DATE),
+            tierExpireDate: this.helperService.dateFormat(
+              member.expiryDate,
+              ENUM_DATE_FORMAT.HUMAN_DATE,
+            ),
           },
         }),
       )
     }
 
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
     const recentPoints = await this.getPointRecent(member.id, dateNow)
     if (recentPoints.length) {
       const recentExpiryDate = recentPoints[0].date
@@ -387,8 +388,8 @@ export class MemberService implements OnModuleInit {
         where: {
           memberId: member.id,
           expiryDate: {
-            gte: this.dateService.create(recentExpiryDate, { startOfDay: true }),
-            lte: this.dateService.create(recentExpiryDate, { endOfDay: true }),
+            gte: this.helperService.dateCreate(recentExpiryDate, { startOfDay: true }),
+            lte: this.helperService.dateCreate(recentExpiryDate, { endOfDay: true }),
           },
         },
       })
@@ -401,7 +402,7 @@ export class MemberService implements OnModuleInit {
               pointExpireValue: NumberUtil.numeric(totalExpiredPoints._sum.point, {
                 useGrouping: true,
               }),
-              pointExpireDate: this.dateService.format(
+              pointExpireDate: this.helperService.dateFormat(
                 recentExpiryDate,
                 ENUM_DATE_FORMAT.HUMAN_DATE,
               ),
@@ -430,7 +431,7 @@ export class MemberService implements OnModuleInit {
     pointRequire: number,
   ): Promise<{ date: Date; point: number }[]> {
     const results = []
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
 
     let len = 0
     while (pointRequire > 0) {
@@ -518,8 +519,8 @@ export class MemberService implements OnModuleInit {
   getPointExpirationDate(issuedAt: Date, ttl?: number): Date {
     const expiresInYear = this.config.getOrThrow<number>('app.membership.expiresIn')
     if (expiresInYear > 0 || ttl > 0) {
-      const endOfDay = this.dateService.create(issuedAt, { endOfDay: true })
-      return this.dateService.forward(endOfDay, { year: ttl || expiresInYear })
+      const endOfDay = this.helperService.dateCreate(issuedAt, { endOfDay: true })
+      return this.helperService.dateForward(endOfDay, { year: ttl || expiresInYear })
     }
     return undefined
   }
@@ -527,8 +528,8 @@ export class MemberService implements OnModuleInit {
   getTierExpirationDate(issuedAt: Date, ttl?: number): Date {
     const expiresInYear = this.config.getOrThrow<number>('app.membership.expiresIn')
     if (expiresInYear > 0 || ttl > 0) {
-      const endOfDay = this.dateService.create(issuedAt, { endOfDay: true })
-      return this.dateService.forward(endOfDay, { year: ttl || expiresInYear })
+      const endOfDay = this.helperService.dateCreate(issuedAt, { endOfDay: true })
+      return this.helperService.dateForward(endOfDay, { year: ttl || expiresInYear })
     }
     return undefined
   }
@@ -539,7 +540,7 @@ export class MemberService implements OnModuleInit {
   }
 
   async getOrderNumber(issuedAt: Date): Promise<string> {
-    // const key = this.dateService.format(issuedAt, ENUM_DATE_FORMAT.DATE_REFERENCE)
+    // const key = this.helperService.dateFormat(issuedAt, ENUM_DATE_FORMAT.DATE_REFERENCE)
     // const slip = await this.prisma.slipCounter.upsert({
     //   where: { type_key: { key, type: ENUM_SLIP_TYPE.ORDER } },
     //   create: { type: ENUM_SLIP_TYPE.ORDER, key, sequence: 1 },
@@ -559,7 +560,7 @@ export class MemberService implements OnModuleInit {
   }
 
   async getSlipCounter(issuedAt: Date, options: ISlipCounterOptions): Promise<string> {
-    const key = this.dateService.format(issuedAt, ENUM_DATE_FORMAT.DATE_REFERENCE)
+    const key = this.helperService.dateFormat(issuedAt, ENUM_DATE_FORMAT.DATE_REFERENCE)
     const slip = await this.prisma.slipCounter.upsert({
       where: { type_key: { key, type: options.type } },
       create: { type: options.type, key, sequence: 1 },
@@ -579,7 +580,7 @@ export class MemberService implements OnModuleInit {
   }
 
   async getInvoiceNumber(issuedAt: Date): Promise<string> {
-    // const key = this.dateService.format(issuedAt, ENUM_DATE_FORMAT.DATE_REFERENCE)
+    // const key = this.helperService.dateFormat(issuedAt, ENUM_DATE_FORMAT.DATE_REFERENCE)
     // const slip = await this.prisma.slipCounter.upsert({
     //   where: { type_key: { key, type: ENUM_SLIP_TYPE.INVOICE } },
     //   create: { type: ENUM_SLIP_TYPE.INVOICE, key, sequence: 1 },
@@ -594,7 +595,7 @@ export class MemberService implements OnModuleInit {
   }
 
   async resetBirthPurchased(issuedAt: Date): Promise<boolean> {
-    const dateRange = this.dateService.createRange(issuedAt)
+    const dateRange = this.helperService.dateRange(issuedAt)
 
     await this.prisma.member.updateMany({
       data: { hasBirthPurchased: false, hasBirthPurchasedAt: null },
@@ -610,7 +611,7 @@ export class MemberService implements OnModuleInit {
 
   async releaseMemberPoint(issuedAt: Date) {
     const batchSize: number = 500
-    const startOfDay = this.dateService.create(issuedAt, { startOfDay: true })
+    const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
 
     let loop: boolean = false
     do {
@@ -660,7 +661,7 @@ export class MemberService implements OnModuleInit {
 
   async resetMemberPoint(issuedAt: Date) {
     const batchSize: number = 500
-    const startOfDay = this.dateService.create(issuedAt, { startOfDay: true })
+    const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
     const where: Prisma.MemberPointHistoryWhereInput = {
       isActive: true,
       isDeleted: false,
@@ -715,7 +716,7 @@ export class MemberService implements OnModuleInit {
   }
 
   async resetMemberTier(issuedAt: Date) {
-    const dateRange = this.dateService.createRange(issuedAt)
+    const dateRange = this.helperService.dateRange(issuedAt)
     const batchSize: number = 500
 
     const tierChart = this.tierService.getChart()
@@ -835,9 +836,9 @@ export class MemberService implements OnModuleInit {
   }
 
   async earnHighestBirthInvoice(issuedAt: Date) {
-    const dateExtract = this.dateService.extract(issuedAt)
-    const dateRange = this.dateService.createRange(issuedAt)
-    const startOfDay = this.dateService.create(issuedAt, { startOfDay: true })
+    const dateExtract = this.helperService.dateExtract(issuedAt)
+    const dateRange = this.helperService.dateRange(issuedAt)
+    const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
 
     const members = await this.prisma.member.findMany({
       where: {
@@ -900,8 +901,8 @@ export class MemberService implements OnModuleInit {
 
     const tierChart = this.tierService.getChart()
 
-    let sinceDate = this.dateService.create(sinceInvoice.issuedAt, { startOfDay: true })
-    const untilDate = this.dateService.create(issuedAt, { startOfDay: true })
+    let sinceDate = this.helperService.dateCreate(sinceInvoice.issuedAt, { startOfDay: true })
+    const untilDate = this.helperService.dateCreate(issuedAt, { startOfDay: true })
 
     while (sinceDate <= untilDate) {
       const grpInvoices = await this.invoiceService.getEarnInvoices(sinceDate)
@@ -930,7 +931,9 @@ export class MemberService implements OnModuleInit {
 
           const pointExpiryDate = this.getPointExpirationDate(sinceDate)
           const tierExpiryDate = this.getTierExpirationDate(sinceDate)
-          const isBirthMonth = this.dateService.isBirthMonth(member.birthMonth, invoice.issuedAt)
+          const isBirthMonth = this.helperService.dateCheckSet(invoice.issuedAt, {
+            month: member.birthMonth,
+          })
 
           if (tierData.isUpgrade()) {
             memberData
@@ -1136,7 +1139,7 @@ export class MemberService implements OnModuleInit {
         grpInvoices[key] = null
       }
 
-      sinceDate = this.dateService.forward(sinceDate, { day: 1 })
+      sinceDate = this.helperService.dateForward(sinceDate, { day: 1 })
     }
   }
 }

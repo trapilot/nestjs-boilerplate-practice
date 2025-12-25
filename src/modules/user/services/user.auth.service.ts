@@ -20,7 +20,7 @@ import {
   IAuthValidator,
   IAuthValidatorOptions,
 } from 'lib/nest-auth'
-import { APP_TIMEZONE, CryptoService, DateService, FileService, IRequestApp } from 'lib/nest-core'
+import { APP_TIMEZONE, CryptoService, FileService, HelperService, IRequestApp } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { IResult } from 'ua-parser-js'
 import {
@@ -53,13 +53,13 @@ export class UserAuthService implements IAuthValidator<TUser> {
     private readonly prisma: PrismaService,
     private readonly authService: AuthService,
     private readonly fileService: FileService,
-    private readonly dateService: DateService,
     private readonly cryptoService: CryptoService,
+    private readonly helperService: HelperService,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_2AM, { timeZone: APP_TIMEZONE })
   private async clearExpiredRefreshTokens() {
-    const nowTime = this.dateService.create()
+    const nowTime = this.helperService.dateCreate()
     await this.prisma.userTokenHistory.deleteMany({
       where: { refreshExpired: { lte: nowTime } },
     })
@@ -127,7 +127,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
       })
     }
 
-    if (!userToken.isActive || this.dateService.after(userToken.refreshExpired)) {
+    if (!userToken.isActive || this.helperService.dateCheckAfter(userToken.refreshExpired)) {
       // tracking spam refresh token
       await this.prisma.userTokenHistory.update({
         where: { id: userToken.id },
@@ -358,7 +358,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
             createdAt: payload.loginDate,
             updatedAt: payload.loginDate,
             refreshToken: userToken.refreshToken,
-            refreshExpired: this.dateService.forward(new Date(payload.loginDate), {
+            refreshExpired: this.helperService.dateForward(new Date(payload.loginDate), {
               seconds: userToken.refreshIn,
             }),
           },
@@ -503,8 +503,8 @@ export class UserAuthService implements IAuthValidator<TUser> {
   }
 
   async createConfirmToken(user: TUser, passwordHash: string): Promise<string> {
-    const dateNow = this.dateService.create()
-    const timestamp = this.dateService.getTimestamp(dateNow)
+    const dateNow = this.helperService.dateCreate()
+    const timestamp = this.helperService.dateGetTimestamp(dateNow)
     return [
       this.cryptoService.createHmac(`${user.id}`, {
         algorithm: 'md5',

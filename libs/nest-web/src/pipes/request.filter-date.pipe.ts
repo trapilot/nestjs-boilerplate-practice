@@ -1,7 +1,7 @@
 import { Inject, Injectable, mixin, Type } from '@nestjs/common'
 import { ArgumentMetadata, PipeTransform, Scope } from '@nestjs/common/interfaces'
 import { REQUEST } from '@nestjs/core'
-import { DateService, IRequestApp } from 'lib/nest-core'
+import { HelperService, IRequestApp } from 'lib/nest-core'
 import { IRequestFilterDateOptions } from '../interfaces'
 
 export function RequestFilterDatePipe(
@@ -12,7 +12,7 @@ export function RequestFilterDatePipe(
   class MixinRequestFilterDatePipe implements PipeTransform {
     constructor(
       @Inject(REQUEST) protected readonly request: IRequestApp,
-      private readonly dateService: DateService,
+      private readonly helperService: HelperService,
     ) {}
 
     async transform(
@@ -30,8 +30,8 @@ export function RequestFilterDatePipe(
         }
       }
 
-      const startOfDay = this.dateService.createFromIso(value, { startOfDay: true })
-      const endOfDay = this.dateService.createFromIso(value, { endOfDay: true })
+      const startOfDay = this.helperService.dateCreateFromIso(value, { startOfDay: true })
+      const endOfDay = this.helperService.dateCreateFromIso(value, { endOfDay: true })
 
       this.addToRequestInstance(value)
       return {

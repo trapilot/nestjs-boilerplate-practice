@@ -4,7 +4,6 @@ import { ConfigService } from '@nestjs/config'
 import { ENUM_MEMBER_TIER_ACTION, ENUM_MEMBER_TYPE } from '@prisma/client'
 import {
   CryptoService,
-  DateService,
   ENUM_APP_LANGUAGE,
   ENUM_GENDER_TYPE,
   EnvUtil,
@@ -26,7 +25,6 @@ export class MemberSeedCommand extends CommandRunner {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
     private readonly tierService: TierService,
-    private readonly dateService: DateService,
     private readonly cryptoService: CryptoService,
     private readonly helperService: HelperService,
   ) {
@@ -39,12 +37,12 @@ export class MemberSeedCommand extends CommandRunner {
       return
     }
 
-    const dateNow = this.dateService.create()
+    const dateNow = this.helperService.dateCreate()
     const startDate = this.config.get<Date>('app.startDate')
     const codeDigits = this.config.getOrThrow<number>('app.membership.codeDigits')
 
     const tierChart = this.tierService.getChart()
-    const dateRange = this.dateService.createRange(dateNow)
+    const dateRange = this.helperService.dateRange(dateNow)
 
     const passwordSaltLength = this.config.get<number>('auth.password.saltLength')
     const passwordSalt = this.cryptoService.randomSalt(passwordSaltLength)
@@ -81,12 +79,12 @@ export class MemberSeedCommand extends CommandRunner {
         referralCodes.push(referralCode)
 
         const memberDate = isStaff
-          ? this.dateService.create(new Date('2099-12-31'), { endOfDay: true })
+          ? this.helperService.dateCreate(new Date('2099-12-31'), { endOfDay: true })
           : dateRange.endOfYear
         const birthDate = faker.date.birthdate({ mode: 'age', min: 20, max: 70 })
-        const dateOfBirth = this.dateService.create(birthDate, { startOfDay: true })
-        const extractDate = this.dateService.extract(dateOfBirth)
-        const expiryDate = this.dateService.create(memberDate, { endOfDay: true })
+        const dateOfBirth = this.helperService.dateCreate(birthDate, { startOfDay: true })
+        const extractDate = this.helperService.dateExtract(dateOfBirth)
+        const expiryDate = this.helperService.dateCreate(memberDate, { endOfDay: true })
 
         await this.prisma.member.create({
           data: {

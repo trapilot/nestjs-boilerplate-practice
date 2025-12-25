@@ -1,4 +1,4 @@
-import { DateService } from 'lib/nest-core'
+import { DateUtil } from 'lib/nest-core'
 import { TInvoice } from '../interfaces'
 
 export class InvoiceData {
@@ -14,10 +14,10 @@ export class InvoiceData {
       this.totalAmount += invoice.finalPrice
 
       if (this.sinceDate > invoice.issuedAt) {
-        this.sinceDate = DateService.make(invoice.issuedAt, { startOfDay: true })
+        this.sinceDate = DateUtil.getDate(invoice.issuedAt, { startOfDay: true })
       }
       if (this.untilDate < invoice.issuedAt) {
-        this.untilDate = DateService.make(invoice.issuedAt, { endOfDay: true })
+        this.untilDate = DateUtil.getDate(invoice.issuedAt, { endOfDay: true })
       }
 
       if (this.highestInvoice?.finalPrice < invoice.finalPrice) {
