@@ -9,10 +9,10 @@ import {
   ENUM_AUTH_LOGIN_WITH,
   ENUM_AUTH_SCOPE_TYPE,
 } from '../enums'
-import { AuthAbilityFactory } from '../factories'
+import { AuthFactory } from '../helpers'
 
 export interface AuthModuleOptions {
-  factory: Type<AuthAbilityFactory>
+  factory: Type<AuthFactory>
   subjects: EnumLike | string[]
   actions: EnumLike | string[]
 }

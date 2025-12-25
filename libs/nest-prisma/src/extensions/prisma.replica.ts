@@ -1,6 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client/extension'
 import { PrismaReplicaManager } from '../bases'
-import { PrismaContext } from '../contexts'
+import { PrismaContext } from '../helpers'
 import { IPrismaReplicaOptions } from '../interfaces'
 
 const readOperations = [

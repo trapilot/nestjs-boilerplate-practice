@@ -1,5 +1,5 @@
 import { MESSAGE_LANGUAGES } from '../constants'
-import { AppContext } from '../contexts'
+import { AppContext } from '../helpers'
 
 export class LocaleUtil {
   static buildFields(

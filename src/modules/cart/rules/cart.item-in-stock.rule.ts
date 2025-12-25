@@ -1,7 +1,7 @@
 import { BadRequestException } from '@nestjs/common'
-import { ICartItemRule, TCartItem } from '../interfaces'
+import { ICartRule, TCartItem } from '../interfaces'
 
-export class CartItemInStockRule implements ICartItemRule {
+export class CartItemInStockRule implements ICartRule {
   constructor(private readonly newQty: number = 0) {}
 
   async validate({ quantity: oldQty, product }: TCartItem): Promise<void> {

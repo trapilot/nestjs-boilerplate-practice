@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "description": "Nestjs Boilerplate",
   "author": {
-      "name": "Nam Dinh",
-      "email": "namdwb@gmail.com"
+    "name": "Nam Dinh",
+    "email": "namdwb@gmail.com"
   },
   "private": true,
   "license": "UNLICENSED",
@@ -43,9 +43,9 @@
     "db:deploy": "npx prisma migrate deploy",
     "package:upgrade": "npx npm-check-updates -u",
     "package:check": "npx npm-check-updates -i",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "yarn lint:fix && yarn lint:staged",
     "lint:staged": "lint-staged",
-    "lint:fix": "eslint --fix",
+    "lint:fix": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "yarn test:e2e && yarn test:cov",
     "test:cov": "jest --coverage --passWithNoTests --forceExit",
     "test:e2e": "jest --config ./test/jest-e2e.json --passWithNoTests --forceExit",

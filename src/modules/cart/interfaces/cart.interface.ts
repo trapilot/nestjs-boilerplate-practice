@@ -9,7 +9,7 @@ export interface TCart extends Cart {
   items?: TCartItem[]
 }
 
-export interface ICartItemRule {
+export interface ICartRule {
   validate(cartItem: TCartItem): Promise<void>
 }
 

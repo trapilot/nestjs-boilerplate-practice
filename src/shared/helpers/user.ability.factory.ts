@@ -1,18 +1,18 @@
 import { AbilityBuilder } from '@casl/ability'
 import { createPrismaAbility } from '@casl/prisma'
 import {
-  AuthAbilityContext,
-  AuthAbilityFactory,
+  AuthContext,
+  AuthFactory,
   AuthJwtAccessPayloadDto,
   IAuthAbility,
   IAuthAbilityRule,
   IAuthPayloadPermission,
 } from 'lib/nest-auth'
 
-export class UserAbilityFactory extends AuthAbilityFactory {
+export class UserAbilityFactory extends AuthFactory {
   private get subjects(): string[] {
     if (!this._subjects) {
-      const { subjects } = AuthAbilityContext.getConfig()
+      const { subjects } = AuthContext.getConfig()
       this._subjects = subjects
     }
     return this._subjects
@@ -20,7 +20,7 @@ export class UserAbilityFactory extends AuthAbilityFactory {
 
   private get actions(): string[] {
     if (!this._actions) {
-      const { actions } = AuthAbilityContext.getConfig()
+      const { actions } = AuthContext.getConfig()
       this._actions = actions
     }
     return this._actions
