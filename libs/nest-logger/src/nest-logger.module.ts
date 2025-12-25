@@ -7,19 +7,19 @@ import {
   RequestMethod,
 } from '@nestjs/common'
 import { LOGGER_MODULE_OPTIONS } from './constants'
-import { LoggerOptions } from './interfaces'
 import { LoggerOptionService, LoggerService } from './services'
-import { LoggerHelper } from './utils'
+import { LoggerUtil } from './helpers'
+import { ILoggerOptions } from './interfaces'
 
 @Module({})
 export class NestLoggerModule implements NestModule {
-  constructor(@Inject(LOGGER_MODULE_OPTIONS) private readonly options: LoggerOptions) {}
+  constructor(@Inject(LOGGER_MODULE_OPTIONS) private readonly options: ILoggerOptions) {}
 
   configure(consumer: MiddlewareConsumer) {
     const { pinoHttp, assignResponse } = this.options
 
     consumer
-      .apply(...LoggerHelper.createMiddlewares(pinoHttp, assignResponse))
+      .apply(...LoggerUtil.createMiddlewares(pinoHttp, assignResponse))
       .exclude(
         { path: '*', method: RequestMethod.OPTIONS },
         { path: 'audit/*spat', method: RequestMethod.ALL },

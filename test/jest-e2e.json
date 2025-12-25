@@ -14,6 +14,7 @@
     "^src/(.*)$": "<rootDir>/../src/$1",
     "^app/(.*)$": "<rootDir>/../src/app/$1",
     "^configs/(.*)$": "<rootDir>/../src/configs/$1",
+    "^shared/(.*)$": "<rootDir>/../src/shared/$1",
     "^modules/(.*)$": "<rootDir>/../src/modules/$1",
     "lib/nest-auth": "<rootDir>/../libs/nest-auth/src",
     "lib/nest-auth/(.*)": "<rootDir>/../libs/nest-auth/src/$1",

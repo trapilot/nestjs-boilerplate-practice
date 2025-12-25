@@ -46,7 +46,7 @@ export class UserService implements OnModuleInit {
   ): Promise<TUser> {
     return await this.prisma.user
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((_: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.user.notFound',
@@ -74,7 +74,7 @@ export class UserService implements OnModuleInit {
   ): Promise<TUser> {
     const user = await this.prisma.user
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((_: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.user.notFound',

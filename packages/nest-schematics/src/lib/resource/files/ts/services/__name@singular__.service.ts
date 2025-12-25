@@ -26,7 +26,7 @@ export class <%= singular(classify(name)) %>Service {
   ): Promise<T<%= singular(classify(name)) %>> {
     const <%= singular(lowercased(name)) %> = await this.prisma.<%= singular(lowercased(name)) %>
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((_: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.<%= singular(lowercased(name)) %>.notFound',
@@ -41,7 +41,7 @@ export class <%= singular(classify(name)) %>Service {
   ): Promise<T<%= singular(classify(name)) %>> {
     const <%= singular(lowercased(name)) %> = await this.prisma.<%= singular(lowercased(name)) %>
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((_: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.<%= singular(lowercased(name)) %>.notFound',

@@ -26,7 +26,7 @@ export class PointHistoryService {
   ): Promise<TPointHistory> {
     const pointHistory = await this.prisma.memberPointHistory
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.memberPointHistory.notFound',
@@ -41,7 +41,7 @@ export class PointHistoryService {
   ): Promise<TPointHistory> {
     const pointHistory = await this.prisma.memberPointHistory
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.memberPointHistory.notFound',
@@ -119,7 +119,7 @@ export class PointHistoryService {
     })
   }
 
-  async delete(pointHistory: TPointHistory, deletedBy?: number): Promise<boolean> {
+  async delete(pointHistory: TPointHistory, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.memberPointHistory.delete({ where: { id: pointHistory.id } })

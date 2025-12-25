@@ -19,7 +19,7 @@ export class AuthJwtAccessStrategy extends PassportStrategy(Strategy, 'jwt') {
     })
   }
 
-  async validate(data: AuthJwtAccessPayloadDto, done: Function): Promise<AuthJwtAccessPayloadDto> {
+  async validate(data: AuthJwtAccessPayloadDto, _done: Function): Promise<AuthJwtAccessPayloadDto> {
     return data
   }
 }

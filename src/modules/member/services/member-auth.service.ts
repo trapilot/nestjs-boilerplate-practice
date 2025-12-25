@@ -161,7 +161,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
   async findOrFail(id: number, include?: Prisma.MemberInclude): Promise<TMember> {
     return await this.prisma.member
       .findUniqueOrThrow({ include, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'auth.error.notFound',
@@ -189,7 +189,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
   ): Promise<TMember> {
     const member = await this.prisma.member
       .findFirstOrThrow({ where, include })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'auth.error.notFound',
@@ -337,7 +337,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
   }
 
   async capture(member: TMember, options: IAuthRefetchOptions): Promise<boolean> {
-    const { payload, userToken, userAgent, userRequest } = options
+    const { payload, userToken, userAgent, userRequest: _userRequest } = options
 
     try {
       // update member login time

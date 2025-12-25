@@ -14,7 +14,7 @@ export function RequestFilterInEnumPipe<T>(
   class MixinRequestFilterInEnumPipe implements PipeTransform {
     constructor(@Inject(REQUEST) protected readonly request: IRequestApp) {}
 
-    async transform(value: string, metadata: ArgumentMetadata): Promise<Record<string, any>> {
+    async transform(value: string, _metadata: ArgumentMetadata): Promise<Record<string, any>> {
       if (!value || typeof value !== 'string') {
         return undefined
       }

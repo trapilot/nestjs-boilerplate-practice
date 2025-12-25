@@ -14,7 +14,7 @@ export function RequestFilterOrderPipe(
 
     async transform(
       value: Record<string, any>,
-      metadata: ArgumentMetadata,
+      _metadata: ArgumentMetadata,
     ): Promise<Record<string, any>> {
       if (availableOrderBy.length === 0) return value
 

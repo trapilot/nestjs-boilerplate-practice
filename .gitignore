@@ -45,9 +45,9 @@ config.yaml
 config.yml
 
 # build img
-zip.sh
+# zip.sh
 dump.sh
-tunnel.sh
+# tunnel.sh
 *.tar
 *.zip
 *.xlsx

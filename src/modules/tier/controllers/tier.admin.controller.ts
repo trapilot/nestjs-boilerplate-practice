@@ -1,7 +1,6 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@prisma/client'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
 import { PrismaUtil } from 'lib/nest-prisma'
@@ -18,6 +17,7 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
 import { TIER_DOC_ADMIN_QUERY_LIST, TIER_DOC_OPERATION } from '../constants'
 import {
   TierRequestCreateDto,

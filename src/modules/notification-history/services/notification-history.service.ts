@@ -30,7 +30,7 @@ export class NotificationHistoryService {
   ): Promise<TNotificationHistory> {
     const notificationHistory = await this.prisma.memberNotifyHistory
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.memberNotifyHistory.notFound',
@@ -45,7 +45,7 @@ export class NotificationHistoryService {
   ): Promise<TNotificationHistory> {
     const notificationHistory = await this.prisma.memberNotifyHistory
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.memberNotifyHistory.notFound',
@@ -125,7 +125,7 @@ export class NotificationHistoryService {
     })
   }
 
-  async delete(notificationHistory: TNotificationHistory, deletedBy?: number): Promise<boolean> {
+  async delete(notificationHistory: TNotificationHistory, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.memberNotifyHistory.delete({ where: { id: notificationHistory.id } })

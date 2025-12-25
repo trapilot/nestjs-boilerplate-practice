@@ -26,7 +26,7 @@ export class MediaService {
   ): Promise<TMedia> {
     const media = await this.prisma.media
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.media.notFound',
@@ -41,7 +41,7 @@ export class MediaService {
   ): Promise<TMedia> {
     const media = await this.prisma.media
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.media.notFound',
@@ -113,7 +113,7 @@ export class MediaService {
     })
   }
 
-  async delete(media: TMedia, deletedBy?: number): Promise<boolean> {
+  async delete(media: TMedia, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.media.delete({ where: { id: media.id } })

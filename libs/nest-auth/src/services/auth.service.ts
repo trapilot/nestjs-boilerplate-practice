@@ -155,7 +155,7 @@ export class AuthService {
         ignoreExpiration: false,
       })
       return true
-    } catch (err: unknown) {
+    } catch (_err: unknown) {
       return false
     }
   }
@@ -164,11 +164,11 @@ export class AuthService {
     return this.jwtService.decode<AuthJwtRefreshPayloadDto>(token)
   }
 
-  verify(passwordString: string, passwordHash: string): boolean {
+  async verify(passwordString: string, passwordHash: string): Promise<boolean> {
     return this.cryptoService.bcryptCompare(passwordString, passwordHash)
   }
 
-  async capture(user: any, options: IAuthRefetchOptions): Promise<boolean> {
+  async capture(_user: any, _options: IAuthRefetchOptions): Promise<boolean> {
     return false
   }
 
@@ -269,11 +269,11 @@ export class AuthService {
     return this.jwtAudience
   }
 
-  getPasswordAttempt(): boolean {
+  async getPasswordAttempt(): Promise<boolean> {
     return this.passwordAttempt
   }
 
-  getMaxPasswordAttempt(): number {
+  async getMaxPasswordAttempt(): Promise<number> {
     return this.passwordMaxAttempt
   }
 

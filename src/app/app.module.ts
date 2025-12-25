@@ -6,9 +6,10 @@ import { NestPrismaModule } from 'lib/nest-prisma'
 import { EntityValidateException, NestWebModule } from 'lib/nest-web'
 import { AppVersionModule } from 'modules/app-version'
 import { SettingModule } from 'modules/setting'
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { UserAbilityFactory } from 'shared/helpers'
+import { SharedModule } from 'shared/shared.module'
 import configs from '../configs'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from './enums'
-import { AppAbilityFactory } from './helpers'
 import { RouterModule } from './router'
 import { WorkerModule } from './worker'
 
@@ -19,7 +20,7 @@ import { WorkerModule } from './worker'
     NestCoreModule.forRoot({ configs, envFilePath: ['.env'] }),
     NestPrismaModule.forRoot(),
     NestAuthModule.forRoot({
-      factory: AppAbilityFactory,
+      factory: UserAbilityFactory,
       subjects: ENUM_APP_ABILITY_SUBJECT,
       actions: ENUM_APP_ABILITY_ACTION,
     }),
@@ -52,7 +53,8 @@ import { WorkerModule } from './worker'
       },
     }),
 
-    // Routes
+    // App Register
+    SharedModule.register(),
     WorkerModule.register(),
     RouterModule.register({ http: true }),
   ],

@@ -26,7 +26,7 @@ export class NotificationService {
   ): Promise<TNotification> {
     const notification = await this.prisma.notification
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.notification.notFound',
@@ -55,7 +55,7 @@ export class NotificationService {
   ): Promise<TNotification> {
     const notification = await this.prisma.notification
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.notification.notFound',
@@ -116,7 +116,7 @@ export class NotificationService {
     })
   }
 
-  async delete(notification: TNotification, deletedBy?: number): Promise<boolean> {
+  async delete(notification: TNotification, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.notification.delete({ where: { id: notification.id } })

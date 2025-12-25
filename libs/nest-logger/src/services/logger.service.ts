@@ -1,10 +1,17 @@
 import { Inject, Injectable, LoggerService as NestLoggerService, Scope } from '@nestjs/common'
 import pino from 'pino'
-import { LOGGER_MODULE_OPTIONS } from '../constants'
-import { LoggerFn, LoggerOptions } from '../interfaces'
-import { LoggerHelper, storage } from '../utils'
+import { LOGGER_CONTEXT_KEY, LOGGER_MODULE_OPTIONS } from '../constants'
+import { LoggerContext } from '../contexts'
+import { LoggerUtil } from '../helpers'
+import { ILoggerOptions, TLoggerFn } from '../interfaces'
 
 let outOfContext: pino.Logger | undefined
+
+const isFirstArgObject = (
+  args: Parameters<TLoggerFn>,
+): args is [obj: object, msg?: string, ...args: any[]] => {
+  return typeof args[0] === 'object'
+}
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class LoggerService implements NestLoggerService {
@@ -14,7 +21,7 @@ export class LoggerService implements NestLoggerService {
   protected readonly contextKey: string
   protected readonly errorKey: string = 'err'
 
-  constructor(@Inject(LOGGER_MODULE_OPTIONS) { pinoHttp, renameContext }: LoggerOptions) {
+  constructor(@Inject(LOGGER_MODULE_OPTIONS) { pinoHttp, renameContext }: ILoggerOptions) {
     if (
       typeof pinoHttp === 'object' &&
       'customAttributeKeys' in pinoHttp &&
@@ -26,7 +33,7 @@ export class LoggerService implements NestLoggerService {
     if (!outOfContext) {
       if (Array.isArray(pinoHttp)) {
         outOfContext = pino(...pinoHttp)
-      } else if (LoggerHelper.isPassedLogger(pinoHttp)) {
+      } else if (LoggerUtil.isPassedLogger(pinoHttp)) {
         outOfContext = pinoHttp.logger
       } else if (
         typeof pinoHttp === 'object' &&
@@ -39,54 +46,54 @@ export class LoggerService implements NestLoggerService {
       }
     }
 
-    this.contextKey = renameContext || 'context'
+    this.contextKey = renameContext || LOGGER_CONTEXT_KEY
   }
 
   get logger(): pino.Logger {
     // outOfContext is always set in runtime before starts using
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return storage.getStore()?.logger || outOfContext!
+    return LoggerContext.getStore()?.logger || outOfContext!
   }
 
   trace(msg: string, ...args: any[]): void
   trace(obj: unknown, msg?: string, ...args: any[]): void
-  trace(...args: Parameters<LoggerFn>) {
+  trace(...args: Parameters<TLoggerFn>) {
     this.call('trace', ...args)
   }
 
   debug(msg: string, ...args: any[]): void
   debug(obj: unknown, msg?: string, ...args: any[]): void
-  debug(...args: Parameters<LoggerFn>) {
+  debug(...args: Parameters<TLoggerFn>) {
     this.call('debug', ...args)
   }
 
   info(msg: string, ...args: any[]): void
   info(obj: unknown, msg?: string, ...args: any[]): void
-  info(...args: Parameters<LoggerFn>) {
+  info(...args: Parameters<TLoggerFn>) {
     this.call('info', ...args)
   }
 
   log(msg: string, ...args: any[]): void
   log(obj: unknown, msg?: string, ...args: any[]): void
-  log(...args: Parameters<LoggerFn>) {
+  log(...args: Parameters<TLoggerFn>) {
     this.call('info', ...args)
   }
 
   warn(msg: string, ...args: any[]): void
   warn(obj: unknown, msg?: string, ...args: any[]): void
-  warn(...args: Parameters<LoggerFn>) {
+  warn(...args: Parameters<TLoggerFn>) {
     this.call('warn', ...args)
   }
 
   error(msg: string, ...args: any[]): void
   error(obj: unknown, msg?: string, ...args: any[]): void
-  error(...args: Parameters<LoggerFn>) {
+  error(...args: Parameters<TLoggerFn>) {
     this.call('error', ...args)
   }
 
   fatal(msg: string, ...args: any[]): void
   fatal(obj: unknown, msg?: string, ...args: any[]): void
-  fatal(...args: Parameters<LoggerFn>) {
+  fatal(...args: Parameters<TLoggerFn>) {
     this.call('fatal', ...args)
   }
 
@@ -95,7 +102,7 @@ export class LoggerService implements NestLoggerService {
   }
 
   assign(fields: pino.Bindings) {
-    const store = storage.getStore()
+    const store = LoggerContext.getStore()
     if (!store) {
       throw new Error(`${LoggerService.name}: unable to assign extra fields out of request scope`)
     }
@@ -103,7 +110,7 @@ export class LoggerService implements NestLoggerService {
     store.responseLogger?.setBindings(fields)
   }
 
-  protected call(method: pino.Level, ...args: Parameters<LoggerFn>) {
+  protected call(method: pino.Level, ...args: Parameters<TLoggerFn>) {
     if (this.contextValue) {
       if (isFirstArgObject(args)) {
         const firstArg = args[0]
@@ -126,10 +133,4 @@ export class LoggerService implements NestLoggerService {
     // @ts-ignore args are union of tuple types
     this.logger[method](...args)
   }
-}
-
-function isFirstArgObject(
-  args: Parameters<LoggerFn>,
-): args is [obj: object, msg?: string, ...args: any[]] {
-  return typeof args[0] === 'object'
 }

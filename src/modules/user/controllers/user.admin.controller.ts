@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@prisma/client'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { AuthJwtPayload, AuthService, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import {
   DateService,
@@ -40,6 +39,7 @@ import {
   RequestRequiredMonthPipe,
   RequestRequiredYearPipe,
 } from 'lib/nest-web'
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
 import { USER_DOC_ADMIN_QUERY_LIST, USER_DOC_OPERATION, USER_UPLOAD_IMAGE_PATH } from '../constants'
 import {
   UserRequestChangeAvatarDto,

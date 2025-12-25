@@ -43,7 +43,7 @@ export class RequestFileTypePipe implements PipeTransform {
     return value
   }
 
-  private async validate(file: IFile, metadata: ArgumentMetadata): Promise<void> {
+  private async validate(file: IFile, _metadata: ArgumentMetadata): Promise<void> {
     const fileMinetype = file.mimetype as ENUM_FILE_MIME
     if (!this.mimes.includes(fileMinetype)) {
       this.validationBuilder.addError({

@@ -16,7 +16,7 @@ export function RequestFilterInBooleanPipe(
       private readonly helperService: HelperService,
     ) {}
 
-    async transform(value: string, _: ArgumentMetadata): Promise<Record<string, any>> {
+    async transform(value: string, _metadata: ArgumentMetadata): Promise<Record<string, any>> {
       if (options?.raw) {
         this.addToRequestInstance(value)
         return {

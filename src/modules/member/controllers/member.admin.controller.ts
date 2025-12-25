@@ -1,7 +1,6 @@
 import { Controller, Get, Post, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@prisma/client'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { AuthJwtPayload, AuthService, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL, IFile } from 'lib/nest-core'
 import {
@@ -22,6 +21,7 @@ import {
   RequestQueryFilterInBoolean,
   RequestQueryList,
 } from 'lib/nest-web'
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
 import {
   MEMBER_DOC_ADMIN_QUERY_LIST,
   MEMBER_DOC_OPERATION,

@@ -26,7 +26,7 @@ export class ProductCategoryService {
   ): Promise<TProductCategory> {
     const productCategory = await this.prisma.productCategory
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.productCategory.notFound',
@@ -41,7 +41,7 @@ export class ProductCategoryService {
   ): Promise<TProductCategory> {
     const productCategory = await this.prisma.productCategory
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.productCategory.notFound',
@@ -119,7 +119,7 @@ export class ProductCategoryService {
     })
   }
 
-  async delete(productCategory: TProductCategory, deletedBy?: number): Promise<boolean> {
+  async delete(productCategory: TProductCategory, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.productCategory.delete({ where: { id: productCategory.id } })

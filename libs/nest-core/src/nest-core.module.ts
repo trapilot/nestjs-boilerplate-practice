@@ -167,7 +167,6 @@ export class NestCoreModule {
             viewEngine: config.get<'hbs' | 'pug' | 'ejs'>('app.view', 'hbs'),
           }),
         }),
-
         CacheModule.registerAsync({
           isGlobal: true,
           imports: [ConfigModule],

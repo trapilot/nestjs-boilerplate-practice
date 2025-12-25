@@ -13,6 +13,6 @@
     "logs",
     "docs",
     "packages",
-    "resources"
+    "private"
   ]
 }

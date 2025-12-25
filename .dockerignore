@@ -6,7 +6,7 @@ coverage/
 ci/
 dist/
 packages/
-resources/
+private/
 public/
 .husky/
 .github/

@@ -68,7 +68,7 @@ export class RequestUserAgentMiddleware implements NestMiddleware {
           return reqLanguage
         }
       }
-    } catch (_: unknown) {}
+    } catch (_err: unknown) {}
     return language
   }
 
@@ -78,7 +78,7 @@ export class RequestUserAgentMiddleware implements NestMiddleware {
       if (userTz && this.dateService.checkZone(userTz)) {
         return userTz
       }
-    } catch (_: unknown) {}
+    } catch (_err: unknown) {}
     return APP_TIMEZONE
   }
 }

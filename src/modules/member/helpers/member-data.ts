@@ -56,7 +56,7 @@ export class MemberData {
     this.hasDiamondAchieved = member.hasDiamondAchieved
     this.hasDiamondAchievedAt = member.hasDiamondAchievedAt
 
-    const { id, memberId, ...data } = tierHistory
+    const { id, memberId: _memberId, ...data } = tierHistory
     this.orgTierHistory = { id, data }
   }
 

@@ -37,7 +37,7 @@ export class AppVersionSeedCommand extends CommandRunner {
         isActive: true,
         isForce: true,
       })
-    } catch (err: any) {}
+    } catch (_err: any) {}
     return
   }
 }

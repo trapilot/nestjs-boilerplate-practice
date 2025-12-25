@@ -38,7 +38,7 @@ export class ApiKeyService {
   ): Promise<TApiKey> {
     const apiKey = await this.prisma.apiKey
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.apiKey.notFound',
@@ -53,7 +53,7 @@ export class ApiKeyService {
   ): Promise<TApiKey> {
     const apiKey = await this.prisma.apiKey
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.apiKey.notFound',
@@ -146,7 +146,7 @@ export class ApiKeyService {
     })
   }
 
-  async delete(apiKey: TApiKey, deletedBy?: number): Promise<boolean> {
+  async delete(apiKey: TApiKey, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.apiKey.delete({ where: { id: apiKey.id } })

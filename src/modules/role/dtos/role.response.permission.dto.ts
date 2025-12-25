@@ -1,5 +1,5 @@
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { Expose, Type } from 'class-transformer'
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
 
 export class RolePermissionResponseDto {
   @Type(() => Number)

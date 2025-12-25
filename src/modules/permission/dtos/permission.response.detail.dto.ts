@@ -1,11 +1,11 @@
 import { ApiProperty, IntersectionType, OmitType } from '@nestjs/swagger'
+import { Expose, Type } from 'class-transformer'
+import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
 import {
   ENUM_APP_ABILITY_ACTION,
   ENUM_APP_ABILITY_CONTEXT,
   ENUM_APP_ABILITY_SUBJECT,
-} from 'app/enums'
-import { Expose, Type } from 'class-transformer'
-import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
+} from 'shared/enums'
 import { ToPermissionActions } from '../transforms'
 
 class ResponseDataDetailDto {

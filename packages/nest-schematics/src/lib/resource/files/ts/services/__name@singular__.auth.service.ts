@@ -76,7 +76,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
   async getUserData(userId: number): Promise<T<%= singular(classify(name)) %>> {
     const userData = await this.prisma.<%= singular(lowercased(name)) %>
       .findUniqueOrThrow({ include: this.authRelation, where: { id: userId } })
-      .catch((_: unknown) => {
+      .catch((_err: unknown) => {
         throw new ForbiddenException({
           statusCode: HttpStatus.FORBIDDEN,
           message: 'auth.error.inactive',
@@ -143,7 +143,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
   ): Promise<T<%= singular(classify(name)) %>> {
     return await this.prisma.<%= singular(lowercased(name)) %>
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((_: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.<%= singular(lowercased(name)) %>.notFound',
@@ -157,7 +157,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
   ): Promise<T<%= singular(classify(name)) %>> {
     return await this.prisma.<%= singular(lowercased(name)) %>
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((_: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'auth.error.notFound',

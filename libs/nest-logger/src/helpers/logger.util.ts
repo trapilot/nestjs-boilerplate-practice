@@ -2,16 +2,15 @@ import { INextFunction, IRequestApp, IResponseApp } from 'lib/nest-core'
 import { pinoHttp } from 'pino-http'
 import { v7 as uuidv7 } from 'uuid'
 import { ENUM_LOGGER_TYPE } from '../enums'
-import { ILoggerEntry, LoggerOptions, PassedLogger } from '../interfaces'
+import { ILoggerEntry, ILoggerOptions, TPassedLogger } from '../interfaces'
 import { LoggerService } from '../services'
-import { LoggerStore, storage } from './logger.storage'
 
-export class LoggerHelper {
+export class LoggerUtil {
   static genReqId(): string {
     return uuidv7()
   }
 
-  static createEntry(logStr: string, encoding: string): ILoggerEntry {
+  static createEntry(logStr: string, _encoding: string): ILoggerEntry {
     const logChunk = JSON.parse(logStr)
     const { prefix } = logChunk
 
@@ -44,12 +43,12 @@ export class LoggerHelper {
     return entry
   }
 
-  static isPassedLogger(pinoHttpProp: any): pinoHttpProp is PassedLogger {
+  static isPassedLogger(pinoHttpProp: any): pinoHttpProp is TPassedLogger {
     return !!pinoHttpProp && 'logger' in pinoHttpProp
   }
 
   static createMiddlewares(
-    options: NonNullable<LoggerOptions['pinoHttp']>,
+    options: NonNullable<ILoggerOptions['pinoHttp']>,
     assignResponse = false,
   ) {
     const middleware = pinoHttp(...(Array.isArray(options) ? options : [options as any]))
@@ -60,7 +59,7 @@ export class LoggerHelper {
 
     // FIXME: params type here is pinoHttp.Options | pino.DestinationStream
     // pinoHttp has two overloads, each of them takes those types
-    return [middleware, LoggerHelper.bindMiddlewareFactory(assignResponse)]
+    return [middleware, LoggerUtil.bindMiddlewareFactory(assignResponse)]
   }
 
   static bindMiddlewareFactory(assignResponse: boolean) {

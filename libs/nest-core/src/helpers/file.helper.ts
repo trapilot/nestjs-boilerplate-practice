@@ -103,7 +103,7 @@ export class FileHelper {
       try {
         const stats = await fs.promises.stat(filePath)
         totalSize += stats.size
-      } catch (err) {
+      } catch (_err: unknown) {
         console.warn(`File not found for size calculation: ${filePath}`)
       }
     }

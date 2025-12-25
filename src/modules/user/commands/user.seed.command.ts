@@ -20,7 +20,7 @@ export class UserSeedCommand extends CommandRunner {
     super()
   }
 
-  async run(_: string[], __?: any): Promise<void> {
+  async run(_passedParam: string[], _options?: any): Promise<void> {
     this.logger.warn(`${UserSeedCommand.name} is running...`)
 
     try {

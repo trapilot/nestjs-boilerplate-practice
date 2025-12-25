@@ -19,7 +19,7 @@ export class SettingSeedCommand extends CommandRunner {
     this.logger.warn(`${SettingSeedCommand.name} is running...`)
     try {
       await this.maintenance()
-    } catch (err: any) {}
+    } catch (_err: any) {}
     return
   }
 

@@ -26,7 +26,7 @@ export class CountryService {
   ): Promise<TCountry> {
     const country = await this.prisma.country
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.country.notFound',
@@ -55,7 +55,7 @@ export class CountryService {
   ): Promise<TCountry> {
     const country = await this.prisma.country
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.country.notFound',
@@ -116,7 +116,7 @@ export class CountryService {
     })
   }
 
-  async delete(country: TCountry, deletedBy?: number): Promise<boolean> {
+  async delete(country: TCountry, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.country.delete({ where: { id: country.id } })

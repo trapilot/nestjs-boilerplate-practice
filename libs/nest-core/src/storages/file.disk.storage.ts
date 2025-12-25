@@ -131,13 +131,13 @@ export class DiskStorage implements StorageEngine {
     filename: string,
     extension: string,
   ): Promise<any> {
-    const [_, isHEI] = FileHelper.isHighEfficiency(file.originalname)
+    const [_extension, isHEI] = FileHelper.isHighEfficiency(file.originalname)
 
     // If HEIC transcoding is enabled and the file is HEIC
     if (isHEI && this.transcoding.heic) {
       console.log(`\x1b[33mConverting HEIC to JPEG file. Please wait....\x1b[0m`)
 
-      const buffer = await new Promise<Buffer>((resolve, reject) => {
+      const buffer = await new Promise<Buffer>((resolve, _reject) => {
         file.stream.pipe(concat({ encoding: 'buffer' }, resolve))
       })
       const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.length)
@@ -192,7 +192,7 @@ export class DiskStorage implements StorageEngine {
     filename: string,
     extension: string,
   ): Promise<any> {
-    const [_, __, isHEV] = FileHelper.isHighEfficiency(file.originalname)
+    const [_extension, _isHEI, isHEV] = FileHelper.isHighEfficiency(file.originalname)
 
     // If HEVC transcoding is enabled and the file is HEVC
     if (isHEV && this.transcoding.hevc) {
@@ -261,7 +261,7 @@ export class DiskStorage implements StorageEngine {
       const dimension = imageSize(buffer)
       imgWidth = dimension?.width
       imgHeight = dimension?.height
-    } catch (e) {
+    } catch (_err: unknown) {
       // Ignore errors, this file might not be an image
     }
 

@@ -1,10 +1,10 @@
 import { Logger } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
-import { ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
-import { AppAbilityUtil } from 'app/helpers'
 import { DateService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner } from 'nest-commander'
+import { ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { UserAbilityUtil } from 'shared/helpers'
 
 @Command({
   name: 'permission:migrate',
@@ -59,7 +59,7 @@ export class PermissionMigrateCommand extends CommandRunner {
 
   getSorting(permission: Prisma.PermissionUncheckedCreateInput): number {
     let sorting = 10
-    const contexts = AppAbilityUtil.getContexts()
+    const contexts = UserAbilityUtil.getContexts()
     for (const context in contexts) {
       const subjects = contexts[context].subjects
       if (subjects.includes(permission.subject)) {
@@ -72,18 +72,18 @@ export class PermissionMigrateCommand extends CommandRunner {
   }
 
   getAllPermissions() {
-    const _disables = AppAbilityUtil.getDisablePerms()
-    const _invisibles = AppAbilityUtil.getInvisiblePerms()
+    const _disables = UserAbilityUtil.getDisablePerms()
+    const _invisibles = UserAbilityUtil.getInvisiblePerms()
 
     const permissions: Prisma.PermissionUncheckedCreateInput[] = []
 
     Object.values(ENUM_APP_ABILITY_SUBJECT).forEach((subject) => {
-      const actions = AppAbilityUtil.getSubjectActions(subject)
+      const actions = UserAbilityUtil.getSubjectActions(subject)
       permissions.push({
         subject: subject.toString(),
-        bitwise: AppAbilityUtil.toBitwise(actions),
-        title: AppAbilityUtil.toSubject(subject),
-        context: AppAbilityUtil.findContext(subject),
+        bitwise: UserAbilityUtil.toBitwise(actions),
+        title: UserAbilityUtil.toSubject(subject),
+        context: UserAbilityUtil.findContext(subject),
         isActive: !_disables.includes(subject),
         isVisible: !_invisibles.includes(subject),
       })

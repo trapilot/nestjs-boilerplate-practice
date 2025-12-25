@@ -12,7 +12,7 @@ export function RequestFilterParsePipe(
   class MixinRequestFilterParsePipe implements PipeTransform {
     constructor(@Inject(REQUEST) protected readonly request: IRequestApp) {}
 
-    async transform(value: string, metadata: ArgumentMetadata): Promise<string> {
+    async transform(value: string, _metadata: ArgumentMetadata): Promise<string> {
       if (options?.raw) {
         this.addToRequestInstance(value)
         return value

@@ -75,7 +75,7 @@ export class MemberService implements OnModuleInit {
   ): Promise<TMember> {
     return await this.prisma.member
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.member.notFound',
@@ -103,7 +103,7 @@ export class MemberService implements OnModuleInit {
   ): Promise<TMember> {
     const member = await this.prisma.member
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.member.notFound',
@@ -628,7 +628,7 @@ export class MemberService implements OnModuleInit {
       })
 
       for (const pointHistory of releasePoints) {
-        const { id, memberId, ...data } = pointHistory
+        const { id: _id, memberId, ...data } = pointHistory
         const aggregate = await this.prisma.memberPointHistory.aggregate({
           _sum: { point: true },
           where: { memberId, isActive: true, isDeleted: false },

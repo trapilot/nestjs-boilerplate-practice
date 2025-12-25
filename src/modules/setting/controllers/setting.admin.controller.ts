@@ -1,7 +1,6 @@
 import { BadRequestException, Controller, Get, HttpStatus, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma, Setting } from '@prisma/client'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { CryptoService, FILE_SIZE_IN_BYTES, MessageService } from 'lib/nest-core'
 import {
@@ -16,6 +15,7 @@ import {
   RequestUserAgent,
   RequestUserIp,
 } from 'lib/nest-web'
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
 import { IResult } from 'ua-parser-js'
 import {
   SETTING_DOC_OPERATION,

@@ -16,7 +16,7 @@ export class FactSeedCommand extends CommandRunner {
     super()
   }
 
-  async run(passedParam: string[], options?: any): Promise<void> {
+  async run(_passedParam: string[], _options?: any): Promise<void> {
     this.logger.warn(`${FactSeedCommand.name} is running...`)
 
     try {

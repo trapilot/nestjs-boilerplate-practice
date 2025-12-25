@@ -116,7 +116,7 @@ export class FileService {
     return { data: rows, sheetName }
   }
 
-  async readExcel(file: IFile, options?: IFileReadOptions): Promise<IFileRows[]> {
+  async readExcel(file: IFile, _options?: IFileReadOptions): Promise<IFileRows[]> {
     // Create a new workbook instance
     const workbook = new Workbook()
 

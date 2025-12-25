@@ -21,6 +21,7 @@
       "app/*": ["src/app/*"],
       "configs/*": ["src/configs/*"],
       "modules/*": ["src/modules/*"],
+      "shared/*": ["src/shared/*"],
       "lib/nest-auth": [
         "libs/nest-auth/src"
       ],
@@ -72,7 +73,7 @@
     "logs",
     "docs",
     "packages",
-    "resources",
+    "private",
     "**/*spec.ts"
   ]
 }

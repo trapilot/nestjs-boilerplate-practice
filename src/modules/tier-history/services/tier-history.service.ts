@@ -29,7 +29,7 @@ export class TierHistoryService {
         ...kwargs,
         where: { id },
       })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.memberTierHistory.notFound',
@@ -47,7 +47,7 @@ export class TierHistoryService {
         ...kwargs,
         where,
       })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.memberTierHistory.notFound',
@@ -124,7 +124,7 @@ export class TierHistoryService {
     })
   }
 
-  async delete(tierHistory: TTierHistory, deletedBy?: number): Promise<boolean> {
+  async delete(tierHistory: TTierHistory, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.memberTierHistory.delete({ where: { id: tierHistory.id } })
