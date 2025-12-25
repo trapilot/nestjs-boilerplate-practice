@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
 import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty } from 'class-validator'
 import { ToArray, ToString } from 'lib/nest-core'
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
 
 export class RolePermissionRequestCreateDto {
   @IsNotEmpty()

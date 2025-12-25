@@ -1,8 +1,6 @@
 import { Controller, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@prisma/client'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
-import { AppAbilityUtil } from 'app/helpers'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import {
   ApiRequestData,
@@ -16,6 +14,8 @@ import {
   RequestQueryFilterInBoolean,
   RequestQueryList,
 } from 'lib/nest-web'
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { UserAbilityUtil } from 'shared/helpers'
 import { PERMISSION_DOC_ADMIN_QUERY_LIST, PERMISSION_DOC_OPERATION } from '../constants'
 import {
   PermissionRequestCreateDto,
@@ -103,7 +103,7 @@ export class PermissionAdminController {
     const data: Prisma.PermissionUncheckedUpdateInput = {
       ...dto,
       updatedBy,
-      bitwise: AppAbilityUtil.toBitwise(actions),
+      bitwise: UserAbilityUtil.toBitwise(actions),
     }
 
     const updated = await this.permissionService.update(id, data)
@@ -142,7 +142,7 @@ export class PermissionAdminController {
     const data: Prisma.PermissionUncheckedCreateInput = {
       ...dto,
       createdBy,
-      bitwise: AppAbilityUtil.toBitwise(actions),
+      bitwise: UserAbilityUtil.toBitwise(actions),
     }
 
     const created = await this.permissionService.create(data)

@@ -14,7 +14,7 @@ export function RequestFilterEqualPipe(
 
     async transform(
       value: string,
-      metadata: ArgumentMetadata,
+      _metadata: ArgumentMetadata,
     ): Promise<Record<string, string | number>> {
       if (!value || typeof value !== 'string') {
         return undefined
@@ -56,7 +56,7 @@ export function RequestFilterGreaterThanEqualPipe(
 
     async transform(
       value: string,
-      metadata: ArgumentMetadata,
+      _metadata: ArgumentMetadata,
     ): Promise<Record<string, { gte: string | number }>> {
       if (!value || typeof value !== 'string') {
         return undefined
@@ -98,7 +98,7 @@ export function RequestFilterLessThanEqualPipe(
 
     async transform(
       value: string,
-      metadata: ArgumentMetadata,
+      _metadata: ArgumentMetadata,
     ): Promise<Record<string, { lte: string | number }>> {
       if (!value || typeof value !== 'string') {
         return undefined

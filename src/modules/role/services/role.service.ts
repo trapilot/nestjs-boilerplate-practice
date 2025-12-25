@@ -2,8 +2,8 @@ import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@n
 import { Prisma } from '@prisma/client'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
-import { AppAbilityUtil } from 'app/helpers'
+import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { UserAbilityUtil } from 'shared/helpers'
 import { IRoleCreateOptions, IRoleUpdateOptions, TRole } from '../interfaces'
 
 @Injectable()
@@ -28,7 +28,7 @@ export class RoleService {
   ): Promise<TRole> {
     return await this.prisma.role
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((_: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.role.notFound',
@@ -56,7 +56,7 @@ export class RoleService {
   ): Promise<TRole> {
     const role = await this.prisma.role
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((_: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.role.notFound',
@@ -98,7 +98,7 @@ export class RoleService {
     const permissions = options?.permissions ?? []
     const rolePermissions = []
     for (const p of permissions) {
-      const { subject, bitwise: roleBit } = AppAbilityUtil.toPermission(p.subject, p.actions)
+      const { subject, bitwise: roleBit } = UserAbilityUtil.toPermission(p.subject, p.actions)
       const perm = await this.prisma.permission.findUnique({ where: { subject } })
       if (perm) {
         rolePermissions.push({ permissionId: perm.id, bitwise: roleBit })
@@ -133,7 +133,7 @@ export class RoleService {
     const newPermissions = options?.permissions ?? []
     const rolePermissions = []
     for (const p of newPermissions) {
-      const { subject, bitwise: roleBit } = AppAbilityUtil.toPermission(p.subject, p.actions)
+      const { subject, bitwise: roleBit } = UserAbilityUtil.toPermission(p.subject, p.actions)
       const perm = await this.prisma.permission.findUnique({ where: { subject } })
       if (perm) {
         rolePermissions.push({ permissionId: perm.id, bitwise: roleBit })
@@ -168,7 +168,7 @@ export class RoleService {
     try {
       await this.prisma.role.delete({ where: { id } })
       return true
-    } catch (_: any) {}
+    } catch (_err: any) {}
     return false
   }
 
@@ -184,7 +184,7 @@ export class RoleService {
     subject: ENUM_APP_ABILITY_SUBJECT,
     actions: ENUM_APP_ABILITY_ACTION[],
   ): Promise<T> {
-    return AppAbilityUtil.toPermission<T>(subject, actions)
+    return UserAbilityUtil.toPermission<T>(subject, actions)
   }
 
   async deleteAll(): Promise<boolean> {

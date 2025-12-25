@@ -1,6 +1,5 @@
 import { AbilityBuilder } from '@casl/ability'
 import { createPrismaAbility } from '@casl/prisma'
-import { Injectable } from '@nestjs/common'
 import {
   AuthAbilityContext,
   AuthAbilityFactory,
@@ -10,8 +9,7 @@ import {
   IAuthPayloadPermission,
 } from 'lib/nest-auth'
 
-@Injectable()
-export class AppAbilityFactory extends AuthAbilityFactory {
+export class UserAbilityFactory extends AuthAbilityFactory {
   private get subjects(): string[] {
     if (!this._subjects) {
       const { subjects } = AuthAbilityContext.getConfig()

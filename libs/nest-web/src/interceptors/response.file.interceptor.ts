@@ -14,7 +14,6 @@ import {
   ENUM_FILE_MIME,
   FileHelper,
   FileService,
-  IRequestApp,
   IResponseApp,
   ROOT_PATH,
 } from 'lib/nest-core'
@@ -54,7 +53,6 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
 
   private async sendFromPath(context: ExecutionContext, responseData: IDataFilePath) {
     const ctx: HttpArgumentsHost = context.switchToHttp()
-    const req: IRequestApp = ctx.getRequest<IRequestApp>()
     const res: IResponseApp = ctx.getResponse<IResponseApp>()
 
     const disposition = this.reflector.get<'attachment' | 'inline'>(
@@ -208,7 +206,6 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
 
   private async sendFromBuffer(context: ExecutionContext, responseData: IDataFileBuffer) {
     const ctx: HttpArgumentsHost = context.switchToHttp()
-    const req: IRequestApp = ctx.getRequest<IRequestApp>()
     const res: IResponseApp = ctx.getResponse<IResponseApp>()
 
     const disposition = this.reflector.get<'attachment' | 'inline'>(

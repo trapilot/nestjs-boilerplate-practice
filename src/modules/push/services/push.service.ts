@@ -1,6 +1,6 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ENUM_PUSH_STATUS, ENUM_PUSH_TYPE, Notification, Prisma } from '@prisma/client'
-import { DateService, ENUM_DATE_FORMAT, HelperService, MESSAGE_LANGUAGES } from 'lib/nest-core'
+import { DateService, HelperService, MESSAGE_LANGUAGES } from 'lib/nest-core'
 import { LoggerService } from 'lib/nest-logger'
 import { NotifierService } from 'lib/nest-notifier'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
@@ -34,7 +34,7 @@ export class PushService {
   ): Promise<TPush> {
     const push = await this.prisma.push
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.push.notFound',
@@ -63,7 +63,7 @@ export class PushService {
   ): Promise<TPush> {
     const push = await this.prisma.push
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.push.notFound',
@@ -121,7 +121,7 @@ export class PushService {
     })
   }
 
-  async delete(push: TPush, deletedBy?: number): Promise<boolean> {
+  async delete(push: TPush, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.push.delete({ where: { id: push.id } })
@@ -162,7 +162,6 @@ export class PushService {
     const dateExtract = this.dateService.extract(dateNow)
 
     const currentDate = dateExtract.date
-    const currentTime = this.dateService.format(dateExtract.date, ENUM_DATE_FORMAT.DURATION_LONG)
 
     const _where: Prisma.PushWhereInput = {
       isActive: true,
@@ -224,7 +223,7 @@ export class PushService {
     })
   }
 
-  private async getNotificationRef(notification: Notification): Promise<any> {}
+  private async getNotificationRef(_notification: Notification): Promise<any> {}
 
   private async getNotificationMembers(push: TPush): Promise<any> {
     let totalDevice = 0
@@ -438,7 +437,7 @@ export class PushService {
             refType: mp.refType,
           }
 
-          const sent = await this.notifier.sendMessage({
+          const _sent = await this.notifier.sendMessage({
             to: tokens.join(','),
             subject: 'a',
             content: 'a',

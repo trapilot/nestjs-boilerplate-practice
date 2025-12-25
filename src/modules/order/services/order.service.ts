@@ -56,7 +56,7 @@ export class OrderService implements OnModuleInit {
   ): Promise<TOrder> {
     const order = await this.prisma.order
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.order.notFound',
@@ -71,7 +71,7 @@ export class OrderService implements OnModuleInit {
   ): Promise<TOrder> {
     const order = await this.prisma.order
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.order.notFound',
@@ -143,7 +143,7 @@ export class OrderService implements OnModuleInit {
     })
   }
 
-  async delete(order: TOrder, deletedBy?: number): Promise<boolean> {
+  async delete(order: TOrder, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.order.delete({ where: { id: order.id } })
@@ -355,5 +355,5 @@ export class OrderService implements OnModuleInit {
     //   })
   }
 
-  async onCreated(order: TOrder): Promise<void> {}
+  async onCreated(_order: TOrder): Promise<void> {}
 }

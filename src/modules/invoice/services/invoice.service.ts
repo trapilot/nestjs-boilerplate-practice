@@ -39,7 +39,7 @@ export class InvoiceService {
   ): Promise<TInvoice> {
     const invoice = await this.prisma.invoice
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.invoice.notFound',
@@ -54,7 +54,7 @@ export class InvoiceService {
   ): Promise<TInvoice> {
     const invoice = await this.prisma.invoice
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.invoice.notFound',
@@ -135,7 +135,7 @@ export class InvoiceService {
     })
   }
 
-  async delete(invoice: TInvoice, deletedBy?: number): Promise<boolean> {
+  async delete(invoice: TInvoice, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.invoice.delete({ where: { id: invoice.id } })

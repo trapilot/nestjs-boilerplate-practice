@@ -5,7 +5,6 @@ import {
   NotFoundException,
   OnModuleInit,
 } from '@nestjs/common'
-import { ModuleRef } from '@nestjs/core'
 import { Prisma } from '@prisma/client'
 import { DateService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
@@ -15,7 +14,6 @@ import { TProduct } from '../interfaces'
 @Injectable()
 export class ProductService implements OnModuleInit {
   constructor(
-    private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
     private readonly dateService: DateService,
   ) {}
@@ -40,7 +38,7 @@ export class ProductService implements OnModuleInit {
   ): Promise<TProduct> {
     return await this.prisma.product
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.product.notFound',

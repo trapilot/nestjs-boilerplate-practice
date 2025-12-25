@@ -15,7 +15,7 @@ export abstract class GateWayBase {
   handleConnection(client: Socket) {
     if (!this.enabled) return
 
-    const _connTimer = setTimeout(() => {
+    setTimeout(() => {
       if (!client?.data?.verifyAt) {
         this.logger.log(`Closing socket due to timeout: ${client.id}`)
         client.disconnect()
@@ -23,8 +23,6 @@ export abstract class GateWayBase {
     }, this.connTimeout)
 
     client.on('identify', (userData: IClientIdentify) => {
-      // clearTimeout(connTimer)
-
       const verifyAt = new Date().getTime()
       const validToken = this.pendingTokens.get(client.id)
       if (userData?.userToken == validToken) {
@@ -54,8 +52,8 @@ export abstract class GateWayBase {
     this.setOffline(client)
   }
 
-  setOnline(_: Socket) {}
-  setOffline(_: Socket) {}
+  setOnline(_client: Socket) {}
+  setOffline(_client: Socket) {}
 
   private revokeToken(client: Socket) {
     this.pendingTokens.delete(client.id)

@@ -46,7 +46,7 @@ export class TierService implements OnModuleInit {
   ): Promise<TTier> {
     const tier = await this.prisma.tier
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.tier.notFound',
@@ -75,7 +75,7 @@ export class TierService implements OnModuleInit {
   ): Promise<TTier> {
     const tier = await this.prisma.tier
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.tier.notFound',
@@ -133,7 +133,7 @@ export class TierService implements OnModuleInit {
     })
   }
 
-  async delete(tier: TTier, deletedBy?: number): Promise<boolean> {
+  async delete(tier: TTier, _?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.tier.delete({ where: { id: tier.id } })

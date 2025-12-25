@@ -1,19 +1,19 @@
 import { Writable } from 'stream'
-import { ILoggerEntry } from '../interfaces'
-import { LoggerHelper } from '../utils'
 import { ENUM_LOGGER_TYPE } from '../enums'
+import { LoggerUtil } from '../helpers'
+import { ILoggerEntry } from '../interfaces'
 
 export class LoggerRemoteDriver extends Writable {
-  private readonly remoteUrl: string
+  private readonly apiUrl: string
 
-  constructor(remoteUrl: string) {
+  constructor(apiUrl: string) {
     super({ objectMode: true })
 
-    this.remoteUrl = remoteUrl
+    this.apiUrl = apiUrl
   }
 
   private async sendEntry(entry: ILoggerEntry): Promise<void> {
-    await fetch(`${this.remoteUrl}/api/audit/send-entry`, {
+    await fetch(this.apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -24,7 +24,7 @@ export class LoggerRemoteDriver extends Writable {
 
   async _write(logStr: string, encoding: string, callback: (error?: Error | null) => void) {
     try {
-      const entry = LoggerHelper.createEntry(logStr, encoding)
+      const entry = LoggerUtil.createEntry(logStr, encoding)
 
       // currently ignore log sql,  it loop
       if (entry.data.context !== ENUM_LOGGER_TYPE.MYSQL) {

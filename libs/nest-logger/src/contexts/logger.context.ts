@@ -8,4 +8,4 @@ export class LoggerStore {
   ) {}
 }
 
-export const storage = new AsyncLocalStorage<LoggerStore>()
+export const LoggerContext = new AsyncLocalStorage<LoggerStore>()

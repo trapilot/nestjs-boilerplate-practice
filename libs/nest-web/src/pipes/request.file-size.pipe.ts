@@ -58,7 +58,7 @@ export class RequestFileSizePipe implements PipeTransform {
     }
   }
 
-  private async validate(file: IFile, metadata: ArgumentMetadata): Promise<void> {
+  private async validate(file: IFile, _metadata: ArgumentMetadata): Promise<void> {
     if (process.env.MOCK_FILE_UNLIMITED === 'true') {
       return
     }

@@ -21,7 +21,7 @@ export const RequestUserAgent: () => ParameterDecorator = createParamDecorator(
     try {
       const userAgent: IResult = JSON.parse(req.headers['x-user-agent'] as string)
       return userAgent
-    } catch (err: unknown) {}
+    } catch (_err: unknown) {}
 
     const userAgentString = req.get('User-Agent') || req.headers['user-agent']
     const parserUserAgent = new UAParser(userAgentString)
@@ -42,7 +42,7 @@ export const RequestUserFrom: () => ParameterDecorator = createParamDecorator(
       } else if (originalUrl.includes('/web/')) {
         return ENUM_AUTH_LOGIN_FROM.WEB
       }
-    } catch (err: unknown) {}
+    } catch (_err: unknown) {}
     return null
   },
 )

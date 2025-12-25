@@ -58,7 +58,7 @@ export class SettingService {
   async findOrFail(id: number): Promise<Setting> {
     return await this.prisma.setting
       .findUniqueOrThrow({ where: { id: id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'error.setting.notFound',
@@ -218,7 +218,7 @@ export class SettingService {
   private async removeCache(code: string): Promise<boolean> {
     try {
       await this.cache.del(this.createKey(code))
-    } catch (_: unknown) {}
+    } catch (_err: unknown) {}
     return true
   }
 

@@ -17,7 +17,7 @@ export function RequestFilterDatePipe(
 
     async transform(
       value: string,
-      _: ArgumentMetadata,
+      _metadata: ArgumentMetadata,
     ): Promise<Record<string, string | { gte: Date; lte: Date }>> {
       if (!value || typeof value !== 'string') {
         return undefined

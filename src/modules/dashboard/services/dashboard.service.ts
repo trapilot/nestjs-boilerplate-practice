@@ -61,7 +61,7 @@ export class DashboardService implements OnModuleInit {
     }
   }
 
-  async viewDataList(startDate: Date, untilDate: Date) {
+  async viewDataList(_startDate: Date, _untilDate: Date) {
     return []
   }
 }

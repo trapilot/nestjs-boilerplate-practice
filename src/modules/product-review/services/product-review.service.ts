@@ -26,7 +26,7 @@ export class ProductReviewService {
   ): Promise<TProductReview> {
     const productReview = await this.prisma.productReview
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.productReview.notFound',
@@ -41,7 +41,7 @@ export class ProductReviewService {
   ): Promise<TProductReview> {
     const productReview = await this.prisma.productReview
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.productReview.notFound',
@@ -119,7 +119,7 @@ export class ProductReviewService {
     })
   }
 
-  async delete(productReview: TProductReview, deletedBy?: number): Promise<boolean> {
+  async delete(productReview: TProductReview, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.productReview.delete({ where: { id: productReview.id } })

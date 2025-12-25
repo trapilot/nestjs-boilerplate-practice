@@ -1,13 +1,13 @@
-import { AppAbilityUtil } from 'app/helpers'
 import { Transform } from 'class-transformer'
 import { AppHelper } from 'lib/nest-core'
+import { UserAbilityUtil } from 'shared/helpers'
+import { UserTransformUtil } from '../helpers'
 import {
   IContextUserPermission,
   IUserDataPermission,
   IUserProfilePermission,
   IUserTransformOptions,
 } from '../interfaces'
-import { UserTransformUtil } from '../helpers'
 
 export function ToUserPermissions(): (target: any, key: string) => void {
   return Transform(({ obj: user, value }: IUserTransformOptions): IUserProfilePermission[] => {
@@ -47,7 +47,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
         if (!(context in grpContextPermission)) {
           grpContextPermission[context] = {
             group: false,
-            title: AppAbilityUtil.toContext(context),
+            title: UserAbilityUtil.toContext(context),
             context,
             subjects: [],
           }
@@ -59,7 +59,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
         if (exist) {
           exist.actions = AppHelper.toUnique([
             ...exist.actions,
-            ...AppAbilityUtil.toActions(bitwise),
+            ...UserAbilityUtil.toActions(bitwise),
           ])
         } else {
           grpContextPermission[context].subjects.push({
@@ -67,7 +67,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
             context,
             subject,
             isVisible,
-            actions: AppAbilityUtil.toActions(bitwise),
+            actions: UserAbilityUtil.toActions(bitwise),
           })
           if (!grpContextPermission[context].group) {
             const activeSubjects = grpContextPermission[context].subjects.filter(

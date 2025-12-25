@@ -14,6 +14,7 @@ export default registerAs(
     url: process.env.APP_URL,
     web: process.env.WEB_URL,
     name: process.env.APP_NAME,
+    version: '0.0.1',
     timezone: APP_TIMEZONE,
     language: APP_LANGUAGE,
     globalPrefix: '/api',
@@ -30,9 +31,11 @@ export default registerAs(
     },
 
     debug: {
-      driver: process.env.DEBUG_DRIVER || 'file', // file | remote
       level: process.env.DEBUG_LEVEL || 'error',
-      remoteUrl: process.env.DEBUG_REMOTE,
+      driver: process.env.DEBUG_DRIVER || 'file', // file | remote
+      remote: {
+        url: process.env.DEBUG_REMOTE,
+      },
     },
 
     urlVersion: {

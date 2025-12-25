@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { getMetadataStorage, ValidationError } from 'class-validator'
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
-import { AppContext } from 'lib/nest-core'
+import { AppContext, ENUM_APP_ENVIRONMENT } from 'lib/nest-core'
 import { I18nService, I18nTranslation } from 'nestjs-i18n'
 import { IMessageError, IMessageErrorOptions, IMessageSetOptions } from '../interfaces'
 
 @Injectable()
 export class MessageService {
-  private readonly debug: boolean
+  private readonly appEnv: ENUM_APP_ENVIRONMENT
   private readonly defaultLanguage: string
   private readonly availableLanguages: string[]
 
@@ -16,7 +16,7 @@ export class MessageService {
     private readonly i18n: I18nService,
     private readonly config: ConfigService,
   ) {
-    this.debug = this.config.get<boolean>('app.debug.enable')
+    this.appEnv = this.config.get<ENUM_APP_ENVIRONMENT>('app.env')
     this.defaultLanguage = this.config.get<string>('helper.message.fallback')
     this.availableLanguages = this.config.get<string[]>('helper.message.availableList')
   }
@@ -35,14 +35,14 @@ export class MessageService {
   getRequestLanguage(): string {
     try {
       return AppContext.language()
-    } catch (err: unknown) {}
+    } catch (_err: unknown) {}
     return this.getDefaultLanguage()
   }
 
   getTranslations(): I18nTranslation {
     try {
       return this.i18n.getTranslations()
-    } catch (err: unknown) {}
+    } catch (_err: unknown) {}
     return {}
   }
 
@@ -59,7 +59,7 @@ export class MessageService {
       : this.defaultLanguage
 
     return this.i18n.translate(path, {
-      debug: this.debug,
+      debug: this.appEnv == ENUM_APP_ENVIRONMENT.DEVELOPMENT,
       lang: language,
       args: options?.properties,
       defaultValue: this.isMessage(path) ? path : undefined,

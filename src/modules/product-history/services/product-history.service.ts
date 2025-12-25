@@ -32,7 +32,7 @@ export class ProductHistoryService {
   ): Promise<TProductHistory> {
     const productHistory = await this.prisma.memberProductHistory
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.memberProductHistory.notFound',
@@ -47,7 +47,7 @@ export class ProductHistoryService {
   ): Promise<TProductHistory> {
     const productHistory = await this.prisma.memberProductHistory
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.memberProductHistory.notFound',
@@ -125,7 +125,7 @@ export class ProductHistoryService {
     })
   }
 
-  async delete(productHistory: TProductHistory, deletedBy?: number): Promise<boolean> {
+  async delete(productHistory: TProductHistory, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.memberProductHistory.delete({ where: { id: productHistory.id } })

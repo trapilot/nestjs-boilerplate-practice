@@ -2,7 +2,7 @@ import { ArgumentMetadata, BadRequestException, Injectable, PipeTransform } from
 
 @Injectable()
 export class RequestRequiredPipe implements PipeTransform {
-  async transform(value: string, metadata: ArgumentMetadata): Promise<string> {
+  async transform(value: string, _metadata: ArgumentMetadata): Promise<string> {
     if (!value) {
       throw new BadRequestException()
     }

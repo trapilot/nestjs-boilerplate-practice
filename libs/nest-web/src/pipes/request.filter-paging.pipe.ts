@@ -15,7 +15,7 @@ export function RequestFilterPagingPipe(defaultPerPage: number = 0): Type<PipeTr
 
     async transform(
       value: Record<string, any>,
-      metadata: ArgumentMetadata,
+      _metadata: ArgumentMetadata,
     ): Promise<Record<string, any>> {
       if (defaultPerPage <= 0) return value
 

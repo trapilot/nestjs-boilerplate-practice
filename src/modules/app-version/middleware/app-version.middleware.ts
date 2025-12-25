@@ -24,7 +24,7 @@ export class AppVersionMiddleware implements NestMiddleware {
       )
   }
 
-  async use(req: IRequestApp, _: IResponseApp, next: INextFunction): Promise<void> {
+  async use(req: IRequestApp, _res: IResponseApp, next: INextFunction): Promise<void> {
     let noLongerSupported = false
     const metadata: any = {}
     try {
@@ -41,7 +41,7 @@ export class AppVersionMiddleware implements NestMiddleware {
         version: appVersion.version,
         url: appVersion.url,
       }
-    } catch (_: unknown) {}
+    } catch (_err: unknown) {}
 
     if (noLongerSupported === true) {
       throw new HttpVersionNotSupportedException({

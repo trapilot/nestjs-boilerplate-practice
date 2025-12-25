@@ -65,7 +65,7 @@ export class CartService implements OnModuleInit {
   ): Promise<TCart> {
     const cart = await this.prisma.cart
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.cart.notFound',
@@ -80,7 +80,7 @@ export class CartService implements OnModuleInit {
   ): Promise<TCart> {
     const cart = await this.prisma.cart
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.cart.notFound',
@@ -154,7 +154,7 @@ export class CartService implements OnModuleInit {
     })
   }
 
-  async delete(cart: TCart, deletedBy?: number): Promise<boolean> {
+  async delete(cart: TCart, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.cart.delete({ where: { id: cart.id } })
@@ -211,7 +211,7 @@ export class CartService implements OnModuleInit {
     return cartReset
   }
 
-  async handleCheckoutSuccess(cart: TCart): Promise<void> {}
+  async handleCheckoutSuccess(_cart: TCart): Promise<void> {}
 
   async reset(memberId: number): Promise<TCart> {
     const exists = await this.count({ memberId })
@@ -235,7 +235,7 @@ export class CartService implements OnModuleInit {
   async getCartItem(kwargs: Prisma.CartItemFindUniqueOrThrowArgs): Promise<TCartItem> {
     const cartItem = await this.prisma.cartItem
       .findUniqueOrThrow({ ...kwargs })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.cart.notFoundItem',
@@ -317,7 +317,7 @@ export class CartService implements OnModuleInit {
   }
 
   async adjustItem(cart: TCart, cartItem: TCartItem, quantity: number): Promise<TCart> {
-    const { id, cartId, ...data } = CartUtil.recalculate(cartItem, quantity)
+    const { id: _id, cartId: _cartId, ...data } = CartUtil.recalculate(cartItem, quantity)
     return await this.prisma.cart.update({
       where: { id: cart.id },
       include: this.cartRelation,

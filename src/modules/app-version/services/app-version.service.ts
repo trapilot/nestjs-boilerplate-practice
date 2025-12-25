@@ -26,7 +26,7 @@ export class AppVersionService {
   ): Promise<TAppVersion> {
     const appVersion = await this.prisma.appVersion
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.appVersion.notFound',
@@ -41,7 +41,7 @@ export class AppVersionService {
   ): Promise<TAppVersion> {
     const appVersion = await this.prisma.appVersion
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.appVersion.notFound',
@@ -134,7 +134,7 @@ export class AppVersionService {
     })
   }
 
-  async delete(appVersion: TAppVersion, deletedBy?: number): Promise<boolean> {
+  async delete(appVersion: TAppVersion, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.appVersion.delete({ where: { id: appVersion.id } })

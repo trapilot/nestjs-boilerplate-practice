@@ -37,7 +37,7 @@ export class RequestFileRequiredPipe implements PipeTransform {
     }
   }
 
-  private async validate(file: IFile | IFile[], metadata: ArgumentMetadata): Promise<void> {
+  private async validate(file: IFile | IFile[], _metadata: ArgumentMetadata): Promise<void> {
     if (!file || Object.keys(file).length === 0 || (Array.isArray(file) && file.length === 0)) {
       this.validationBuilder.addError({
         property: this.field ?? 'file',

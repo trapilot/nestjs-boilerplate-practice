@@ -151,7 +151,7 @@ export class MemberVerificationService {
     return false
   }
 
-  private createCodeDefault(length: number, numeric: boolean = false): string {
+  private createCodeDefault(length: number, _numeric: boolean = false): string {
     const text = '1234567890'
     return text.repeat(Math.ceil(length / text.length)).slice(0, length)
   }

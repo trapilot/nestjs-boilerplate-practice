@@ -58,13 +58,13 @@ export class PushProvider {
   }
 
   private process(payload: INotificationPayload): void {
-    const result: admin.messaging.BatchResponse = {
+    const _result: admin.messaging.BatchResponse = {
       successCount: 0,
       failureCount: 0,
       responses: [],
     }
 
-    const sent = this.fcm.sendEachForMulticast(
+    const _sent = this.fcm.sendEachForMulticast(
       {
         tokens: payload.to.split(','),
         notification: {

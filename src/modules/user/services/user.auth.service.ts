@@ -96,7 +96,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
   async getUserData(userId: number): Promise<TUser> {
     const userData = await this.prisma.user
       .findUniqueOrThrow({ include: this.authRelation, where: { id: userId } })
-      .catch((_: unknown) => {
+      .catch((_err: unknown) => {
         throw new ForbiddenException({
           statusCode: HttpStatus.FORBIDDEN,
           message: 'auth.error.inactive',
@@ -162,7 +162,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
   ): Promise<TUser> {
     return await this.prisma.user
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((_: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'auth.error.notFound',
@@ -176,7 +176,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
   ): Promise<TUser> {
     const user = await this.prisma.user
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((_: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'auth.error.notFound',
@@ -428,7 +428,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
       })
     }
 
-    const matchPassword: boolean = await this.authService.verify(dto.oldPassword, user.password)
+    const matchPassword = await this.authService.verify(dto.oldPassword, user.password)
     if (!matchPassword) {
       await this.increasePasswordAttempt(user)
       throw new BadRequestException({
@@ -437,7 +437,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
       })
     }
 
-    const newMatchPassword: boolean = this.authService.verify(dto.newPassword, user.password)
+    const newMatchPassword = await this.authService.verify(dto.newPassword, user.password)
     if (newMatchPassword) {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
@@ -470,7 +470,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
       })
     }
 
-    const matchPassword: boolean = await this.authService.verify(password, user.passwordConfirm)
+    const matchPassword = await this.authService.verify(password, user.passwordConfirm)
     if (!matchPassword) {
       await this.increasePasswordAttempt(user)
       throw new BadRequestException({

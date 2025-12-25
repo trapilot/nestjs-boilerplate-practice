@@ -27,7 +27,7 @@ export class FactService {
   ): Promise<TFact> {
     return await this.prisma.fact
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.fact.notFound',
@@ -41,7 +41,7 @@ export class FactService {
   ): Promise<Fact> {
     const fact = await this.prisma.fact
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.fact.notFound',

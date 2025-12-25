@@ -1,5 +1,4 @@
 import { Expose, Type } from 'class-transformer'
-import { ToDecimal } from 'lib/nest-core'
 
 export class DashboardSummaryResponseDto {
   @Type(() => Number)

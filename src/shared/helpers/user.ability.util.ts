@@ -1,12 +1,12 @@
+import { AppHelper, ENUM_MESSAGE_LANGUAGE } from 'lib/nest-core'
 import {
   ENUM_APP_ABILITY_ACTION,
   ENUM_APP_ABILITY_CONTEXT,
   ENUM_APP_ABILITY_SUBJECT,
-} from 'app/enums'
-import { AppHelper, ENUM_MESSAGE_LANGUAGE } from 'lib/nest-core'
+} from 'shared/enums'
 
 // cspell:disable
-export class AppAbilityUtil {
+export class UserAbilityUtil {
   static getContexts() {
     return {
       [ENUM_APP_ABILITY_CONTEXT.DASHBOARD]: {

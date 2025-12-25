@@ -26,7 +26,7 @@ export class ProductBrandService {
   ): Promise<TProductBrand> {
     const productBrand = await this.prisma.productBrand
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.productBrand.notFound',
@@ -41,7 +41,7 @@ export class ProductBrandService {
   ): Promise<TProductBrand> {
     const productBrand = await this.prisma.productBrand
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.productBrand.notFound',
@@ -116,7 +116,7 @@ export class ProductBrandService {
     })
   }
 
-  async delete(productBrand: TProductBrand, deletedBy?: number): Promise<boolean> {
+  async delete(productBrand: TProductBrand, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.productBrand.delete({ where: { id: productBrand.id } })

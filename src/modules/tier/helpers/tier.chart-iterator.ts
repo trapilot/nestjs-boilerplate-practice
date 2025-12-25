@@ -13,7 +13,7 @@ export class TierChartIterator {
     const sortedTiers = tiers.sort((a, b) => a.level - b.level)
 
     for (const tier of sortedTiers) {
-      const { charts, languages, ...data } = tier
+      const { charts, languages: _languages, ...data } = tier
 
       if (charts?.length) {
         this.infos[tier.id] = data

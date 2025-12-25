@@ -26,7 +26,7 @@ export class PermissionService {
   ): Promise<TPermission> {
     return await this.prisma.permission
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.permission.notFound',

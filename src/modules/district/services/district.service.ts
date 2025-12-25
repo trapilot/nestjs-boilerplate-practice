@@ -26,7 +26,7 @@ export class DistrictService {
   ): Promise<TDistrict> {
     const district = await this.prisma.district
       .findUniqueOrThrow({ ...kwargs, where: { id } })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.district.notFound',
@@ -55,7 +55,7 @@ export class DistrictService {
   ): Promise<TDistrict> {
     const district = await this.prisma.district
       .findFirstOrThrow({ ...kwargs, where })
-      .catch((err: unknown) => {
+      .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.district.notFound',
@@ -116,7 +116,7 @@ export class DistrictService {
     })
   }
 
-  async delete(district: TDistrict, deletedBy?: number): Promise<boolean> {
+  async delete(district: TDistrict, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.district.delete({ where: { id: district.id } })
