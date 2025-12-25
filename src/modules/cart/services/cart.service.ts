@@ -14,10 +14,10 @@ import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { MemberService } from 'modules/member/services'
 import { OrderService } from 'modules/order/services'
 import { ProductService } from 'modules/product/services'
+import { CartManager } from '../helpers'
 import { ICartCheckoutOptions, ICartItemAddOptions, TCart, TCartItem } from '../interfaces'
-import { CartItemInStockRule, CartItemIsActiveRule, CartItemMemberRequireRule } from '../rules'
+import { CartItemForMemberRule, CartItemInStockRule, CartItemIsActiveRule } from '../rules'
 import { CartUtil } from '../utils'
-import { CartValidator } from '../validators'
 
 @Injectable()
 export class CartService implements OnModuleInit {
@@ -186,14 +186,14 @@ export class CartService implements OnModuleInit {
       })
     }
 
-    const cartValidator = new CartValidator([
+    const cartManager = new CartManager([
       new CartItemIsActiveRule(),
       new CartItemInStockRule(),
-      new CartItemMemberRequireRule(this, cart.memberId, issuedAt),
+      new CartItemForMemberRule(this, cart.memberId, issuedAt),
     ])
 
     for (const item of cart.items) {
-      await cartValidator.validate(item)
+      await cartManager.validate(item)
     }
 
     await this.orderService.createOrder(cart, {

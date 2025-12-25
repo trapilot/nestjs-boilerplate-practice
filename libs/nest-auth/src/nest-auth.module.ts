@@ -6,8 +6,8 @@ import {
   AUTH_ABILITY_CONTEXT_TOKEN,
   AUTH_ABILITY_FACTORY_TOKEN,
 } from './constants'
-import { AuthAbilityContext } from './contexts'
 import { AuthJwtAccessStrategy, AuthJwtRefreshStrategy } from './guards'
+import { AuthContext } from './helpers'
 import { AuthModuleOptions, IAuthAbilityConfig } from './interfaces'
 import { AuthService } from './services'
 
@@ -36,7 +36,7 @@ export class NestAuthModule {
           provide: AUTH_ABILITY_CONTEXT_TOKEN,
           inject: [AUTH_ABILITY_CONFIG_TOKEN],
           useFactory: (config: IAuthAbilityConfig) => {
-            AuthAbilityContext.setConfig(config)
+            AuthContext.setConfig(config)
             return true
           },
         },

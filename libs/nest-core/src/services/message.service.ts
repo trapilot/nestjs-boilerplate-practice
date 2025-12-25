@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { getMetadataStorage, ValidationError } from 'class-validator'
 import { ValidationMetadata } from 'class-validator/types/metadata/ValidationMetadata'
-import { AppContext, ENUM_APP_ENVIRONMENT } from 'lib/nest-core'
 import { I18nService, I18nTranslation } from 'nestjs-i18n'
+import { ENUM_APP_ENVIRONMENT } from '../enums'
+import { AppContext } from '../helpers'
 import { IMessageError, IMessageErrorOptions, IMessageSetOptions } from '../interfaces'
 
 @Injectable()

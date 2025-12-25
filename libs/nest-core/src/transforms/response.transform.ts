@@ -1,5 +1,5 @@
 import { ClassConstructor, plainToInstance, Transform } from 'class-transformer'
-import { AppContext } from '../contexts'
+import { AppContext } from '../helpers'
 import { IDateRequestOptions, IStringNumericOptions } from '../interfaces'
 import { DateUtil, LocaleUtil, NumberUtil, UrlUtil } from '../utils'
 

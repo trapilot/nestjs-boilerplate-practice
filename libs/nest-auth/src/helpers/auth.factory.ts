@@ -6,7 +6,7 @@ import {
   IAuthAbilityRule,
 } from '../interfaces'
 
-export abstract class AuthAbilityFactory {
+export abstract class AuthFactory {
   protected _subjects?: string[]
   protected _actions?: string[]
 

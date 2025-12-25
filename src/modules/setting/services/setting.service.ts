@@ -1,13 +1,11 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common'
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { Prisma, Setting } from '@prisma/client'
-import { Cache } from 'cache-manager'
-import { APP_TIMEZONE, ENUM_DATE_FORMAT, HelperService } from 'lib/nest-core'
+import { APP_TIMEZONE, HelperService, RealtimeService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
-import { ENUM_SETTING_GROUP, ENUM_SETTING_TYPE } from '../enums'
+import { ENUM_SETTING_TYPE } from '../enums'
 
 @Injectable()
 export class SettingService {
@@ -16,15 +14,15 @@ export class SettingService {
   private readonly timezoneOffset: string
 
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    private readonly realtimeService: RealtimeService,
     private readonly helperService: HelperService,
   ) {
     const dateNow = this.helperService.dateCreate()
 
     this.timezone = this.config.get<string>('app.timezone')
-    this.timezoneOffset = this.helperService.dateFormat(dateNow, ENUM_DATE_FORMAT.TIMEZONE)
+    this.timezoneOffset = this.helperService.dateGetZoneOffset(dateNow)
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { timeZone: APP_TIMEZONE })
@@ -36,7 +34,7 @@ export class SettingService {
 
       for (const setting of cacheSettings) {
         const key = this.createKey(setting.code)
-        await this.cache.del(key)
+        await this.realtimeService.cacheDel(key)
       }
     } catch {}
     return true
@@ -164,7 +162,7 @@ export class SettingService {
 
   private async getInstance<T>(data: Prisma.SettingUncheckedCreateInput): Promise<T> {
     const cacheKey = this.createKey(data.code)
-    let cacheValue = await this.cache.get<string>(cacheKey)
+    let cacheValue = await this.realtimeService.cacheGet<string>(cacheKey)
 
     if (cacheValue == undefined) {
       const setting =
@@ -173,14 +171,14 @@ export class SettingService {
 
       cacheValue = JSON.stringify(setting)
 
-      await this.cache.set(cacheKey, cacheValue, 86400)
+      await this.realtimeService.cacheSet(cacheKey, cacheValue, 86400)
     }
     return JSON.parse(cacheValue) as T
   }
 
   private async getFromCache<T>(data: Prisma.SettingUncheckedCreateInput): Promise<T> {
     const cacheKey = this.createKey(data.code)
-    let cacheValue = await this.cache.get(cacheKey)
+    let cacheValue = await this.realtimeService.cacheGet(cacheKey)
 
     if (cacheValue == undefined) {
       const setting =
@@ -189,7 +187,7 @@ export class SettingService {
 
       cacheValue = this.getValue(setting)
 
-      await this.cache.set(cacheKey, cacheValue, 86400)
+      await this.realtimeService.cacheSet(cacheKey, cacheValue, 86400)
     }
     return cacheValue as T
   }
@@ -216,7 +214,7 @@ export class SettingService {
 
   private async removeCache(code: string): Promise<boolean> {
     try {
-      await this.cache.del(this.createKey(code))
+      await this.realtimeService.cacheDel(this.createKey(code))
     } catch (_err: unknown) {}
     return true
   }
@@ -243,28 +241,11 @@ export class SettingService {
     })
   }
 
-  async getOpenWork(): Promise<Setting> {
-    return await this.getInstance({
-      name: 'Open Work',
-      code: 'open_work',
-      group: ENUM_SETTING_GROUP.OPEN_WORK,
-      description: 'Open Work',
-      type: ENUM_SETTING_TYPE.STRING,
-      value: '08:00',
-      isVisible: true,
-    })
-  }
-
   async getTimezone(): Promise<string> {
     return this.timezone
   }
 
   async getTimezoneOffset(): Promise<string> {
     return this.timezoneOffset
-  }
-
-  async getOpenWorkTime(): Promise<string> {
-    const data = await this.getOpenWork()
-    return this.getValue<string>(data)
   }
 }

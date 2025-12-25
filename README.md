@@ -52,15 +52,13 @@ Full structure of module
     ├── controllers         // business logic for rest api
     ├── decorators          // wrapper decorator, custom decorator, etc
     ├── dtos
-    ├── graphql
-            ├── inputs      // query inputs
-            ├── resolvers   // resolvers
     ├── enums               // constant enum
     ├── errors              // custom error
     ├── events
-    ├── factories           // custom factory
+    ├── exceptions          // custom exception
     ├── filters             // custom filter
     ├── guards              // guard validate
+    ├── helpers             // custom factory, manager, context
     ├── indicators          // custom health check indicator
     ├── interceptors        // custom interceptors
     ├── interfaces
@@ -72,7 +70,7 @@ Full structure of module
     ├── services
     ├── tasks               // cronjobs
     ├── transforms
-    ├── utils               // common class or function
+    ├── utils               // common class
     ├── validators
     └── moduleA.auth.module.ts
     └── moduleA.module.ts

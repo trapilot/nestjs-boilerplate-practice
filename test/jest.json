@@ -1,43 +1,57 @@
 {
-    "testTimeout": 5000,
-    "rootDir": "../",
-    "modulePaths": ["."],
-    "testEnvironment": "node",
-    "testMatch": ["<rootDir>/test/**/*.spec.ts"],
-    "collectCoverage": true,
-    "coverageDirectory": "coverage",
-    "collectCoverageFrom": [
-        "<rootDir>/src/{modules,app}/**/services/**/*.service.ts",
-        "<rootDir>/src/{modules,app}/**/pipes/**/*.pipe.ts",
-        "<rootDir>/src/{modules,app}/**/guards/**/*.guard.ts",
-        "<rootDir>/src/{modules,app}/**/guards/**/*.strategy.ts",
-        "<rootDir>/src/{modules,app}/**/interceptors/**/*.interceptor.ts",
-        "<rootDir>/src/{modules,app}/**/dtos/**/*.dto.ts",
-        "<rootDir>/src/{modules,app}/**/decorators/**/*.decorator.ts",
-        "<rootDir>/src/{modules,app}/**/exceptions/**/*.exception.ts",
-        "<rootDir>/src/{modules,app}/**/filters/**/*.filter.ts",
-        "<rootDir>/src/{modules,app}/**/middlewares/**/*.middleware.ts",
-        "<rootDir>/src/{modules,app}/**/indicators/**/*.indicator.ts",
-        "<rootDir>/src/{modules,app}/**/factories/**/*.factory.ts"
-    ],
-    "coverageThreshold": {
-        "global": {
-            "branches": 100,
-            "functions": 100,
-            "lines": 100,
-            "statements": 100
-        }
-    },
-    "coverageReporters": ["html", "lcov", "json-summary"],
-    "moduleFileExtensions": ["js", "ts", "json"],
-    "coverageProvider": "v8",
-    "transform": {
-        "^.+\\.(t|j)sx?$": [
-            "@swc/jest",
-            {
-                "sourceMaps": true
-            }
-        ]
-    },
-    "modulePathIgnorePatterns": ["<rootDir>/dist"]
+  "testTimeout": 5000,
+  "rootDir": "../",
+  "modulePaths": ["."],
+  "testEnvironment": "node",
+  "testMatch": ["<rootDir>/test/**/*.spec.ts"],
+  "collectCoverage": true,
+  "coverageDirectory": "coverage",
+  "collectCoverageFrom": [
+    "<rootDir>/src/{modules,app}/**/bases/**/*.base.ts",
+    "<rootDir>/src/{modules,app}/**/commands/**/*.command.ts",
+    "<rootDir>/src/{modules,app}/**/constants/**/*.constant.ts",
+    "<rootDir>/src/{modules,app}/**/controllers/**/*.controller.ts",
+    "<rootDir>/src/{modules,app}/**/decorators/**/*.decorator.ts",
+    "<rootDir>/src/{modules,app}/**/dtos/**/*.dto.ts",
+    "<rootDir>/src/{modules,app}/**/enums/**/*.enum.ts",
+    "<rootDir>/src/{modules,app}/**/errors/**/*.error.ts",
+    "<rootDir>/src/{modules,app}/**/events/**/*.event.ts",
+    "<rootDir>/src/{modules,app}/**/exceptions/**/*.exception.ts",
+    "<rootDir>/src/{modules,app}/**/filters/**/*.filter.ts",
+    "<rootDir>/src/{modules,app}/**/guards/**/*.guard.ts",
+    "<rootDir>/src/{modules,app}/**/helpers/**/*.*.ts",
+    "<rootDir>/src/{modules,app}/**/indicators/**/*.indicator.ts",
+    "<rootDir>/src/{modules,app}/**/interceptors/**/*.interceptor.ts",
+    "<rootDir>/src/{modules,app}/**/interfaces/**/*.interface.ts",
+    "<rootDir>/src/{modules,app}/**/listeners/**/*.listener.ts",
+    "<rootDir>/src/{modules,app}/**/middleware/**/*.middleware.ts",
+    "<rootDir>/src/{modules,app}/**/pipes/**/*.pipe.ts",
+    "<rootDir>/src/{modules,app}/**/processors/**/*.processor.ts",
+    "<rootDir>/src/{modules,app}/**/rules/**/*.rule.ts",
+    "<rootDir>/src/{modules,app}/**/services/**/*.service.ts",
+    "<rootDir>/src/{modules,app}/**/tasks/**/*.task.ts",
+    "<rootDir>/src/{modules,app}/**/transforms/**/*.transform.ts",
+    "<rootDir>/src/{modules,app}/**/utils/**/*.util.ts",
+    "<rootDir>/src/{modules,app}/**/validators/**/*.validator.ts"
+  ],
+  "coverageThreshold": {
+    "global": {
+      "branches": 100,
+      "functions": 100,
+      "lines": 100,
+      "statements": 100
+    }
+  },
+  "coverageReporters": ["html", "lcov", "json-summary"],
+  "moduleFileExtensions": ["js", "ts", "json"],
+  "coverageProvider": "v8",
+  "transform": {
+    "^.+\\.(t|j)sx?$": [
+      "@swc/jest",
+      {
+        "sourceMaps": true
+      }
+    ]
+  },
+  "modulePathIgnorePatterns": ["<rootDir>/dist"]
 }

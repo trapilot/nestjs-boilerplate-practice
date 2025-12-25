@@ -12,7 +12,7 @@ import {
   AUTH_ABILITY_FACTORY_TOKEN,
   AUTH_ABILITY_META_KEY,
   AUTH_ACCESS_REQUIRE_METADATA,
-  AuthAbilityFactory,
+  AuthFactory,
   AuthJwtAccessPayloadDto,
   IAuthAbility,
 } from 'lib/nest-auth'
@@ -22,7 +22,7 @@ import { IRequestApp } from 'lib/nest-core'
 export class AuthUserAbilityGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    @Inject(AUTH_ABILITY_FACTORY_TOKEN) private readonly abilityFactory: AuthAbilityFactory,
+    @Inject(AUTH_ABILITY_FACTORY_TOKEN) private readonly abilityFactory: AuthFactory,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

@@ -1,8 +1,8 @@
 import { BadRequestException, HttpStatus } from '@nestjs/common'
-import { ICartItemRule, TCartItem } from '../interfaces'
+import { ICartRule, TCartItem } from '../interfaces'
 import { CartService } from '../services'
 
-export class CartItemMemberRequireRule implements ICartItemRule {
+export class CartItemForMemberRule implements ICartRule {
   constructor(
     private readonly cartService: CartService,
     private readonly memberId: number,
@@ -28,9 +28,10 @@ export class CartItemMemberRequireRule implements ICartItemRule {
     if (product.hasLimitPerson) {
       const checkLimitQty = await this.cartService.checkSalePerPerson(this.memberId, product)
       if (!checkLimitQty) {
-        throw new BadRequestException(
-          `You already save ${product.sku} to limited, over ${product.salePerPerson}`,
-        )
+        throw new BadRequestException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `You already save ${product.sku} to limited, over ${product.salePerPerson}`,
+        })
       }
     }
   }

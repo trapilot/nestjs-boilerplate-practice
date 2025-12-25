@@ -1,7 +1,7 @@
 import { Inject, Injectable, LoggerService as NestLoggerService, Scope } from '@nestjs/common'
 import pino from 'pino'
 import { LOGGER_CONTEXT_KEY, LOGGER_MODULE_OPTIONS } from '../constants'
-import { LoggerContext } from '../contexts'
+import { LoggerContext } from '../helpers'
 import { ILoggerOptions, TLoggerFn } from '../interfaces'
 import { LoggerUtil } from '../utils'
 

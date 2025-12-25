@@ -1,9 +1,7 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { Controller, Get, Inject } from '@nestjs/common'
+import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Cache } from 'cache-manager'
 import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { HelperService, IDateRange } from 'lib/nest-core'
+import { HelperService, IDateRange, RealtimeService } from 'lib/nest-core'
 import { ApiRequestData, IResponseData } from 'lib/nest-web'
 import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
 import { DASHBOARD_DOC_OPERATION } from '../constants'
@@ -14,8 +12,8 @@ import { DashboardService } from '../services'
 @Controller({ path: '/dashboard' })
 export class DashboardAdminController {
   constructor(
-    @Inject(CACHE_MANAGER) private readonly cache: Cache,
     protected readonly dashboardService: DashboardService,
+    protected readonly realtimeService: RealtimeService,
     protected readonly helperService: HelperService,
   ) {}
 
@@ -49,7 +47,7 @@ export class DashboardAdminController {
   @Get('/view-summary')
   async get(): Promise<IResponseData> {
     const dates = this.getDates()
-    const dashboard = await this.dashboardService.getSummary(dates.startOfMonth, dates.endOfMonth)
+    const dashboard = await this.dashboardService.getSummary(dates.startOfYear, dates.endOfYear)
 
     return {
       data: dashboard,
@@ -79,9 +77,9 @@ export class DashboardAdminController {
   @Get('/refresh-summary')
   async refresh(): Promise<IResponseData> {
     const dates = this.getDates()
-    const dashboard = await this.dashboardService.getSummary(dates.startOfMonth, dates.endOfMonth)
+    const dashboard = await this.dashboardService.getSummary(dates.startOfYear, dates.endOfYear)
 
-    await this.cache.set(DashboardSummaryResponseDto.name, dashboard)
+    await this.realtimeService.cacheSet(DashboardSummaryResponseDto.name, dashboard)
 
     return {
       data: dashboard,
@@ -111,9 +109,9 @@ export class DashboardAdminController {
   @Get('/view-data-list')
   async viewDataList(): Promise<IResponseData> {
     const dates = this.getDates()
-    const dataList = await this.dashboardService.viewDataList(dates.startOfMonth, dates.endOfMonth)
+    const dataList = await this.dashboardService.viewDataList(dates.startOfYear, dates.endOfYear)
 
-    await this.cache.set(DashboardSummaryResponseDto.name, dataList)
+    await this.realtimeService.cacheSet(DashboardSummaryResponseDto.name, dataList)
 
     return {
       data: dataList,

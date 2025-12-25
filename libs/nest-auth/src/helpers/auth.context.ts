@@ -1,6 +1,6 @@
 import { IAuthAbilityConfig } from '../interfaces'
 
-export class AuthAbilityContext {
+export class AuthContext {
   private static config: IAuthAbilityConfig
 
   static setConfig(config: IAuthAbilityConfig) {

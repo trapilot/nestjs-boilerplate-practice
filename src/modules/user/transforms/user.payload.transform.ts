@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer'
-import { AuthAbilityContext, IAuthPayloadPermission } from 'lib/nest-auth'
+import { AuthContext, IAuthPayloadPermission } from 'lib/nest-auth'
 import { IUserTransformOptions } from '../interfaces'
 import { UserUtil } from '../utils'
 
@@ -13,7 +13,7 @@ export function ToUserPayloadRoles(): (target: any, key: string) => void {
 export function ToUserPayloadPermissions(): (target: any, key: string) => void {
   return Transform(({ obj: user }: IUserTransformOptions): IAuthPayloadPermission => {
     // console.log({ ToAuthUserPermissions: user })
-    const { subjects } = AuthAbilityContext.getConfig()
+    const { subjects } = AuthContext.getConfig()
     const userRoles = UserUtil.parseRoles(user)
     const userPermissions = {}
 

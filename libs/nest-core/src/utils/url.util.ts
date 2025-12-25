@@ -1,5 +1,5 @@
 import { APP_URL } from '../constants'
-import { AppContext } from '../contexts'
+import { AppContext } from '../helpers'
 import { EnvUtil } from './env.util'
 
 export class UrlUtil {

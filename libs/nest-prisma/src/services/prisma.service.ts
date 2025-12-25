@@ -2,8 +2,8 @@ import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Prisma, PrismaClient } from '@prisma/client'
 import { ENUM_LOGGER_TYPE, LOGGER_MESSAGE_KEY, LoggerService } from 'lib/nest-logger'
-import { PrismaContext } from '../contexts'
 import { withExtension, withReplica } from '../extensions'
+import { PrismaContext } from '../helpers'
 import { ClientWithExtension } from '../interfaces'
 
 const defaultClientOptions: Prisma.PrismaClientOptions = {
