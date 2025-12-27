@@ -1,5 +1,5 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
-import { ENUM_PUSH_STATUS, ENUM_PUSH_TYPE, Notification, Prisma } from '@prisma/client'
+import { ENUM_PUSH_STATUS, ENUM_PUSH_TYPE, Notification, Prisma } from '@runtime/prisma-client'
 import { HelperService, MESSAGE_LANGUAGES } from 'lib/nest-core'
 import { LoggerService } from 'lib/nest-logger'
 import { NotifierService } from 'lib/nest-notifier'

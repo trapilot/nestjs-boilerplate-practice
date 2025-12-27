@@ -7,9 +7,8 @@ export interface IStep<T> {
 }
 
 export interface IExportableMetadata {
+  header?: string
   sorting?: number
-  domain?: string
-  message?: string
 }
 
 export interface IClientData {

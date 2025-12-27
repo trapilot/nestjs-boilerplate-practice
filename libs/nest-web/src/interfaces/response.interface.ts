@@ -1,43 +1,41 @@
-import { HttpStatus } from '@nestjs/common'
+import { HttpStatus, NestInterceptor, Type } from '@nestjs/common'
 import { ClassConstructor } from 'class-transformer'
-import {
-  ENUM_FILE_MIME,
-  IFileRows,
-  IMessageProperties,
-  IResponseCacheOptions,
-  IResponseMetadata,
-} from 'lib/nest-core'
+import { ENUM_FILE_DISPOSITION, ENUM_FILE_MIME, IFileRows, IResponseMetadata } from 'lib/nest-core'
 
-export interface IResponseOptions<T> {
-  statusCode?: number
-  statusHttp?: HttpStatus
-  dto?: ClassConstructor<T>
-  messageProperties?: IMessageProperties
-  cached?: IResponseCacheOptions | boolean
-  docExpansion?: boolean
+export interface IResponseOptions {
+  statusCode?: HttpStatus
+  dto?: ClassConstructor<any>
+  cached?: { key: string; ttl: number } | boolean
 }
 
-export interface IResponseListOptions<T> extends Omit<IResponseOptions<T>, 'dto'> {
-  dto: ClassConstructor<T>
+export interface IResponseDataOptions extends IResponseOptions {
+  data: {
+    type: ClassConstructor<any>
+    interceptor: Type<NestInterceptor>
+  }
 }
 
-export interface IResponsePagingOptions<T> extends IResponseListOptions<T> {
-  dto: ClassConstructor<T>
+export interface IResponseListOptions extends IResponseOptions {
+  exportable: boolean
+  exportFile?: {
+    prefix?: string
+    password?: string
+  }
+  data: {
+    list: boolean
+    type: ClassConstructor<any>
+    interceptor: Type<NestInterceptor>
+  }
 }
 
-export interface IResponseFileOptions<T> extends Omit<IResponseOptions<T>, 'dto'> {
-  type: ENUM_FILE_MIME
-  prefix?: string
-  disposition?: 'attachment' | 'inline'
-  password?: string
+export interface IResponseFileOptions extends Omit<IResponseOptions, 'serializer' | 'cached'> {
+  disposition: ENUM_FILE_DISPOSITION
+  type?: ENUM_FILE_MIME
+  file: {
+    interceptor?: Type<NestInterceptor>
+  }
 }
 
-export interface IResponseFileExcelOptions<T> extends IResponseFileOptions<T> {
-  serializer?: ClassConstructor<T>[]
-  password?: string
-}
-
-// Response
 export interface IResponseData<T = Record<string, any>> {
   _metadata?: IResponseMetadata
   data: T

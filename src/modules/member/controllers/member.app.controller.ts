@@ -29,6 +29,8 @@ export class MemberAppController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {
@@ -50,6 +52,8 @@ export class MemberAppController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {
@@ -75,6 +79,8 @@ export class MemberAppController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {
@@ -97,6 +103,8 @@ export class MemberAppController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     file: {
       single: {
         field: 'avatar',
@@ -131,6 +139,8 @@ export class MemberAppController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {

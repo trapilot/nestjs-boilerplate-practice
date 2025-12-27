@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { ENUM_MEDIA_TYPE } from '@prisma/client'
+import { ENUM_MEDIA_TYPE } from '@runtime/prisma-client'
 import {
   IsBoolean,
   IsEnum,

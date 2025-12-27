@@ -1,11 +1,5 @@
 import { registerAs } from '@nestjs/config'
-import {
-  APP_LANGUAGE,
-  APP_TIMEZONE,
-  APP_VERSION_NUMBER,
-  APP_VERSION_PREFIX,
-  COUNTRY_LIST,
-} from 'lib/nest-core'
+import { APP_LANGUAGE, APP_START, APP_TIMEZONE, COUNTRY_LIST } from 'lib/nest-core'
 
 export default registerAs(
   'app',
@@ -17,8 +11,7 @@ export default registerAs(
     version: '0.0.1',
     timezone: APP_TIMEZONE,
     language: APP_LANGUAGE,
-    globalPrefix: '/api',
-    startDate: '2025-01-01T00:00:00Z',
+    startDate: APP_START,
 
     country: {
       availableList: COUNTRY_LIST,
@@ -39,13 +32,14 @@ export default registerAs(
     },
 
     urlVersion: {
-      prefix: APP_VERSION_PREFIX,
-      version: APP_VERSION_NUMBER,
+      prefix: 'v',
+      version: '1',
     },
 
     http: {
       host: process.env.HTTP_HOST ?? 'localhost',
       port: Number.parseInt(process.env.HTTP_PORT ?? '3000'),
+      prefix: process.env.HTTP_PREFIX ?? 'api',
     },
 
     wssEnable: process.env.WSS_ENABLE === 'true',

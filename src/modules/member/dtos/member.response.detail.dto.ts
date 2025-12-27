@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { ENUM_MEMBER_TYPE } from '@prisma/client'
+import { ENUM_MEMBER_TYPE } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
 import { ENUM_AUTH_LOGIN_FROM } from 'lib/nest-auth'
 import { APP_LANGUAGE, ENUM_DATE_FORMAT, ToDate, ToDecimal, ToUrl } from 'lib/nest-core'

@@ -1,7 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client/extension'
 import { PrismaReplicaManager } from '../bases'
 import { PrismaContext } from '../helpers'
-import { IPrismaReplicaOptions } from '../interfaces'
 
 const readOperations = [
   'findFirst',
@@ -16,9 +15,9 @@ const readOperations = [
   'aggregateRaw',
 ]
 
-export const withReplica = (options: IPrismaReplicaOptions) =>
+export const withReplica = (clients: PrismaClient[]) =>
   Prisma.defineExtension((client: PrismaClient) => {
-    const replicaManager = new PrismaReplicaManager(options)
+    const replicaManager = new PrismaReplicaManager(clients)
 
     return client.$extends({
       client: {

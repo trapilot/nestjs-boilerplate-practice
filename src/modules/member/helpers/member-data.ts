@@ -1,4 +1,4 @@
-import { Member, MemberTierHistory, Prisma } from '@prisma/client'
+import { Member, MemberTierHistory, Prisma } from '@runtime/prisma-client'
 
 export class MemberData {
   public readonly id: number

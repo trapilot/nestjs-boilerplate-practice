@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import {
   ApiRequestList,
@@ -22,7 +22,11 @@ export class ProductCategoryAppController {
   @ApiRequestList({
     summary: PRODUCT_CATEGORY_DOC_OPERATION,
     queries: PRODUCT_CATEGORY_DOC_APP_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
     docExclude: true,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {

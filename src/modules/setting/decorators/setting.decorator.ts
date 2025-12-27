@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common'
-import { Setting } from '@prisma/client'
+import { Setting } from '@runtime/prisma-client'
 import { IRequestApp } from 'lib/nest-core'
 
 export const GetSetting = createParamDecorator(<T>(data: string, context: ExecutionContext): T => {

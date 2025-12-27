@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-expressions */
 import { Logger, RequestMethod, VersioningType } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { NestApplication, NestFactory } from '@nestjs/core'
@@ -8,9 +7,8 @@ import { CliModule } from 'app/cli.module'
 import { plainToInstance } from 'class-transformer'
 import { useContainer, validate } from 'class-validator'
 import compression from 'compression'
-import { INextFunction, IRequestApp, IResponseApp, MessageService, ROOT_PATH } from 'lib/nest-core'
+import { FileUtil, INextFunction, IRequestApp, IResponseApp, MessageService } from 'lib/nest-core'
 import { CommandFactory } from 'nest-commander'
-import { join } from 'path'
 import { AppEnvDto } from 'shared/dtos'
 import docSetup from 'src/swagger'
 
@@ -23,16 +21,16 @@ async function bootstrap() {
   })
 
   const config = app.get(ConfigService)
-  const env: string = config.get<string>('app.env')
-  const host: string = config.get<string>('app.http.host', 'localhost')
-  const port: number = config.get<number>('app.http.port', 3000)
-  const timezone: string = config.get<string>('app.timezone')
-  const globalPrefix: string = config.get<string>('app.globalPrefix')
-  const versioningPrefix: string = config.get<string>('app.urlVersion.prefix')
+  const appEnv: string = config.get<string>('app.env')
+  const appHost: string = config.get<string>('app.http.host', 'localhost')
+  const appPort: number = config.get<number>('app.http.port', 3000)
+  const appPrefix: string = config.get<string>('app.http.prefix', 'api')
+  const appTz: string = config.get<string>('app.timezone')
+  const urlVersionPrefix: string = config.get<string>('app.urlVersion.prefix')
 
   // Override Env
-  process.env.NODE_ENV = env
-  process.env.TZ = timezone
+  process.env.NODE_ENV = appEnv
+  process.env.TZ = appTz
 
   // Logger
   const logger = new Logger()
@@ -41,7 +39,7 @@ async function bootstrap() {
   app.use(compression())
 
   // Global
-  app.setGlobalPrefix(globalPrefix, {
+  app.setGlobalPrefix(`/${appPrefix}`, {
     exclude: [
       { path: '^admin/*splat', method: RequestMethod.ALL },
       { path: '^health/*splat', method: RequestMethod.ALL },
@@ -55,8 +53,8 @@ async function bootstrap() {
   })
 
   // Static
-  app.useStaticAssets(join(ROOT_PATH, 'public'), { prefix: '/public/' })
-  app.useStaticAssets(join(ROOT_PATH, 'public', 'static'), { prefix: '/interact/' })
+  app.useStaticAssets(FileUtil.joinRoot(['public']), { prefix: '/public/' })
+  app.useStaticAssets(FileUtil.joinRoot(['public', 'static']), { prefix: '/interact/' })
 
   // Starts listening for shutdown hooks
   app.enableShutdownHooks()
@@ -64,7 +62,7 @@ async function bootstrap() {
   // Versioning
   app.enableVersioning({
     type: VersioningType.URI,
-    prefix: versioningPrefix,
+    prefix: urlVersionPrefix,
   })
 
   // Validate Env
@@ -102,11 +100,11 @@ async function bootstrap() {
   })
 
   // Listen
-  await app.listen(port, host)
+  await app.listen(appPort, appHost)
 
   logger.log(`==========================================================`)
 
-  logger.log(`App is running on ${env.toUpperCase()} mode`)
+  logger.log(`App is running on ${appEnv.toUpperCase()} mode`)
   logger.log(`Http Server running on ${await app.getUrl()}`)
 
   logger.log(`==========================================================`)

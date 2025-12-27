@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'async_hooks'
-import { APP_LANGUAGE, APP_TIMEZONE, APP_VERSION_NUMBER } from '../constants'
+import { APP_LANGUAGE, APP_TIMEZONE } from '../constants'
 import { ENUM_APP_API_TYPE } from '../enums'
 import { IRequestContext } from '../interfaces'
 
@@ -39,7 +39,7 @@ export class AppContext {
   }
 
   static apiVersion(): string {
-    return this.current()?.apiVersion ?? APP_VERSION_NUMBER
+    return this.current()?.apiVersion ?? '1'
   }
 
   static isAdminRequest(): boolean {

@@ -1,3 +1,4 @@
+export * from './cache.service'
 export * from './crypto.service'
 export * from './file.service'
 export * from './helper.service'

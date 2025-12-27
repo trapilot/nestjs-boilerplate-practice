@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
 import {
@@ -34,6 +34,11 @@ export class FactAdminController {
   @ApiRequestPaging({
     summary: FACT_DOC_OPERATION,
     queries: FACT_DOC_ADMIN_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -49,7 +54,6 @@ export class FactAdminController {
     },
     response: {
       dto: FactResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -82,6 +86,8 @@ export class FactAdminController {
 
   @ApiRequestData({
     summary: FACT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -97,7 +103,6 @@ export class FactAdminController {
     },
     response: {
       dto: FactResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -112,9 +117,10 @@ export class FactAdminController {
   }
 
   @ApiRequestData({
-    docExclude: true,
-    deprecated: true,
     summary: FACT_DOC_OPERATION,
+    deprecated: true,
+    docExclude: true,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -131,7 +137,6 @@ export class FactAdminController {
     },
     response: {
       dto: FactResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/')
@@ -148,6 +153,8 @@ export class FactAdminController {
 
   @ApiRequestData({
     summary: FACT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -164,7 +171,6 @@ export class FactAdminController {
     },
     response: {
       dto: FactResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -182,9 +188,10 @@ export class FactAdminController {
   }
 
   @ApiRequestData({
-    docExclude: true,
-    deprecated: true,
     summary: FACT_DOC_OPERATION,
+    deprecated: true,
+    docExclude: true,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -208,6 +215,8 @@ export class FactAdminController {
 
   @ApiRequestData({
     summary: FACT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -224,7 +233,6 @@ export class FactAdminController {
     },
     response: {
       dto: FactResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id/active')
@@ -242,6 +250,8 @@ export class FactAdminController {
 
   @ApiRequestData({
     summary: FACT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -258,7 +268,6 @@ export class FactAdminController {
     },
     response: {
       dto: FactResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id/inactive')

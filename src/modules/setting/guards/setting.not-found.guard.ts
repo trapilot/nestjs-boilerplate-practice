@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
-import { Setting } from '@prisma/client'
+import { Setting } from '@runtime/prisma-client'
 import { IRequestApp } from 'lib/nest-core'
 
 @Injectable()

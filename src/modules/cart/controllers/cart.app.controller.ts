@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { ENUM_ORDER_SOURCE } from '@prisma/client'
+import { ENUM_ORDER_SOURCE } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import {
   ApiRequestData,
@@ -25,6 +25,8 @@ export class CartAppController {
 
   @ApiRequestData({
     summary: CART_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {
@@ -44,6 +46,8 @@ export class CartAppController {
 
   @ApiRequestData({
     summary: CART_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     cartVersion: true,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
@@ -76,6 +80,8 @@ export class CartAppController {
 
   @ApiRequestData({
     summary: CART_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     cartVersion: true,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
@@ -106,6 +112,8 @@ export class CartAppController {
 
   @ApiRequestData({
     summary: CART_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     cartVersion: true,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
@@ -133,6 +141,8 @@ export class CartAppController {
 
   @ApiRequestData({
     summary: CART_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     cartVersion: true,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,

@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common'
-import { ENUM_INVOICE_STATUS } from '@prisma/client'
+import { ENUM_INVOICE_STATUS } from '@runtime/prisma-client'
 import { HelperService } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { TDashboard } from '../interfaces'

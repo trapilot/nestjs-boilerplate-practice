@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
 import {
@@ -35,6 +35,10 @@ export class InvoiceAdminController {
     summary: INVOICE_DOC_OPERATION,
     queries: INVOICE_DOC_ADMIN_QUERY_LIST,
     sortable: true,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -50,7 +54,6 @@ export class InvoiceAdminController {
     },
     response: {
       dto: InvoiceResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -81,7 +84,11 @@ export class InvoiceAdminController {
   @ApiRequestList({
     summary: INVOICE_DOC_OPERATION,
     queries: INVOICE_DOC_ADMIN_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
     docExclude: true,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -91,7 +98,6 @@ export class InvoiceAdminController {
     },
     response: {
       dto: InvoiceResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -117,6 +123,8 @@ export class InvoiceAdminController {
 
   @ApiRequestData({
     summary: INVOICE_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -132,7 +140,6 @@ export class InvoiceAdminController {
     },
     response: {
       dto: InvoiceResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -151,6 +158,8 @@ export class InvoiceAdminController {
 
   @ApiRequestData({
     summary: INVOICE_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -167,7 +176,6 @@ export class InvoiceAdminController {
     },
     response: {
       dto: InvoiceResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/')
@@ -181,6 +189,8 @@ export class InvoiceAdminController {
 
   @ApiRequestData({
     summary: INVOICE_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -197,7 +207,6 @@ export class InvoiceAdminController {
     },
     response: {
       dto: InvoiceResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -214,6 +223,8 @@ export class InvoiceAdminController {
 
   @ApiRequestData({
     summary: INVOICE_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {

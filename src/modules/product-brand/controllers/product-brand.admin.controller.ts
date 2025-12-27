@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
 import {
@@ -35,6 +35,10 @@ export class ProductBrandAdminController {
     summary: PRODUCT_BRAND_DOC_OPERATION,
     queries: PRODUCT_BRAND_DOC_ADMIN_QUERY_LIST,
     sortable: true,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -50,7 +54,6 @@ export class ProductBrandAdminController {
     },
     response: {
       dto: ProductBrandResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -76,7 +79,11 @@ export class ProductBrandAdminController {
   @ApiRequestList({
     summary: PRODUCT_BRAND_DOC_OPERATION,
     queries: PRODUCT_BRAND_DOC_ADMIN_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
     docExclude: true,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -86,7 +93,6 @@ export class ProductBrandAdminController {
     },
     response: {
       dto: ProductBrandResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -113,6 +119,8 @@ export class ProductBrandAdminController {
 
   @ApiRequestData({
     summary: PRODUCT_BRAND_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -128,7 +136,6 @@ export class ProductBrandAdminController {
     },
     response: {
       dto: ProductBrandResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -142,6 +149,8 @@ export class ProductBrandAdminController {
 
   @ApiRequestData({
     summary: PRODUCT_BRAND_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -158,7 +167,6 @@ export class ProductBrandAdminController {
     },
     response: {
       dto: ProductBrandResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/')
@@ -172,6 +180,8 @@ export class ProductBrandAdminController {
 
   @ApiRequestData({
     summary: PRODUCT_BRAND_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -188,7 +198,6 @@ export class ProductBrandAdminController {
     },
     response: {
       dto: ProductBrandResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -205,6 +214,8 @@ export class ProductBrandAdminController {
 
   @ApiRequestData({
     summary: PRODUCT_BRAND_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {

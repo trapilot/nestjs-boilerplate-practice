@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
 import { PrismaUtil } from 'lib/nest-prisma'
@@ -35,6 +35,11 @@ export class TierAdminController {
   @ApiRequestPaging({
     summary: TIER_DOC_OPERATION,
     queries: TIER_DOC_ADMIN_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -50,7 +55,6 @@ export class TierAdminController {
     },
     response: {
       dto: TierResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -76,6 +80,11 @@ export class TierAdminController {
   @ApiRequestList({
     summary: TIER_DOC_OPERATION,
     queries: TIER_DOC_ADMIN_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -85,7 +94,6 @@ export class TierAdminController {
     },
     response: {
       dto: TierResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -113,6 +121,8 @@ export class TierAdminController {
 
   @ApiRequestData({
     summary: TIER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -128,7 +138,6 @@ export class TierAdminController {
     },
     response: {
       dto: TierResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -148,6 +157,7 @@ export class TierAdminController {
   @ApiRequestData({
     summary: TIER_DOC_OPERATION,
     docExclude: true,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -164,7 +174,6 @@ export class TierAdminController {
     },
     response: {
       dto: TierResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/')
@@ -184,6 +193,8 @@ export class TierAdminController {
 
   @ApiRequestData({
     summary: TIER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -200,7 +211,6 @@ export class TierAdminController {
     },
     response: {
       dto: TierResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -228,6 +238,7 @@ export class TierAdminController {
   @ApiRequestData({
     summary: TIER_DOC_OPERATION,
     docExclude: true,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {

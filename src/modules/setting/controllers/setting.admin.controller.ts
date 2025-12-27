@@ -1,6 +1,6 @@
 import { BadRequestException, Controller, Get, HttpStatus, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma, Setting } from '@prisma/client'
+import { Prisma, Setting } from '@runtime/prisma-client'
 import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { CryptoService, FILE_SIZE_IN_BYTES, MessageService } from 'lib/nest-core'
 import {
@@ -46,9 +46,10 @@ export class SettingAdminController {
 
   @ApiRequestData({
     summary: SETTING_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     response: {
       dto: SettingCoreResponseDto,
-      docExpansion: true,
     },
   })
   @Get('core')
@@ -82,6 +83,8 @@ export class SettingAdminController {
 
   @ApiRequestData({
     summary: SETTING_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
   })
   @Get('clean')
   async clean(): Promise<boolean> {
@@ -91,6 +94,11 @@ export class SettingAdminController {
   @ApiRequestList({
     summary: SETTING_DOC_OPERATION,
     queries: SETTING_DOC_REQUEST_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -106,7 +114,6 @@ export class SettingAdminController {
     },
     response: {
       dto: SettingResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -124,6 +131,8 @@ export class SettingAdminController {
   @ApiRequestData({
     summary: SETTING_DOC_OPERATION,
     params: SETTING_DOC_REQUEST_PARAMS,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -139,7 +148,6 @@ export class SettingAdminController {
     },
     response: {
       dto: SettingResponseDetailDto,
-      docExpansion: true,
     },
   })
   @SettingAdminUpdateGuard()
@@ -152,6 +160,8 @@ export class SettingAdminController {
   @ApiRequestData({
     summary: SETTING_DOC_OPERATION,
     params: SETTING_DOC_REQUEST_PARAMS,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -168,7 +178,6 @@ export class SettingAdminController {
     },
     response: {
       dto: SettingResponseDetailDto,
-      docExpansion: true,
     },
   })
   @SettingAdminUpdateGuard()

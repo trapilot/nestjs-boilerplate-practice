@@ -1,8 +1,8 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
-import { Prisma, Setting } from '@prisma/client'
-import { APP_TIMEZONE, HelperService, RealtimeService } from 'lib/nest-core'
+import { Prisma, Setting } from '@runtime/prisma-client'
+import { APP_TIMEZONE, CacheService, HelperService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { ENUM_SETTING_TYPE } from '../enums'
@@ -16,7 +16,7 @@ export class SettingService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-    private readonly realtimeService: RealtimeService,
+    private readonly cacheService: CacheService,
     private readonly helperService: HelperService,
   ) {
     const dateNow = this.helperService.dateCreate()
@@ -34,7 +34,7 @@ export class SettingService {
 
       for (const setting of cacheSettings) {
         const key = this.createKey(setting.code)
-        await this.realtimeService.cacheDel(key)
+        await this.cacheService.del(key)
       }
     } catch {}
     return true
@@ -162,7 +162,7 @@ export class SettingService {
 
   private async getInstance<T>(data: Prisma.SettingUncheckedCreateInput): Promise<T> {
     const cacheKey = this.createKey(data.code)
-    let cacheValue = await this.realtimeService.cacheGet<string>(cacheKey)
+    let cacheValue = await this.cacheService.get<string>(cacheKey)
 
     if (cacheValue == undefined) {
       const setting =
@@ -171,14 +171,14 @@ export class SettingService {
 
       cacheValue = JSON.stringify(setting)
 
-      await this.realtimeService.cacheSet(cacheKey, cacheValue, 86400)
+      await this.cacheService.set(cacheKey, cacheValue, 86400)
     }
     return JSON.parse(cacheValue) as T
   }
 
   private async getFromCache<T>(data: Prisma.SettingUncheckedCreateInput): Promise<T> {
     const cacheKey = this.createKey(data.code)
-    let cacheValue = await this.realtimeService.cacheGet(cacheKey)
+    let cacheValue = await this.cacheService.get(cacheKey)
 
     if (cacheValue == undefined) {
       const setting =
@@ -187,7 +187,7 @@ export class SettingService {
 
       cacheValue = this.getValue(setting)
 
-      await this.realtimeService.cacheSet(cacheKey, cacheValue, 86400)
+      await this.cacheService.set(cacheKey, cacheValue, 86400)
     }
     return cacheValue as T
   }
@@ -214,7 +214,7 @@ export class SettingService {
 
   private async removeCache(code: string): Promise<boolean> {
     try {
-      await this.realtimeService.cacheDel(this.createKey(code))
+      await this.cacheService.del(this.createKey(code))
     } catch (_err: unknown) {}
     return true
   }

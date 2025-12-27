@@ -11,7 +11,7 @@ import { ConfigService } from '@nestjs/config'
 import { ModuleRef } from '@nestjs/core'
 import { EventEmitter2 } from '@nestjs/event-emitter'
 import { Cron, CronExpression } from '@nestjs/schedule'
-import { ENUM_MEMBER_TYPE, ENUM_VERIFICATION_CHANNEL, Prisma } from '@prisma/client'
+import { ENUM_MEMBER_TYPE, ENUM_VERIFICATION_CHANNEL, Prisma } from '@runtime/prisma-client'
 import { plainToInstance } from 'class-transformer'
 import {
   AuthJwtAccessPayloadDto,

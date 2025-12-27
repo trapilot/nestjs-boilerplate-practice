@@ -98,7 +98,7 @@ export class LoggerService implements NestLoggerService {
   }
 
   setContext(value: string) {
-    this.contextValue = value
+    this.contextValue = value.toLowerCase()
   }
 
   assign(fields: pino.Bindings) {

@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, AuthService, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL, IFile } from 'lib/nest-core'
 import {
@@ -50,6 +50,10 @@ export class MemberAdminController {
     summary: MEMBER_DOC_OPERATION,
     queries: MEMBER_DOC_ADMIN_QUERY_LIST,
     sortable: true,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -65,7 +69,6 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -110,6 +113,11 @@ export class MemberAdminController {
 
   @ApiRequestList({
     summary: MEMBER_DOC_OPERATION,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -119,7 +127,6 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -149,6 +156,8 @@ export class MemberAdminController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -164,7 +173,6 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -185,6 +193,8 @@ export class MemberAdminController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     file: {
       single: {
         field: 'avatar',
@@ -207,7 +217,6 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/')
@@ -229,6 +238,8 @@ export class MemberAdminController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -245,7 +256,6 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -269,6 +279,8 @@ export class MemberAdminController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -285,7 +297,6 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id/inactive')
@@ -296,6 +307,8 @@ export class MemberAdminController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -312,7 +325,6 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id/active')
@@ -323,6 +335,8 @@ export class MemberAdminController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     file: {
       single: {
         field: 'avatar',
@@ -345,7 +359,6 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id/change-avatar')
@@ -372,6 +385,8 @@ export class MemberAdminController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -388,7 +403,6 @@ export class MemberAdminController {
     },
     response: {
       dto: MemberResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/:id/points')

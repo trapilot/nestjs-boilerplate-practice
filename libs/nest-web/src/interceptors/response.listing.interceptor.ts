@@ -15,6 +15,7 @@ import {
   MetadataUtil,
   ResponseListingMetadataDto,
   ResponseSuccessDto,
+  StrUtil,
 } from 'lib/nest-core'
 import { Observable, throwError } from 'rxjs'
 import { catchError, mergeMap } from 'rxjs/operators'
@@ -189,6 +190,8 @@ export class ResponseListingInterceptor<T> implements NestInterceptor<T, IRespon
     // Process each data item in the iterator stream
     for await (const records of iterator) {
       for (let data of records) {
+        if (rowIndex > 0 && sheetHeaders.length === 0) break
+
         if (dtoClass) {
           const dtoSerializeData = { ...serializeMetadata, ...data }
           data = plainToInstance(dtoClass, dtoSerializeData, dtoSerializeOptions)
@@ -199,37 +202,44 @@ export class ResponseListingInterceptor<T> implements NestInterceptor<T, IRespon
             .filter((field) => data[field] !== undefined)
             .filter((field) => exportProperties.has(field) || userKeys.includes(field))
 
-          sheetHeaders = sheetFields.map((field) => {
-            const { message, domain } = exportProperties.get(field) || {}
-            if (message) {
-              return this.messageService.setMessage(`${message}`)
-            }
-            if (domain) {
-              return this.messageService.setMessage(['export', domain, field].join('.'))
-            }
-            return field
-              .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-              .replace(/^./, (c: string) => c.toUpperCase())
-          })
+          if (sheetHeaders.length === 0) {
+            sheetHeaders = sheetFields.map((field) => {
+              const { header } = exportProperties.get(field)
+              if (header) {
+                return this.messageService.setMessage(header)
+              }
+              return StrUtil.capitalize(field, { splitWords: true })
+            })
+          }
+
+          if (sheetHeaders.length === 0) {
+            console.warn(
+              `${dtoClass.name} does not exists exportable properties. Please add Exportable decorator`,
+            )
+          }
         }
 
-        if (rowIndex % sheetSize === 0) {
+        // add new work sheet
+        if (sheetHeaders.length && rowIndex % sheetSize === 0) {
           worksheet?.commit()
           worksheet = workbook.addWorksheet(`Sheet ${sheetIndex++}`)
           worksheet!.addRow(sheetHeaders).commit()
         }
 
-        const sheetRow = []
-        for (const field of sheetFields) {
-          if (userKeys.includes(field)) {
-            const userData = data[field]?.name ?? data[field]
-            sheetRow.push(userData || undefined)
-          } else {
-            sheetRow.push(data[field])
+        // add new sheet row
+        if (sheetFields.length) {
+          const sheetRow = []
+          for (const field of sheetFields) {
+            if (userKeys.includes(field)) {
+              const userData = data[field]?.name ?? data[field]
+              sheetRow.push(userData || undefined)
+            } else {
+              sheetRow.push(data[field])
+            }
           }
+          worksheet!.addRow(sheetRow).commit()
         }
 
-        worksheet!.addRow(sheetRow).commit()
         rowIndex++
       }
     }

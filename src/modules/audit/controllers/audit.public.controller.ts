@@ -14,6 +14,7 @@ export class AuditPublicController {
   @ApiRequestData({
     summary: AUDIT_DOC_OPERATION,
     docExclude: true,
+    docExpansion: false,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
       long: { limit: 100, seconds: 60 },

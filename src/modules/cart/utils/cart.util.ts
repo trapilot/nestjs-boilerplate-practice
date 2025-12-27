@@ -1,4 +1,4 @@
-import { CartItem } from '@prisma/client'
+import { CartItem } from '@runtime/prisma-client'
 
 export class CartUtil {
   static recalculate(item: CartItem, quantity: number): CartItem {

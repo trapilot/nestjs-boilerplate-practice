@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import {
   ApiRequestData,
@@ -33,6 +33,11 @@ export class PermissionAdminController {
   @ApiRequestList({
     summary: PERMISSION_DOC_OPERATION,
     queries: PERMISSION_DOC_ADMIN_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -48,7 +53,6 @@ export class PermissionAdminController {
     },
     response: {
       dto: PermissionResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -72,6 +76,8 @@ export class PermissionAdminController {
 
   @ApiRequestData({
     summary: PERMISSION_DOC_OPERATION,
+    docExclude: true,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -86,10 +92,8 @@ export class PermissionAdminController {
         ],
       },
     },
-    docExclude: true,
     response: {
       dto: PermissionResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -113,6 +117,8 @@ export class PermissionAdminController {
 
   @ApiRequestData({
     summary: PERMISSION_DOC_OPERATION,
+    docExclude: true,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -127,10 +133,8 @@ export class PermissionAdminController {
         ],
       },
     },
-    docExclude: true,
     response: {
       dto: PermissionResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/')

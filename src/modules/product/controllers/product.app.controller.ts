@@ -1,6 +1,6 @@
 import { Controller, Get, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import {
   ApiRequestData,
@@ -25,6 +25,10 @@ export class ProductAppController {
     summary: PRODUCT_DOC_OPERATION,
     queries: PRODUCT_DOC_APP_QUERY_LIST,
     sortable: true,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {
@@ -74,6 +78,8 @@ export class ProductAppController {
 
   @ApiRequestData({
     summary: PRODUCT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {
@@ -109,6 +115,8 @@ export class ProductAppController {
 
   @ApiRequestData({
     summary: PRODUCT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {

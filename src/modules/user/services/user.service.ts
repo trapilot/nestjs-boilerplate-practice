@@ -6,7 +6,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { ENUM_AUTH_SIGN_UP_FROM, IAuthPassword } from 'lib/nest-auth'
 import { FileService, HelperService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'

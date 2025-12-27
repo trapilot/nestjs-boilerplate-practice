@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { ApiRequestList, IResponseList, RequestListDto, RequestQueryList } from 'lib/nest-web'
 import { DISTRICT_DOC_OPERATION } from '../constants'
 import { DistrictResponseListDto } from '../dtos'
@@ -13,6 +13,11 @@ export class DistrictAppController {
 
   @ApiRequestList({
     summary: DISTRICT_DOC_OPERATION,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     response: {
       dto: DistrictResponseListDto,
     },

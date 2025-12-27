@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import { join } from 'path'
-import { APP_PATH, FILE_MIME_TYPE } from '../constants'
+import { APP_PATH, FILE_MIME_TYPE, ROOT_PATH } from '../constants'
 import { ENUM_FILE_MIME } from '../enums'
 import { IFile } from '../interfaces'
 
@@ -12,7 +12,19 @@ export class FileUtil {
     return [name, timestamp].filter((i) => i.length).join('_') + ext
   }
 
-  public static parseExtension(fileName: string, def: string = ''): string {
+  static join(args: string[]): string {
+    return join(...args)
+  }
+
+  static joinRoot(args: string[]): string {
+    return join(ROOT_PATH, ...args)
+  }
+
+  static joinApp(args: string[]): string {
+    return join(APP_PATH, ...args)
+  }
+
+  static parseExtension(fileName: string, def: string = ''): string {
     const lastDotIndex = fileName.lastIndexOf('.')
     if (lastDotIndex === -1 || lastDotIndex === 0) {
       return def

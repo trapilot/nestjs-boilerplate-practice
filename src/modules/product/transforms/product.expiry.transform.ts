@@ -1,4 +1,4 @@
-import { ENUM_PRODUCT_EXPIRY } from '@prisma/client'
+import { ENUM_PRODUCT_EXPIRY } from '@runtime/prisma-client'
 import { Transform } from 'class-transformer'
 import { DateUtil, IDateRequestOptions } from 'lib/nest-core'
 

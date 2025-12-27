@@ -1,5 +1,5 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger'
-import { ENUM_NOTIFICATION_CHANNEL, ENUM_NOTIFICATION_TYPE } from '@prisma/client'
+import { ENUM_NOTIFICATION_CHANNEL, ENUM_NOTIFICATION_TYPE } from '@runtime/prisma-client'
 import {
   IsArray,
   IsBoolean,

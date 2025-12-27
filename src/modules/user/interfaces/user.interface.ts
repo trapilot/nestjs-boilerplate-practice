@@ -1,4 +1,4 @@
-import { Role, User, UserLoginHistory, UsersRoles, UserTokenHistory } from '@prisma/client'
+import { Role, User, UserLoginHistory, UsersRoles, UserTokenHistory } from '@runtime/prisma-client'
 
 export type TUserTokenHistory = UserTokenHistory
 export type TUserLoginHistory = UserLoginHistory

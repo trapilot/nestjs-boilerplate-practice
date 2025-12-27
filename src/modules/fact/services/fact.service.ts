@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
-import { Fact, Prisma } from '@prisma/client'
+import { Fact, Prisma } from '@runtime/prisma-client'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { ENUM_FACT_TYPE } from '../enums'

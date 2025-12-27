@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
 import {
@@ -35,6 +35,10 @@ export class DistrictAdminController {
     summary: DISTRICT_DOC_OPERATION,
     queries: DISTRICT_DOC_ADMIN_QUERY_LIST,
     sortable: true,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -50,7 +54,6 @@ export class DistrictAdminController {
     },
     response: {
       dto: DistrictResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -77,6 +80,11 @@ export class DistrictAdminController {
   @ApiRequestList({
     summary: DISTRICT_DOC_OPERATION,
     queries: DISTRICT_DOC_ADMIN_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -86,7 +94,6 @@ export class DistrictAdminController {
     },
     response: {
       dto: DistrictResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -114,6 +121,8 @@ export class DistrictAdminController {
 
   @ApiRequestData({
     summary: DISTRICT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -129,7 +138,6 @@ export class DistrictAdminController {
     },
     response: {
       dto: DistrictResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -143,6 +151,8 @@ export class DistrictAdminController {
 
   @ApiRequestData({
     summary: DISTRICT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -159,7 +169,6 @@ export class DistrictAdminController {
     },
     response: {
       dto: DistrictResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/')
@@ -173,6 +182,8 @@ export class DistrictAdminController {
 
   @ApiRequestData({
     summary: DISTRICT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -189,7 +200,6 @@ export class DistrictAdminController {
     },
     response: {
       dto: DistrictResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -206,6 +216,8 @@ export class DistrictAdminController {
 
   @ApiRequestData({
     summary: DISTRICT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {

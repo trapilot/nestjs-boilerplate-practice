@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ApiRequestList, IResponseList, RequestListDto, RequestQueryList } from 'lib/nest-web'
 import { APP_VERSION_DOC_APP_QUERY_LIST, APP_VERSION_DOC_OPERATION } from '../constants'
@@ -15,7 +15,11 @@ export class AppVersionAppController {
   @ApiRequestList({
     summary: APP_VERSION_DOC_OPERATION,
     queries: APP_VERSION_DOC_APP_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
     docExclude: true,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {

@@ -8,7 +8,7 @@ import {
   UploadedFile,
 } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, AuthService, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import {
   ENUM_FILE_MIME,
@@ -64,6 +64,10 @@ export class UserAdminController {
     summary: USER_DOC_OPERATION,
     queries: USER_DOC_ADMIN_QUERY_LIST,
     sortable: true,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -79,7 +83,6 @@ export class UserAdminController {
     },
     response: {
       dto: UserResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -122,6 +125,8 @@ export class UserAdminController {
 
   @ApiRequestData({
     summary: USER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -137,7 +142,6 @@ export class UserAdminController {
     },
     response: {
       dto: UserResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -158,6 +162,11 @@ export class UserAdminController {
 
   @ApiRequestList({
     summary: USER_DOC_OPERATION,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -173,7 +182,6 @@ export class UserAdminController {
     },
     response: {
       dto: UserResponseLoginHistoryDto,
-      docExpansion: true,
     },
   })
   @Get('/:id/login-histories')
@@ -209,6 +217,8 @@ export class UserAdminController {
 
   @ApiRequestData({
     summary: USER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     file: {
       single: {
         field: 'avatar',
@@ -232,7 +242,6 @@ export class UserAdminController {
     },
     response: {
       dto: UserResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/')
@@ -258,6 +267,8 @@ export class UserAdminController {
 
   @ApiRequestData({
     summary: USER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -274,7 +285,6 @@ export class UserAdminController {
     },
     response: {
       dto: UserResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -319,6 +329,8 @@ export class UserAdminController {
 
   @ApiRequestData({
     summary: USER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     file: {
       single: {
         field: 'avatar',
@@ -342,7 +354,6 @@ export class UserAdminController {
     },
     response: {
       dto: UserResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id/change-avatar')

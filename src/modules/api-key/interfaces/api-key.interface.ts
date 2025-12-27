@@ -1,3 +1,3 @@
-import { ApiKey } from '@prisma/client'
+import { ApiKey } from '@runtime/prisma-client'
 
 export interface TApiKey extends ApiKey {}

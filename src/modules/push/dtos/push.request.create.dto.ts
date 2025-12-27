@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
-import { ENUM_PUSH_TYPE } from '@prisma/client'
+import { ENUM_PUSH_TYPE } from '@runtime/prisma-client'
 import { IsBoolean, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator'
 import {
   ENUM_DATE_FORMAT,

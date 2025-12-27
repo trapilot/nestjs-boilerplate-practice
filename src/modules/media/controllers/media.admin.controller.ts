@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Post, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL, IFile } from 'lib/nest-core'
 import {
@@ -42,6 +42,10 @@ export class MediaAdminController {
     summary: MEDIA_DOC_OPERATION,
     queries: MEDIA_DOC_ADMIN_QUERY_LIST,
     sortable: true,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -57,7 +61,6 @@ export class MediaAdminController {
     },
     response: {
       dto: MediaResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -83,7 +86,11 @@ export class MediaAdminController {
   @ApiRequestList({
     summary: MEDIA_DOC_OPERATION,
     queries: MEDIA_DOC_ADMIN_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
     docExclude: true,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -93,7 +100,6 @@ export class MediaAdminController {
     },
     response: {
       dto: MediaResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -119,6 +125,8 @@ export class MediaAdminController {
 
   @ApiRequestData({
     summary: MEDIA_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -134,7 +142,6 @@ export class MediaAdminController {
     },
     response: {
       dto: MediaResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -148,6 +155,8 @@ export class MediaAdminController {
 
   @ApiRequestData({
     summary: MEDIA_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     file: {
       single: {
         field: 'url',
@@ -170,7 +179,6 @@ export class MediaAdminController {
     },
     response: {
       dto: MediaResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/')
@@ -192,6 +200,8 @@ export class MediaAdminController {
 
   @ApiRequestData({
     summary: MEDIA_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -208,7 +218,6 @@ export class MediaAdminController {
     },
     response: {
       dto: MediaResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -225,6 +234,8 @@ export class MediaAdminController {
 
   @ApiRequestData({
     summary: MEDIA_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {

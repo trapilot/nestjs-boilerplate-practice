@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
-import { ENUM_API_KEY_TYPE } from '@prisma/client'
+import { ENUM_API_KEY_TYPE } from '@runtime/prisma-client'
 import { IsDate, IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator'
 import { DateUtil, ToDate, ToString } from 'lib/nest-core'
 import { DateGreaterThanEqual, PropertyGreaterThan } from 'lib/nest-web'

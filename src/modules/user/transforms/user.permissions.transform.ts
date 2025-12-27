@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer'
-import { ArrayUtil, LocaleUtil } from 'lib/nest-core'
+import { ArrUtil, LocaleUtil } from 'lib/nest-core'
 import { UserAbilityUtil } from 'shared/helpers'
 import {
   IContextUserPermission,
@@ -57,10 +57,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
           (data) => data.subject === subject,
         )
         if (exist) {
-          exist.actions = ArrayUtil.unique([
-            ...exist.actions,
-            ...UserAbilityUtil.toActions(bitwise),
-          ])
+          exist.actions = ArrUtil.unique([...exist.actions, ...UserAbilityUtil.toActions(bitwise)])
         } else {
           grpContextPermission[context].subjects.push({
             title,

@@ -1,5 +1,11 @@
 import { PipeTransform, Type } from '@nestjs/common'
-import { ApiHeaderOptions, ApiParamOptions, ApiQueryOptions } from '@nestjs/swagger'
+import {
+  ApiBodyOptions,
+  ApiHeaderOptions,
+  ApiOperationOptions,
+  ApiParamOptions,
+  ApiQueryOptions,
+} from '@nestjs/swagger'
 import { ClassConstructor } from 'class-transformer'
 import { ENUM_AUTH_SCOPE_TYPE, IAuthAbility } from 'lib/nest-auth'
 import {
@@ -10,6 +16,11 @@ import {
   IStringParse,
 } from 'lib/nest-core'
 import { ENUM_REQUEST_BODY_TYPE } from '../enums'
+import {
+  IResponseDataOptions,
+  IResponseFileOptions,
+  IResponseListOptions,
+} from './response.interface'
 
 export interface IRequestRateLimitOptions {
   limit: number
@@ -45,42 +56,17 @@ export interface IRequestFilterEnumOptions extends IRequestFilterOptions {
   defaultValue?: any
 }
 
-export interface IRequestDocOptions {
-  operation?: string
-  summary?: string
-  deprecated?: boolean
-  description?: string
-  docExclude?: boolean
-  docExpansion?: boolean
-}
-
-export interface IRequestOptions
-  extends IRequestDocOptions,
-    IRequestAuthOptions,
-    IRequestGuardOptions {
-  headers?: ApiHeaderOptions[]
-  params?: ApiParamOptions[]
-  queries?: ApiQueryOptions[]
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  body?: { type?: ENUM_REQUEST_BODY_TYPE; dto?: Function }
-}
-
-export interface IRequestListOptions extends IRequestOptions {
-  sortable?: boolean
-  searchable?: boolean
-}
-
-export interface IRequestPagingOptions extends IRequestListOptions {
-  perPage?: number
-}
-
-export interface IRequestFileOptions extends IRequestPagingOptions {
-  file: {
-    single?: IFileUploadSingle
-    multiple?: IFileUploadMultiple
-    multipleFields?: {
-      fields: IFileUploadMultipleField[]
-      options?: IFileUploadMultipleFieldOptions
+export interface IRequestMetricsConfig {
+  defaultLabels?: Record<string, string>
+  defaultMetricsEnabled?: boolean
+  interceptors?: Type<any>[]
+  pushgatewayUrl?: string
+  pushgatewayOptions?: {
+    timeout?: number
+    headers?: Record<string, string>
+    auth?: {
+      username: string
+      password: string
     }
   }
 }
@@ -123,17 +109,39 @@ export interface IRequestGuardOptions {
   }
 }
 
-export interface IRequestMetricsConfig {
-  defaultLabels?: Record<string, string>
-  defaultMetricsEnabled?: boolean
-  interceptors?: Type<any>[]
-  pushgatewayUrl?: string
-  pushgatewayOptions?: {
-    timeout?: number
-    headers?: Record<string, string>
-    auth?: {
-      username: string
-      password: string
+export interface IRequestOptions
+  extends ApiOperationOptions,
+    IRequestAuthOptions,
+    IRequestGuardOptions {
+  headers?: ApiHeaderOptions[]
+  params?: ApiParamOptions[]
+  queries?: ApiQueryOptions[]
+  body?: { type?: ENUM_REQUEST_BODY_TYPE; dto?: ApiBodyOptions }
+  file?: {
+    single?: IFileUploadSingle
+    multiple?: IFileUploadMultiple
+    multipleFields?: {
+      fields: IFileUploadMultipleField[]
+      options?: IFileUploadMultipleFieldOptions
     }
   }
+  docExclude: boolean
+  docExpansion: boolean
+}
+
+export interface IRequestDataOptions extends IRequestOptions {
+  response?: Omit<IResponseDataOptions, 'data'>
+}
+
+export interface IRequestFileOptions extends IRequestOptions {
+  response: Omit<IResponseFileOptions, 'file'>
+}
+
+export interface IRequestListOptions extends IRequestOptions {
+  response?: Omit<IResponseListOptions, 'data' | 'exportable'>
+  sortable: boolean
+  searchable: boolean
+  exportable: boolean // Use @Exportable() decorator for each properties that want to export
+  perPage?: number
+  paging: boolean
 }

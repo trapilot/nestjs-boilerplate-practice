@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ApiRequestList, IResponseList, RequestListDto, RequestQueryList } from 'lib/nest-web'
 import { PRODUCT_BRAND_DOC_APP_QUERY_LIST, PRODUCT_BRAND_DOC_OPERATION } from '../constants'
@@ -15,6 +15,11 @@ export class ProductBrandAppController {
   @ApiRequestList({
     summary: PRODUCT_BRAND_DOC_OPERATION,
     queries: PRODUCT_BRAND_DOC_APP_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {
