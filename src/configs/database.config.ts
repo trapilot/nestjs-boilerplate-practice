@@ -1,4 +1,5 @@
 import { registerAs } from '@nestjs/config'
+import { StrUtil } from 'lib/nest-core'
 import { ENUM_LOGGER_TYPE } from 'lib/nest-logger'
 
 export default registerAs(
@@ -8,7 +9,7 @@ export default registerAs(
     context: ENUM_LOGGER_TYPE.MYSQL,
     replication: {
       master: process.env.DATABASE_URL,
-      slaves: process.env.REPLICA_URL?.split(',') ?? [],
+      slaves: StrUtil.split(process.env.REPLICA_URL, { delimiter: ',', allowEmpty: false }),
     },
   }),
 )

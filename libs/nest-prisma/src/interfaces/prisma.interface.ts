@@ -1,18 +1,7 @@
-import { PrismaClient } from '@prisma/client'
-import { PrismaClient as PrismaClientExt } from '@prisma/client/extension'
 import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
-import { withExtension, withReplica } from '../extensions'
+import { __clientWithExtends } from '../helpers'
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-const __client = new PrismaClient()
-const __clientWithExtension = __client
-  .$extends(withExtension)
-  .$extends(withReplica({ replicas: [] }))
-export type ClientWithExtension = typeof __clientWithExtension
-
-export interface IPrismaReplicaOptions {
-  replicas: PrismaClientExt[]
-}
+export type ClientWithExtends = typeof __clientWithExtends
 
 export interface IPrismaParams {
   skip?: number

@@ -1,3 +1,3 @@
-import { Country } from '@prisma/client'
+import { Country } from '@runtime/prisma-client'
 
 export interface TCountry extends Country {}

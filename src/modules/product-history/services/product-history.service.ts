@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
-import { ENUM_REDEMPTION_STATUS, Prisma } from '@prisma/client'
+import { ENUM_REDEMPTION_STATUS, Prisma } from '@runtime/prisma-client'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'
 import { TProductHistory } from '../interfaces'

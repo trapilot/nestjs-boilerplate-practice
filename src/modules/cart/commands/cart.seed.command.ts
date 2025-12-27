@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { Logger } from '@nestjs/common'
-import { ENUM_ORDER_SOURCE, ENUM_POINT_TYPE, Prisma } from '@prisma/client'
+import { ENUM_ORDER_SOURCE, ENUM_POINT_TYPE, Prisma } from '@runtime/prisma-client'
 import { HelperService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { MemberService } from 'modules/member/services'

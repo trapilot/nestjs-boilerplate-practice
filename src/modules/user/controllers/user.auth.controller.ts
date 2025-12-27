@@ -48,13 +48,14 @@ export class UserAuthController {
 
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
       medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: UserProfileResponseDto,
-      docExpansion: true,
     },
   })
   @Post('/sign-up')
@@ -65,13 +66,14 @@ export class UserAuthController {
 
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
       medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: UserResponseLoginDto,
-      docExpansion: true,
       statusCode: HttpStatus.OK,
     },
   })
@@ -98,15 +100,15 @@ export class UserAuthController {
 
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
-    google: true,
     docExclude: true,
+    docExpansion: false,
+    google: true,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
       medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: AuthTokenResponseDto,
-      docExpansion: true,
     },
   })
   @AuthSocialGoogleProtected()
@@ -132,15 +134,15 @@ export class UserAuthController {
 
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
-    apple: true,
     docExclude: true,
+    docExpansion: false,
+    apple: true,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
       medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: AuthTokenResponseDto,
-      docExpansion: true,
     },
   })
   @AuthSocialAppleProtected()
@@ -166,6 +168,8 @@ export class UserAuthController {
 
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -180,7 +184,6 @@ export class UserAuthController {
     },
     response: {
       dto: UserProfileResponseDto,
-      docExpansion: true,
     },
   })
   @Get('/_me')
@@ -191,6 +194,8 @@ export class UserAuthController {
 
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -201,7 +206,6 @@ export class UserAuthController {
     },
     response: {
       dto: UserProfileResponseDto,
-      docExpansion: true,
     },
   })
   @Put('/edit-profile')
@@ -229,6 +233,8 @@ export class UserAuthController {
 
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtRefreshToken: true,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
@@ -236,7 +242,6 @@ export class UserAuthController {
     },
     response: {
       dto: AuthTokenResponseDto,
-      docExpansion: true,
       statusCode: HttpStatus.OK,
     },
   })
@@ -254,6 +259,8 @@ export class UserAuthController {
 
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -268,7 +275,6 @@ export class UserAuthController {
     },
     response: {
       dto: UserProfileResponseDto,
-      docExpansion: true,
     },
   })
   @Put('/change-password')
@@ -283,6 +289,8 @@ export class UserAuthController {
 
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     file: {
       single: {
         field: 'avatar',
@@ -304,7 +312,6 @@ export class UserAuthController {
     },
     response: {
       dto: UserProfileResponseDto,
-      docExpansion: true,
     },
   })
   @Put('/change-avatar')
@@ -326,6 +333,8 @@ export class UserAuthController {
 
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -351,6 +360,8 @@ export class UserAuthController {
 
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       guards: [UserIsSuperAdmin],
       scope: ENUM_AUTH_SCOPE_TYPE.USER,

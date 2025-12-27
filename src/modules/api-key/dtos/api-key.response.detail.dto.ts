@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { ENUM_API_KEY_TYPE } from '@prisma/client'
+import { ENUM_API_KEY_TYPE } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
 import { ToDate } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'

@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
 import {
@@ -37,6 +37,10 @@ export class PointHistoryAdminController {
     summary: POINT_HISTORY_DOC_OPERATION,
     queries: POINT_HISTORY_DOC_ADMIN_QUERY_LIST,
     sortable: true,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -52,7 +56,6 @@ export class PointHistoryAdminController {
     },
     response: {
       dto: PointHistoryResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -92,7 +95,11 @@ export class PointHistoryAdminController {
   @ApiRequestList({
     summary: POINT_HISTORY_DOC_OPERATION,
     queries: POINT_HISTORY_DOC_ADMIN_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
     docExclude: true,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -102,7 +109,6 @@ export class PointHistoryAdminController {
     },
     response: {
       dto: PointHistoryResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -129,6 +135,8 @@ export class PointHistoryAdminController {
 
   @ApiRequestData({
     summary: POINT_HISTORY_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -144,7 +152,6 @@ export class PointHistoryAdminController {
     },
     response: {
       dto: PointHistoryResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -165,6 +172,8 @@ export class PointHistoryAdminController {
 
   @ApiRequestData({
     summary: POINT_HISTORY_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -181,7 +190,6 @@ export class PointHistoryAdminController {
     },
     response: {
       dto: PointHistoryResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/')
@@ -195,6 +203,8 @@ export class PointHistoryAdminController {
 
   @ApiRequestData({
     summary: POINT_HISTORY_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -211,7 +221,6 @@ export class PointHistoryAdminController {
     },
     response: {
       dto: PointHistoryResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -228,6 +237,8 @@ export class PointHistoryAdminController {
 
   @ApiRequestData({
     summary: POINT_HISTORY_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {

@@ -1,6 +1,6 @@
 import { Controller, HttpStatus, Inject, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { ENUM_VERIFICATION_CHANNEL, ENUM_VERIFICATION_TYPE } from '@prisma/client'
+import { ENUM_VERIFICATION_CHANNEL, ENUM_VERIFICATION_TYPE } from '@runtime/prisma-client'
 import {
   AuthJwtPayload,
   AuthJwtRefreshPayloadDto,
@@ -48,6 +48,8 @@ export class MemberAuthController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     userOTP: true,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
@@ -55,7 +57,6 @@ export class MemberAuthController {
     },
     response: {
       dto: MemberProfileResponseDto,
-      docExpansion: true,
     },
   })
   @Post('/sign-up')
@@ -75,6 +76,8 @@ export class MemberAuthController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     userAgent: true,
     userToken: true,
     rateLimit: {
@@ -83,7 +86,6 @@ export class MemberAuthController {
     },
     response: {
       dto: MemberResponseLoginDto,
-      docExpansion: true,
       statusCode: HttpStatus.OK,
     },
   })
@@ -110,15 +112,15 @@ export class MemberAuthController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_AUTH_OPERATION,
-    google: true,
     docExclude: true,
+    docExpansion: false,
+    google: true,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
       medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: AuthTokenResponseDto,
-      docExpansion: true,
     },
   })
   @AuthSocialGoogleProtected()
@@ -144,15 +146,15 @@ export class MemberAuthController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_AUTH_OPERATION,
-    apple: true,
     docExclude: true,
+    docExpansion: false,
+    apple: true,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
       medium: { limit: 10, seconds: 60 },
     },
     response: {
       dto: AuthTokenResponseDto,
-      docExpansion: true,
     },
   })
   @AuthSocialAppleProtected()
@@ -178,6 +180,8 @@ export class MemberAuthController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtRefreshToken: true,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
@@ -185,7 +189,6 @@ export class MemberAuthController {
     },
     response: {
       dto: AuthTokenResponseDto,
-      docExpansion: true,
       statusCode: HttpStatus.OK,
     },
   })
@@ -203,6 +206,8 @@ export class MemberAuthController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     userOTP: true,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
@@ -210,7 +215,6 @@ export class MemberAuthController {
     },
     response: {
       dto: MemberProfileResponseDto,
-      docExpansion: true,
     },
   })
   @Put('/reset-password')
@@ -230,7 +234,8 @@ export class MemberAuthController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_AUTH_OPERATION,
-    // docExclude: true,
+    docExclude: false,
+    docExpansion: false,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
       medium: { limit: 5, seconds: 60 },
@@ -248,8 +253,9 @@ export class MemberAuthController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     userOTP: true,
-    // docExclude: true,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
       medium: { limit: 5, seconds: 60 },
@@ -269,7 +275,8 @@ export class MemberAuthController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_AUTH_OPERATION,
-    // docExclude: true,
+    docExclude: false,
+    docExpansion: false,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
       medium: { limit: 5, seconds: 60 },
@@ -287,8 +294,9 @@ export class MemberAuthController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     userOTT: true,
-    // docExclude: true,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
       medium: { limit: 5, seconds: 60 },
@@ -308,6 +316,8 @@ export class MemberAuthController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
       medium: { limit: 5, seconds: 60 },
@@ -328,6 +338,8 @@ export class MemberAuthController {
 
   @ApiRequestData({
     summary: MEMBER_DOC_AUTH_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     userOTP: true,
     rateLimit: {
       short: { limit: 3, seconds: 1 },

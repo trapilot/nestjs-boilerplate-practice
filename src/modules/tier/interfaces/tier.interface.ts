@@ -1,4 +1,4 @@
-import { Tier, TierChart, TierLanguage } from '@prisma/client'
+import { Tier, TierChart, TierLanguage } from '@runtime/prisma-client'
 
 export interface TTierChart extends Omit<TierChart, 'id'> {}
 

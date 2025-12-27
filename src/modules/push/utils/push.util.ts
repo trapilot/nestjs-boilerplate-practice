@@ -1,4 +1,4 @@
-import { ENUM_PUSH_TYPE, Prisma } from '@prisma/client'
+import { ENUM_PUSH_TYPE, Prisma } from '@runtime/prisma-client'
 import { DateUtil } from 'lib/nest-core'
 import { NotificationPushCreateDto } from 'modules/notification/dtos'
 

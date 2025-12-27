@@ -55,4 +55,3 @@ dump.sh
 *.graphql
 
 notes
-/generated/prisma

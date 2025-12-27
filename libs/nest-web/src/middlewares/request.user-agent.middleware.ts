@@ -50,13 +50,12 @@ export class RequestUserAgentMiddleware implements NestMiddleware {
   }
 
   private parseApiVersion(req: IRequestApp): string {
+    const globalPrefix = this.config.get<string>('app.http.prefix')
     const versionNumber = this.config.get<string>('app.urlVersion.version')
-
-    const globalPrefix = this.config.get<string>('app.globalPrefix')
     const versionPrefix = this.config.get<string>('app.urlVersion.prefix')
 
     const originalUrl: string = req.originalUrl
-    if (originalUrl.startsWith(`${globalPrefix}/${versionPrefix}`)) {
+    if (originalUrl.startsWith(`/${globalPrefix}/${versionPrefix}`)) {
       const url: string[] = originalUrl.split('/')
       return url[2].replace(versionPrefix, '')
     }

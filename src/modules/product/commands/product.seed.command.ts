@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { ENUM_PRODUCT_EXPIRY } from '@prisma/client'
+import { ENUM_PRODUCT_EXPIRY } from '@runtime/prisma-client'
 import { ENUM_MESSAGE_LANGUAGE, HelperService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner, Option } from 'nest-commander'

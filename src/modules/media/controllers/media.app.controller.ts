@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { ENUM_MEDIA_TYPE, Prisma } from '@prisma/client'
+import { ENUM_MEDIA_TYPE, Prisma } from '@runtime/prisma-client'
 import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ApiRequestList, IResponseList, RequestListDto, RequestQueryList } from 'lib/nest-web'
 import { MEDIA_DOC_APP_QUERY_LIST, MEDIA_DOC_OPERATION } from '../constants'
@@ -15,6 +15,11 @@ export class MediaAppController {
   @ApiRequestList({
     summary: MEDIA_DOC_OPERATION,
     queries: MEDIA_DOC_APP_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {
@@ -46,6 +51,11 @@ export class MediaAppController {
   @ApiRequestList({
     summary: MEDIA_DOC_OPERATION,
     queries: MEDIA_DOC_APP_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {

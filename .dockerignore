@@ -5,11 +5,13 @@ node_modules/
 coverage/
 ci/
 dist/
+data/
 packages/
 private/
 public/
 .husky/
 .github/
+.vscode/
 
 
 # Logs

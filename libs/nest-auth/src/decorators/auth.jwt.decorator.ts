@@ -5,7 +5,7 @@ import {
   SetMetadata,
   UseGuards,
 } from '@nestjs/common'
-import { IRequestApp, IStringParseOptions, StringUtil } from 'lib/nest-core'
+import { IRequestApp, IStringParseOptions, StrUtil } from 'lib/nest-core'
 import { AUTH_ABILITY_META_KEY, AUTH_SCOPE_META_KEY } from '../constants'
 import { ENUM_AUTH_SCOPE_TYPE } from '../enums'
 import {
@@ -40,7 +40,7 @@ export const AuthJwtPayload = createParamDecorator(
     }
 
     // // Handle runtime type parsing
-    payload = StringUtil.parse(payload, {
+    payload = StrUtil.parse(payload, {
       ...options,
       errorAs: options?.parseAs === 'id' ? 0 : undefined,
     })

@@ -1,4 +1,4 @@
-import { Permission, RolesPermissions } from '@prisma/client'
+import { Permission, RolesPermissions } from '@runtime/prisma-client'
 
 export type TRolePermission = RolesPermissions
 

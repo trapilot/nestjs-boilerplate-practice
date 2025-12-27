@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Post, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL, IFile } from 'lib/nest-core'
 import { PrismaUtil } from 'lib/nest-prisma'
@@ -44,6 +44,11 @@ export class ProductAdminController {
   @ApiRequestPaging({
     summary: PRODUCT_DOC_OPERATION,
     queries: PRODUCT_DOC_ADMIN_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -59,7 +64,6 @@ export class ProductAdminController {
     },
     response: {
       dto: ProductResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -98,6 +102,11 @@ export class ProductAdminController {
 
   @ApiRequestList({
     summary: PRODUCT_DOC_OPERATION,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -107,7 +116,6 @@ export class ProductAdminController {
     },
     response: {
       dto: ProductResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -135,6 +143,8 @@ export class ProductAdminController {
   @ApiRequestData({
     summary: PRODUCT_DOC_OPERATION,
     params: PRODUCT_DOC_ADMIN_PARAM_GET,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -150,7 +160,6 @@ export class ProductAdminController {
     },
     response: {
       dto: ProductResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -170,6 +179,8 @@ export class ProductAdminController {
 
   @ApiRequestData({
     summary: PRODUCT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     file: {
       single: {
         field: 'thumbnail',
@@ -192,7 +203,6 @@ export class ProductAdminController {
     },
     response: {
       dto: ProductResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -225,6 +235,8 @@ export class ProductAdminController {
 
   @ApiRequestData({
     summary: PRODUCT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     file: {
       single: {
         field: 'thumbnail',
@@ -247,7 +259,6 @@ export class ProductAdminController {
     },
     response: {
       dto: ProductResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/')
@@ -276,6 +287,8 @@ export class ProductAdminController {
 
   @ApiRequestData({
     summary: PRODUCT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {

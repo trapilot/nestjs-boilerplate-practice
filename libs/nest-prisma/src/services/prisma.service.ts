@@ -1,33 +1,23 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Prisma, PrismaClient } from '@prisma/client'
+import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import { Prisma, PrismaClient } from '@runtime/prisma-client'
 import { ENUM_LOGGER_TYPE, LOGGER_MESSAGE_KEY, LoggerService } from 'lib/nest-logger'
 import { withExtension, withReplica } from '../extensions'
 import { PrismaContext } from '../helpers'
-import { ClientWithExtension } from '../interfaces'
-
-const defaultClientOptions: Prisma.PrismaClientOptions = {
-  log: [
-    { emit: 'event', level: 'query' },
-    { emit: 'event', level: 'error' },
-    { emit: 'event', level: 'warn' },
-    { emit: 'event', level: 'info' },
-  ],
-  errorFormat: 'pretty',
-}
+import { ClientWithExtends } from '../interfaces'
+import { PrismaUtil } from '../utils'
 
 @Injectable()
-export class PrismaService
-  extends PrismaClient<Prisma.PrismaClientOptions, 'query' | 'error' | 'warn' | 'info'>
-  implements OnModuleInit, OnModuleDestroy
-{
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private readonly isDebugMode: boolean
 
   constructor(
     private readonly logger: LoggerService,
     private readonly config: ConfigService,
   ) {
-    super(defaultClientOptions)
+    const primaryUrl = config.get<string>('database.replication.master')
+    super(PrismaService.createOptions(primaryUrl))
 
     this.isDebugMode = this.config.get<boolean>('database.debug')
 
@@ -36,14 +26,25 @@ export class PrismaService
     return this.setupExtension(this) as unknown as PrismaService
   }
 
-  async $extension<T>(fn: (ex: ClientWithExtension) => Promise<T>) {
-    return fn(this as ClientWithExtension)
+  static createOptions(url: string): any {
+    return {
+      log: [
+        { emit: 'event', level: 'query' },
+        { emit: 'event', level: 'error' },
+        { emit: 'event', level: 'warn' },
+        { emit: 'event', level: 'info' },
+      ],
+      errorFormat: 'pretty',
+      adapter: new PrismaMariaDb(url),
+    }
   }
 
-  async $execution<T>(fn: (ex: ClientWithExtension) => Promise<T>) {
-    return PrismaContext.run({ tx: this, forcePrimary: true }, () =>
-      fn(this as ClientWithExtension),
-    )
+  async $extension<T>(fn: (ex: ClientWithExtends) => Promise<T>) {
+    return fn(this as ClientWithExtends)
+  }
+
+  async $execution<T>(fn: (ex: ClientWithExtends) => Promise<T>) {
+    return PrismaContext.run({ tx: this, forcePrimary: true }, () => fn(this as ClientWithExtends))
   }
 
   async onModuleInit() {
@@ -86,13 +87,15 @@ export class PrismaService
 
     if (isPrimary) {
       const replicaUrls = this.config.get<string[]>('database.replication.slaves')
-      return client.$extends(withExtension).$extends(
-        withReplica({
-          replicas: replicaUrls
-            .map((url) => new PrismaClient({ ...defaultClientOptions, datasourceUrl: url }))
-            .map((replica) => this.setupExtension(replica, false)),
-        }),
-      )
+      return client
+        .$extends(withExtension)
+        .$extends(
+          withReplica(
+            replicaUrls
+              .map((url) => new PrismaClient(PrismaService.createOptions(url)))
+              .map((replica) => this.setupExtension(replica, false)),
+          ),
+        )
     }
 
     return client.$extends(withExtension)
@@ -100,34 +103,21 @@ export class PrismaService
 
   private setupLogging(client: PrismaClient): void {
     if (this.isDebugMode) {
-      client.$on('query', this.logQuery.bind(this))
-      client.$on('error', this.logError.bind(this))
-      client.$on('warn', this.logWarn.bind(this))
-      client.$on('info', this.logInfo.bind(this))
+      ;(client as PrismaService).$on('query', this.logQuery.bind(this))
+      ;(client as PrismaService).$on('error', this.logError.bind(this))
+      ;(client as PrismaService).$on('warn', this.logWarn.bind(this))
+      ;(client as PrismaService).$on('info', this.logInfo.bind(this))
     }
   }
 
   private logQuery(event: Prisma.QueryEvent): void {
     const { query, duration, params, ...other } = event
 
-    let index = 0
-    let message = query
-      .split('?')
-      .map((s) => `$${index++}${s}`)
-      .join('')
-      .substring(index ? 2 : 0)
-
-    JSON.parse(params).forEach((value: unknown, i: number) => {
-      const re = new RegExp(`\\$${i + 1}(?!\\d)`, 'g')
-      const escaped = typeof value === 'string' ? `'${value.replace(/'/g, "\\'")}'` : value
-      message = message.replace(re, String(escaped))
-    })
-
     this.logger.debug({
       ...other,
       duration,
       slowQuery: duration > 1000,
-      [LOGGER_MESSAGE_KEY]: message,
+      [LOGGER_MESSAGE_KEY]: PrismaUtil.buildQuery(query, { params }),
     })
   }
 

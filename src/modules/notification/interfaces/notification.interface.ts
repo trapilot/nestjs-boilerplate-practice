@@ -1,3 +1,3 @@
-import { Notification } from '@prisma/client'
+import { Notification } from '@runtime/prisma-client'
 
 export interface TNotification extends Notification {}

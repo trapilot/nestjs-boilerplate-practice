@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { ENUM_MEDIA_TYPE } from '@prisma/client'
+import { ENUM_MEDIA_TYPE } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
 import { ToDate, ToUrl } from 'lib/nest-core'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'

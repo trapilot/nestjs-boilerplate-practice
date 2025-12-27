@@ -1,6 +1,6 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Logger } from '@nestjs/common'
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import {
   AppContext,
   HelperService,

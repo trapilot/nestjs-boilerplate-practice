@@ -1,12 +1,11 @@
 import { PrismaClient } from '@prisma/client/extension'
-import { IPrismaReplicaOptions } from '../interfaces'
 
 export class PrismaReplicaManager {
   private rrIndex: number = 0
   private clients: PrismaClient[]
 
-  constructor(options: IPrismaReplicaOptions) {
-    this.clients = options.replicas
+  constructor(clients: PrismaClient[]) {
+    this.clients = clients
   }
 
   async connect() {

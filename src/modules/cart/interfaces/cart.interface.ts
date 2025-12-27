@@ -1,4 +1,4 @@
-import { Cart, CartItem, ENUM_ORDER_SOURCE, Member, Product } from '@prisma/client'
+import { Cart, CartItem, ENUM_ORDER_SOURCE, Member, Product } from '@runtime/prisma-client'
 
 export interface TCartItem extends CartItem {
   product?: Product

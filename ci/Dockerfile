@@ -26,20 +26,19 @@ FROM base AS build
 COPY --from=build-deps /app/node_modules /app/node_modules
 COPY . .
 RUN yarn build
-RUN yarn bundle \
-  && cp /app/node_modules/swagger-ui-dist/swagger-ui.css /app/dist \
-  && cp /app/node_modules/swagger-ui-dist/swagger-ui-bundle.js /app/dist \
-  && cp /app/node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js /app/dist \
-  && cp /app/node_modules/swagger-ui-dist/favicon-32x32.png /app/dist \
-  && cp /app/node_modules/swagger-ui-dist/favicon-16x16.png /app/dist
+# RUN yarn bundle \
+#   && cp /app/node_modules/swagger-ui-dist/swagger-ui.css /app/dist \
+#   && cp /app/node_modules/swagger-ui-dist/swagger-ui-bundle.js /app/dist \
+#   && cp /app/node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js /app/dist \
+#   && cp /app/node_modules/swagger-ui-dist/favicon-32x32.png /app/dist \
+#   && cp /app/node_modules/swagger-ui-dist/favicon-16x16.png /app/dist
 
 
 # Finally, build the production image with minimal footprint
 FROM base
 ENV NODE_ENV=production
 ARG APP_ENV=production
-# COPY --from=production-deps --chown=nestjs:nodejs /app/node_modules /app/node_modules
-COPY --from=build --chown=nestjs:nodejs /app/node_modules/.prisma /app/node_modules/.prisma
+COPY --from=production-deps --chown=nestjs:nodejs /app/node_modules /app/node_modules
 COPY --from=build --chown=nestjs:nodejs /app/dist /app/dist
 COPY --from=build --chown=nestjs:nodejs /app/prisma /app/prisma
 COPY --from=build --chown=nestjs:nodejs /app/package.json /app/package.json

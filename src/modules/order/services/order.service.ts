@@ -14,7 +14,7 @@ import {
   ENUM_REDEMPTION_SOURCE,
   ENUM_REDEMPTION_STATUS,
   Prisma,
-} from '@prisma/client'
+} from '@runtime/prisma-client'
 import { HelperService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'

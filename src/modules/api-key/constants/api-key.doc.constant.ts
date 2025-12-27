@@ -1,4 +1,4 @@
-import { ENUM_API_KEY_TYPE } from '@prisma/client'
+import { ENUM_API_KEY_TYPE } from '@runtime/prisma-client'
 
 export const API_KEY_DOC_OPERATION = 'Api Key'
 

@@ -1,7 +1,7 @@
 import { createClient, createKeyv, RedisClientOptions } from '@keyv/redis'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule } from '@nestjs/bullmq'
-import { CacheModule, CacheOptions } from '@nestjs/cache-manager'
+import { CACHE_MANAGER, CacheModule, CacheOptions } from '@nestjs/cache-manager'
 import { DynamicModule, Module } from '@nestjs/common'
 import { ConfigFactory, ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_FILTER } from '@nestjs/core'
@@ -15,6 +15,7 @@ import { APP_PATH, REALTIME_CACHE, REALTIME_PUB, REALTIME_STREAM, REALTIME_SUB }
 import { ENUM_MESSAGE_LANGUAGE } from './enums'
 import { AppExceptionFilter } from './filters'
 import {
+  CacheService,
   CryptoService,
   FileService,
   HelperService,
@@ -32,13 +33,24 @@ export class NestCoreModule {
     return {
       global: true,
       module: NestCoreModule,
-      exports: [FileService, CryptoService, MessageService, RealtimeService, HelperService],
+      exports: [
+        CacheService,
+        FileService,
+        CryptoService,
+        MessageService,
+        RealtimeService,
+        HelperService,
+      ],
       providers: [
         FileService,
         CryptoService,
         MessageService,
         RealtimeService,
         HelperService,
+        {
+          provide: CacheService,
+          useExisting: CACHE_MANAGER,
+        },
         {
           provide: APP_FILTER,
           useFactory: (messageService: MessageService, helperService: HelperService) => {

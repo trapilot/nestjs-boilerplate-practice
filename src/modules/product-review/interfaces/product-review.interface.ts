@@ -1,3 +1,3 @@
-import { ProductReview } from '@prisma/client'
+import { ProductReview } from '@runtime/prisma-client'
 
 export interface TProductReview extends ProductReview {}

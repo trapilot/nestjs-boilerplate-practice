@@ -7,7 +7,7 @@ import {
   MemberTokenHistory,
   Prisma,
   Tier,
-} from '@prisma/client'
+} from '@runtime/prisma-client'
 
 export type TMemberMetadata = {
   messages: any[]

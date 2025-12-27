@@ -7,6 +7,16 @@ export interface IStringParseOptions {
   errorAs?: any
 }
 
+export interface IStringSplitOptions {
+  delimiter: string
+  maxSplit?: number
+  allowEmpty?: boolean
+}
+
+export interface IStringCapitalizeOptions {
+  splitWords?: boolean
+}
+
 export interface IStringCurrencyOptions {
   baseLanguage?: string | ENUM_MESSAGE_LANGUAGE
   language?: string | ENUM_MESSAGE_LANGUAGE

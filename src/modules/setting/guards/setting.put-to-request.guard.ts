@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
-import { Setting } from '@prisma/client'
+import { Setting } from '@runtime/prisma-client'
 import { IRequestApp } from 'lib/nest-core'
 import { SettingService } from '../services'
 

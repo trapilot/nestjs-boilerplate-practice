@@ -22,49 +22,23 @@
       "configs/*": ["src/configs/*"],
       "modules/*": ["src/modules/*"],
       "shared/*": ["src/shared/*"],
-      "lib/nest-auth": [
-        "libs/nest-auth/src"
-      ],
-      "lib/nest-auth/*": [
-        "libs/nest-auth/src/*"
-      ],
-      "lib/nest-core": [
-        "libs/nest-core/src"
-      ],
-      "lib/nest-core/*": [
-        "libs/nest-core/src/*"
-      ],
-      "lib/nest-logger": [
-        "libs/nest-logger/src"
-      ],
-      "lib/nest-logger/*": [
-        "libs/nest-logger/src/*"
-      ],
-      "lib/nest-notifier": [
-        "libs/nest-notifier/src"
-      ],
-      "lib/nest-notifier/*": [
-        "libs/nest-notifier/src/*"
-      ],
-      "lib/nest-prisma": [
-        "libs/nest-prisma/src"
-      ],
-      "lib/nest-prisma/*": [
-        "libs/nest-prisma/src/*"
-      ],
-      "lib/nest-web": [
-        "libs/nest-web/src"
-      ],
-      "lib/nest-web/*": [
-        "libs/nest-web/src/*"
-      ]
+      "@runtime/prisma-client": ["prisma/runtime/client"],
+      "@runtime/prisma-browser": ["prisma/runtime/browser"],
+      "lib/nest-auth": ["libs/nest-auth/src"],
+      "lib/nest-auth/*": ["libs/nest-auth/src/*"],
+      "lib/nest-core": ["libs/nest-core/src"],
+      "lib/nest-core/*": ["libs/nest-core/src/*"],
+      "lib/nest-logger": ["libs/nest-logger/src"],
+      "lib/nest-logger/*": ["libs/nest-logger/src/*"],
+      "lib/nest-notifier": ["libs/nest-notifier/src"],
+      "lib/nest-notifier/*": ["libs/nest-notifier/src/*"],
+      "lib/nest-prisma": ["libs/nest-prisma/src"],
+      "lib/nest-prisma/*": ["libs/nest-prisma/src/*"],
+      "lib/nest-web": ["libs/nest-web/src"],
+      "lib/nest-web/*": ["libs/nest-web/src/*"]
     }
   },
-  "include": [
-    "src",
-    "libs",
-    "test"
-  ],
+  "include": ["src", "libs", "test"],
   "exclude": [
     "node_modules",
     "dist",

@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import { Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { ENUM_MEMBER_TIER_ACTION, ENUM_MEMBER_TYPE } from '@prisma/client'
+import { ENUM_MEMBER_TIER_ACTION, ENUM_MEMBER_TYPE } from '@runtime/prisma-client'
 import {
   CryptoService,
   ENUM_APP_LANGUAGE,

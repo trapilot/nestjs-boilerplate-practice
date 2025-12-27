@@ -7,7 +7,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
-import { Prisma, Product } from '@prisma/client'
+import { Prisma, Product } from '@runtime/prisma-client'
 import { EnvUtil, HelperService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'

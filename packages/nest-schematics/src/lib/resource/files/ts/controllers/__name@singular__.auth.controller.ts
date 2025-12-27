@@ -42,7 +42,6 @@ export class <%= singular(classify(name)) %>AuthController {
     summary: <%= singular(uppercased(name)) %>_DOC_AUTH_OPERATION,
     response: {
       dto: <%= singular(classify(name)) %>ResponseProfileDto,
-      docExpansion: true,
     },
   })
   @Post('/sign-up')
@@ -59,7 +58,6 @@ export class <%= singular(classify(name)) %>AuthController {
     },
     response: {
       dto: AuthTokenResponseDto,
-      docExpansion: true,
       statusCode: HttpStatus.OK,
     },
   })
@@ -94,7 +92,6 @@ export class <%= singular(classify(name)) %>AuthController {
     },
     response: {
       dto: AuthTokenResponseDto,
-      docExpansion: true,
     },
   })
   @AuthSocialGoogleProtected()
@@ -128,7 +125,6 @@ export class <%= singular(classify(name)) %>AuthController {
     },
     response: {
       dto: AuthTokenResponseDto,
-      docExpansion: true,
     },
   })
   @AuthSocialAppleProtected()
@@ -168,7 +164,6 @@ export class <%= singular(classify(name)) %>AuthController {
     },
     response: {
       dto: <%= singular(classify(name)) %>ResponseProfileDto,
-      docExpansion: true,
     },
   })
   @Get('/_me')
@@ -186,7 +181,6 @@ export class <%= singular(classify(name)) %>AuthController {
     },
     response: {
       dto: AuthTokenResponseDto,
-      docExpansion: true,
       statusCode: HttpStatus.OK,
     },
   })

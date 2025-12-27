@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
-import { ENUM_PRODUCT_EXPIRY } from '@prisma/client'
+import { ENUM_PRODUCT_EXPIRY } from '@runtime/prisma-client'
 import {
   IsBoolean,
   IsDate,

@@ -7,7 +7,7 @@ import {
   ENUM_PAYMENT_STATUS,
   ENUM_REDEMPTION_STATUS,
   Prisma,
-} from '@prisma/client'
+} from '@runtime/prisma-client'
 import { ENUM_DATE_FORMAT, HelperService } from 'lib/nest-core'
 import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
 import { IResponseList, IResponsePaging } from 'lib/nest-web'

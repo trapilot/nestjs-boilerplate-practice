@@ -5,6 +5,14 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: 'module',
   },
+  overrides: [
+    {
+      files: ['webpack.config.js'],
+      parserOptions: {
+        project: null,
+      },
+    },
+  ],
   plugins: ['@typescript-eslint/eslint-plugin', 'prettier'],
   extends: ['plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended', 'prettier'],
   root: true,

@@ -14,6 +14,8 @@ export class FactAppController {
 
   @ApiRequestData({
     summary: FACT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {
@@ -39,6 +41,8 @@ export class FactAppController {
 
   @ApiRequestData({
     summary: FACT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {
@@ -64,6 +68,8 @@ export class FactAppController {
 
   @ApiRequestData({
     summary: FACT_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
       user: {

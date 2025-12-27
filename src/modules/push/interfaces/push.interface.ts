@@ -1,4 +1,4 @@
-import { Notification, Push, PushGroup, PushGroupNotificationMixins } from '@prisma/client'
+import { Notification, Push, PushGroup, PushGroupNotificationMixins } from '@runtime/prisma-client'
 
 interface TPushGroupNotificationMixins extends PushGroupNotificationMixins {
   group?: PushGroup

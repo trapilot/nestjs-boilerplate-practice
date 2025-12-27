@@ -5,6 +5,7 @@ import {
   HttpStatus,
   NestInterceptor,
   SetMetadata,
+  Type,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common'
@@ -12,19 +13,14 @@ import { RESPONSE_PASSTHROUGH_METADATA } from '@nestjs/common/constants'
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiBodyOptions,
   ApiConsumes,
   ApiExcludeEndpoint,
   ApiExtraModels,
   ApiHeader,
-  ApiHeaderOptions,
   ApiOperation,
-  ApiOperationOptions,
   ApiParam,
-  ApiParamOptions,
   ApiProduces,
   ApiQuery,
-  ApiQueryOptions,
   ApiResponse,
   ApiSecurity,
   getSchemaPath,
@@ -43,18 +39,12 @@ import {
   AuthUserScopeProtected,
 } from 'lib/nest-auth'
 import {
-  ENUM_FILE_DISPOSITION,
-  ENUM_FILE_MIME,
   ENUM_FILE_TYPE_EXCEL,
   ENUM_GENDER_TYPE,
   EnvUtil,
   FileUploadMultiple,
   FileUploadMultipleFields,
   FileUploadSingle,
-  IFileUploadMultiple,
-  IFileUploadMultipleField,
-  IFileUploadMultipleFieldOptions,
-  IFileUploadSingle,
   MESSAGE_LANGUAGES,
   MULTITENANCY_ENABLE,
   NoFilesUpload,
@@ -79,76 +69,18 @@ import {
   ResponseListingInterceptor,
   ResponsePagingInterceptor,
 } from '../interceptors'
-import { IRequestAuthOptions, IRequestGuardOptions } from '../interfaces'
-
-interface IRequestOptions extends ApiOperationOptions, IRequestAuthOptions, IRequestGuardOptions {
-  headers?: ApiHeaderOptions[]
-  params?: ApiParamOptions[]
-  queries?: ApiQueryOptions[]
-  body?: { type?: ENUM_REQUEST_BODY_TYPE; dto?: ApiBodyOptions }
-  file?: {
-    single?: IFileUploadSingle
-    multiple?: IFileUploadMultiple
-    multipleFields?: {
-      fields: IFileUploadMultipleField[]
-      options?: IFileUploadMultipleFieldOptions
-    }
-  }
-  docExclude?: boolean
-  docExpansion?: boolean
-}
-
-interface IRequestDataOptions extends IRequestOptions {
-  response?: Omit<IResponseDataOptions, 'data'>
-}
-
-interface IRequestFileOptions extends IRequestOptions {
-  response: Omit<IResponseFileOptions, 'file'>
-}
-
-interface IRequestListOptions extends IRequestOptions {
-  response?: Omit<IResponseListOptions, 'data' | 'exportable'>
-  sortable?: boolean
-  searchable?: boolean
-  exportable?: boolean // Must use @Exportable() decorator for each properties that want to export
-  perPage?: number
-  paging: boolean
-}
-
-interface IResponseOptions {
-  statusCode?: HttpStatus
-  dto?: ClassConstructor<any>
-  dtos?: ClassConstructor<any>
-  cached?: { key: string; ttl: number } | boolean
-  docExpansion?: boolean
-}
-
-interface IResponseDataOptions extends IResponseOptions {
-  data: {
-    type: any
-    interceptor: any
-  }
-}
-
-interface IResponseListOptions extends IResponseOptions {
-  exportable: boolean
-  exportFile?: {
-    prefix?: string
-    password?: string
-  }
-  data: {
-    type: any
-    interceptor: any
-  }
-}
-
-interface IResponseFileOptions extends Omit<IResponseOptions, 'serializer' | 'cached'> {
-  disposition: ENUM_FILE_DISPOSITION
-  type?: ENUM_FILE_MIME
-  file: {
-    interceptor?: any
-  }
-}
+import {
+  IRequestAuthOptions,
+  IRequestDataOptions,
+  IRequestFileOptions,
+  IRequestGuardOptions,
+  IRequestListOptions,
+  IRequestOptions,
+  IResponseDataOptions,
+  IResponseFileOptions,
+  IResponseListOptions,
+  IResponseOptions,
+} from '../interfaces'
 
 function HttpResponse(
   options: IResponseOptions &
@@ -158,25 +90,11 @@ function HttpResponse(
 ) {
   const dtos: ClassConstructor<any>[] = []
   const decorators: Array<ClassDecorator | MethodDecorator> = []
-  const interceptors: NestInterceptor[] = []
+  const interceptors: Type<NestInterceptor>[] = []
 
-  if (options?.docExpansion && options?.data?.type) {
+  if (options?.data) {
     dtos.push(options.data.type)
-    if (options?.dtos) {
-      dtos.push(options.dtos)
-      decorators.push(
-        SetMetadata(RESPONSE_DTO_CONSTRUCTOR_METADATA, options.dtos),
-        ApiResponse({
-          status: HttpStatus.OK,
-          schema: {
-            allOf: [{ $ref: getSchemaPath(options.data.type) }],
-            properties: {
-              data: { type: 'array', items: { $ref: getSchemaPath(options.dtos) } },
-            },
-          },
-        }),
-      )
-    } else if (options?.dto) {
+    if (options?.dto) {
       dtos.push(options.dto)
       decorators.push(
         SetMetadata(RESPONSE_DTO_CONSTRUCTOR_METADATA, options.dto),
@@ -185,7 +103,9 @@ function HttpResponse(
           schema: {
             allOf: [{ $ref: getSchemaPath(options.data.type) }],
             properties: {
-              data: { $ref: getSchemaPath(options.dto) },
+              data: options.data.list
+                ? { type: 'array', items: { $ref: getSchemaPath(options.dto) } }
+                : { $ref: getSchemaPath(options.dto) },
             },
           },
         }),
@@ -695,6 +615,7 @@ export function ApiRequestData(options: IRequestDataOptions) {
     HttpResponse({
       ...response,
       data: {
+        list: false,
         type: ResponseDataDto,
         interceptor: ResponseDataInterceptor,
       },
@@ -728,14 +649,13 @@ export function ApiRequestList(options: Omit<IRequestListOptions, 'paging' | 'pe
       ...request,
     }),
     HttpResponse({
-      ...response,
-      dto: undefined,
-      dtos: response?.dto,
-      exportable: isExportable,
       data: {
+        list: true,
         type: ResponseListingDto,
         interceptor: ResponseListingInterceptor,
       },
+      exportable: isExportable,
+      ...response,
     }),
   )
 }
@@ -752,11 +672,10 @@ export function ApiRequestPaging(options: Omit<IRequestListOptions, 'paging'>) {
     }),
     HttpResponse({
       data: {
+        list: true,
         type: ResponsePagingDto,
         interceptor: ResponsePagingInterceptor,
       },
-      dto: undefined,
-      dtos: response?.dto,
       exportable: isExportable,
       ...response,
     }),

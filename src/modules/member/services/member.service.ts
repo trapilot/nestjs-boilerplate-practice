@@ -14,7 +14,7 @@ import {
   ENUM_SLIP_TYPE,
   Member,
   Prisma,
-} from '@prisma/client'
+} from '@runtime/prisma-client'
 import { ENUM_AUTH_SCOPE_TYPE, IAuthPassword } from 'lib/nest-auth'
 import {
   APP_LANGUAGE,

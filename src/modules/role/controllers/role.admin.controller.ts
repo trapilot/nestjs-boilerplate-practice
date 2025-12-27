@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import {
   ApiRequestData,
@@ -41,6 +41,11 @@ export class RoleAdminController {
   @ApiRequestPaging({
     summary: ROLE_DOC_OPERATION,
     queries: ROLE_DOC_ADMIN_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -56,7 +61,6 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -82,6 +86,11 @@ export class RoleAdminController {
 
   @ApiRequestList({
     summary: ROLE_DOC_OPERATION,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -91,7 +100,6 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -122,6 +130,8 @@ export class RoleAdminController {
 
   @ApiRequestData({
     summary: ROLE_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -137,7 +147,6 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Get('/new')
@@ -156,6 +165,8 @@ export class RoleAdminController {
 
   @ApiRequestData({
     summary: ROLE_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -171,7 +182,6 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -194,6 +204,8 @@ export class RoleAdminController {
 
   @ApiRequestData({
     summary: ROLE_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -210,7 +222,6 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -230,6 +241,8 @@ export class RoleAdminController {
 
   @ApiRequestData({
     summary: ROLE_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -246,7 +259,6 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/')
@@ -261,6 +273,8 @@ export class RoleAdminController {
 
   @ApiRequestData({
     summary: ROLE_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -285,6 +299,8 @@ export class RoleAdminController {
 
   @ApiRequestData({
     summary: ROLE_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -301,7 +317,6 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id/active')
@@ -319,6 +334,8 @@ export class RoleAdminController {
 
   @ApiRequestData({
     summary: ROLE_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -335,7 +352,6 @@ export class RoleAdminController {
     },
     response: {
       dto: RoleResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id/inactive')

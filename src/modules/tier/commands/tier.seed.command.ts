@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { ENUM_APP_LANGUAGE, ENUM_TIER_CODE, HelperService, NEST_CLI } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner } from 'nest-commander'

@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
 import {
@@ -35,6 +35,10 @@ export class CartAdminController {
     summary: CART_DOC_OPERATION,
     queries: CART_DOC_ADMIN_QUERY_LIST,
     sortable: true,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -50,7 +54,6 @@ export class CartAdminController {
     },
     response: {
       dto: CartResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -76,6 +79,11 @@ export class CartAdminController {
   @ApiRequestList({
     summary: CART_DOC_OPERATION,
     queries: CART_DOC_ADMIN_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -85,7 +93,6 @@ export class CartAdminController {
     },
     response: {
       dto: CartResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -111,6 +118,8 @@ export class CartAdminController {
 
   @ApiRequestData({
     summary: CART_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -126,7 +135,6 @@ export class CartAdminController {
     },
     response: {
       dto: CartResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -140,6 +148,8 @@ export class CartAdminController {
 
   @ApiRequestData({
     summary: CART_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -156,7 +166,6 @@ export class CartAdminController {
     },
     response: {
       dto: CartResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/')
@@ -170,6 +179,8 @@ export class CartAdminController {
 
   @ApiRequestData({
     summary: CART_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -186,7 +197,6 @@ export class CartAdminController {
     },
     response: {
       dto: CartResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -203,6 +213,8 @@ export class CartAdminController {
 
   @ApiRequestData({
     summary: CART_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {

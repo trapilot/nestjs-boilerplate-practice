@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { HelperService, IDateRange, RealtimeService } from 'lib/nest-core'
+import { CacheService, HelperService, IDateRange } from 'lib/nest-core'
 import { ApiRequestData, IResponseData } from 'lib/nest-web'
 import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
 import { DASHBOARD_DOC_OPERATION } from '../constants'
@@ -13,7 +13,7 @@ import { DashboardService } from '../services'
 export class DashboardAdminController {
   constructor(
     protected readonly dashboardService: DashboardService,
-    protected readonly realtimeService: RealtimeService,
+    protected readonly cacheService: CacheService,
     protected readonly helperService: HelperService,
   ) {}
 
@@ -25,6 +25,8 @@ export class DashboardAdminController {
 
   @ApiRequestData({
     summary: DASHBOARD_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -40,7 +42,6 @@ export class DashboardAdminController {
     },
     response: {
       dto: DashboardSummaryResponseDto,
-      docExpansion: true,
       cached: { key: DashboardSummaryResponseDto.name, ttl: 60_000 },
     },
   })
@@ -56,6 +57,8 @@ export class DashboardAdminController {
 
   @ApiRequestData({
     summary: DASHBOARD_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -71,7 +74,6 @@ export class DashboardAdminController {
     },
     response: {
       dto: DashboardSummaryResponseDto,
-      docExpansion: true,
     },
   })
   @Get('/refresh-summary')
@@ -79,7 +81,7 @@ export class DashboardAdminController {
     const dates = this.getDates()
     const dashboard = await this.dashboardService.getSummary(dates.startOfYear, dates.endOfYear)
 
-    await this.realtimeService.cacheSet(DashboardSummaryResponseDto.name, dashboard)
+    await this.cacheService.set(DashboardSummaryResponseDto.name, dashboard)
 
     return {
       data: dashboard,
@@ -88,6 +90,8 @@ export class DashboardAdminController {
 
   @ApiRequestData({
     summary: DASHBOARD_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -103,7 +107,6 @@ export class DashboardAdminController {
     },
     response: {
       dto: DashboardSummaryResponseDto,
-      docExpansion: true,
     },
   })
   @Get('/view-data-list')
@@ -111,7 +114,7 @@ export class DashboardAdminController {
     const dates = this.getDates()
     const dataList = await this.dashboardService.viewDataList(dates.startOfYear, dates.endOfYear)
 
-    await this.realtimeService.cacheSet(DashboardSummaryResponseDto.name, dataList)
+    await this.cacheService.set(DashboardSummaryResponseDto.name, dataList)
 
     return {
       data: dataList,

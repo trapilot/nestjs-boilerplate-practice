@@ -2,7 +2,7 @@ import {
   ENUM_VERIFICATION_CHANNEL,
   ENUM_VERIFICATION_TYPE,
   MemberVerifyHistory,
-} from '@prisma/client'
+} from '@runtime/prisma-client'
 
 export type TMemberVerifyHistory = MemberVerifyHistory
 

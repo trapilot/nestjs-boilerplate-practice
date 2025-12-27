@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
-import { ENUM_APP_VERSION_PLATFORM } from '@prisma/client'
+import { ENUM_APP_VERSION_PLATFORM } from '@runtime/prisma-client'
 import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator'
 import { ToString } from 'lib/nest-core'
 

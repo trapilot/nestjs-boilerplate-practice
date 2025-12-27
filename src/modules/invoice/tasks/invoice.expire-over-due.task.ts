@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Cron, CronExpression, CronOptions } from '@nestjs/schedule'
-import { ENUM_INVOICE_STATUS, ENUM_PAYMENT_METHOD } from '@prisma/client'
+import { ENUM_INVOICE_STATUS, ENUM_PAYMENT_METHOD } from '@runtime/prisma-client'
 import { APP_TIMEZONE, HelperService } from 'lib/nest-core'
 import { LoggerService } from 'lib/nest-logger'
 import { InvoiceService } from '../services'

@@ -1,4 +1,4 @@
-import { ENUM_PAYMENT_METHOD, Invoice } from '@prisma/client'
+import { ENUM_PAYMENT_METHOD, Invoice } from '@runtime/prisma-client'
 
 export interface TInvoice extends Invoice {}
 

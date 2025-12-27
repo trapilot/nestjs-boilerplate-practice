@@ -1,3 +1,3 @@
-import { MemberPointHistory } from '@prisma/client'
+import { MemberPointHistory } from '@runtime/prisma-client'
 
 export interface TPointHistory extends MemberPointHistory {}

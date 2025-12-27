@@ -1,24 +1,23 @@
 import { PrismaClient } from '@prisma/client/extension'
+import { TenantContext } from '../helpers'
 
 export class PrismaTenantManager {
-  private clients: { [key: string]: PrismaClient } = {}
+  private clients: { [key: string]: PrismaClient }
 
-  async getClient(tenantId: string): Promise<PrismaClient> {
-    let client = this.clients[tenantId]
-    if (!client) {
-      const databaseUrl = process.env.DATABASE_URL.replace('tenantId', tenantId.toLowerCase())
+  constructor(clients: { [key: string]: PrismaClient }) {
+    this.clients = clients
+  }
 
-      client = new PrismaClient({
-        datasources: {
-          db: {
-            url: databaseUrl,
-          },
-        },
-      })
+  async connect() {
+    await Promise.all(Object.values(this.clients).map((client) => client.$connect()))
+  }
 
-      this.clients[tenantId] = client
-    }
+  async disconnect() {
+    await Promise.all(Object.values(this.clients).map((client) => client.$disconnect()))
+  }
 
-    return client
+  pick(): PrismaClient {
+    const tenantId = TenantContext.getStore()?.tenantId
+    return this.clients[tenantId]
   }
 }

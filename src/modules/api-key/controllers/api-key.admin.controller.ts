@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Patch, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { ENUM_API_KEY_TYPE, Prisma } from '@prisma/client'
+import { ENUM_API_KEY_TYPE, Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
 import {
@@ -39,6 +39,10 @@ export class ApiKeyAdminController {
     summary: API_KEY_DOC_OPERATION,
     queries: API_KEY_DOC_ADMIN_QUERY_LIST,
     sortable: true,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -54,7 +58,6 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -84,7 +87,11 @@ export class ApiKeyAdminController {
   @ApiRequestList({
     summary: API_KEY_DOC_OPERATION,
     queries: API_KEY_DOC_ADMIN_QUERY_LIST,
-    // docExclude: true,
+    sortable: false,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -94,7 +101,6 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -120,6 +126,8 @@ export class ApiKeyAdminController {
 
   @ApiRequestData({
     summary: API_KEY_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -135,7 +143,6 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -149,6 +156,8 @@ export class ApiKeyAdminController {
 
   @ApiRequestData({
     summary: API_KEY_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -165,7 +174,6 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/')
@@ -184,6 +192,8 @@ export class ApiKeyAdminController {
 
   @ApiRequestData({
     summary: API_KEY_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -200,7 +210,6 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -217,6 +226,8 @@ export class ApiKeyAdminController {
 
   @ApiRequestData({
     summary: API_KEY_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -233,7 +244,6 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Patch('/:id/reset')
@@ -247,6 +257,8 @@ export class ApiKeyAdminController {
 
   @ApiRequestData({
     summary: API_KEY_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -263,7 +275,6 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Patch('/:id/renew')
@@ -284,6 +295,8 @@ export class ApiKeyAdminController {
 
   @ApiRequestData({
     summary: API_KEY_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -300,7 +313,6 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id/inactive')
@@ -314,6 +326,8 @@ export class ApiKeyAdminController {
 
   @ApiRequestData({
     summary: API_KEY_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -330,7 +344,6 @@ export class ApiKeyAdminController {
     },
     response: {
       dto: ApiKeyResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id/active')
@@ -344,6 +357,8 @@ export class ApiKeyAdminController {
 
   @ApiRequestData({
     summary: API_KEY_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {

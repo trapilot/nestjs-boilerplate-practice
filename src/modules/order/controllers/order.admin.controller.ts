@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
 import {
@@ -35,6 +35,10 @@ export class OrderAdminController {
     summary: ORDER_DOC_OPERATION,
     queries: ORDER_DOC_ADMIN_QUERY_LIST,
     sortable: true,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -50,7 +54,6 @@ export class OrderAdminController {
     },
     response: {
       dto: OrderResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/')
@@ -80,7 +83,11 @@ export class OrderAdminController {
   @ApiRequestList({
     summary: ORDER_DOC_OPERATION,
     queries: ORDER_DOC_ADMIN_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
     docExclude: true,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -90,7 +97,6 @@ export class OrderAdminController {
     },
     response: {
       dto: OrderResponseListDto,
-      docExpansion: true,
     },
   })
   @Get('/map-shorted')
@@ -116,6 +122,8 @@ export class OrderAdminController {
 
   @ApiRequestData({
     summary: ORDER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -131,7 +139,6 @@ export class OrderAdminController {
     },
     response: {
       dto: OrderResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Get('/:id')
@@ -146,6 +153,8 @@ export class OrderAdminController {
 
   @ApiRequestData({
     summary: ORDER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -162,7 +171,6 @@ export class OrderAdminController {
     },
     response: {
       dto: OrderResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Post('/')
@@ -173,6 +181,8 @@ export class OrderAdminController {
 
   @ApiRequestData({
     summary: ORDER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {
@@ -189,7 +199,6 @@ export class OrderAdminController {
     },
     response: {
       dto: OrderResponseDetailDto,
-      docExpansion: true,
     },
   })
   @Put('/:id')
@@ -206,6 +215,8 @@ export class OrderAdminController {
 
   @ApiRequestData({
     summary: ORDER_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: ENUM_AUTH_SCOPE_TYPE.USER,
       user: {

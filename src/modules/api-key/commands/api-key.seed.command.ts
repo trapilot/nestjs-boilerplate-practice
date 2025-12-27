@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common'
-import { ENUM_API_KEY_TYPE } from '@prisma/client'
+import { ENUM_API_KEY_TYPE } from '@runtime/prisma-client'
 import { NEST_CLI } from 'lib/nest-core'
 import { Command, CommandRunner } from 'nest-commander'
 import { ApiKeyService } from '../services'
