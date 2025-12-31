@@ -87,15 +87,21 @@ async function bootstrap() {
 
   // set response for log
   app.use(function (req: IRequestApp, res: IResponseApp, next: INextFunction) {
-    if (req.originalUrl && req.originalUrl.split('/').pop() === 'favicon.ico') {
+    // Ignore favicon
+    if (req.originalUrl?.endsWith('favicon.ico')) {
+      return res.sendStatus(204)
+    }
+    // Ignore devtools
+    if (req.originalUrl?.endsWith('devtools.json')) {
       return res.sendStatus(204)
     }
 
-    const send = res.send
-    res.send = function (body: any) {
+    const orgSend = res.send.bind(res)
+    res.send = (body: any) => {
       res.body = body
-      send.call(this, body)
+      return orgSend(body)
     }
+
     next()
   })
 
