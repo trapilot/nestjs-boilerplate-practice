@@ -2,7 +2,7 @@ import { Controller, Get, Post, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, AuthService, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { ENUM_FILE_TYPE_EXCEL, IFile } from 'lib/nest-core'
+import { ENUM_FILE_BOOK_TYPE, IFile } from 'lib/nest-core'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -79,7 +79,7 @@ export class MemberAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: ENUM_FILE_TYPE_EXCEL,
+    @RequestBookType() bookType: ENUM_FILE_BOOK_TYPE,
     @RequestQueryFilterContain('phone') _phone: RequestFilterDto,
     @RequestQueryFilterContain('email') _email: RequestFilterDto,
     @RequestQueryFilterContain('name') _name: RequestFilterDto,

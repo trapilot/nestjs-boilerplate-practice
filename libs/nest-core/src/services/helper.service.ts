@@ -8,10 +8,9 @@ import {
   IDateCreateOptions,
   IDateExtractData,
   IDateRange,
-  IStringEmailValidation,
   IStringRandomOptions,
 } from '../interfaces'
-import { DateUtil } from '../utils'
+import { ArrUtil, DateUtil } from '../utils'
 
 @Injectable()
 export class HelperService {
@@ -137,72 +136,14 @@ export class HelperService {
     return `${text.slice(0, 3)}${stringCensor}${text.slice(-lengthExplicit)}`
   }
 
-  dirtyString(text: string, suffix?: string | number): string {
+  dirtyString(text: string, dirty?: string | number): string {
     if (!text) return text
-    suffix = suffix ?? new Date().getTime()
-    return [text, suffix].join('_')
+    dirty = dirty ?? new Date().getTime()
+    return ArrUtil.join([text, dirty], { delimiter: '_' })
   }
 
   padZero(text: string | number, length: number = 1, prefix: string = ''): string {
     return prefix + `${text}`.padStart(Math.max(length, `${text}`.length), '0')
-  }
-
-  checkEmail(value: string): IStringEmailValidation {
-    const regex = new RegExp(/\S@\S\.\S/)
-    const valid = regex.test(value)
-    if (!valid) {
-      return {
-        validated: false,
-        message: 'request.email.invalid',
-      }
-    }
-
-    const atSymbolCount = (value.match(/@/g) || []).length
-    if (atSymbolCount !== 1) {
-      return {
-        validated: false,
-        message: 'request.email.multipleAtSymbols',
-      }
-    }
-
-    const [localPart, domain] = value.split('@')
-
-    // Add minimum length check for local part
-    if (!localPart || localPart.length === 0) {
-      return {
-        validated: false,
-        message: 'request.email.localPartNotEmpty',
-      }
-    } else if (!domain || domain.length > 255) {
-      return {
-        validated: false,
-        message: 'request.email.domainLength',
-      }
-    } else if (localPart.length > 64) {
-      return {
-        validated: false,
-        message: 'request.email.localPartMaxLength',
-      }
-    } else if (localPart.startsWith('.') || localPart.endsWith('.')) {
-      return {
-        validated: false,
-        message: 'request.email.localPartDot',
-      }
-    } else if (localPart.includes('..')) {
-      return {
-        validated: false,
-        message: 'request.email.consecutiveDots',
-      }
-    }
-
-    const allowedLocalPartChars = /^[a-zA-Z0-9-_.]$/
-    if (!allowedLocalPartChars.test(localPart)) {
-      return {
-        validated: false,
-        message: 'request.email.invalidChars',
-      }
-    }
-    return
   }
 
   checkUrlMatchesPatterns(url: string, patterns: string[]): boolean {

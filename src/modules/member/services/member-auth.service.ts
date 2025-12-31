@@ -75,7 +75,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
   @Cron(CronExpression.EVERY_DAY_AT_6AM, { timeZone: APP_TIMEZONE })
   private async clearExpiredRefreshTokens() {
     const dateNow = this.helperService.dateCreate()
-    await this.prisma.memberTokenHistory.deleteMany({
+    await this.prisma.client.memberTokenHistory.deleteMany({
       where: { refreshExpired: { lte: dateNow } },
     })
   }
@@ -96,7 +96,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
   }
 
   async getUserData(userId: number): Promise<TMember> {
-    const userData = await this.prisma.member
+    const userData = await this.prisma.client.member
       .findUniqueOrThrow({ where: { id: userId } })
       .catch((_err: unknown) => {
         throw new ForbiddenException({
@@ -117,7 +117,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
     refreshToken: string,
     refreshPayload: AuthJwtRefreshPayloadDto,
   ) {
-    const userToken = await this.prisma.memberTokenHistory.findFirst({
+    const userToken = await this.prisma.client.memberTokenHistory.findFirst({
       where: { refreshToken },
     })
 
@@ -130,7 +130,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
 
     if (!userToken.isActive || this.helperService.dateCheckAfter(userToken.refreshExpired)) {
       // tracking spam refresh token
-      await this.prisma.memberTokenHistory.update({
+      await this.prisma.client.memberTokenHistory.update({
         where: { id: userToken.id },
         data: { refreshAttempt: { increment: 1 } },
       })
@@ -145,7 +145,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
       userToken.memberId !== refreshPayload.user.id
     ) {
       // kick users that logged in. user must login again
-      await this.prisma.memberTokenHistory.updateMany({
+      await this.prisma.client.memberTokenHistory.updateMany({
         where: { memberId: userToken.memberId },
         data: { isActive: false },
       })
@@ -158,7 +158,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
   }
 
   async findOrFail(id: number, include?: Prisma.MemberInclude): Promise<TMember> {
-    return await this.prisma.member
+    return await this.prisma.client.member
       .findUniqueOrThrow({ include, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -186,7 +186,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
     where: Prisma.MemberWhereInput,
     include?: Prisma.MemberInclude,
   ): Promise<TMember> {
-    const member = await this.prisma.member
+    const member = await this.prisma.client.member
       .findFirstOrThrow({ where, include })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -198,7 +198,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
   }
 
   async count(where?: Prisma.MemberWhereInput): Promise<number> {
-    return await this.prisma.member.count({
+    return await this.prisma.client.member.count({
       where,
     })
   }
@@ -348,18 +348,18 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
 
     try {
       // update member login time
-      await this.prisma.member.update({
+      await this.prisma.client.member.update({
         data: { loginDate: payload.loginDate, loginToken: payload.loginToken, passwordAttempt: 0 },
         where: { id: member.id },
       })
 
       if (userToken) {
         // disabled old online refresh tokens
-        await this.prisma.memberTokenHistory.updateMany({
+        await this.prisma.client.memberTokenHistory.updateMany({
           data: { isActive: false, updatedAt: payload.loginDate },
           where: { memberId: member.id, isActive: true, memberToken: payload.loginToken },
         })
-        await this.prisma.memberTokenHistory.create({
+        await this.prisma.client.memberTokenHistory.create({
           data: {
             isActive: true,
             memberId: member.id,
@@ -376,7 +376,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
 
       if (userAgent) {
         // disabled online devices
-        await this.prisma.memberDeviceHistory.updateMany({
+        await this.prisma.client.memberDeviceHistory.updateMany({
           data: { isActive: false, updatedAt: payload.loginDate },
           where: { token: payload.loginToken },
         })
@@ -391,7 +391,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
           isActive: true,
           memberId: member.id,
         }
-        await this.prisma.memberDeviceHistory.upsert({
+        await this.prisma.client.memberDeviceHistory.upsert({
           where: { memberId_token: { memberId: userData.memberId, token: userData.token } },
           update: userData,
           create: userData,
@@ -412,7 +412,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
   }
 
   private async increasePasswordAttempt(user: TMember): Promise<void> {
-    await this.prisma.member.update({
+    await this.prisma.client.member.update({
       data: { passwordAttempt: { increment: 1 } },
       where: { id: user.id },
     })
@@ -446,7 +446,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
     }
 
     const { passwordHash } = this.authService.createPassword(dto.newPassword)
-    return await this.prisma.member.update({
+    return await this.prisma.client.member.update({
       data: { password: passwordHash, passwordAttempt: 0 },
       where: { id: member.id },
     })
@@ -456,7 +456,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
     const member = await this.matchOrFail({ phone: dto.phone })
 
     const { passwordHash } = this.authService.createPassword(dto.password)
-    return await this.prisma.member.update({
+    return await this.prisma.client.member.update({
       data: { password: passwordHash, passwordAttempt: 0 },
       where: { id: member.id },
     })
@@ -560,7 +560,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
   }
 
   async signUp(dto: MemberRequestSignUpDto): Promise<TMember> {
-    const phoneExists = await this.prisma.member.count({
+    const phoneExists = await this.prisma.client.member.count({
       where: { phone: dto.phone },
     })
 
@@ -575,7 +575,7 @@ export class MemberAuthService implements IAuthValidator<TMember>, OnModuleInit 
     const { passwordHash } = this.authService.createPassword(dto.password)
 
     const normalTier = this.tierService.getChart().getNormalTier()
-    const member = await this.prisma.member.create({
+    const member = await this.prisma.client.member.create({
       data: {
         ...dto,
         tierId: normalTier.id,

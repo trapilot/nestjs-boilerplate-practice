@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty } from 'class-validator'
 import { ToString } from 'lib/nest-core'
-import { IsCustomEmail, IsPhone } from 'lib/nest-web'
+import { IsEmail, IsPhone } from 'lib/nest-web'
 
 export class MemberRequestOTPDto {
   @IsNotEmpty()
@@ -13,7 +13,7 @@ export class MemberRequestOTPDto {
 
 export class MemberRequestTokenDto {
   @IsNotEmpty()
-  @IsCustomEmail()
+  @IsEmail()
   @ToString()
   @ApiProperty({ required: false, example: process.env.MOCK_MEMBER_EMAIL })
   email: string

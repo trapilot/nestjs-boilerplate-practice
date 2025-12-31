@@ -45,14 +45,14 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
   @Cron(CronExpression.EVERY_DAY_AT_2AM, { timeZone: APP_TIMEZONE })
   private async clearExpiredRefreshTokens() {
     const nowTime = this.helperService.dateCreate()
-    await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.deleteMany({
+    await this.prisma.client.<%= singular(lowercased(name)) %>TokenHistory.deleteMany({
       where: { refreshExpired: { lte: nowTime } },
     })
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { timeZone: APP_TIMEZONE })
   private async clearPasswordAttempts() {
-    await this.prisma.<%= singular(lowercased(name)) %>.updateMany({
+    await this.prisma.client.<%= singular(lowercased(name)) %>.updateMany({
       data: { passwordAttempt: 0 },
       where: { passwordAttempt: { gt: 0 }, isActive: true },
     })
@@ -74,7 +74,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
   }
 
   async getUserData(userId: number): Promise<T<%= singular(classify(name)) %>> {
-    const userData = await this.prisma.<%= singular(lowercased(name)) %>
+    const userData = await this.prisma.client.<%= singular(lowercased(name)) %>
       .findUniqueOrThrow({ include: this.authRelation, where: { id: userId } })
       .catch((_err: unknown) => {
         throw new ForbiddenException({
@@ -95,7 +95,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
     refreshToken: string,
     refreshPayload: AuthJwtRefreshPayloadDto,
   ) {
-    const userToken = await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.findFirst({
+    const userToken = await this.prisma.client.<%= singular(lowercased(name)) %>TokenHistory.findFirst({
       where: { refreshToken },
       orderBy: [{ id: desc }],
     })
@@ -109,7 +109,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
 
     if (!userToken.isActive || this.helperService.dateCheckAfter(userToken.refreshExpired)) {
       // tracking spam refresh token
-      await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.update({
+      await this.prisma.client.<%= singular(lowercased(name)) %>TokenHistory.update({
         where: { id: userToken.id },
         data: { refreshAttempt: { increment: 1 } },
       })
@@ -124,7 +124,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
       userToken.<%= singular(lowercased(name)) %>Id !== refreshPayload.user.id
     ) {
       // kick users that logged in. user must login again
-      await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.updateMany({
+      await this.prisma.client.<%= singular(lowercased(name)) %>TokenHistory.updateMany({
         where: { <%= singular(lowercased(name)) %>Id: userToken.<%= singular(lowercased(name)) %>Id },
         data: { isActive: false },
       })
@@ -141,7 +141,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
     id: number,
     kwargs?: Omit<Prisma.<%= singular(classify(name)) %>FindUniqueOrThrowArgs, 'where'>,
   ): Promise<T<%= singular(classify(name)) %>> {
-    return await this.prisma.<%= singular(lowercased(name)) %>
+    return await this.prisma.client.<%= singular(lowercased(name)) %>
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -155,7 +155,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
     where: Prisma.<%= singular(classify(name)) %>WhereInput,
     kwargs?: Omit<Prisma.<%= singular(classify(name)) %>FindFirstOrThrowArgs, 'where'>,
   ): Promise<T<%= singular(classify(name)) %>> {
-    return await this.prisma.<%= singular(lowercased(name)) %>
+    return await this.prisma.client.<%= singular(lowercased(name)) %>
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -323,18 +323,18 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
     const { payload, userToken, userAgent, userRequest } = options
 
     try {
-      await this.prisma.<%= singular(lowercased(name)) %>.update({
+      await this.prisma.client.<%= singular(lowercased(name)) %>.update({
         data: { loginDate: payload.loginDate, loginToken: payload.loginToken, passwordAttempt: 0 },
         where: { id: <%= singular(lowercased(name)) %>.id },
       })
 
       if (userToken) {
         // disabled old online refresh tokens
-        await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.updateMany({
+        await this.prisma.client.<%= singular(lowercased(name)) %>TokenHistory.updateMany({
           data: { isActive: false, updatedAt: payload.loginDate },
           where: { <%= singular(lowercased(name)) %>Id: <%= singular(lowercased(name)) %>.id, isActive: true, <%= singular(lowercased(name)) %>Token: payload.loginToken },
         })
-        await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.create({
+        await this.prisma.client.<%= singular(lowercased(name)) %>TokenHistory.create({
           data: {
             isActive: true,
             <%= singular(lowercased(name)) %>Id: <%= singular(lowercased(name)) %>.id,
@@ -350,7 +350,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
       }
 
       /*if (userRequest) {
-        await this.prisma.<%= singular(lowercased(name)) %>LoginHistory.create({
+        await this.prisma.client.<%= singular(lowercased(name)) %>LoginHistory.create({
           data: {
             userId: <%= singular(lowercased(name)) %>.id,
             hostname: userRequest?.hostname,
@@ -368,7 +368,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
       }*/
       /*if (userAgent) {
         // disabled online devices
-        await this.prisma.<%= singular(lowercased(name)) %>DeviceHistory.updateMany({
+        await this.prisma.client.<%= singular(lowercased(name)) %>DeviceHistory.updateMany({
           data: { isActive: false, updatedAt: payload.loginDate },
           where: { token: payload.loginToken },
         })
@@ -383,7 +383,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
           isActive: true,
           <%= singular(lowercased(name)) %>Id: <%= singular(lowercased(name)) %>.id,
         }
-        await this.prisma.<%= singular(lowercased(name)) %>DeviceHistory.upsert({
+        await this.prisma.client.<%= singular(lowercased(name)) %>DeviceHistory.upsert({
           where: { <%= singular(lowercased(name)) %>Id_token: { <%= singular(lowercased(name)) %>Id: userData.<%= singular(lowercased(name)) %>Id, token: userData.token } },
           update: userData,
           create: userData,
@@ -399,21 +399,21 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
   }
 
   private async increasePasswordAttempt(<%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>): Promise<void> {
-    await this.prisma.<%= singular(lowercased(name)) %>.update({
+    await this.prisma.client.<%= singular(lowercased(name)) %>.update({
       data: { passwordAttempt: { increment: 1 } },
       where: { id: <%= singular(lowercased(name)) %>.id },
     })
   }
 
   private async resetPasswordAttempt(<%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>): Promise<void> {
-    await this.prisma.<%= singular(lowercased(name)) %>.update({
+    await this.prisma.client.<%= singular(lowercased(name)) %>.update({
       data: { passwordAttempt: 0 },
       where: { id: <%= singular(lowercased(name)) %>.id },
     })
   }
 
   private async updatePassword(<%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>, { passwordHash }: IAuthPassword): Promise<boolean> {
-    await this.prisma.<%= singular(lowercased(name)) %>.update({
+    await this.prisma.client.<%= singular(lowercased(name)) %>.update({
       data: { password: passwordHash, passwordAttempt: 0 },
       where: { id: <%= singular(lowercased(name)) %>.id },
     })
@@ -474,7 +474,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
   }
 
   async signUp(dto: <%= singular(classify(name)) %>RequestSignUpDto): Promise<T<%= singular(classify(name)) %>> {
-    if (!!(await this.prisma.<%= singular(lowercased(name)) %>.count({ where: { email: dto.email } }))) {
+    if (!!(await this.prisma.client.<%= singular(lowercased(name)) %>.count({ where: { email: dto.email } }))) {
       throw new BadRequestException({
         statusCode: HttpStatus.CONFLICT,
         message: 'auth.error.emailExist',
@@ -482,7 +482,7 @@ export class <%= singular(classify(name)) %>AuthService implements IAuthValidato
     }
 
     const { passwordHash } = await this.authService.createPassword(dto.password)
-    return await this.prisma.<%= singular(lowercased(name)) %>.create({
+    return await this.prisma.client.<%= singular(lowercased(name)) %>.create({
       data: {
         isActive: true,
         ...dto,

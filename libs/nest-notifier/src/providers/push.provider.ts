@@ -4,12 +4,11 @@ import * as admin from 'firebase-admin'
 import {
   AppException,
   FailedAttemptError,
+  FileUtil,
   QueueContext,
   RetryContext,
-  ROOT_PATH,
 } from 'lib/nest-core'
-import { LoggerService } from 'lib/nest-logger'
-import { join } from 'path'
+import { ENUM_LOGGER_TYPE, LoggerService } from 'lib/nest-logger'
 import { INotificationPayload } from '../interfaces'
 
 @Injectable()
@@ -24,7 +23,7 @@ export class PushProvider {
     private readonly logger: LoggerService,
   ) {
     this.dryRun = this.config.get<boolean>('notification.push.dryRun')
-    this.logger.setContext('push')
+    this.logger.setContext(ENUM_LOGGER_TYPE.SYSTEM, 'push')
   }
 
   send(payload: INotificationPayload) {
@@ -38,7 +37,7 @@ export class PushProvider {
     if (!this.fcm) {
       const filePath = this.config.get<string>('notification.push.firebase.serviceAccountPath')
       const app = admin.initializeApp({
-        credential: admin.credential.cert(join(ROOT_PATH, filePath)),
+        credential: admin.credential.cert(FileUtil.joinRoot([filePath])),
       })
 
       this.fcm = app.messaging()

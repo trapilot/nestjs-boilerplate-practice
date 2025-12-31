@@ -46,7 +46,9 @@ export interface IResponseApp extends Response {
   send(body: any): any
 }
 
-export interface IResponseMetadata {
+export type INextFunction = NextFunction
+
+export interface IReturnMetadata {
   customProperty?: {
     statusCode?: number
     statusHttp?: HttpStatus
@@ -57,23 +59,41 @@ export interface IResponseMetadata {
   [key: string]: any
 }
 
-export interface IResponseCacheOptions {
-  key?: string
-  ttl?: number // milliseconds
+export interface IReturnData<T = Record<string, any>> {
+  _metadata?: IReturnMetadata
+  data: T
 }
 
-export interface IResponseException {
-  message: string
-  httpStatus: number
-  statusCode?: number
-  metadata?: IResponseMetadata
-  errors?: IMessageError[]
-  error?: string
+export interface IReturnList<T = Record<string, any>> {
+  _metadata?: IReturnMetadata
+  data: T[]
 }
 
-export interface IMessageError {
-  property: string
-  message: string
+export interface IReturnPaging<T = Record<string, any>> {
+  _metadata?: IReturnMetadata
+  data: T[]
+  pagination: {
+    totalPage: number
+    totalRecord: number
+  }
 }
 
-export interface INextFunction extends NextFunction {}
+export interface IReturnIterator<T = Record<string, any>> {
+  _metadata?: IReturnMetadata
+  data: AsyncGenerator<T[]>
+  filePrefix?: string
+  fileTimestamp?: boolean
+}
+
+export interface IReturnBuffer {
+  file: Buffer
+  name: string
+  timestamp?: boolean
+}
+
+export interface IReturnPath {
+  file: string | string[]
+  name?: string
+  relative?: string // use in zip file
+  temporary?: boolean
+}

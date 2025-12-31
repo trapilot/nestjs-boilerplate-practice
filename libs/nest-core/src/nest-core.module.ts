@@ -10,8 +10,7 @@ import { ScheduleModule } from '@nestjs/schedule'
 import { NestLoggerModule } from 'lib/nest-logger'
 import { NestNotifierModule } from 'lib/nest-notifier'
 import { HeaderResolver, I18nJsonLoader, I18nModule } from 'nestjs-i18n'
-import { join } from 'path'
-import { APP_PATH, REALTIME_CACHE, REALTIME_PUB, REALTIME_STREAM, REALTIME_SUB } from './constants'
+import { REALTIME_CACHE, REALTIME_PUB, REALTIME_STREAM, REALTIME_SUB } from './constants'
 import { ENUM_MESSAGE_LANGUAGE } from './enums'
 import { AppExceptionFilter } from './filters'
 import {
@@ -22,6 +21,7 @@ import {
   MessageService,
   RealtimeService,
 } from './services'
+import { FileUtil } from './utils'
 
 @Module({})
 export class NestCoreModule {
@@ -139,7 +139,7 @@ export class NestCoreModule {
         ConfigModule.forRoot({
           isGlobal: true,
           load: options.configs,
-          cache: options.cache ?? true,
+          cache: options?.cache,
           envFilePath: options?.envFilePath ?? ['.env'],
           expandVariables: false,
         }),
@@ -161,7 +161,7 @@ export class NestCoreModule {
               .get<ENUM_MESSAGE_LANGUAGE[]>('helper.message.availableList')
               .reduce((a, v) => ({ ...a, [`${v}_*`]: v }), {}),
             loaderOptions: {
-              path: join(APP_PATH, 'resources', 'languages'),
+              path: FileUtil.joinApp(['resources', 'languages']),
               watch: true,
             },
             logging: false,

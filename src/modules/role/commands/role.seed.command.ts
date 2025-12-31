@@ -72,7 +72,7 @@ export class RoleSeedCommand extends CommandRunner {
       for (const code in USER_ROLES) {
         const { level, title, description, users } = USER_ROLES[code]
 
-        await this.prisma.role.upsert({
+        await this.prisma.client.role.upsert({
           where: { id: roleId },
           update: { level, isActive: true },
           create: { level, title, description, isActive: true },
@@ -82,7 +82,7 @@ export class RoleSeedCommand extends CommandRunner {
           if (!user.email && !user.password) continue
 
           const hashedPassword = this.cryptoService.bcrypt(user.password, passwordSalt)
-          await this.prisma.user.upsert({
+          await this.prisma.client.user.upsert({
             where: { id: userId },
             create: {
               level,

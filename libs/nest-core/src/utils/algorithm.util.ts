@@ -18,8 +18,8 @@ export class AlgorithmUtil {
     return first
   }
 
-  static getGCD(width: number, height: number): number {
+  static gcd(width: number, height: number): number {
     if (height === 0) return width
-    return this.getGCD(height, width % height)
+    return this.gcd(height, width % height)
   }
 }

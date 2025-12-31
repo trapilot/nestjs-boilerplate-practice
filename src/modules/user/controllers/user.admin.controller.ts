@@ -12,7 +12,7 @@ import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, AuthService, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
 import {
   ENUM_FILE_MIME,
-  ENUM_FILE_TYPE_EXCEL,
+  ENUM_FILE_BOOK_TYPE,
   FILE_SIZE_IN_BYTES,
   HelperService,
   IFile,
@@ -93,7 +93,7 @@ export class UserAdminController {
       availableOrderBy: ['id', 'isActive'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: ENUM_FILE_TYPE_EXCEL,
+    @RequestBookType() bookType: ENUM_FILE_BOOK_TYPE,
     @RequestQueryFilterMany('roleId', { parseAs: 'id' }) rawRole: RequestFilterDto,
     @RequestQueryFilterContain('phone') _phone: RequestFilterDto,
     @RequestQueryFilterContain('name') _name: RequestFilterDto,
@@ -191,7 +191,7 @@ export class UserAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: ENUM_FILE_TYPE_EXCEL,
+    @RequestBookType() bookType: ENUM_FILE_BOOK_TYPE,
     @RequestParam('id') id: number,
     @RequestQuery('month', { pipes: [RequestRequiredMonthPipe] }) month: number,
     @RequestQuery('year', { pipes: [RequestRequiredYearPipe] }) year: number,

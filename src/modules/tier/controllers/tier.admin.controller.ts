@@ -2,7 +2,7 @@ import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
+import { ENUM_FILE_BOOK_TYPE } from 'lib/nest-core'
 import { PrismaUtil } from 'lib/nest-prisma'
 import {
   ApiRequestData,
@@ -65,7 +65,7 @@ export class TierAdminController {
       availableOrderBy: ['level'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: ENUM_FILE_TYPE_EXCEL,
+    @RequestBookType() bookType: ENUM_FILE_BOOK_TYPE,
   ): Promise<IResponsePaging> {
     const _where: Prisma.TierWhereInput = {
       ..._search,

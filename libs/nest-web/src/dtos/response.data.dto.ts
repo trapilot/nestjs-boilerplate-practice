@@ -2,13 +2,13 @@ import { ApiHideProperty, ApiProperty, PickType } from '@nestjs/swagger'
 import {
   APP_LANGUAGE,
   APP_TIMEZONE,
-  ResponseListingMetadataDto,
+  ResponseListMetadataDto,
   ResponseMetadataDto,
   ResponsePagingMetadataDto,
 } from 'lib/nest-core'
 import { REQUEST_DEFAULT_PER_PAGE } from '../constants'
 
-export class ResponseDataDto<T = any> {
+export class ResponseDataDto<T> {
   @ApiProperty({
     name: 'success',
     type: () => Boolean,
@@ -41,14 +41,14 @@ export class ResponseDataDto<T = any> {
   data?: T
 }
 
-export class ResponseListingDto<T = any> extends PickType(ResponseDataDto, ['success'] as const) {
+export class ResponseListDto<T> extends PickType(ResponseDataDto, ['success'] as const) {
   @ApiProperty({
     name: 'metadata',
     isArray: false,
     required: true,
     nullable: false,
     description: 'Contain metadata about API',
-    type: ResponseListingMetadataDto,
+    type: ResponseListMetadataDto,
     example: {
       language: APP_LANGUAGE,
       timestamp: 1660190937231,
@@ -59,13 +59,13 @@ export class ResponseListingDto<T = any> extends PickType(ResponseDataDto, ['suc
       availableOrderBy: [],
     },
   })
-  metadata: ResponseListingMetadataDto
+  metadata: ResponseListMetadataDto
 
   @ApiProperty({ required: true, isArray: true, default: [] })
   data: T[]
 }
 
-export class ResponsePagingDto<T = any> extends PickType(ResponseDataDto, ['success'] as const) {
+export class ResponsePagingDto<T> extends PickType(ResponseDataDto, ['success'] as const) {
   @ApiProperty({
     name: 'metadata',
     isArray: false,

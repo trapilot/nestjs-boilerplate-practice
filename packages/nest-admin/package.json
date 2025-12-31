@@ -49,7 +49,7 @@
   },
   "lint-staged": {
     "**/*.ts": [
-      "prettier --write '{src}/**/*.{ts,tsx,json,yml,yaml}'",
+      "prettier --write",
       "eslint",
       "stop-only --file",
       "git add ."

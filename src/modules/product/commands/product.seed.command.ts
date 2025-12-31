@@ -25,20 +25,20 @@ export class ProductSeedCommand extends CommandRunner {
     this.logger.warn(`${ProductSeedCommand.name} is running...`)
 
     try {
-      await this.prisma.$queryRaw`SET FOREIGN_KEY_CHECKS=0`
-      await this.prisma.$queryRawUnsafe(`TRUNCATE TABLE products`)
-      await this.prisma.$queryRawUnsafe(`TRUNCATE TABLE product_reviews`)
-      await this.prisma.$queryRawUnsafe(`TRUNCATE TABLE product_languages`)
-      await this.prisma.$queryRawUnsafe(`TRUNCATE TABLE product_brands`)
-      await this.prisma.$queryRawUnsafe(`TRUNCATE TABLE product_categories`)
-      await this.prisma.$queryRaw`SET FOREIGN_KEY_CHECKS=1`
+      await this.prisma.client.$queryRaw`SET FOREIGN_KEY_CHECKS=0`
+      await this.prisma.client.$queryRawUnsafe(`TRUNCATE TABLE products`)
+      await this.prisma.client.$queryRawUnsafe(`TRUNCATE TABLE product_reviews`)
+      await this.prisma.client.$queryRawUnsafe(`TRUNCATE TABLE product_languages`)
+      await this.prisma.client.$queryRawUnsafe(`TRUNCATE TABLE product_brands`)
+      await this.prisma.client.$queryRawUnsafe(`TRUNCATE TABLE product_categories`)
+      await this.prisma.client.$queryRaw`SET FOREIGN_KEY_CHECKS=1`
 
       const startDate = this.config.get<Date>('app.startDate')
       const dateNow = this.helperService.dateCreate()
 
-      let categories = await this.prisma.productCategory.findMany()
+      let categories = await this.prisma.client.productCategory.findMany()
       if (categories.length === 0) {
-        await this.prisma.productCategory.createMany({
+        await this.prisma.client.productCategory.createMany({
           data: ['Barber', 'Hair removal', 'Med spa', 'Nails', 'Tanning', 'Braids'].map((name) => {
             return {
               name: {
@@ -52,15 +52,15 @@ export class ProductSeedCommand extends CommandRunner {
           }),
           skipDuplicates: true,
         })
-        categories = await this.prisma.productCategory.findMany()
+        categories = await this.prisma.client.productCategory.findMany()
       }
 
-      let brands = await this.prisma.productBrand.findMany()
+      let brands = await this.prisma.client.productBrand.findMany()
       if (brands.length === 0) {
         // cspell:disable
         const BRANDS = ['L’Oréal', 'Unilever', 'Procter & Gamble', 'LVMH', 'Beiersdorf', 'Coty Inc']
         // cspell:enable
-        await this.prisma.productBrand.createMany({
+        await this.prisma.client.productBrand.createMany({
           data: BRANDS.map((name) => {
             return {
               name: {
@@ -77,10 +77,10 @@ export class ProductSeedCommand extends CommandRunner {
           }),
           skipDuplicates: true,
         })
-        brands = await this.prisma.productBrand.findMany()
+        brands = await this.prisma.client.productBrand.findMany()
       }
 
-      await this.prisma.$queryRaw`ALTER TABLE products DISABLE KEYS;`
+      await this.prisma.client.$queryRaw`ALTER TABLE products DISABLE KEYS;`
       // let products: Prisma.ProductUncheckedCreateInput[] = []
       for (let i = 0; i < options.numbers; i++) {
         const costPrice = faker.number.int({ min: 0, max: 10_000 })
@@ -108,7 +108,7 @@ export class ProductSeedCommand extends CommandRunner {
         const category = categories[Math.floor(Math.random() * categories.length)]
         const brand = brands[Math.floor(Math.random() * brands.length)]
 
-        await this.prisma.product.create({
+        await this.prisma.client.product.create({
           data: {
             categoryId: category.id,
             brandId: brand.id,
@@ -160,14 +160,14 @@ export class ProductSeedCommand extends CommandRunner {
         })
 
         // if (products.length === 500 || i === options.numbers - 1) {
-        //   await this.prisma.$executeRaw(PrismaUtil.buildBulkInsert(products, tableName))
+        //   await this.prisma.client.$executeRaw(PrismaUtil.buildBulkInsert(products, tableName))
         //   products = []
         // }
       }
     } catch (err: any) {
       throw new Error(err.message)
     } finally {
-      // await this.prisma.$queryRaw`ALTER TABLE ${Prisma.raw(tableName)} ENABLE KEYS;`
+      // await this.prisma.client.$queryRaw`ALTER TABLE ${Prisma.raw(tableName)} ENABLE KEYS;`
     }
 
     return

@@ -20,11 +20,11 @@ export class FactSeedCommand extends CommandRunner {
     this.logger.warn(`${FactSeedCommand.name} is running...`)
 
     try {
-      await this.prisma.$queryRaw`SET FOREIGN_KEY_CHECKS=0`
-      await this.prisma.$queryRawUnsafe(`TRUNCATE TABLE facts`)
-      await this.prisma.$queryRaw`SET FOREIGN_KEY_CHECKS=1`
+      await this.prisma.client.$queryRaw`SET FOREIGN_KEY_CHECKS=0`
+      await this.prisma.client.$queryRawUnsafe(`TRUNCATE TABLE facts`)
+      await this.prisma.client.$queryRaw`SET FOREIGN_KEY_CHECKS=1`
 
-      await this.prisma.fact.createMany({
+      await this.prisma.client.fact.createMany({
         data: [
           {
             type: ENUM_FACT_TYPE.ABOUT_US,

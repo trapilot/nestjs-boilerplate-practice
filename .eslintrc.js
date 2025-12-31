@@ -27,6 +27,10 @@ module.exports = {
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-empty-object-type': 'off',
+    '@typescript-eslint/no-unsafe-function-type': 'off',
+    '@typescript-eslint/no-unused-expressions': 'off',
+    '@typescript-eslint/no-duplicate-enum-values': 'warn',
+    '@typescript-eslint/await-thenable': 'warn',
     '@typescript-eslint/no-unused-vars': [
       'warn',
       {
@@ -39,10 +43,6 @@ module.exports = {
         ignoreRestSiblings: true,
       },
     ],
-    '@typescript-eslint/no-unsafe-function-type': 'off',
-    '@typescript-eslint/no-unused-expressions': 'off',
-    '@typescript-eslint/no-duplicate-enum-values': 'warn',
-    '@typescript-eslint/await-thenable': 'warn',
     'prettier/prettier': ['error'],
     'prefer-const': 'off',
     'no-unused-vars': 'off',

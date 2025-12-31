@@ -5,14 +5,16 @@ import { ClassConstructor, ClassTransformOptions, plainToInstance } from 'class-
 import { stream, Workbook, Worksheet } from 'exceljs'
 import {
   AppContext,
-  ENUM_FILE_TYPE_EXCEL,
+  ENUM_FILE_BOOK_TYPE,
   FileUtil,
   HelperService,
   IExportableMetadata,
   IRequestApp,
   IResponseApp,
+  IReturnIterator,
+  IReturnPaging,
   MessageService,
-  MetadataUtil,
+  PropertyStorage,
   ResponsePagingMetadataDto,
   ResponseSuccessDto,
   StrUtil,
@@ -26,10 +28,10 @@ import {
   RESPONSE_FILE_EXPORT_METADATA,
 } from '../constants'
 import { ResponseUserBelongDto } from '../dtos'
-import { IDataIterator, IDataPaging, IResponsePaging } from '../interfaces'
+import { IResponsePaging } from '../interfaces'
 
 @Injectable()
-export class ResponsePagingInterceptor<T> implements NestInterceptor<T, IResponsePaging> {
+export class ResponsePagingInterceptor<T, R> implements NestInterceptor<T, IResponsePaging<R>> {
   constructor(
     private readonly reflector: Reflector,
     private readonly messageService: MessageService,
@@ -37,34 +39,31 @@ export class ResponsePagingInterceptor<T> implements NestInterceptor<T, IRespons
   ) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
-    if (context.getType() === 'http') {
-      const { query } = context.switchToHttp().getRequest()
-      const exportType = query?.exportType
-      const exportFlag = this.reflector.get<boolean>(
-        RESPONSE_FILE_EXPORT_METADATA,
-        context.getHandler(),
-      )
-
-      return next.handle().pipe(
-        mergeMap(async (res: IResponsePaging) => {
-          if (exportFlag && Boolean(exportType) && ['xlsx', 'csv'].includes(exportType)) {
-            return await this.export(context, res as IDataIterator, exportType)
-          } else {
-            return await this.send(context, res as IDataPaging)
-          }
-        }),
-        catchError((err) => {
-          return throwError(() => err)
-        }),
-      )
+    if (context.getType() !== 'http') {
+      return next.handle()
     }
 
-    return next.handle()
+    const { query } = context.switchToHttp().getRequest()
+    const exportType = query?.exportType
+    const exportFlag = this.reflector.get<boolean>(
+      RESPONSE_FILE_EXPORT_METADATA,
+      context.getHandler(),
+    )
+
+    return next.handle().pipe(
+      mergeMap(async (res: IResponsePaging<R>) => {
+        if (exportFlag && Boolean(exportType) && ['xlsx', 'csv'].includes(exportType)) {
+          return await this.export(context, res as IReturnIterator<R>, exportType)
+        }
+        return await this.send(context, res as IReturnPaging<R>)
+      }),
+      catchError((err) => throwError(() => err)),
+    )
   }
 
   private async send(
     context: ExecutionContext,
-    responsePaging: IDataPaging,
+    response: IReturnPaging<R>,
   ): Promise<ResponseSuccessDto> {
     const ctx: HttpArgumentsHost = context.switchToHttp()
     const req: IRequestApp = ctx.getRequest<IRequestApp>()
@@ -94,14 +93,14 @@ export class ResponsePagingInterceptor<T> implements NestInterceptor<T, IRespons
       pagination: {
         ...{ page: 1, perPage: 1, totalPage: 1, totalRecord: 1 },
         ...req.__pagination,
-        ...responsePaging.pagination,
+        ...response.pagination,
       },
     }
 
     const statusHttp = res.statusCode
-    let result = responsePaging.data
+    let result = response.data
 
-    const { _metadata } = responsePaging
+    const { _metadata } = response
     const customProperty = _metadata?.customProperty
 
     if (dtoClass) {
@@ -138,7 +137,7 @@ export class ResponsePagingInterceptor<T> implements NestInterceptor<T, IRespons
 
   private async export(
     context: ExecutionContext,
-    responseIterator: IDataIterator,
+    response: IReturnIterator<R>,
     exportType: string,
   ) {
     const ctx: HttpArgumentsHost = context.switchToHttp()
@@ -155,14 +154,13 @@ export class ResponsePagingInterceptor<T> implements NestInterceptor<T, IRespons
       context.getHandler(),
     )
 
-    const dateNow = this.helperService.dateCreate()
-    const fileExcel = exportType === ENUM_FILE_TYPE_EXCEL.XLSX
-    const filePrefix = responseIterator?.filePrefix ?? 'export'
-    const fileSuffix = responseIterator?.fileTimestamp
-      ? this.helperService.dateGetTimestamp(dateNow)
-      : ''
+    const fileExcel = exportType === ENUM_FILE_BOOK_TYPE.XLSX
+    const fileOutput = response?.filePrefix ?? 'export'
 
-    const filename = `${[filePrefix, fileSuffix].filter((i) => i).join('_')}.${exportType}`
+    const filename = FileUtil.format(fileOutput, {
+      timestamp: response?.fileTimestamp,
+      extension: exportType,
+    })
 
     // set headers
     res
@@ -180,8 +178,8 @@ export class ResponsePagingInterceptor<T> implements NestInterceptor<T, IRespons
     }
 
     const userKeys = Object.keys(plainToInstance(ResponseUserBelongDto, {}, dtoSerializeOptions))
-    const exportProperties = MetadataUtil.getProperties<IExportableMetadata>(dtoClass)
-    const serializeMetadata = responseIterator?._metadata?.customProperty?.serializeProperties ?? {}
+    const exportProperties = PropertyStorage.get<IExportableMetadata>(dtoClass)
+    const serializeMetadata = response?._metadata?.customProperty?.serializeProperties ?? {}
 
     let rowIndex = 0
     let sheetIndex = 1
@@ -190,7 +188,7 @@ export class ResponsePagingInterceptor<T> implements NestInterceptor<T, IRespons
     let worksheet: Worksheet = null
 
     const sheetSize = REQUEST_DEFAULT_EXPORT_PER_SHEET
-    const iterator: AsyncGenerator<any[]> = responseIterator.data
+    const iterator: AsyncGenerator<R[]> = response.data
 
     // Process each data item in the iterator stream
     for await (const records of iterator) {

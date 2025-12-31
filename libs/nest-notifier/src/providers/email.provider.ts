@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { AppException, FailedAttemptError, QueueContext, RetryContext } from 'lib/nest-core'
-import { LoggerService } from 'lib/nest-logger'
+import { ENUM_LOGGER_TYPE, LoggerService } from 'lib/nest-logger'
 import { createTransport, Transporter } from 'nodemailer'
 import { INotificationPayload } from '../interfaces'
 
@@ -17,7 +17,7 @@ export class EmailProvider {
     private readonly logger: LoggerService,
   ) {
     this.dryRun = this.config.get<boolean>('notification.email.dryRun')
-    this.logger.setContext('email')
+    this.logger.setContext(ENUM_LOGGER_TYPE.SYSTEM, 'email')
   }
 
   send(payload: INotificationPayload) {

@@ -16,28 +16,24 @@ import { RESPONSE_DTO_CONSTRUCTOR_METADATA, RESPONSE_DTO_OPTIONS_METADATA } from
 import { IResponseData } from '../interfaces'
 
 @Injectable()
-export class ResponseDataInterceptor<T> implements NestInterceptor<T, IResponseData> {
+export class ResponseDataInterceptor<T, R> implements NestInterceptor<T, IResponseData<R>> {
   constructor(
     private readonly reflector: Reflector,
     private readonly helperService: HelperService,
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    if (context.getType() === 'http') {
-      return next.handle().pipe(
-        map((res: IResponseData) => {
-          return this.send(context, res)
-        }),
-        catchError((err) => {
-          return throwError(() => err)
-        }),
-      )
+    if (context.getType() !== 'http') {
+      return next.handle()
     }
 
-    return next.handle()
+    return next.handle().pipe(
+      map((res: IResponseData<R>) => this.send(context, res)),
+      catchError((err) => throwError(() => err)),
+    )
   }
 
-  private send(context: ExecutionContext, responseData: IResponseData): ResponseSuccessDto {
+  private send(context: ExecutionContext, response: IResponseData<R>): ResponseSuccessDto {
     const ctx: HttpArgumentsHost = context.switchToHttp()
     const req: IRequestApp = ctx.getRequest<IRequestApp>()
     const res: IResponseApp = ctx.getResponse<IResponseApp>()
@@ -64,9 +60,9 @@ export class ResponseDataInterceptor<T> implements NestInterceptor<T, IResponseD
     }
 
     const statusHttp = res.statusCode
-    let result = responseData.data
+    let result = response.data
 
-    const { _metadata } = responseData
+    const { _metadata } = response
     const customProperty = _metadata?.customProperty
 
     if (result && dtoClass) {

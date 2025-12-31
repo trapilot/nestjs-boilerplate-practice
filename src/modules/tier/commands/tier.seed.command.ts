@@ -94,7 +94,7 @@ export class TierSeedCommand extends CommandRunner {
       let level = 0
       const alive = false
       for (const tier of tiers) {
-        await this.prisma.tier.upsert({
+        await this.prisma.client.tier.upsert({
           where: { code: tier.code },
           create: { ...tier, level, alive, createdAt: dateNow, updatedAt: dateNow },
           update: { ...tier, level, alive },
@@ -102,7 +102,7 @@ export class TierSeedCommand extends CommandRunner {
         level++
       }
 
-      const dbTiers = await this.prisma.tier.findMany({
+      const dbTiers = await this.prisma.client.tier.findMany({
         orderBy: [{ level: 'asc' }],
       })
 
@@ -121,7 +121,7 @@ export class TierSeedCommand extends CommandRunner {
             ? nextTier.level - currTier.level >= 1
             : nextTier.level - currTier.level === 1
 
-          await this.prisma.tierChart.upsert({
+          await this.prisma.client.tierChart.upsert({
             where: {
               currId_nextId: {
                 currId: currTier.id,

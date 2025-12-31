@@ -9,8 +9,13 @@ import {
   Prisma,
 } from '@runtime/prisma-client'
 import { ENUM_DATE_FORMAT, HelperService } from 'lib/nest-core'
-import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
-import { IResponseList, IResponsePaging } from 'lib/nest-web'
+import {
+  IPrismaOptions,
+  IPrismaParams,
+  IPrismaReturnList,
+  IPrismaReturnPaging,
+  PrismaService,
+} from 'lib/nest-prisma'
 import { IInvoiceAddPaymentOptions, IInvoiceGroup, TInvoice } from '../interfaces'
 
 @Injectable()
@@ -22,22 +27,22 @@ export class InvoiceService {
   ) {}
 
   async findOne(kwargs?: Prisma.InvoiceFindUniqueArgs): Promise<TInvoice> {
-    return await this.prisma.invoice.findUnique(kwargs)
+    return await this.prisma.client.invoice.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.InvoiceFindFirstArgs = {}): Promise<TInvoice> {
-    return await this.prisma.invoice.findFirst(kwargs)
+    return await this.prisma.client.invoice.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.InvoiceFindManyArgs = {}): Promise<TInvoice[]> {
-    return await this.prisma.invoice.findMany(kwargs)
+    return await this.prisma.client.invoice.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.InvoiceFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TInvoice> {
-    const invoice = await this.prisma.invoice
+    const invoice = await this.prisma.client.invoice
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -52,7 +57,7 @@ export class InvoiceService {
     where: Prisma.InvoiceWhereInput,
     kwargs: Omit<Prisma.InvoiceFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TInvoice> {
-    const invoice = await this.prisma.invoice
+    const invoice = await this.prisma.client.invoice
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -81,24 +86,20 @@ export class InvoiceService {
     where?: Prisma.InvoiceWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponseList> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.invoice.list(where, params, options)
-    })
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.client.invoice.list(where, params, options)
   }
 
   async paginate(
     where?: Prisma.InvoiceWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponsePaging> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.invoice.paginate(where, params, options)
-    })
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.client.invoice.paginate(where, params, options)
   }
 
   async count(where?: Prisma.InvoiceWhereInput): Promise<number> {
-    return await this.prisma.invoice.count({
+    return await this.prisma.client.invoice.count({
       where,
     })
   }
@@ -107,7 +108,7 @@ export class InvoiceService {
     id: number,
     kwargs: Omit<Prisma.InvoiceFindUniqueArgs, 'where'> = {},
   ): Promise<TInvoice> {
-    return await this.prisma.invoice.findUnique({
+    return await this.prisma.client.invoice.findUnique({
       ...kwargs,
       where: { id },
     })
@@ -115,7 +116,7 @@ export class InvoiceService {
 
   async create(data: Prisma.InvoiceUncheckedCreateInput): Promise<TInvoice> {
     const dateNow = this.helperService.dateCreate()
-    const invoice = await this.prisma.invoice.create({
+    const invoice = await this.prisma.client.invoice.create({
       data: {
         ...data,
         issuedAt: dateNow,
@@ -129,7 +130,7 @@ export class InvoiceService {
   async update(id: number, data: Prisma.InvoiceUncheckedUpdateInput): Promise<TInvoice> {
     const invoice = await this.findOrFail(id)
 
-    return await this.prisma.invoice.update({
+    return await this.prisma.client.invoice.update({
       data,
       where: { id: invoice.id },
     })
@@ -137,7 +138,7 @@ export class InvoiceService {
 
   async delete(invoice: TInvoice, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.client.$transaction(async (tx) => {
         await tx.invoice.delete({ where: { id: invoice.id } })
       })
       return true
@@ -150,7 +151,7 @@ export class InvoiceService {
     const isFullPaid = invoice.finalPrice - invoice.paidPrice <= options.amount
     const issuedAt = options?.issuedAt || this.helperService.dateCreate()
 
-    return await this.prisma.invoice.update({
+    return await this.prisma.client.invoice.update({
       where: { id: invoice.id },
       data: {
         paidPrice: { increment: options.amount },
@@ -190,7 +191,7 @@ export class InvoiceService {
   }
 
   async getHighestInvoice(memberId: number, startDate: Date, untilDate: Date): Promise<TInvoice> {
-    return await this.prisma.invoice.findFirst({
+    return await this.prisma.client.invoice.findFirst({
       where: { memberId, issuedAt: { gte: startDate, lte: untilDate } },
       orderBy: [{ finalPrice: 'desc' }, { issuedAt: 'asc' }],
     })
@@ -198,7 +199,7 @@ export class InvoiceService {
 
   async getFirstInvoice(issuedAt: Date): Promise<TInvoice> {
     const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
-    return await this.prisma.invoice.findFirst({
+    return await this.prisma.client.invoice.findFirst({
       where: {
         isEarned: false,
         issuedAt: { lte: startOfDay },
@@ -209,11 +210,11 @@ export class InvoiceService {
   }
 
   async getEarnInvoices(issuedAt: Date): Promise<IInvoiceGroup> {
-    const firstTransactionDays = this.config.get<number>('app.membership.firstTransaction', 1)
+    const firstTransactionDays = this.config.getOrThrow<number>('module.member.firstTransaction')
     const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
     const cutOffDay = this.helperService.dateBackward(startOfDay, { days: firstTransactionDays })
 
-    const invoices = await this.prisma.invoice.findMany({
+    const invoices = await this.prisma.client.invoice.findMany({
       orderBy: [{ issuedAt: 'asc' }, { createdAt: 'asc' }],
       where: {
         isEarned: false,
@@ -276,7 +277,7 @@ export class InvoiceService {
 
     let loop: boolean = false
     do {
-      const invoices = await this.prisma.invoice.findMany({
+      const invoices = await this.prisma.client.invoice.findMany({
         where: {
           status: {
             in: [ENUM_INVOICE_STATUS.PENDING, ENUM_INVOICE_STATUS.PARTIALLY_PAID],
@@ -287,7 +288,7 @@ export class InvoiceService {
       })
 
       for (const invoice of invoices) {
-        await this.prisma.invoice.update({
+        await this.prisma.client.invoice.update({
           where: { id: invoice.id },
           data: {
             status: ENUM_INVOICE_STATUS.OVERDUE,

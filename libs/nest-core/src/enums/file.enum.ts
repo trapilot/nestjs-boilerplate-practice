@@ -53,7 +53,7 @@ export type ENUM_FILE_MIME =
   | ENUM_FILE_MIME_AUDIO
   | ENUM_FILE_MIME_VIDEO
 
-export enum ENUM_FILE_TYPE_EXCEL {
+export enum ENUM_FILE_BOOK_TYPE {
   XLSX = 'xlsx',
   CSV = 'csv',
 }

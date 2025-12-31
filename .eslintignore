@@ -1,0 +1,10 @@
+node_modules/
+dist/
+data/
+prisma/
+coverage/
+logs/
+docs/
+packages/
+scripts/
+private/

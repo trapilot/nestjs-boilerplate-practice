@@ -6,8 +6,13 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { ENUM_REDEMPTION_STATUS, Prisma } from '@runtime/prisma-client'
-import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
-import { IResponseList, IResponsePaging } from 'lib/nest-web'
+import {
+  IPrismaOptions,
+  IPrismaParams,
+  IPrismaReturnList,
+  IPrismaReturnPaging,
+  PrismaService,
+} from 'lib/nest-prisma'
 import { TProductHistory } from '../interfaces'
 
 @Injectable()
@@ -15,22 +20,22 @@ export class ProductHistoryService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.MemberProductHistoryFindUniqueArgs): Promise<TProductHistory> {
-    return await this.prisma.memberProductHistory.findUnique(kwargs)
+    return await this.prisma.client.memberProductHistory.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.MemberProductHistoryFindFirstArgs = {}): Promise<TProductHistory> {
-    return await this.prisma.memberProductHistory.findFirst(kwargs)
+    return await this.prisma.client.memberProductHistory.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.MemberProductHistoryFindManyArgs = {}): Promise<TProductHistory[]> {
-    return await this.prisma.memberProductHistory.findMany(kwargs)
+    return await this.prisma.client.memberProductHistory.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.MemberProductHistoryFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TProductHistory> {
-    const productHistory = await this.prisma.memberProductHistory
+    const productHistory = await this.prisma.client.memberProductHistory
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -45,7 +50,7 @@ export class ProductHistoryService {
     where: Prisma.MemberProductHistoryWhereInput,
     kwargs: Omit<Prisma.MemberProductHistoryFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TProductHistory> {
-    const productHistory = await this.prisma.memberProductHistory
+    const productHistory = await this.prisma.client.memberProductHistory
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -74,24 +79,20 @@ export class ProductHistoryService {
     where?: Prisma.MemberProductHistoryWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponseList> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.memberProductHistory.list(where, params, options)
-    })
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.client.memberProductHistory.list(where, params, options)
   }
 
   async paginate(
     where?: Prisma.MemberProductHistoryWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponsePaging> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.memberProductHistory.paginate(where, params, options)
-    })
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.client.memberProductHistory.paginate(where, params, options)
   }
 
   async count(where?: Prisma.MemberProductHistoryWhereInput): Promise<number> {
-    return await this.prisma.memberProductHistory.count({
+    return await this.prisma.client.memberProductHistory.count({
       where,
     })
   }
@@ -100,14 +101,14 @@ export class ProductHistoryService {
     id: number,
     kwargs: Omit<Prisma.MemberProductHistoryFindUniqueArgs, 'where'> = {},
   ): Promise<TProductHistory> {
-    return await this.prisma.memberProductHistory.findUnique({
+    return await this.prisma.client.memberProductHistory.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.MemberProductHistoryUncheckedCreateInput): Promise<TProductHistory> {
-    const productHistory = await this.prisma.memberProductHistory.create({
+    const productHistory = await this.prisma.client.memberProductHistory.create({
       data,
     })
     return productHistory
@@ -119,7 +120,7 @@ export class ProductHistoryService {
   ): Promise<TProductHistory> {
     const productHistory = await this.findOrFail(id)
 
-    return await this.prisma.memberProductHistory.update({
+    return await this.prisma.client.memberProductHistory.update({
       data,
       where: { id: productHistory.id },
     })
@@ -127,7 +128,7 @@ export class ProductHistoryService {
 
   async delete(productHistory: TProductHistory, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.client.$transaction(async (tx) => {
         await tx.memberProductHistory.delete({ where: { id: productHistory.id } })
       })
       return true
@@ -151,7 +152,7 @@ export class ProductHistoryService {
       })
     }
 
-    return await this.prisma.memberProductHistory.update({
+    return await this.prisma.client.memberProductHistory.update({
       where: { id: productHistory.id },
       data: { status: ENUM_REDEMPTION_STATUS.RESERVED },
       include: {

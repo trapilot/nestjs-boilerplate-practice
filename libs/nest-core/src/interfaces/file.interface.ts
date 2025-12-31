@@ -1,7 +1,7 @@
 import { ArchiverOptions } from 'archiver'
 import { ClassConstructor } from 'class-transformer'
 import { ReadStream } from 'fs'
-import { ENUM_FILE_TYPE_EXCEL } from '../enums'
+import { ENUM_FILE_BOOK_TYPE } from '../enums'
 
 export interface IFileRows<T = any> {
   data: T[]
@@ -18,13 +18,19 @@ export type IFileRange = {
   contentRange?: string
 }
 
+export interface IFileFormatOptions {
+  timestamp?: boolean
+  suffix?: string
+  extension?: string
+}
+
 export interface IFileReadOptions {
   password?: string
 }
 
 export interface IFileWriteExcelOptions {
   password?: string
-  bookType?: ENUM_FILE_TYPE_EXCEL
+  bookType?: ENUM_FILE_BOOK_TYPE
   keepAlive?: boolean
 }
 

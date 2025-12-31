@@ -1,113 +1,120 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { PrismaMariaDb } from '@prisma/adapter-mariadb'
-import { Prisma, PrismaClient } from '@runtime/prisma-client'
+import { Prisma } from '@runtime/prisma-client'
+import { ArrUtil } from 'lib/nest-core'
 import { ENUM_LOGGER_TYPE, LOGGER_MESSAGE_KEY, LoggerService } from 'lib/nest-logger'
-import { withExtension, withReplica } from '../extensions'
-import { PrismaContext } from '../helpers'
-import { ClientWithExtends } from '../interfaces'
+import { PrismaClusterManager, PrismaTenantManager } from '../bases'
+import { PRISMA_MODULE_OPTION_TOKEN, PRISMA_READ_OPERATIONS } from '../constants'
+import {
+  ClientProvider,
+  ClientWithExtends,
+  IPrismaClientConfigOptions,
+  IPrismaLoggerHooks,
+  IPrismaModuleOptions,
+} from '../interfaces'
 import { PrismaUtil } from '../utils'
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
-  private readonly isDebugMode: boolean
+export class PrismaService implements OnModuleInit, OnModuleDestroy {
+  private readonly debugMode: boolean
+  private readonly clusterManager: PrismaClusterManager
+  private readonly tenantManager: PrismaTenantManager
 
   constructor(
+    @Inject(PRISMA_MODULE_OPTION_TOKEN) private readonly options: IPrismaModuleOptions,
     private readonly logger: LoggerService,
     private readonly config: ConfigService,
   ) {
-    const primaryUrl = config.get<string>('database.replication.master')
-    super(PrismaService.createOptions(primaryUrl))
+    this.debugMode = this.config.get<boolean>('database.debug')
 
-    this.isDebugMode = this.config.get<boolean>('database.debug')
+    this.logger.setContext(ENUM_LOGGER_TYPE.DATABASE)
 
-    this.logger.setContext(this.config.get<ENUM_LOGGER_TYPE>('database.context'))
-
-    return this.setupExtension(this) as unknown as PrismaService
-  }
-
-  static createOptions(url: string): any {
-    return {
-      log: [
-        { emit: 'event', level: 'query' },
-        { emit: 'event', level: 'error' },
-        { emit: 'event', level: 'warn' },
-        { emit: 'event', level: 'info' },
-      ],
-      errorFormat: 'pretty',
-      adapter: new PrismaMariaDb(url),
+    if (this.options.multiTenant) {
+      this.tenantManager = new PrismaTenantManager(
+        this.config.getOrThrow<IPrismaClientConfigOptions[]>('database.tenant'),
+        this.setupLoggerHooks(),
+      )
+    } else {
+      const { writer, readers } = PrismaUtil.setupClient(
+        this.config.getOrThrow<ClientProvider>('database.replication.provider'),
+        {
+          writeUrl: this.config.getOrThrow<string>('database.replication.master'),
+          readUrls: this.config.getOrThrow<string[]>('database.replication.slaves'),
+          loggerHooks: this.setupLoggerHooks(),
+          replication: this.options.replication,
+        },
+      )
+      this.clusterManager = new PrismaClusterManager(writer, readers)
     }
   }
 
-  async $extension<T>(fn: (ex: ClientWithExtends) => Promise<T>) {
-    return fn(this as ClientWithExtends)
-  }
-
-  async $execution<T>(fn: (ex: ClientWithExtends) => Promise<T>) {
-    return PrismaContext.run({ tx: this, forcePrimary: true }, () => fn(this as ClientWithExtends))
-  }
-
   async onModuleInit() {
-    try {
-      await this.connect()
-    } catch (error: unknown) {
-      this.logger.error('Failed to initialize database service', error)
-      throw error
+    if (this.clusterManager) {
+      this.clusterManager.connect()
     }
   }
 
   async onModuleDestroy() {
-    await this.disconnect()
-  }
-
-  private async connect(): Promise<void> {
-    try {
-      await this.$connect()
-      this.logger.log('Successfully connected to the database')
-    } catch (error: unknown) {
-      this.logger.error('Failed to connect to the database', error)
-      throw error
+    if (this.clusterManager) {
+      await this.clusterManager.disconnect()
+    }
+    if (this.tenantManager) {
+      await this.tenantManager.disconnect()
     }
   }
 
-  private async disconnect(): Promise<void> {
-    try {
-      await this.$disconnect()
-      this.logger.log('Successfully disconnected from the database')
-    } catch (error: unknown) {
-      this.logger.error('Failed to disconnect from the database', error)
-      throw error
+  private async getClients(): Promise<{ writer: ClientWithExtends; reader: ClientWithExtends }> {
+    if (this.options.multiTenant) {
+      const cluster = await this.tenantManager.pick()
+      return cluster.pair()
     }
+    return this.clusterManager.pair()
   }
 
-  private setupExtension(client: PrismaClient, isPrimary: boolean = true): any {
-    if (this.isDebugMode) {
-      this.setupLogging(client)
-    }
+  get client(): ClientWithExtends {
+    return new Proxy({} as ClientWithExtends, {
+      get: (_, modelName: string) => {
+        if (modelName === '$transaction') {
+          return async (arg: any, options?: any) => {
+            const { writer } = await this.getClients()
+            return writer.$transaction(async (tx) => {
+              return typeof arg === 'function' ? arg(tx) : arg
+            }, options)
+          }
+        }
 
-    if (isPrimary) {
-      const replicaUrls = this.config.get<string[]>('database.replication.slaves')
-      return client
-        .$extends(withExtension)
-        .$extends(
-          withReplica(
-            replicaUrls
-              .map((url) => new PrismaClient(PrismaService.createOptions(url)))
-              .map((replica) => this.setupExtension(replica, false)),
-          ),
-        )
-    }
-
-    return client.$extends(withExtension)
+        return new Proxy({} as ClientWithExtends, {
+          get: (__, method: string) => {
+            return async (...args: any[]) => {
+              const { writer, reader } = await this.getClients()
+              const isRead = ArrUtil.has(PRISMA_READ_OPERATIONS, method)
+              const target = isRead ? reader : writer
+              return target[modelName][method](...args)
+            }
+          },
+        })
+      },
+    })
   }
 
-  private setupLogging(client: PrismaClient): void {
-    if (this.isDebugMode) {
-      ;(client as PrismaService).$on('query', this.logQuery.bind(this))
-      ;(client as PrismaService).$on('error', this.logError.bind(this))
-      ;(client as PrismaService).$on('warn', this.logWarn.bind(this))
-      ;(client as PrismaService).$on('info', this.logInfo.bind(this))
-    }
+  private setupLoggerHooks(): IPrismaLoggerHooks {
+    return this.debugMode
+      ? {
+          logLevels: [
+            { emit: 'event', level: 'query' },
+            { emit: 'event', level: 'error' },
+            { emit: 'event', level: 'warn' },
+            { emit: 'event', level: 'info' },
+          ],
+          onQuery: this.logQuery.bind(this),
+          onError: this.logError.bind(this),
+          onWarn: this.logWarn.bind(this),
+          onInfo: this.logInfo.bind(this),
+        }
+      : {
+          logLevels: [{ emit: 'event', level: 'error' }],
+          onError: this.logError.bind(this),
+        }
   }
 
   private logQuery(event: Prisma.QueryEvent): void {

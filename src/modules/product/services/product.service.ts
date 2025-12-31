@@ -7,8 +7,13 @@ import {
 } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
 import { HelperService } from 'lib/nest-core'
-import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
-import { IResponseList, IResponsePaging } from 'lib/nest-web'
+import {
+  IPrismaOptions,
+  IPrismaParams,
+  IPrismaReturnList,
+  IPrismaReturnPaging,
+  PrismaService,
+} from 'lib/nest-prisma'
 import { TProduct } from '../interfaces'
 
 @Injectable()
@@ -21,22 +26,22 @@ export class ProductService implements OnModuleInit {
   onModuleInit() {}
 
   async findOne(kwargs?: Prisma.ProductFindUniqueArgs): Promise<TProduct> {
-    return await this.prisma.product.findUnique(kwargs)
+    return await this.prisma.client.product.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.ProductFindFirstArgs = {}): Promise<TProduct> {
-    return await this.prisma.product.findFirst(kwargs)
+    return await this.prisma.client.product.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.ProductFindManyArgs = {}): Promise<TProduct[]> {
-    return await this.prisma.product.findMany(kwargs)
+    return await this.prisma.client.product.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.ProductFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TProduct> {
-    return await this.prisma.product
+    return await this.prisma.client.product
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -64,24 +69,20 @@ export class ProductService implements OnModuleInit {
     where?: Prisma.ProductWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponseList> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.product.list(where, params, options)
-    })
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.client.product.list(where, params, options)
   }
 
   async paginate(
     where?: Prisma.ProductWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponsePaging> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.product.paginate(where, params, options)
-    })
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.client.product.paginate(where, params, options)
   }
 
   async count(where?: Prisma.ProductWhereInput): Promise<number> {
-    return await this.prisma.product.count({
+    return await this.prisma.client.product.count({
       where,
     })
   }
@@ -90,7 +91,7 @@ export class ProductService implements OnModuleInit {
     data: Prisma.ProductUncheckedCreateInput,
     kwargs: Omit<Prisma.ProductFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TProduct> {
-    const created = await this.prisma.product.create({ ...kwargs, data })
+    const created = await this.prisma.client.product.create({ ...kwargs, data })
     return created
   }
 
@@ -101,7 +102,7 @@ export class ProductService implements OnModuleInit {
   ): Promise<TProduct> {
     const product = await this.findOrFail(id)
 
-    const updated = await this.prisma.product.update({
+    const updated = await this.prisma.client.product.update({
       ...kwargs,
       where: { id: product.id },
       data,
@@ -111,7 +112,7 @@ export class ProductService implements OnModuleInit {
 
   async delete(id: number, deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.product.update({
+      await this.prisma.client.product.update({
         where: { id },
         data: {
           isActive: false,
@@ -136,18 +137,18 @@ export class ProductService implements OnModuleInit {
       },
     }
 
-    const wishList = await this.prisma.wishlist.findUnique({ where: _where })
+    const wishList = await this.prisma.client.wishlist.findUnique({ where: _where })
     if (wishList) {
-      await this.prisma.wishlist.delete({ where: _where })
+      await this.prisma.client.wishlist.delete({ where: _where })
       return false
     }
 
-    await this.prisma.wishlist.create({ data: { memberId, productId: product.id } })
+    await this.prisma.client.wishlist.create({ data: { memberId, productId: product.id } })
     return true
   }
 
   async getSalePerPerson(id: number, memberId: number): Promise<number> {
-    const salePerPerson = await this.prisma.orderItem.aggregate({
+    const salePerPerson = await this.prisma.client.orderItem.aggregate({
       _sum: { quantity: true },
       where: {
         productId: id,

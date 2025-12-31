@@ -1,5 +1,16 @@
 {
   "extends": "./tsconfig.json",
   "include": ["src/**/*.ts", "libs/**/*.ts", "test/**/*.ts", "*.*.ts"],
-  "exclude": ["node_modules", "dist", "data", "coverage", "logs", "docs", "packages", "private"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "data",
+    "prisma",
+    "coverage",
+    "logs",
+    "docs",
+    "packages",
+    "scripts",
+    "private"
+  ]
 }

@@ -1,11 +1,12 @@
 import { registerAs } from '@nestjs/config'
+import { StrUtil } from 'lib/nest-core'
 
 export default registerAs(
   'redis',
   (): Record<string, any> => ({
     cache: {
       host: process.env.REDIS_HOST,
-      port: Number.parseInt(process.env.REDIS_PORT),
+      port: StrUtil.numeric(process.env.REDIS_PORT),
       password: process.env.REDIS_PASSWORD,
       username: process.env.REDIS_USERNAME,
       database: 0,
@@ -14,28 +15,28 @@ export default registerAs(
     },
     queue: {
       host: process.env.REDIS_HOST,
-      port: Number.parseInt(process.env.REDIS_PORT),
+      port: StrUtil.numeric(process.env.REDIS_PORT),
       password: process.env.REDIS_PASSWORD,
       username: process.env.REDIS_USERNAME,
       database: 1,
     },
     pubsub: {
       host: process.env.REDIS_HOST,
-      port: Number.parseInt(process.env.REDIS_PORT),
+      port: StrUtil.numeric(process.env.REDIS_PORT),
       password: process.env.REDIS_PASSWORD,
       username: process.env.REDIS_USERNAME,
       database: 2,
     },
     realtime: {
       host: process.env.REDIS_HOST,
-      port: Number.parseInt(process.env.REDIS_PORT),
+      port: StrUtil.numeric(process.env.REDIS_PORT),
       password: process.env.REDIS_PASSWORD,
       username: process.env.REDIS_USERNAME,
       database: 3,
     },
     stream: {
       host: process.env.REDIS_HOST,
-      port: Number.parseInt(process.env.REDIS_PORT),
+      port: StrUtil.numeric(process.env.REDIS_PORT),
       password: process.env.REDIS_PASSWORD,
       username: process.env.REDIS_USERNAME,
       database: 4,

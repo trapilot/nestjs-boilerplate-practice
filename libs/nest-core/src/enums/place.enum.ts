@@ -1,10 +1,4 @@
 /* eslint-disable @typescript-eslint/no-duplicate-enum-values */
-export enum ENUM_REGION_CODE {
-  HONG_KONG_ISLAND = 'HONG_KONG_ISLAND',
-  KOWLOON = 'KOWLOON',
-  NEW_TERRITORIES = 'NEW_TERRITORIES',
-}
-
 export enum ENUM_COUNTRY_CODE {
   AF = '93',
   AX = '358',

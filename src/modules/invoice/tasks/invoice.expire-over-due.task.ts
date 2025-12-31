@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { Cron, CronExpression, CronOptions } from '@nestjs/schedule'
 import { ENUM_INVOICE_STATUS, ENUM_PAYMENT_METHOD } from '@runtime/prisma-client'
 import { APP_TIMEZONE, HelperService } from 'lib/nest-core'
-import { LoggerService } from 'lib/nest-logger'
+import { ENUM_LOGGER_TYPE, LoggerService } from 'lib/nest-logger'
 import { InvoiceService } from '../services'
 
 const cronTime = process.env.CRONTAB_INVOICE_EXPIRE_OVER_DUE
@@ -19,7 +19,7 @@ export class InvoiceExpireOverDueTask {
     private readonly invoiceService: InvoiceService,
     private readonly helperService: HelperService,
   ) {
-    this.logger.setContext(cronName)
+    this.logger.setContext(ENUM_LOGGER_TYPE.SYSTEM, cronName)
   }
 
   @Cron(cronTime || CronExpression.EVERY_DAY_AT_MIDNIGHT, cronOptions)

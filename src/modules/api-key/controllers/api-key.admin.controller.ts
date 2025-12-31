@@ -2,7 +2,7 @@ import { Controller, Delete, Get, Patch, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ENUM_API_KEY_TYPE, Prisma } from '@runtime/prisma-client'
 import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { ENUM_FILE_TYPE_EXCEL } from 'lib/nest-core'
+import { ENUM_FILE_BOOK_TYPE } from 'lib/nest-core'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -70,7 +70,7 @@ export class ApiKeyAdminController {
     { _search, _params }: RequestListDto,
     @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto,
     @RequestQueryFilterInEnum('type', ENUM_API_KEY_TYPE) _type: RequestFilterDto,
-    @RequestBookType() bookType: ENUM_FILE_TYPE_EXCEL,
+    @RequestBookType() bookType: ENUM_FILE_BOOK_TYPE,
   ): Promise<IResponsePaging> {
     const _where: Prisma.ApiKeyWhereInput = {
       ..._search,

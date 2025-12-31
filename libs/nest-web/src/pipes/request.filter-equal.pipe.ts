@@ -27,7 +27,7 @@ export function RequestFilterEqualPipe(
         }
       }
 
-      const finalValue = StrUtil.parse(value, options)
+      const finalValue = StrUtil.parse(value, { parseAs: options?.parseAs })
 
       this.addToRequestInstance(finalValue)
       return {
@@ -69,7 +69,7 @@ export function RequestFilterGreaterThanEqualPipe(
         }
       }
 
-      const finalValue = StrUtil.parse(value, options)
+      const finalValue = StrUtil.parse(value, { parseAs: options?.parseAs })
 
       this.addToRequestInstance(finalValue)
       return {
@@ -111,7 +111,7 @@ export function RequestFilterLessThanEqualPipe(
         }
       }
 
-      const finalValue = StrUtil.parse(value, options)
+      const finalValue = StrUtil.parse(value, { parseAs: options?.parseAs })
 
       this.addToRequestInstance(finalValue)
       return {

@@ -1898,8 +1898,8 @@ export interface components {
         components['schemas']['SettingTimezoneResponseDto']
       token: string
     }
-    ResponseListingMetadataDto: Record<string, never>
-    ResponseListingDto: {
+    ResponseListMetadataDto: Record<string, never>
+    ResponseListDto: {
       /**
        * @description Return specific status code for every endpoints
        * @example true
@@ -1917,7 +1917,7 @@ export interface components {
        *       "availableOrderBy": []
        *     }
        */
-      metadata: components['schemas']['ResponseListingMetadataDto']
+      metadata: components['schemas']['ResponseListMetadataDto']
       /** @default [] */
       data: unknown[][]
     }
@@ -5148,7 +5148,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['SettingResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -5376,7 +5376,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['ApiKeyResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -5658,7 +5658,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['AppVersionResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -5949,7 +5949,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['UserResponseLoginHistoryDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -6068,7 +6068,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['RoleResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -6257,7 +6257,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['PermissionResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -6409,7 +6409,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['MemberResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -6672,7 +6672,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['TierHistoryResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -6844,7 +6844,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['PointHistoryResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -7013,7 +7013,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['ProductHistoryResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -7181,7 +7181,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['ProductResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -7349,7 +7349,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['ProductBrandResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -7518,7 +7518,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['ProductCategoryResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -7687,7 +7687,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['ProductReviewResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -8051,7 +8051,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['TierResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -8220,7 +8220,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['OrderResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -8389,7 +8389,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['InvoiceResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -8558,7 +8558,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['NotificationResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -8781,7 +8781,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['PushResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }
@@ -9003,7 +9003,7 @@ export interface operations {
         content: {
           'application/json': {
             data?: components['schemas']['MediaResponseListDto'][]
-          } & components['schemas']['ResponseListingDto']
+          } & components['schemas']['ResponseListDto']
         }
       }
     }

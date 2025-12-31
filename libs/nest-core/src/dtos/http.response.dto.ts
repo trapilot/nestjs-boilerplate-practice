@@ -12,7 +12,7 @@ export class ResponseMetadataDto {
   [key: string]: any
 }
 
-export class ResponseListingMetadataDto extends ResponseMetadataDto {
+export class ResponseListMetadataDto extends ResponseMetadataDto {
   availableSearch: string[]
   availableOrderBy: string[]
 }

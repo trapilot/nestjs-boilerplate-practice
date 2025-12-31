@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 
-export class MetadataUtil {
+export class PropertyStorage {
   private static metadata = new Map<string, Map<string, any>>()
 
   /**
@@ -33,7 +33,7 @@ export class MetadataUtil {
    * Retrieve all exportable properties for a class, including those from parent classes.
    * This method will also consider intersection types and combine metadata.
    */
-  static getProperties<T>(target: Function): Map<string, T> {
+  static get<T>(target: Function): Map<string, T> {
     let currentTarget = target
     const exportableProperties = new Map<string, T>()
 

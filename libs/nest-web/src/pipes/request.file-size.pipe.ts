@@ -82,7 +82,7 @@ export class RequestFileSizePipe implements PipeTransform {
       const aspectRatio = width / height
       const adjustRatio = Math.abs(imageRatio - aspectRatio)
       if (adjustRatio > FILE_RATIO_MAX_ROUNDING) {
-        const commonDivisor = AlgorithmUtil.getGCD(width, height)
+        const commonDivisor = AlgorithmUtil.gcd(width, height)
         const ratioDivisor = `${width / commonDivisor}:${height / commonDivisor}`
 
         this.validationBuilder.addError({

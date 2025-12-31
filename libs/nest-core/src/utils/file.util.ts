@@ -1,15 +1,37 @@
 import * as fs from 'fs'
-import { join } from 'path'
+import { basename, join, relative } from 'path'
 import { APP_PATH, FILE_MIME_TYPE, ROOT_PATH } from '../constants'
 import { ENUM_FILE_MIME } from '../enums'
-import { IFile } from '../interfaces'
+import { IFile, IFileFormatOptions } from '../interfaces'
+import { ArrUtil } from './array.util'
 
 export class FileUtil {
-  static format(fileName: string, milliseconds: number = 0): string {
-    const filename = fileName.replace(/ /g, '_').replace(/^0-9a-zA-Z_.-/g, '')
-    const [name, ext] = filename.split(/(\.[^.]+)$/)
-    const timestamp = (new Date().getTime() + milliseconds).toString()
-    return [name, timestamp].filter((i) => i.length).join('_') + ext
+  static format(fileName: string, options?: IFileFormatOptions): string {
+    const [name, ext] = fileName
+      .replace(/ /g, '_')
+      .replace(/^0-9a-zA-Z_.-/g, '')
+      .split(/(\.[^.]+)$/)
+
+    const parts = [name]
+    if (options?.timestamp || name.length === 0) {
+      parts.push(new Date().getTime().toString())
+    }
+    if (options?.suffix) {
+      parts.push(options.suffix)
+    }
+
+    const _fileName = ArrUtil.join(parts, { delimiter: '_', allowEmpty: false })
+    const _fileExtension = options?.extension ? `.${options.extension}` : ext
+
+    return _fileName + _fileExtension
+  }
+
+  static relative(from: string, to: string): string {
+    return relative(from, to)
+  }
+
+  static basename(path: string, suffix?: string): string {
+    return basename(path, suffix)
   }
 
   static join(args: string[]): string {

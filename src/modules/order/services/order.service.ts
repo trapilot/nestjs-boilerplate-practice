@@ -16,8 +16,13 @@ import {
   Prisma,
 } from '@runtime/prisma-client'
 import { HelperService } from 'lib/nest-core'
-import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
-import { IResponseList, IResponsePaging } from 'lib/nest-web'
+import {
+  IPrismaOptions,
+  IPrismaParams,
+  IPrismaReturnList,
+  IPrismaReturnPaging,
+  PrismaService,
+} from 'lib/nest-prisma'
 import { TCart } from 'modules/cart/interfaces'
 import { InvoiceService } from 'modules/invoice/services'
 import { MemberService } from 'modules/member/services'
@@ -40,22 +45,22 @@ export class OrderService implements OnModuleInit {
   }
 
   async findOne(kwargs?: Prisma.OrderFindUniqueArgs): Promise<TOrder> {
-    return await this.prisma.order.findUnique(kwargs)
+    return await this.prisma.client.order.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.OrderFindFirstArgs = {}): Promise<TOrder> {
-    return await this.prisma.order.findFirst(kwargs)
+    return await this.prisma.client.order.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.OrderFindManyArgs = {}): Promise<TOrder[]> {
-    return await this.prisma.order.findMany(kwargs)
+    return await this.prisma.client.order.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.OrderFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TOrder> {
-    const order = await this.prisma.order
+    const order = await this.prisma.client.order
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -70,7 +75,7 @@ export class OrderService implements OnModuleInit {
     where: Prisma.OrderWhereInput,
     kwargs: Omit<Prisma.OrderFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TOrder> {
-    const order = await this.prisma.order
+    const order = await this.prisma.client.order
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -99,37 +104,33 @@ export class OrderService implements OnModuleInit {
     where?: Prisma.OrderWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponseList> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.order.list(where, params, options)
-    })
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.client.order.list(where, params, options)
   }
 
   async paginate(
     where?: Prisma.OrderWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponsePaging> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.order.paginate(where, params, options)
-    })
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.client.order.paginate(where, params, options)
   }
 
   async count(where?: Prisma.OrderWhereInput): Promise<number> {
-    return await this.prisma.order.count({
+    return await this.prisma.client.order.count({
       where,
     })
   }
 
   async find(id: number, kwargs: Omit<Prisma.OrderFindUniqueArgs, 'where'> = {}): Promise<TOrder> {
-    return await this.prisma.order.findUnique({
+    return await this.prisma.client.order.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.OrderUncheckedCreateInput): Promise<TOrder> {
-    const order = await this.prisma.order.create({
+    const order = await this.prisma.client.order.create({
       data,
     })
     return order
@@ -138,7 +139,7 @@ export class OrderService implements OnModuleInit {
   async update(id: number, data: Prisma.OrderUncheckedUpdateInput): Promise<TOrder> {
     const order = await this.findOrFail(id)
 
-    return await this.prisma.order.update({
+    return await this.prisma.client.order.update({
       data,
       where: { id: order.id },
     })
@@ -146,7 +147,7 @@ export class OrderService implements OnModuleInit {
 
   async delete(order: TOrder, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.client.$transaction(async (tx) => {
         await tx.order.delete({ where: { id: order.id } })
       })
       return true
@@ -185,8 +186,8 @@ export class OrderService implements OnModuleInit {
       ? this.helperService.dateForward(endOfDay, { days: Math.min(...duePaidDays) })
       : undefined
 
-    const [order] = await this.prisma.$transaction([
-      this.prisma.order.create({
+    const [order] = await this.prisma.client.$transaction([
+      this.prisma.client.order.create({
         data: {
           memberId: cart.memberId,
           finalPrice,
@@ -274,7 +275,7 @@ export class OrderService implements OnModuleInit {
           },
         },
       }),
-      this.prisma.cart.update({
+      this.prisma.client.cart.update({
         where: { id: cart.id },
         data: {
           version: 1,
@@ -292,7 +293,7 @@ export class OrderService implements OnModuleInit {
         },
       }),
       ...cart.items.map((item) =>
-        this.prisma.product.update({
+        this.prisma.client.product.update({
           where: { id: item.productId },
           data: { unpaidQty: { increment: item.quantity } },
         }),

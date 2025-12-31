@@ -1,7 +1,12 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
-import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
-import { IResponseList, IResponsePaging } from 'lib/nest-web'
+import {
+  IPrismaOptions,
+  IPrismaParams,
+  IPrismaReturnList,
+  IPrismaReturnPaging,
+  PrismaService,
+} from 'lib/nest-prisma'
 import { TPointHistory } from '../interfaces'
 
 @Injectable()
@@ -9,22 +14,22 @@ export class PointHistoryService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.MemberPointHistoryFindUniqueArgs): Promise<TPointHistory> {
-    return await this.prisma.memberPointHistory.findUnique(kwargs)
+    return await this.prisma.client.memberPointHistory.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.MemberPointHistoryFindFirstArgs = {}): Promise<TPointHistory> {
-    return await this.prisma.memberPointHistory.findFirst(kwargs)
+    return await this.prisma.client.memberPointHistory.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.MemberPointHistoryFindManyArgs = {}): Promise<TPointHistory[]> {
-    return await this.prisma.memberPointHistory.findMany(kwargs)
+    return await this.prisma.client.memberPointHistory.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.MemberPointHistoryFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TPointHistory> {
-    const pointHistory = await this.prisma.memberPointHistory
+    const pointHistory = await this.prisma.client.memberPointHistory
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -39,7 +44,7 @@ export class PointHistoryService {
     where: Prisma.MemberPointHistoryWhereInput,
     kwargs: Omit<Prisma.MemberPointHistoryFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TPointHistory> {
-    const pointHistory = await this.prisma.memberPointHistory
+    const pointHistory = await this.prisma.client.memberPointHistory
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -68,24 +73,20 @@ export class PointHistoryService {
     where?: Prisma.MemberPointHistoryWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponseList> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.memberPointHistory.list(where, params, options)
-    })
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.client.memberPointHistory.list(where, params, options)
   }
 
   async paginate(
     where?: Prisma.MemberPointHistoryWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponsePaging> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.memberPointHistory.paginate(where, params, options)
-    })
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.client.memberPointHistory.paginate(where, params, options)
   }
 
   async count(where?: Prisma.MemberPointHistoryWhereInput): Promise<number> {
-    return await this.prisma.memberPointHistory.count({
+    return await this.prisma.client.memberPointHistory.count({
       where,
     })
   }
@@ -94,14 +95,14 @@ export class PointHistoryService {
     id: number,
     kwargs: Omit<Prisma.MemberPointHistoryFindUniqueArgs, 'where'> = {},
   ): Promise<TPointHistory> {
-    return await this.prisma.memberPointHistory.findUnique({
+    return await this.prisma.client.memberPointHistory.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.MemberPointHistoryUncheckedCreateInput): Promise<TPointHistory> {
-    const pointHistory = await this.prisma.memberPointHistory.create({
+    const pointHistory = await this.prisma.client.memberPointHistory.create({
       data,
     })
     return pointHistory
@@ -113,7 +114,7 @@ export class PointHistoryService {
   ): Promise<TPointHistory> {
     const pointHistory = await this.findOrFail(id)
 
-    return await this.prisma.memberPointHistory.update({
+    return await this.prisma.client.memberPointHistory.update({
       data,
       where: { id: pointHistory.id },
     })
@@ -121,7 +122,7 @@ export class PointHistoryService {
 
   async delete(pointHistory: TPointHistory, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.client.$transaction(async (tx) => {
         await tx.memberPointHistory.delete({ where: { id: pointHistory.id } })
       })
       return true

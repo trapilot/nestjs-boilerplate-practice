@@ -1,7 +1,12 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
-import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
-import { IResponseList, IResponsePaging } from 'lib/nest-web'
+import {
+  IPrismaOptions,
+  IPrismaParams,
+  IPrismaReturnList,
+  IPrismaReturnPaging,
+  PrismaService,
+} from 'lib/nest-prisma'
 import { TProductBrand } from '../interfaces'
 
 @Injectable()
@@ -9,22 +14,22 @@ export class ProductBrandService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.ProductBrandFindUniqueArgs): Promise<TProductBrand> {
-    return await this.prisma.productBrand.findUnique(kwargs)
+    return await this.prisma.client.productBrand.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.ProductBrandFindFirstArgs = {}): Promise<TProductBrand> {
-    return await this.prisma.productBrand.findFirst(kwargs)
+    return await this.prisma.client.productBrand.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.ProductBrandFindManyArgs = {}): Promise<TProductBrand[]> {
-    return await this.prisma.productBrand.findMany(kwargs)
+    return await this.prisma.client.productBrand.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.ProductBrandFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TProductBrand> {
-    const productBrand = await this.prisma.productBrand
+    const productBrand = await this.prisma.client.productBrand
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -39,7 +44,7 @@ export class ProductBrandService {
     where: Prisma.ProductBrandWhereInput,
     kwargs: Omit<Prisma.ProductBrandFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TProductBrand> {
-    const productBrand = await this.prisma.productBrand
+    const productBrand = await this.prisma.client.productBrand
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -68,24 +73,20 @@ export class ProductBrandService {
     where?: Prisma.ProductBrandWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponseList> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.productBrand.list(where, params, options)
-    })
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.client.productBrand.list(where, params, options)
   }
 
   async paginate(
     where?: Prisma.ProductBrandWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponsePaging> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.productBrand.paginate(where, params, options)
-    })
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.client.productBrand.paginate(where, params, options)
   }
 
   async count(where?: Prisma.ProductBrandWhereInput): Promise<number> {
-    return await this.prisma.productBrand.count({
+    return await this.prisma.client.productBrand.count({
       where,
     })
   }
@@ -94,14 +95,14 @@ export class ProductBrandService {
     id: number,
     kwargs: Omit<Prisma.ProductBrandFindUniqueArgs, 'where'> = {},
   ): Promise<TProductBrand> {
-    return await this.prisma.productBrand.findUnique({
+    return await this.prisma.client.productBrand.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.ProductBrandUncheckedCreateInput): Promise<TProductBrand> {
-    const productBrand = await this.prisma.productBrand.create({
+    const productBrand = await this.prisma.client.productBrand.create({
       data,
     })
     return productBrand
@@ -110,7 +111,7 @@ export class ProductBrandService {
   async update(id: number, data: Prisma.ProductBrandUncheckedUpdateInput): Promise<TProductBrand> {
     const productBrand = await this.findOrFail(id)
 
-    return await this.prisma.productBrand.update({
+    return await this.prisma.client.productBrand.update({
       data,
       where: { id: productBrand.id },
     })
@@ -118,7 +119,7 @@ export class ProductBrandService {
 
   async delete(productBrand: TProductBrand, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.client.$transaction(async (tx) => {
         await tx.productBrand.delete({ where: { id: productBrand.id } })
       })
       return true

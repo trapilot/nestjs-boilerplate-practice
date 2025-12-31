@@ -39,8 +39,8 @@ import {
   AuthUserScopeProtected,
 } from 'lib/nest-auth'
 import {
-  ENUM_FILE_TYPE_EXCEL,
-  ENUM_GENDER_TYPE,
+  ENUM_FILE_BOOK_TYPE,
+  ENUM_USER_GENDER,
   EnvUtil,
   FileUploadMultiple,
   FileUploadMultipleFields,
@@ -60,13 +60,13 @@ import {
   RESPONSE_FILE_EXPORT_METADATA,
   RESPONSE_FILE_TYPE_METADATA,
 } from '../constants'
-import { ResponseDataDto, ResponseListingDto, ResponsePagingDto } from '../dtos'
+import { ResponseDataDto, ResponseListDto, ResponsePagingDto } from '../dtos'
 import { ENUM_REQUEST_BODY_TYPE } from '../enums'
 import { RequestSecurityGuard } from '../guards'
 import {
   ResponseDataInterceptor,
   ResponseFileInterceptor,
-  ResponseListingInterceptor,
+  ResponseListInterceptor,
   ResponsePagingInterceptor,
 } from '../interceptors'
 import {
@@ -283,8 +283,8 @@ function HttpRequest(
         name: 'exportType',
         required: false,
         allowEmptyValue: true,
-        enum: ENUM_FILE_TYPE_EXCEL,
-        example: ENUM_FILE_TYPE_EXCEL.CSV,
+        enum: ENUM_FILE_BOOK_TYPE,
+        example: ENUM_FILE_BOOK_TYPE.CSV,
         type: 'string',
         description: 'Export file type',
       }),
@@ -521,7 +521,7 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
       ApiHeader({
         name: 'x-user-gender',
         required: false,
-        schema: { type: 'string', enum: Object.values(ENUM_GENDER_TYPE) },
+        schema: { type: 'string', enum: Object.values(ENUM_USER_GENDER) },
       }),
     )
   }
@@ -651,8 +651,8 @@ export function ApiRequestList(options: Omit<IRequestListOptions, 'paging' | 'pe
     HttpResponse({
       data: {
         list: true,
-        type: ResponseListingDto,
-        interceptor: ResponseListingInterceptor,
+        type: ResponseListDto,
+        interceptor: ResponseListInterceptor,
       },
       exportable: isExportable,
       ...response,

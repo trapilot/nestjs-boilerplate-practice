@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { AppException, FailedAttemptError, QueueContext, RetryContext } from 'lib/nest-core'
-import { LoggerService } from 'lib/nest-logger'
+import { ENUM_LOGGER_TYPE, LoggerService } from 'lib/nest-logger'
 import { Twilio } from 'twilio'
 import { INotificationPayload } from '../interfaces'
 
@@ -17,7 +17,7 @@ export class SmsProvider {
     private readonly logger: LoggerService,
   ) {
     this.dryRun = this.config.get<boolean>('notification.sms.dryRun')
-    this.logger.setContext('sms')
+    this.logger.setContext(ENUM_LOGGER_TYPE.SYSTEM, 'sms')
   }
 
   send(payload: INotificationPayload) {

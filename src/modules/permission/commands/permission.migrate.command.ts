@@ -32,14 +32,14 @@ export class PermissionMigrateCommand extends CommandRunner {
       for (const permission of permissions) {
         const sorting = this.getSorting(permission)
 
-        await this.prisma.permission.upsert({
+        await this.prisma.client.permission.upsert({
           where: { subject: permission.subject },
           update: { ...permission, sorting, updatedAt },
           create: { ...permission, sorting, updatedAt },
         })
       }
 
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.client.$transaction(async (tx) => {
         const removes = await tx.permission.findMany({
           where: { updatedAt: { lt: updatedAt } },
         })
@@ -92,6 +92,6 @@ export class PermissionMigrateCommand extends CommandRunner {
   }
 
   async cleanAllPermissions() {
-    await this.prisma.$executeRaw`UPDATE permissions SET title = NULL, context = NULL`
+    await this.prisma.client.$executeRaw`UPDATE permissions SET title = NULL, context = NULL`
   }
 }

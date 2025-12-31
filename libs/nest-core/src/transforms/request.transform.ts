@@ -6,7 +6,7 @@ import {
   TransformFnParams,
 } from 'class-transformer'
 import { EnumLike } from '../interfaces'
-import { EnumUtil } from '../utils'
+import { EnumUtil, StrUtil } from '../utils'
 
 export function TransformIf(conditionFn: Function): (target: any, key: string) => void {
   return Transform((params: TransformFnParams) => {
@@ -49,7 +49,10 @@ export function ToArray(
     }
     if (type) {
       if (EnumUtil.isEnum(type)) {
-        return EnumUtil.filterEnumValues(value.split(','), { enum: type as EnumLike })
+        const enumValues = StrUtil.split(value, { delimiter: ',' })
+        return EnumUtil.filterValues(enumValues, {
+          enum: type as EnumLike,
+        })
       }
       return plainToInstance(type as ClassConstructor<any>, value, options)
     }

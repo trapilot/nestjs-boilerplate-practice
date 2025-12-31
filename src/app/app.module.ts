@@ -17,8 +17,15 @@ import { WorkerModule } from './worker'
   controllers: [],
   imports: [
     // Library
-    NestCoreModule.forRoot({ configs, envFilePath: ['.env'] }),
-    NestPrismaModule.forRoot(),
+    NestCoreModule.forRoot({
+      configs,
+      cache: true,
+      envFilePath: ['.env'],
+    }),
+    NestPrismaModule.forRoot({
+      multiTenant: false,
+      replication: true,
+    }),
     NestAuthModule.forRoot({
       factory: UserAbilityFactory,
       subjects: ENUM_APP_ABILITY_SUBJECT,

@@ -6,8 +6,13 @@ import {
   OnModuleInit,
 } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
-import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
-import { IResponseList, IResponsePaging } from 'lib/nest-web'
+import {
+  IPrismaOptions,
+  IPrismaParams,
+  IPrismaReturnList,
+  IPrismaReturnPaging,
+  PrismaService,
+} from 'lib/nest-prisma'
 import { TierChart } from '../helpers'
 import { TTier } from '../interfaces'
 
@@ -29,22 +34,22 @@ export class TierService implements OnModuleInit {
   }
 
   async findOne(kwargs?: Prisma.TierFindUniqueArgs): Promise<TTier> {
-    return await this.prisma.tier.findUnique(kwargs)
+    return await this.prisma.client.tier.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.TierFindFirstArgs = {}): Promise<TTier> {
-    return await this.prisma.tier.findFirst(kwargs)
+    return await this.prisma.client.tier.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.TierFindManyArgs = {}): Promise<TTier[]> {
-    return await this.prisma.tier.findMany(kwargs)
+    return await this.prisma.client.tier.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.TierFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TTier> {
-    const tier = await this.prisma.tier
+    const tier = await this.prisma.client.tier
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -73,7 +78,7 @@ export class TierService implements OnModuleInit {
     where: Prisma.TierWhereInput,
     kwargs: Omit<Prisma.TierFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TTier> {
-    const tier = await this.prisma.tier
+    const tier = await this.prisma.client.tier
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -88,37 +93,33 @@ export class TierService implements OnModuleInit {
     where?: Prisma.TierWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponseList> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.tier.list(where, params, options)
-    })
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.client.tier.list(where, params, options)
   }
 
   async paginate(
     where?: Prisma.TierWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponsePaging> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.tier.paginate(where, params, options)
-    })
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.client.tier.paginate(where, params, options)
   }
 
   async count(where?: Prisma.TierWhereInput): Promise<number> {
-    return await this.prisma.tier.count({
+    return await this.prisma.client.tier.count({
       where,
     })
   }
 
   async find(id: number, kwargs: Omit<Prisma.TierFindUniqueArgs, 'where'> = {}): Promise<TTier> {
-    return await this.prisma.tier.findUnique({
+    return await this.prisma.client.tier.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.TierUncheckedCreateInput): Promise<TTier> {
-    const tier = await this.prisma.tier.create({
+    const tier = await this.prisma.client.tier.create({
       data,
     })
     return tier
@@ -127,7 +128,7 @@ export class TierService implements OnModuleInit {
   async update(id: number, data: Prisma.TierUncheckedUpdateInput): Promise<TTier> {
     const tier = await this.findOrFail(id)
 
-    return await this.prisma.tier.update({
+    return await this.prisma.client.tier.update({
       data,
       where: { id: tier.id },
     })
@@ -135,7 +136,7 @@ export class TierService implements OnModuleInit {
 
   async delete(tier: TTier, _?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.client.$transaction(async (tx) => {
         await tx.tier.delete({ where: { id: tier.id } })
       })
       return true

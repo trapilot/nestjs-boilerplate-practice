@@ -18,7 +18,7 @@ export function RequestFilterParsePipe(
         return value
       }
 
-      const finalValue = StrUtil.parse(value, options)
+      const finalValue = StrUtil.parse(value, { parseAs: options?.parseAs })
 
       this.addToRequestInstance(finalValue)
       return finalValue

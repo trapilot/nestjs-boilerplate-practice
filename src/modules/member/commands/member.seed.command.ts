@@ -5,7 +5,7 @@ import { ENUM_MEMBER_TIER_ACTION, ENUM_MEMBER_TYPE } from '@runtime/prisma-clien
 import {
   CryptoService,
   ENUM_APP_LANGUAGE,
-  ENUM_GENDER_TYPE,
+  ENUM_USER_GENDER,
   EnvUtil,
   HelperService,
   NEST_CLI,
@@ -39,7 +39,7 @@ export class MemberSeedCommand extends CommandRunner {
 
     const dateNow = this.helperService.dateCreate()
     const startDate = this.config.get<Date>('app.startDate')
-    const codeDigits = this.config.getOrThrow<number>('app.membership.codeDigits')
+    const codeDigits = this.config.getOrThrow<number>('module.member.codeDigits')
 
     const tierChart = this.tierService.getChart()
     const dateRange = this.helperService.dateRange(dateNow)
@@ -49,11 +49,11 @@ export class MemberSeedCommand extends CommandRunner {
     const hashedPassword = this.cryptoService.bcrypt(process.env.MOCK_MEMBER_PASS, passwordSalt)
 
     try {
-      await this.prisma.$queryRaw`SET FOREIGN_KEY_CHECKS=0`
-      await this.prisma.$queryRawUnsafe(`TRUNCATE TABLE members`)
-      await this.prisma.$queryRawUnsafe(`TRUNCATE TABLE member_tier_histories`)
-      await this.prisma.$queryRawUnsafe(`TRUNCATE TABLE member_point_histories`)
-      await this.prisma.$queryRaw`SET FOREIGN_KEY_CHECKS=1`
+      await this.prisma.client.$queryRaw`SET FOREIGN_KEY_CHECKS=0`
+      await this.prisma.client.$queryRawUnsafe(`TRUNCATE TABLE members`)
+      await this.prisma.client.$queryRawUnsafe(`TRUNCATE TABLE member_tier_histories`)
+      await this.prisma.client.$queryRawUnsafe(`TRUNCATE TABLE member_point_histories`)
+      await this.prisma.client.$queryRaw`SET FOREIGN_KEY_CHECKS=1`
 
       // let members: Prisma.MemberUncheckedCreateInput[] = []
 
@@ -86,7 +86,7 @@ export class MemberSeedCommand extends CommandRunner {
         const extractDate = this.helperService.dateExtract(dateOfBirth)
         const expiryDate = this.helperService.dateCreate(memberDate, { endOfDay: true })
 
-        await this.prisma.member.create({
+        await this.prisma.client.member.create({
           data: {
             code,
             tierId: memberTier.id,
@@ -102,7 +102,7 @@ export class MemberSeedCommand extends CommandRunner {
             phoneNumber: phone,
             address: faker.location.streetAddress(true),
             locale: ENUM_APP_LANGUAGE.EN,
-            gender: isFemale ? ENUM_GENDER_TYPE.FEMALE : ENUM_GENDER_TYPE.MALE,
+            gender: isFemale ? ENUM_USER_GENDER.FEMALE : ENUM_USER_GENDER.MALE,
             birthDate,
             expiryDate,
             birthDay: extractDate.day,
@@ -140,7 +140,7 @@ export class MemberSeedCommand extends CommandRunner {
         })
 
         // if (members.length === 500 || i === options.numbers - 1) {
-        //   await this.prisma.$executeRaw(PrismaUtil.buildBulkInsert(members, tableName))
+        //   await this.prisma.client.$executeRaw(PrismaUtil.buildBulkInsert(members, tableName))
         //   members = []
         // }
       }
@@ -153,7 +153,7 @@ export class MemberSeedCommand extends CommandRunner {
       let memberTierHistories: Prisma.MemberTierHistoryUncheckedCreateInput[] = []
       let running = false
       do {
-        const notTierMembers = await this.prisma.member.findMany({
+        const notTierMembers = await this.prisma.client.member.findMany({
           where: whereNotTierMembers,
           take: chunkNotTierMembers,
           select: { id: true, minTierId: true, expiryDate: true },
@@ -177,7 +177,7 @@ export class MemberSeedCommand extends CommandRunner {
           })
 
           if (memberTierHistories.length === 500) {
-            await this.prisma.$executeRaw(
+            await this.prisma.client.$executeRaw(
               PrismaUtil.buildBulkInsert(memberTierHistories, tableTierName),
             )
             memberTierHistories = []
@@ -185,7 +185,7 @@ export class MemberSeedCommand extends CommandRunner {
         }
         running = notTierMembers.length === chunkNotTierMembers
       } while (running)
-      await this.prisma.$executeRaw(
+      await this.prisma.client.$executeRaw(
         PrismaUtil.buildBulkInsert(memberTierHistories, tableTierName),
       )
       */

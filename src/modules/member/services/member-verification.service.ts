@@ -21,7 +21,7 @@ export class MemberVerificationService {
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { timeZone: APP_TIMEZONE })
   private async clearExpiredVerifyTokens() {
     const dateNow = this.helperService.dateCreate()
-    await this.prisma.memberVerifyHistory.updateMany({
+    await this.prisma.client.memberVerifyHistory.updateMany({
       where: { isActive: true, isExpired: true, expiresAt: { lte: dateNow } },
       data: { isActive: false },
     })
@@ -35,7 +35,7 @@ export class MemberVerificationService {
     const dateRange = this.helperService.dateRange(dateNow)
 
     const inspector = this.checkIsInspector(data)
-    const todayAttempts = await this.prisma.memberVerifyHistory.count({
+    const todayAttempts = await this.prisma.client.memberVerifyHistory.count({
       where: {
         ...data,
         // isActive: true,
@@ -60,7 +60,7 @@ export class MemberVerificationService {
       length: options.length,
     })
 
-    return await this.prisma.memberVerifyHistory.create({
+    return await this.prisma.client.memberVerifyHistory.create({
       data: { ...data, code, isExpired: true, expiresAt: expired },
     })
   }
@@ -73,8 +73,13 @@ export class MemberVerificationService {
       })
     }
 
-    const tokens = await this.prisma.memberVerifyHistory.count({
-      where: { ...data, code, isActive: true, isVerified: true },
+    const tokens = await this.prisma.client.memberVerifyHistory.count({
+      where: {
+        ...data,
+        code,
+        isActive: true,
+        isVerified: true,
+      },
     })
 
     if (tokens === 0) {
@@ -88,7 +93,7 @@ export class MemberVerificationService {
   }
 
   async verify(code: string, data: IVerificationCreateOptions): Promise<boolean> {
-    const token = await this.prisma.memberVerifyHistory.findFirst({
+    const token = await this.prisma.client.memberVerifyHistory.findFirst({
       where: { isActive: true, ...data },
       orderBy: { id: 'desc' },
     })
@@ -115,7 +120,7 @@ export class MemberVerificationService {
       })
     }
 
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.client.$transaction(async (tx) => {
       await tx.memberVerifyHistory.updateMany({
         where: {
           memberId: token.memberId,

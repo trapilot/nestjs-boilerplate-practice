@@ -36,6 +36,6 @@ export class AuditService {
   }
 
   async saveHttpData(data: Prisma.AuditLogHttpUncheckedCreateInput) {
-    await this.prisma.auditLogHttp.create({ data })
+    await this.prisma.client.auditLogHttp.create({ data })
   }
 }

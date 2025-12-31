@@ -27,23 +27,23 @@ export class CartSeedCommand extends CommandRunner {
     this.logger.warn(`${CartSeedCommand.name} is running...`)
 
     try {
-      await this.prisma.$queryRaw`SET FOREIGN_KEY_CHECKS=0`
-      await this.prisma.$queryRawUnsafe(`TRUNCATE TABLE carts`)
-      await this.prisma.$queryRawUnsafe(`TRUNCATE TABLE cart_items`)
-      await this.prisma.$queryRawUnsafe(`TRUNCATE TABLE member_point_histories`)
-      await this.prisma.$queryRaw`SET FOREIGN_KEY_CHECKS=1`
+      await this.prisma.client.$queryRaw`SET FOREIGN_KEY_CHECKS=0`
+      await this.prisma.client.$queryRawUnsafe(`TRUNCATE TABLE carts`)
+      await this.prisma.client.$queryRawUnsafe(`TRUNCATE TABLE cart_items`)
+      await this.prisma.client.$queryRawUnsafe(`TRUNCATE TABLE member_point_histories`)
+      await this.prisma.client.$queryRaw`SET FOREIGN_KEY_CHECKS=1`
 
       const dateNow = this.helperService.dateCreate()
       const issuedAt = this.helperService.dateBackward(dateNow, { day: 1 })
 
-      const members = await this.prisma.member.findMany({
+      const members = await this.prisma.client.member.findMany({
         select: { id: true, birthMonth: true, phone: true },
       })
-      const products = await this.prisma.product.findMany()
+      const products = await this.prisma.client.product.findMany()
 
       for (const member of members) {
         const pointBalance = this.randomNumber(2_000, 20_000, 500)
-        await this.prisma.member.update({
+        await this.prisma.client.member.update({
           where: { id: member.id },
           data: {
             pointBalance,
@@ -81,7 +81,7 @@ export class CartSeedCommand extends CommandRunner {
             })
           }
 
-          const cart = await this.prisma.cart.create({
+          const cart = await this.prisma.client.cart.create({
             data: {
               memberId: member.id,
               version: 1,

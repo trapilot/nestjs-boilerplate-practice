@@ -1,6 +1,17 @@
 import { HttpStatus, NestInterceptor, Type } from '@nestjs/common'
 import { ClassConstructor } from 'class-transformer'
-import { ENUM_FILE_DISPOSITION, ENUM_FILE_MIME, IFileRows, IResponseMetadata } from 'lib/nest-core'
+import {
+  ENUM_FILE_DISPOSITION,
+  ENUM_FILE_MIME,
+  IMessageError,
+  IReturnBuffer,
+  IReturnData,
+  IReturnIterator,
+  IReturnList,
+  IReturnMetadata,
+  IReturnPaging,
+  IReturnPath,
+} from 'lib/nest-core'
 
 export interface IResponseOptions {
   statusCode?: HttpStatus
@@ -36,53 +47,22 @@ export interface IResponseFileOptions extends Omit<IResponseOptions, 'serializer
   }
 }
 
-export interface IResponseData<T = Record<string, any>> {
-  _metadata?: IResponseMetadata
-  data: T
-}
-
-export interface IDataList<T = Record<string, any>> {
-  _metadata?: IResponseMetadata
-  data: T[]
-}
-
-export interface IDataPaging<T = Record<string, any>> extends IDataList<T> {
-  pagination: {
-    totalPage: number
-    totalRecord: number
-  }
-}
-
-export interface IDataIterator {
-  _metadata?: IResponseMetadata
-  data: AsyncGenerator<Record<string, any>[]>
-  filePrefix?: string
-  fileTimestamp?: boolean
-}
-
-export interface IDataFileBuffer {
-  file: Buffer
-  name: string
-  timestamp?: boolean
-}
-
-export interface IDataFilePath {
-  file: string | string[]
-  name?: string
-  relative?: string // use in zip file
-  temporary?: boolean
-}
-
-export type IResponseList = IDataIterator | IDataList
-export type IResponsePaging = IDataIterator | IDataPaging
-export type IResponseFile = IDataFileBuffer | IDataFilePath
-
-export interface IResponseFileExcel {
-  data: IFileRows[]
-}
-
-export interface IResponsePushgateway {
+export interface IResponseMetrics {
   status: number
   success: boolean
   message?: string
 }
+
+export interface IResponseException {
+  message: string
+  httpStatus: number
+  statusCode?: number
+  metadata?: IReturnMetadata
+  errors?: IMessageError[]
+  error?: string
+}
+
+export type IResponseData<T = Record<string, any>> = IReturnData<T>
+export type IResponseList<T = Record<string, any>> = IReturnIterator<T> | IReturnList<T>
+export type IResponsePaging<T = Record<string, any>> = IReturnIterator | IReturnPaging<T>
+export type IResponseFile = IReturnBuffer | IReturnPath

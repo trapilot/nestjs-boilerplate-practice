@@ -29,23 +29,23 @@ export class RoleMigrateCommand extends CommandRunner {
     this.logger.warn(`${RoleMigrateCommand.name} is running...`)
 
     try {
-      const adminRoles = await this.prisma.role.findMany({
+      const adminRoles = await this.prisma.client.role.findMany({
         where: { id: { lte: 3 } },
         include: { pivotPermissions: true },
       })
 
       for (const adminRole of adminRoles) {
-        const adminUsers = await this.prisma.user.findMany({
+        const adminUsers = await this.prisma.client.user.findMany({
           where: { pivotRoles: { some: { roleId: adminRole.id } } },
         })
 
         if (adminUsers.length && adminRole) {
           const adminIds = adminUsers.map((admin) => admin.id)
-          await this.prisma.usersRoles.deleteMany({
+          await this.prisma.client.usersRoles.deleteMany({
             where: { roleId: adminRole.id, userId: { in: adminIds } },
           })
 
-          const permissions = await this.prisma.permission.findMany({
+          const permissions = await this.prisma.client.permission.findMany({
             select: { id: true, bitwise: true },
           })
           const oldPermissionIds = adminRole.pivotPermissions.map((rp) => rp.permissionId)
@@ -56,7 +56,7 @@ export class RoleMigrateCommand extends CommandRunner {
           const addIds = this.helperService.arrayIntersection(diffIds, newPermissionIds)
           const delIds = this.helperService.arrayDifference(diffIds, addIds)
 
-          await this.prisma.$transaction(async (tx) => {
+          await this.prisma.client.$transaction(async (tx) => {
             await tx.rolesPermissions.deleteMany({ where: { permissionId: { in: delIds } } })
             await tx.rolesPermissions.createMany({
               data: addIds.map((permissionId) => {
@@ -81,7 +81,7 @@ export class RoleMigrateCommand extends CommandRunner {
           // update bitwise
           for (const id of oldIds) {
             const bitwise = permissions.find((p) => p.id == id)?.bitwise ?? 0
-            await this.prisma.rolesPermissions.updateMany({
+            await this.prisma.client.rolesPermissions.updateMany({
               data: { bitwise },
               where: { roleId: adminRole.id, permissionId: id },
             })

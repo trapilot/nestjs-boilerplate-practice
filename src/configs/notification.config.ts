@@ -1,10 +1,11 @@
 import { registerAs } from '@nestjs/config'
+import { StrUtil } from 'lib/nest-core'
 
 export default registerAs(
   'notification',
   (): Record<string, any> => ({
     sms: {
-      dryRun: process.env.SMS_DRYRUN === 'true',
+      dryRun: StrUtil.isTrue(process.env.SMS_DRYRUN),
       retries: 1,
       twilio: {
         accountSid: process.env.TWILIO_ACCOUNT_SID,
@@ -12,7 +13,7 @@ export default registerAs(
       },
     },
     email: {
-      dryRun: process.env.EMAIL_DRYRUN === 'true',
+      dryRun: StrUtil.isTrue(process.env.EMAIL_DRYRUN),
       retries: 1,
       transport: {
         host: process.env.EMAIL_HOST,
@@ -24,7 +25,7 @@ export default registerAs(
       },
     },
     push: {
-      dryRun: process.env.PUSH_DRYRUN === 'true',
+      dryRun: StrUtil.isTrue(process.env.PUSH_DRYRUN),
       retries: 1,
       firebase: {
         serviceAccountPath: process.env.FIREBASE_ACCOUNT_PATH,

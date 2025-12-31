@@ -1,6 +1,7 @@
 export * from './constants'
 export * from './drivers'
 export * from './enums'
+export * from './factories'
 export * from './helpers'
 export * from './interceptors'
 export * from './interfaces'

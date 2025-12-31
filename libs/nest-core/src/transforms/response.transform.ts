@@ -1,6 +1,6 @@
 import { ClassConstructor, plainToInstance, Transform } from 'class-transformer'
 import { AppContext } from '../helpers'
-import { IDateRequestOptions, IStringNumericOptions } from '../interfaces'
+import { IDateRequestOptions, INumberReturnOptions } from '../interfaces'
 import { DateUtil, LocaleUtil, NumberUtil, UrlUtil } from '../utils'
 
 export function ToUrl(host?: string): (target: any, key: string) => void {
@@ -69,11 +69,11 @@ export function ToEnum(
   })
 }
 
-export function ToDecimal(options?: IStringNumericOptions): (target: any, key: string) => void {
+export function ToDecimal(options?: INumberReturnOptions): (target: any, key: string) => void {
   return Transform(({ value, obj, key }: any) => {
     const decimal = value ?? obj[key.replace('Format', '')]
     if (typeof decimal === 'number') {
-      return NumberUtil.numeric(decimal ?? 0, {
+      return NumberUtil.decimal(decimal ?? 0, {
         useGrouping: !AppContext.isAdminRequest(),
         ...options,
       })
@@ -82,7 +82,7 @@ export function ToDecimal(options?: IStringNumericOptions): (target: any, key: s
   })
 }
 
-export function ToCurrency(options?: IStringNumericOptions): (target: any, key: string) => void {
+export function ToCurrency(options?: INumberReturnOptions): (target: any, key: string) => void {
   return Transform(({ value, obj, key }: any) => {
     return NumberUtil.currency(value ?? obj[key.replace('Format', '')] ?? 0, {
       useGrouping: !AppContext.isAdminRequest(),
@@ -93,7 +93,10 @@ export function ToCurrency(options?: IStringNumericOptions): (target: any, key: 
 
 export function ToPercent(): (target: any, key: string) => void {
   return Transform(({ value, obj, key }: any) => {
-    return `${value ?? obj[key.replace('Format', '')] ?? 0}%`
+    // return `${value ?? obj[key.replace('Format', '')] ?? 0}%`
+    return NumberUtil.currency(value ?? obj[key.replace('Format', '')] ?? 0, {
+      useGrouping: !AppContext.isAdminRequest(),
+    })
   })
 }
 

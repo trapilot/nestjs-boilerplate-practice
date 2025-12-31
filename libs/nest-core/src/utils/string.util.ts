@@ -1,6 +1,18 @@
-import { IStringCapitalizeOptions, IStringParseOptions, IStringSplitOptions } from '../interfaces'
+import {
+  IStringCapitalizeOptions,
+  IStringFormatOptions,
+  IStringParseOptions,
+  IStringSplitOptions,
+} from '../interfaces'
 
 export class StrUtil {
+  static format(value: string, options?: IStringFormatOptions): string {
+    if (options?.uppercase) return value.toUpperCase()
+    if (options?.lowercase) return value.toLowerCase()
+    if (options?.capitalize) return this.capitalize(value)
+    return value
+  }
+
   static parse<T = any>(value: string, options: IStringParseOptions): T {
     let finalValue: any = value
     const defValue: any = options?.errorAs
@@ -9,7 +21,7 @@ export class StrUtil {
       return defValue
     }
 
-    switch (options?.parseAs) {
+    switch (options.parseAs) {
       case 'id':
         finalValue = parseInt(value, 10) || undefined
         break
@@ -30,6 +42,8 @@ export class StrUtil {
   }
 
   static split(value: string, options: IStringSplitOptions): string[] {
+    if (!value) return []
+
     if (options?.allowEmpty !== false) {
       return value.split(options.delimiter, options?.maxSplit)
     }
@@ -49,5 +63,17 @@ export class StrUtil {
         .replace(/^./, (c) => c.toUpperCase())
     }
     return value.charAt(0).toUpperCase() + value.slice(1)
+  }
+
+  static numeric(value: string, defaultValue?: number): number {
+    return this.parse<number>(value, {
+      parseAs: 'number',
+      errorAs: defaultValue,
+    })
+  }
+
+  static isTrue(value: string, def: boolean = false): boolean {
+    if (value === undefined) return def
+    return value === 'true'
   }
 }

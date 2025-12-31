@@ -27,7 +27,6 @@ export const APP_PATH = process.env.APP_PATH ?? join(ROOT_PATH, 'src')
 export const APP_ENV = process.env.APP_ENV || ENUM_APP_ENVIRONMENT.DEVELOPMENT
 export const APP_URL = process.env.APP_URL || ''
 export const APP_NAME = process.env.APP_NAME || ''
-export const APP_START = process.env.APP_START || '2025-01-01T00:00:00Z'
 export const APP_TIMEZONE = process.env.APP_TIMEZONE ?? IntlDatetime.timeZone
 export const APP_LANGUAGE = process.env.APP_LANGUAGE ?? ENUM_APP_LANGUAGE.EN
 

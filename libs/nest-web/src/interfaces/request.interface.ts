@@ -45,7 +45,6 @@ export interface IRequestFilterParseOptions extends Pick<IRequestFilterOptions, 
   pipes?: (Type<PipeTransform> | PipeTransform)[]
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface IRequestFilterDateOptions extends IRequestFilterOptions {}
 
 export interface IRequestFilterEqualOptions extends IRequestFilterOptions {

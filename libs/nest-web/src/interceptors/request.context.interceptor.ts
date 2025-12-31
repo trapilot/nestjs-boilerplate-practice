@@ -36,9 +36,7 @@ export class RequestContextInterceptor<T> implements NestInterceptor<T> {
 
     this.applyHeaders(req, res)
 
-    const timeoutMs = this.resolveTimeout(context)
-
-    return next.handle().pipe(timeout(timeoutMs), catchError(this.handleTimeout))
+    return next.handle().pipe(timeout(this.resolveTimeout(context)), catchError(this.handleTimeout))
   }
 
   private applyHeaders(req: IRequestApp, res: IResponseApp) {
@@ -48,9 +46,8 @@ export class RequestContextInterceptor<T> implements NestInterceptor<T> {
   }
 
   private resolveTimeout(context: ExecutionContext): number {
-    return (
-      this.reflector.get<number>(REQUEST_TIMEOUT_METADATA, context.getHandler()) ?? this.maxTimeout
-    )
+    const ctxTimeout = this.reflector.get<number>(REQUEST_TIMEOUT_METADATA, context.getHandler())
+    return ctxTimeout ?? this.maxTimeout
   }
 
   private handleTimeout(err: any) {

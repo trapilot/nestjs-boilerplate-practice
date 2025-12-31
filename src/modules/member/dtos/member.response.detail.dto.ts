@@ -68,10 +68,10 @@ class ResponseDataDetailDto {
   @Expose()
   avatar: string
 
-  // @ApiProperty({ enum: ENUM_GENDER_TYPE })
+  // @ApiProperty({ enum: ENUM_USER_GENDER })
   // @Type(() => String)
   // @Expose()
-  // gender: ENUM_GENDER_TYPE
+  // gender: ENUM_USER_GENDER
 
   @ApiProperty({ example: faker.location.streetAddress(false) })
   @Type(() => String)

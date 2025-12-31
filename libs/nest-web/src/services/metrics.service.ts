@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Counter, Gauge, Histogram, Pushgateway, Registry, Summary } from 'prom-client'
 import { REQUEST_METRICS_CONFIG_TOKEN } from '../constants'
-import { IRequestMetricsConfig, IResponsePushgateway } from '../interfaces'
+import { IRequestMetricsConfig, IResponseMetrics } from '../interfaces'
 
 @Injectable()
 export class MetricsService {
@@ -88,7 +88,7 @@ export class MetricsService {
     this.summary[key].observe(labels || {}, value)
   }
 
-  public async pushMetrics(jobName: string): Promise<IResponsePushgateway> {
+  public async pushMetrics(jobName: string): Promise<IResponseMetrics> {
     if (!this.pushgateway) {
       return {
         status: 400,

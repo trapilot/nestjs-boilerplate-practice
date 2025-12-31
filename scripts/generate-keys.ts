@@ -67,7 +67,7 @@ class JwtKeysGenerator {
         y: keyDetails.y,
         crv: keyDetails.crv,
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error extracting EC parameters from ${publicKeyPath}: ${error.message}`)
       throw error
     }
@@ -120,7 +120,7 @@ class JwtKeysGenerator {
 
       fs.writeFileSync(outputPath, JSON.stringify(jwks, null, 2))
       console.log(`JWKS successfully created at ${outputPath}`)
-    } catch (error) {
+    } catch (error: any) {
       console.error(`Error creating JWKS: ${error.message}`)
       throw error
     }
@@ -147,7 +147,7 @@ class JwtKeysGenerator {
       //   )
 
       console.log('JWT keys generated successfully!')
-    } catch (err) {
+    } catch (err: any) {
       console.error(`Failed to generate JWT keys: ${err.message}`)
       process.exit(1)
     }
@@ -176,7 +176,7 @@ class JwtKeysGenerator {
       }
 
       console.log('JWT keys removed successfully!')
-    } catch (err) {
+    } catch (err: any) {
       console.error(`Failed to remove JWT keys: ${err.message}`)
       process.exit(1)
     }

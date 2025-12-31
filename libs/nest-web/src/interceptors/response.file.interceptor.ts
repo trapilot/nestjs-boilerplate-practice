@@ -13,45 +13,42 @@ import {
   ENUM_FILE_MIME,
   FileService,
   FileUtil,
-  HelperService,
   IResponseApp,
+  IReturnBuffer,
+  IReturnPath,
   ROOT_PATH,
 } from 'lib/nest-core'
-import path from 'path'
 import { Observable, throwError } from 'rxjs'
 import { catchError, mergeMap } from 'rxjs/operators'
 import { PassThrough } from 'stream'
 import { v7 as uuidv7 } from 'uuid'
 import { RESPONSE_FILE_DISPOSITION_METADATA, RESPONSE_FILE_TYPE_METADATA } from '../constants'
-import { IDataFileBuffer, IDataFilePath, IResponseFile } from '../interfaces'
+import { IResponseFile } from '../interfaces'
 
 @Injectable()
 export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseFile> {
   constructor(
     private readonly reflector: Reflector,
     private readonly fileService: FileService,
-    private readonly helperService: HelperService,
   ) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
-    if (context.getType() === 'http') {
-      return next.handle().pipe(
-        mergeMap(async (res: IResponseFile) => {
-          if (Buffer.isBuffer(res.file)) {
-            return await this.sendFromBuffer(context, res as IDataFileBuffer)
-          }
-          return await this.sendFromPath(context, res as IDataFilePath)
-        }),
-        catchError((err) => {
-          return throwError(() => err)
-        }),
-      )
+    if (context.getType() !== 'http') {
+      return next.handle()
     }
 
-    return next.handle()
+    return next.handle().pipe(
+      mergeMap(async (res: IResponseFile) => {
+        if (Buffer.isBuffer(res.file)) {
+          return await this.sendFromBuffer(context, res as IReturnBuffer)
+        }
+        return await this.sendFromPath(context, res as IReturnPath)
+      }),
+      catchError((err) => throwError(() => err)),
+    )
   }
 
-  private async sendFromPath(context: ExecutionContext, responseData: IDataFilePath) {
+  private async sendFromPath(context: ExecutionContext, response: IReturnPath) {
     const ctx: HttpArgumentsHost = context.switchToHttp()
     const res: IResponseApp = ctx.getResponse<IResponseApp>()
 
@@ -60,11 +57,11 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
       context.getHandler(),
     )
 
-    if (Array.isArray(responseData.file)) {
-      const zipFileName = responseData?.name || `files-${uuidv7()}.zip`
-      const zipFilePath = path.join(ROOT_PATH, 'public', 'temporary', zipFileName)
-      const zipFileRelative = responseData?.relative ?? ROOT_PATH
-      const zipFileTemporary = responseData?.temporary as boolean
+    if (Array.isArray(response.file)) {
+      const zipFileName = response?.name || `files-${uuidv7()}.zip`
+      const zipFilePath = FileUtil.joinRoot(['public', 'temporary', zipFileName])
+      const zipFileRelative = response?.relative ?? ROOT_PATH
+      const zipFileTemporary = response?.temporary as boolean
 
       // Set headers for ZIP response
       res
@@ -75,7 +72,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
 
       if (zipFileTemporary) {
         // Create the ZIP file
-        await this.fileService.zipFiles(responseData.file, {
+        await this.fileService.zipFiles(response.file, {
           zipFilePath,
           zipFileRelative,
         })
@@ -139,7 +136,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
           console.error('Response error:', err)
         })
 
-        for (const filePath of responseData.file) {
+        for (const filePath of response.file) {
           try {
             if (!fs.existsSync(filePath)) {
               console.warn(`File not found, skipping: ${filePath}`)
@@ -152,7 +149,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
               continue
             }
 
-            const relativePath = path.relative(zipFileRelative, filePath)
+            const relativePath = FileUtil.relative(zipFileRelative, filePath)
 
             // Add file to archive
             archive.append(fs.createReadStream(filePath), {
@@ -177,8 +174,8 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
         return passThroughStream
       }
     } else {
-      const filePath = responseData.file as string
-      const fileTemporary = responseData.temporary as boolean
+      const filePath = response.file as string
+      const fileTemporary = response.temporary as boolean
 
       // set headers
       const fileBuffer: Buffer = fs.readFileSync(filePath)
@@ -204,7 +201,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
     }
   }
 
-  private async sendFromBuffer(context: ExecutionContext, responseData: IDataFileBuffer) {
+  private async sendFromBuffer(context: ExecutionContext, response: IReturnBuffer) {
     const ctx: HttpArgumentsHost = context.switchToHttp()
     const res: IResponseApp = ctx.getResponse<IResponseApp>()
 
@@ -218,16 +215,14 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
       context.getHandler(),
     )
 
-    const dateNow = this.helperService.dateCreate()
-    const fileBuffer = responseData.file
-    const filePrefix = responseData.name
-    const fileSuffix = responseData?.timestamp ? this.helperService.dateGetTimestamp(dateNow) : ''
+    const fileBuffer = response.file
+    const fileOutput = response.name
 
     // set headers
-    const filename = [
-      [filePrefix, fileSuffix].filter((i) => i).join('_'),
-      FileUtil.mapMimetype(fileType),
-    ].join('.')
+    const filename = FileUtil.format(fileOutput, {
+      timestamp: response?.timestamp,
+      extension: FileUtil.mapMimetype(fileType),
+    })
 
     res
       .setHeader('Content-Type', fileType)

@@ -16,7 +16,6 @@ import {
 } from '../guards'
 import { IAuthAbility, IAuthJwtProtectedOptions } from '../interfaces'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface AuthJwtPayloadOptions extends Pick<IStringParseOptions, 'parseAs'> {}
 
 export const AuthJwtPayload = createParamDecorator(
@@ -24,7 +23,7 @@ export const AuthJwtPayload = createParamDecorator(
     const request = context.switchToHttp().getRequest<IRequestApp>()
 
     let path: string
-    let options: AuthJwtPayloadOptions = {}
+    let options: AuthJwtPayloadOptions
 
     if (Array.isArray(data)) {
       ;[path, options] = data
@@ -41,8 +40,8 @@ export const AuthJwtPayload = createParamDecorator(
 
     // // Handle runtime type parsing
     payload = StrUtil.parse(payload, {
-      ...options,
-      errorAs: options?.parseAs === 'id' ? 0 : undefined,
+      parseAs: options?.parseAs,
+      errorAs: options?.parseAs === 'id' ? 0 : undefined, // force id=0 when undefined to build prisma where operation
     })
 
     return payload as T

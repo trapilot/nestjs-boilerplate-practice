@@ -1,5 +1,10 @@
 import { ValidationError } from '@nestjs/common'
 
+export interface IMessageError {
+  property: string
+  message: string
+}
+
 export type IMessageProperties = Record<string, string | number | any>
 
 export interface IMessageErrorOptions {

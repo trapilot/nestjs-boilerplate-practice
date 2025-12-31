@@ -2,8 +2,13 @@ import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@n
 import { ConfigService } from '@nestjs/config'
 import { Prisma } from '@runtime/prisma-client'
 import { CryptoService, ENUM_APP_ENVIRONMENT, HelperService } from 'lib/nest-core'
-import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
-import { IResponseList, IResponsePaging } from 'lib/nest-web'
+import {
+  IPrismaOptions,
+  IPrismaParams,
+  IPrismaReturnList,
+  IPrismaReturnPaging,
+  PrismaService,
+} from 'lib/nest-prisma'
 import { TApiKey } from '../interfaces'
 
 @Injectable()
@@ -20,22 +25,22 @@ export class ApiKeyService {
   }
 
   async findOne(kwargs?: Prisma.ApiKeyFindUniqueArgs): Promise<TApiKey> {
-    return await this.prisma.apiKey.findUnique(kwargs)
+    return await this.prisma.client.apiKey.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.ApiKeyFindFirstArgs = {}): Promise<TApiKey> {
-    return await this.prisma.apiKey.findFirst(kwargs)
+    return await this.prisma.client.apiKey.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.ApiKeyFindManyArgs = {}): Promise<TApiKey[]> {
-    return await this.prisma.apiKey.findMany(kwargs)
+    return await this.prisma.client.apiKey.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.ApiKeyFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TApiKey> {
-    const apiKey = await this.prisma.apiKey
+    const apiKey = await this.prisma.client.apiKey
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -50,7 +55,7 @@ export class ApiKeyService {
     where: Prisma.ApiKeyWhereInput,
     kwargs: Omit<Prisma.ApiKeyFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TApiKey> {
-    const apiKey = await this.prisma.apiKey
+    const apiKey = await this.prisma.client.apiKey
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -79,24 +84,20 @@ export class ApiKeyService {
     where?: Prisma.ApiKeyWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponseList> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.apiKey.list(where, params, options)
-    })
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.client.apiKey.list(where, params, options)
   }
 
   async paginate(
     where?: Prisma.ApiKeyWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponsePaging> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.apiKey.paginate(where, params, options)
-    })
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.client.apiKey.paginate(where, params, options)
   }
 
   async count(where?: Prisma.ApiKeyWhereInput): Promise<number> {
-    return await this.prisma.apiKey.count({
+    return await this.prisma.client.apiKey.count({
       where,
     })
   }
@@ -105,14 +106,14 @@ export class ApiKeyService {
     id: number,
     kwargs: Omit<Prisma.ApiKeyFindUniqueArgs, 'where'> = {},
   ): Promise<TApiKey> {
-    return await this.prisma.apiKey.findUnique({
+    return await this.prisma.client.apiKey.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.ApiKeyUncheckedCreateInput): Promise<TApiKey> {
-    const apiKey = await this.prisma.apiKey.create({
+    const apiKey = await this.prisma.client.apiKey.create({
       data,
     })
     return apiKey
@@ -121,7 +122,7 @@ export class ApiKeyService {
   async update(id: number, data: Prisma.ApiKeyUncheckedUpdateInput): Promise<TApiKey> {
     const apiKey = await this.findOrFail(id)
 
-    return await this.prisma.apiKey.update({
+    return await this.prisma.client.apiKey.update({
       data,
       where: { id: apiKey.id },
     })
@@ -130,7 +131,7 @@ export class ApiKeyService {
   async inactive(id: number): Promise<TApiKey> {
     const apiKey = await this.findOrFail(id)
 
-    return await this.prisma.apiKey.update({
+    return await this.prisma.client.apiKey.update({
       data: { isActive: false },
       where: { id: apiKey.id },
     })
@@ -139,7 +140,7 @@ export class ApiKeyService {
   async active(id: number): Promise<TApiKey> {
     const apiKey = await this.findOrFail(id)
 
-    return await this.prisma.apiKey.update({
+    return await this.prisma.client.apiKey.update({
       data: { isActive: true },
       where: { id: apiKey.id },
     })
@@ -147,7 +148,7 @@ export class ApiKeyService {
 
   async delete(apiKey: TApiKey, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.client.$transaction(async (tx) => {
         await tx.apiKey.delete({ where: { id: apiKey.id } })
       })
       return true
@@ -160,7 +161,7 @@ export class ApiKeyService {
     const startDate = this.helperService.dateCreate(date.startDate, { startOfDay: true })
     const untilDate = this.helperService.dateCreate(date.untilDate, { endOfDay: true })
 
-    return await this.prisma.apiKey.update({
+    return await this.prisma.client.apiKey.update({
       data: { startDate, untilDate },
       where: { id: apiKey.id },
     })
@@ -183,7 +184,7 @@ export class ApiKeyService {
       algorithm: 'sha256',
     })
 
-    const updated = await this.prisma.apiKey.update({
+    const updated = await this.prisma.client.apiKey.update({
       data: { hash },
       where: { id: apiKey.id },
     })

@@ -13,8 +13,7 @@ import { ConfigService } from '@nestjs/config'
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler'
-import { ROOT_PATH } from 'lib/nest-core'
-import { join } from 'path'
+import { FileUtil } from 'lib/nest-core'
 import { collectDefaultMetrics, Registry } from 'prom-client'
 import { REQUEST_METRICS_CONFIG_TOKEN } from './constants'
 import { HealthController, MetricsController } from './controllers'
@@ -35,8 +34,8 @@ import {
   DateGreaterThanEqualConstraint,
   DateLessThanConstraint,
   DateLessThanEqualConstraint,
-  IsCustomEmailConstraint,
   IsDurationConstraint,
+  IsEmailConstraint,
   IsPasswordConstraint,
   IsPhoneConstraint,
   IsRatioConstraint,
@@ -55,23 +54,6 @@ type ModuleController = Type<Controller>
 @Module({})
 export class NestWebModule implements NestModule {
   private static middlewareConfig?: (consumer: MiddlewareConsumer) => void
-
-  configure(consumer: MiddlewareConsumer): void {
-    consumer
-      .apply(
-        RequestCorsMiddleware,
-        RequestSecurityMiddleware,
-        RequestPerformanceMiddleware,
-        RequestBodyParserMiddleware,
-        RequestUserAgentMiddleware,
-      )
-      .forRoutes('*')
-
-    // Custom middleware (user-defined)
-    if (NestWebModule.middlewareConfig) {
-      NestWebModule.middlewareConfig(consumer)
-    }
-  }
 
   static forRoot(options: {
     validator: ValidationPipeOptions
@@ -137,8 +119,8 @@ export class NestWebModule implements NestModule {
         IsDurationConstraint,
         IsPasswordConstraint,
         IsRatioConstraint,
+        IsEmailConstraint,
         IsPhoneConstraint,
-        IsCustomEmailConstraint,
         AgeGreaterThanEqualConstraint,
         DateLessThanConstraint,
         DateLessThanEqualConstraint,
@@ -154,7 +136,7 @@ export class NestWebModule implements NestModule {
       imports: [
         ...imports,
         ServeStaticModule.forRoot({
-          rootPath: join(ROOT_PATH, 'public', 'admin'),
+          rootPath: FileUtil.joinRoot(['public', 'admin']),
           serveRoot: '/admin',
         }),
         ThrottlerModule.forRootAsync({
@@ -169,6 +151,23 @@ export class NestWebModule implements NestModule {
       ],
       exports,
       controllers,
+    }
+  }
+
+  configure(consumer: MiddlewareConsumer): void {
+    consumer
+      .apply(
+        RequestCorsMiddleware,
+        RequestSecurityMiddleware,
+        RequestPerformanceMiddleware,
+        RequestBodyParserMiddleware,
+        RequestUserAgentMiddleware,
+      )
+      .forRoutes('*')
+
+    // Custom middleware (user-defined)
+    if (NestWebModule.middlewareConfig) {
+      NestWebModule.middlewareConfig(consumer)
     }
   }
 }

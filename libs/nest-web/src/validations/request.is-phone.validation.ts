@@ -1,37 +1,42 @@
 import { Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import {
+  isPhoneNumber,
   registerDecorator,
   ValidationArguments,
   ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator'
+import { CountryCode } from 'libphonenumber-js/types.cjs'
 
 @ValidatorConstraint({ async: true })
 @Injectable()
 export class IsPhoneConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly config: ConfigService) {}
-  async validate(value: string, args: ValidationArguments): Promise<boolean> {
-    const [options] = args.constraints
-    if (options?.country === false) {
-      return /^[+-]?\d+(\.\d+)?$/.test(value ?? '')
+  validate(value: string, args: ValidationArguments): boolean {
+    if (!value) return false
+
+    const [regions] = args.constraints
+    if (regions && regions.length) {
+      for (const region in regions) {
+        if (isPhoneNumber(value, region as CountryCode)) {
+          return true
+        }
+      }
+      return false
     }
 
-    const codes = this.config.get<string[]>('app.country.availableList')
-    const check = codes.find((val: string) => (value ?? '').startsWith(val))
-    return !!check && /^[+-]?\d+(\.\d+)?$/.test(value ?? '')
+    return isPhoneNumber(value)
   }
 }
 
-export function IsPhone(options?: { country: boolean }, validationOptions?: ValidationOptions) {
+export function IsPhone(regions?: string[], validationOptions?: ValidationOptions) {
   return function (object: Record<string, any>, propertyName: string): void {
     registerDecorator({
       name: 'IsPhone',
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
-      constraints: [options],
+      constraints: [regions],
       validator: IsPhoneConstraint,
     })
   }

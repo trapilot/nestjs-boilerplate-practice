@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common'
 import { ENUM_APP_API_TYPE, ModuleBase } from 'lib/nest-core'
 import { CountryAdminController, CountryAppController } from './controllers'
 import { CountryService } from './services'
+import { HasAllowCountryConstraint, IsAllowCountryConstraint } from './validations'
 
 @Module({
-  providers: [CountryService],
+  providers: [CountryService, IsAllowCountryConstraint, HasAllowCountryConstraint],
   exports: [CountryService],
   imports: [],
 })

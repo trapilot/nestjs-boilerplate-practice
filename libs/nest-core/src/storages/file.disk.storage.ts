@@ -7,7 +7,6 @@ import convert from 'heic-convert'
 import imageSize from 'image-size'
 import { Jimp } from 'jimp'
 import { DiskStorageOptions, StorageEngine } from 'multer'
-import { basename, join } from 'path'
 import { ENUM_FILE_MIME } from '../enums'
 import { IFile } from '../interfaces'
 import { FileUtil, UrlUtil } from '../utils'
@@ -72,8 +71,8 @@ export class DiskStorage implements StorageEngine {
    * @param milliseconds A unique timestamp.
    * @returns The new filename.
    */
-  private createFileName(fileName: string, milliseconds: number = 0): string {
-    return FileUtil.format(fileName, milliseconds)
+  private createFileName(fileName: string): string {
+    return FileUtil.format(fileName, { timestamp: true })
   }
 
   /**
@@ -157,7 +156,7 @@ export class DiskStorage implements StorageEngine {
         new RegExp(`${extension}$`),
         outputType.extension,
       )
-      const outputPath = join(destination, outputName)
+      const outputPath = FileUtil.join([destination, outputName])
 
       const image = await Jimp.read(outputBuffer)
       await image.write(outputPath as `${string}.${string}`)
@@ -168,7 +167,7 @@ export class DiskStorage implements StorageEngine {
 
       return {
         originalname: outputName,
-        filename: basename(outputPath),
+        filename: FileUtil.basename(outputPath),
         destination: UrlUtil.normalize(destination),
         path: UrlUtil.normalize(outputPath),
         mimetype: outputType.mimetype,
@@ -197,7 +196,7 @@ export class DiskStorage implements StorageEngine {
     // If HEVC transcoding is enabled and the file is HEVC
     if (isHEV && this.transcoding.hevc) {
       console.log(`\x1b[33mConverting H.265 video to H.264. Please wait...\x1b[0m`)
-      const finalPath = join(destination, filename)
+      const finalPath = FileUtil.join([destination, filename])
 
       const outputType: { extension: string; mimetype: ENUM_FILE_MIME } = {
         extension: '.mp4',
@@ -208,7 +207,7 @@ export class DiskStorage implements StorageEngine {
         new RegExp(`${extension}$`),
         outputType.extension,
       )
-      const outputPath = join(destination, outputName)
+      const outputPath = FileUtil.join([destination, outputName])
 
       await this.writeStreamToFile(file.stream, finalPath)
 
@@ -230,7 +229,7 @@ export class DiskStorage implements StorageEngine {
       const fileStat = statSync(outputPath)
       return {
         originalname: outputName,
-        filename: basename(outputPath),
+        filename: FileUtil.basename(outputPath),
         destination: UrlUtil.normalize(destination),
         path: UrlUtil.normalize(outputPath),
         mimetype: outputType.mimetype,
@@ -249,7 +248,7 @@ export class DiskStorage implements StorageEngine {
    * @returns An object with file information.
    */
   private async handleFileNormal(file: IFile, destination: string, filename: string): Promise<any> {
-    const finalPath = join(destination, filename)
+    const finalPath = FileUtil.join([destination, filename])
     await this.writeStreamToFile(file.stream, finalPath)
 
     const fileStat = statSync(finalPath)

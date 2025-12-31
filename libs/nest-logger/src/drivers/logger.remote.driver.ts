@@ -26,8 +26,8 @@ export class LoggerRemoteDriver extends Writable {
     try {
       const entry = LoggerUtil.createEntry(logStr, encoding)
 
-      // currently ignore log sql,  it loop
-      if (entry.data.context !== ENUM_LOGGER_TYPE.MYSQL) {
+      // currently ignore log sql, it loop
+      if (entry.data.context === ENUM_LOGGER_TYPE.HTTP) {
         await this.sendEntry(entry)
       }
 

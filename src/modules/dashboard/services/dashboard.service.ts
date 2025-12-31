@@ -24,27 +24,27 @@ export class DashboardService implements OnModuleInit {
       totalPaidInvoices,
       totalCancelInvoices,
     ] = await Promise.all([
-      this.prisma.member.count({ where: { createdAt: { gte: startTime, lte: untilTime } } }),
-      this.prisma.invoice.count({
+      this.prisma.client.member.count({ where: { createdAt: { gte: startTime, lte: untilTime } } }),
+      this.prisma.client.invoice.count({
         where: {
           createdAt: { gte: startTime, lte: untilTime },
           status: ENUM_INVOICE_STATUS.PENDING,
         },
       }),
-      this.prisma.invoice.count({
+      this.prisma.client.invoice.count({
         where: {
           createdAt: { gte: startTime, lte: untilTime },
           status: ENUM_INVOICE_STATUS.PARTIALLY_PAID,
         },
       }),
       ,
-      this.prisma.invoice.count({
+      this.prisma.client.invoice.count({
         where: {
           createdAt: { gte: startTime, lte: untilTime },
           status: ENUM_INVOICE_STATUS.FULLY_PAID,
         },
       }),
-      this.prisma.invoice.count({
+      this.prisma.client.invoice.count({
         where: {
           createdAt: { gte: startTime, lte: untilTime },
           status: ENUM_INVOICE_STATUS.CANCELED,

@@ -6,8 +6,8 @@ import ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
 import { stat } from 'fs/promises'
 import imageSize from 'image-size'
-import { FileUtil, ROOT_PATH } from 'lib/nest-core'
-import { dirname, extname, join, relative } from 'path'
+import { FileUtil } from 'lib/nest-core'
+import { dirname, extname, relative } from 'path'
 import PDFDocument from 'pdfkit'
 import RangeParser, { Range } from 'range-parser'
 import { PassThrough, Readable } from 'stream'
@@ -229,7 +229,7 @@ export class FileService {
   }
 
   fullLink(path: string): string {
-    const fullPath = join(process.cwd(), path)
+    const fullPath = FileUtil.join([process.cwd(), path])
     return fullPath
   }
 
@@ -243,7 +243,7 @@ export class FileService {
   }
 
   async getReadStreamBytes(path: string, range?: string): Promise<IFileRange> {
-    const filePath = join(process.cwd(), path)
+    const filePath = FileUtil.join([process.cwd(), path])
     const stats = await stat(filePath)
     const fileSize = stats.size
 
@@ -271,29 +271,29 @@ export class FileService {
   }
 
   async writePdf(
-    filePath: string,
+    fileName: string,
     options?: any,
   ): Promise<{ pdf: typeof PDFDocument; filePath: string }> {
     const doc = new PDFDocument(options)
 
-    // Pipe the PDF output to a file
-    const publicPath = `public/pdfs/${filePath}`
-    const fullPath = `${ROOT_PATH}/${publicPath}`
-    this.ensureLink(fullPath)
+    const filePath = FileUtil.join(['public', 'pdfs', fileName])
 
-    // cspell:disable
-    const regularPath = `${ROOT_PATH}/public/static/fonts/NotoSansCJKtc-Regular.otf`
-    const boldPath = `${ROOT_PATH}/public/static/fonts/NotoSansCJKtc-Bold.otf`
-    doc.registerFont('Bold', boldPath)
-    doc.registerFont('Regular', regularPath)
+    // Pipe the PDF output to a file
+    const fontPath = FileUtil.joinRoot(['public', 'static', 'fonts'])
+    const fullPath = FileUtil.joinRoot([filePath])
+
+    // cspell:disableO
+    doc.registerFont('Bold', FileUtil.join([fontPath, 'NotoSansCJKtc-Bold.otf']))
+    doc.registerFont('Regular', FileUtil.join([fontPath, 'NotoSansCJKtc-Regular.otf']))
     // cspell:enable
 
+    this.ensureLink(fullPath)
     doc.pipe(fs.createWriteStream(fullPath))
 
     // Fonts and Styles
     doc.font('Regular')
 
-    return { pdf: doc, filePath: publicPath }
+    return { pdf: doc, filePath: filePath }
   }
 
   async savePdf(doc: typeof PDFDocument): Promise<Buffer> {
@@ -325,7 +325,7 @@ export class FileService {
   async handleHEVC(filePath: string, outputPath?: string): Promise<boolean> {
     if (!outputPath) {
       const fileExtension = FileUtil.parseExtension(filePath)
-      outputPath = join(ROOT_PATH, 'public', 'temporary', `${uuidv7()}.${fileExtension}`)
+      outputPath = FileUtil.joinRoot(['public', 'temporary', `${uuidv7()}.${fileExtension}`])
     }
 
     // cspell:disable
@@ -419,7 +419,7 @@ export class FileService {
       const items = fs.readdirSync(currentPath, { withFileTypes: true })
 
       for (const item of items) {
-        const fullPath = join(currentPath, item.name)
+        const fullPath = FileUtil.join([currentPath, item.name])
         const isDirectory = item.isDirectory()
         const isFile = item.isFile()
 
@@ -480,7 +480,7 @@ export class FileService {
 
   async stats(path: string) {
     try {
-      const filePath = join(process.cwd(), path)
+      const filePath = FileUtil.join([process.cwd(), path])
       const stats = await stat(filePath)
       return stats
     } catch {}

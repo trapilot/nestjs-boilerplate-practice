@@ -47,6 +47,7 @@
     "logs",
     "docs",
     "packages",
+    "scripts",
     "private",
     "**/*spec.ts"
   ]

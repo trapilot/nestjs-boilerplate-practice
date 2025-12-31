@@ -1,6 +1,6 @@
 import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common'
 import { unlinkSync } from 'fs'
-import { ENUM_FILE_MIME, IFile } from 'lib/nest-core'
+import { ArrUtil, ENUM_FILE_MIME, IFile } from 'lib/nest-core'
 import { EntityValidateBuilder, EntityValidateException } from '../exceptions'
 
 @Injectable()
@@ -45,13 +45,13 @@ export class RequestFileTypePipe implements PipeTransform {
 
   private async validate(file: IFile, _metadata: ArgumentMetadata): Promise<void> {
     const fileMinetype = file.mimetype as ENUM_FILE_MIME
-    if (!this.mimes.includes(fileMinetype)) {
+    if (!ArrUtil.has(this.mimes, fileMinetype)) {
       this.validationBuilder.addError({
         property: file.fieldname,
         value: `request.isFileMime|${file.mimetype}`,
         constraints: {
           mimetype: fileMinetype,
-          mimetypeAllowed: this.mimes.join(','),
+          mimetypeAllowed: ArrUtil.join(this.mimes, { delimiter: ',' }),
         },
       })
     }

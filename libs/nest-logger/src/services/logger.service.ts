@@ -14,7 +14,11 @@ const isFirstArgObject = (
 }
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class LoggerService implements NestLoggerService {
+export class LoggerService
+  implements
+    NestLoggerService,
+    Pick<pino.Logger, 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal'>
+{
   static readonly root: pino.Logger
 
   protected contextValue = ''
@@ -97,8 +101,8 @@ export class LoggerService implements NestLoggerService {
     this.call('fatal', ...args)
   }
 
-  setContext(value: string) {
-    this.contextValue = value.toLowerCase()
+  setContext(context: string, sub?: string) {
+    this.contextValue = LoggerUtil.createContext(context, sub)
   }
 
   assign(fields: pino.Bindings) {

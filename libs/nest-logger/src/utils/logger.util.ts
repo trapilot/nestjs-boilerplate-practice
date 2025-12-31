@@ -1,4 +1,4 @@
-import { INextFunction, IRequestApp, IResponseApp } from 'lib/nest-core'
+import { ArrUtil, INextFunction, IRequestApp, IResponseApp } from 'lib/nest-core'
 import { pinoHttp } from 'pino-http'
 import { v7 as uuidv7 } from 'uuid'
 import { ENUM_LOGGER_TYPE } from '../enums'
@@ -9,6 +9,18 @@ import { LoggerService } from '../services'
 export class LoggerUtil {
   static genReqId(): string {
     return uuidv7()
+  }
+
+  static getContextDefault(): string {
+    return this.createContext(ENUM_LOGGER_TYPE.SYSTEM, 'unknown')
+  }
+
+  static createContext(mainContext: string, subContext?: string): string {
+    const contextValue = ArrUtil.join([mainContext, subContext], {
+      allowEmpty: false,
+      delimiter: '.',
+    })
+    return contextValue.toLowerCase()
   }
 
   static createEntry(logStr: string, _encoding: string): ILoggerEntry {
@@ -24,7 +36,7 @@ export class LoggerUtil {
       correlationId,
       message,
       timestamp: new Date().toISOString(),
-      context: ENUM_LOGGER_TYPE.SYSTEM,
+      context: this.getContextDefault(),
       ...logChunk,
     }
     if (data.msg) {

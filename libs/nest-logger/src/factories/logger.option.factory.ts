@@ -1,7 +1,8 @@
 import { HttpException, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { ENUM_APP_ENVIRONMENT, IRequestApp, IResponseApp } from 'lib/nest-core'
+import { DateUtil, ENUM_APP_ENVIRONMENT, EnvUtil, IRequestApp } from 'lib/nest-core'
 import { LevelWithSilent } from 'pino'
+import { Options } from 'pino-http'
 import {
   LOGGER_CONTEXT_KEY,
   LOGGER_EXCLUDED_ROUTES,
@@ -11,11 +12,12 @@ import {
   LOGGER_SENSITIVE_PATHS,
 } from '../constants'
 import { LoggerFileDriver, LoggerRemoteDriver } from '../drivers'
-import { ILoggerDebugInfo, ILoggerOptions } from '../interfaces'
+import { ENUM_LOGGER_SEVERITY } from '../enums'
+import { ILoggerDebugInfo, ILoggerFileConfig, ILoggerOptions } from '../interfaces'
 import { LoggerUtil } from '../utils'
 
 @Injectable()
-export class LoggerOptionService {
+export class LoggerOptionFactory {
   private readonly env: ENUM_APP_ENVIRONMENT
   private readonly name: string
   private readonly version: string
@@ -45,7 +47,6 @@ export class LoggerOptionService {
   }
 
   createOptions(): ILoggerOptions {
-    const transports = []
     return {
       assignResponse: false,
       pinoHttp: {
@@ -53,11 +54,12 @@ export class LoggerOptionService {
         formatters: {
           log: this.createLogFormatter(),
         },
+        mixin: this.createMixin(),
         messageKey: LOGGER_MESSAGE_KEY,
         timestamp: false,
         wrapSerializers: false,
         base: null,
-        transport: transports.length > 0 ? { targets: transports } : undefined,
+        transport: this.buildTransports(),
         level: this.level || 'silent',
         stream: this.createStream(),
         redact: this.createRedactionConfig(),
@@ -95,39 +97,52 @@ export class LoggerOptionService {
     return message
   }
 
-  private createLogFormatter(): (object: Record<string, unknown>) => Record<string, unknown> {
+  private createLogFormatter(): (obj: Record<string, unknown>) => Record<string, unknown> {
     return (obj: Record<string, any>) => {
+      const pid = process.pid
+      const hostname = EnvUtil.getHostname()
+      const today = DateUtil.nowDate()
+
       const {
-        [LOGGER_CONTEXT_KEY]: context,
-        [LOGGER_MESSAGE_KEY]: message,
+        time: _time, // ignored
+        responseTime: _responseTime, // ignored
         timestamp,
-        res,
+        level,
         req,
+        res,
         err,
-        ...other
+        error,
+        [LOGGER_CONTEXT_KEY]: _context,
+        [LOGGER_MESSAGE_KEY]: _message,
+        ...additionalData
       } = obj
 
+      const severity = this.mapLevelToSeverity(level as number)
+
       return {
-        timestamp: timestamp ? Date.parse(timestamp) : Date.now(),
+        severity,
+        timestamp: timestamp ? Date.parse(timestamp) : today.valueOf(),
+        [LOGGER_MESSAGE_KEY]: this.sanitizeMessage(_message),
+        [LOGGER_CONTEXT_KEY]: _context ?? LoggerUtil.getContextDefault(),
         service: {
           name: this.name,
           environment: this.env,
           version: this.version,
         },
-        [LOGGER_CONTEXT_KEY]: context,
-        [LOGGER_MESSAGE_KEY]: this.sanitizeMessage(message),
-        ...other,
-        ...(req && {
-          request: req,
-        }),
-        ...(res && {
-          response: this.createResponseSerializer(res as IResponseApp & { body: unknown }),
-        }),
-        ...(err && {
-          error: this.createErrorSerializer(err as Error),
+        ...(Object.keys(additionalData).length > 0 && {
+          additionalData: this.sanitizeObject(additionalData),
         }),
         ...(this.env !== ENUM_APP_ENVIRONMENT.PRODUCTION && {
-          debug: this.addDebugInfo(),
+          debug: this.addDebugInfo({ pid, hostname }),
+        }),
+        ...(err && {
+          err: this.createErrorSerializer()((error as Error) ?? (err as Error)),
+        }),
+        ...(res && {
+          res,
+        }),
+        ...(req && {
+          req,
         }),
       }
     }
@@ -136,7 +151,7 @@ export class LoggerOptionService {
   private createStream() {
     return this.driver == 'remote'
       ? new LoggerRemoteDriver(this.config.getOrThrow<string>('app.debug.remote.url'))
-      : new LoggerFileDriver()
+      : new LoggerFileDriver(this.config.getOrThrow<ILoggerFileConfig>('app.debug.file'))
   }
 
   private createRedactionConfig(): {
@@ -234,11 +249,7 @@ export class LoggerOptionService {
     return (request.user as unknown as { userId: string })?.userId ?? null
   }
 
-  private addDebugInfo(): ILoggerDebugInfo | undefined {
-    if (this.env === ENUM_APP_ENVIRONMENT.PRODUCTION) {
-      return undefined
-    }
-
+  private addDebugInfo(additionalParams: Record<string, unknown>): ILoggerDebugInfo | undefined {
     const memUsage = process.memoryUsage()
     return {
       memory: {
@@ -246,6 +257,7 @@ export class LoggerOptionService {
         heapUsed: Math.round(memUsage.heapUsed / 1024 / 1024),
       },
       uptime: Math.round(process.uptime()),
+      ...additionalParams,
     }
   }
 
@@ -271,34 +283,27 @@ export class LoggerOptionService {
     }
   }
 
-  private createResponseSerializer(response: IResponseApp): Record<string, unknown> {
-    return {
-      httpCode: response.statusCode,
-      headers: this.sanitizeObject(response.getHeaders() as Record<string, unknown>),
-      contentLength: response.getHeader('content-length'),
-      responseTime: response.getHeader('X-Response-Time'),
-    }
-  }
-
-  private createErrorSerializer(error: Error): Record<string, unknown> {
-    const defaultError = {
-      type: error.name,
-      message: this.sanitizeMessage(error.message),
-      code: (error as unknown as { status?: number })?.status,
-      statusCode: (error as unknown as { response?: { statusCode?: number } })?.response
-        ?.statusCode,
-      stack: error.stack,
-    }
-
-    if (error instanceof HttpException) {
-      const response = error.getResponse() as { _error?: unknown }
-      return {
-        ...defaultError,
-        stack: response._error ? String(response._error) : defaultError.stack,
+  private createErrorSerializer(): (error: Error) => Record<string, unknown> {
+    return (error: Error) => {
+      const defaultError = {
+        type: error.name,
+        message: this.sanitizeMessage(error.message),
+        code: (error as unknown as { status?: number })?.status,
+        statusCode: (error as unknown as { response?: { statusCode?: number } })?.response
+          ?.statusCode,
+        stack: error.stack,
       }
-    }
 
-    return defaultError
+      if (error instanceof HttpException) {
+        const response = error.getResponse() as { _error?: unknown }
+        return {
+          ...defaultError,
+          stack: response._error ? String(response._error) : defaultError.stack,
+        }
+      }
+
+      return defaultError
+    }
   }
 
   private createAutoLoggingConfig(): { ignore: (req: IRequestApp) => boolean } | boolean {
@@ -369,5 +374,37 @@ export class LoggerOptionService {
         return false
       }
     })
+  }
+
+  private mapLevelToSeverity(level: number): string {
+    if (level >= 60) {
+      return ENUM_LOGGER_SEVERITY.critical.toUpperCase()
+    } else if (level >= 50) {
+      return ENUM_LOGGER_SEVERITY.error.toUpperCase()
+    } else if (level >= 40) {
+      return ENUM_LOGGER_SEVERITY.warning.toUpperCase()
+    } else if (level >= 30) {
+      return ENUM_LOGGER_SEVERITY.info.toUpperCase()
+    } else if (level >= 20) {
+      return ENUM_LOGGER_SEVERITY.debug.toUpperCase()
+    }
+
+    return ENUM_LOGGER_SEVERITY.trace.toUpperCase()
+  }
+
+  private createMixin(): (_: Record<string, unknown>, level: number) => Record<string, unknown> {
+    return (_: Record<string, unknown>, level: number) => {
+      return {
+        level: level,
+      }
+    }
+  }
+
+  private buildTransports(): Options['transport'] {
+    const transport = {
+      targets: [],
+    }
+
+    return transport.targets.length > 0 ? transport : undefined
   }
 }

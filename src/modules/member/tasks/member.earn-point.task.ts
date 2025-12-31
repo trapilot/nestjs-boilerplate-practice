@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Cron, CronExpression, CronOptions } from '@nestjs/schedule'
 import { APP_TIMEZONE, HelperService } from 'lib/nest-core'
-import { LoggerService } from 'lib/nest-logger'
+import { ENUM_LOGGER_TYPE, LoggerService } from 'lib/nest-logger'
 import { MemberService } from '../services'
 
 const cronTime = process.env.CRONTAB_MEMBER_EARN_POINT
@@ -18,7 +18,7 @@ export class MemberEarnPointTask {
     private readonly memberService: MemberService,
     private readonly helperService: HelperService,
   ) {
-    this.logger.setContext(cronName)
+    this.logger.setContext(ENUM_LOGGER_TYPE.SYSTEM, cronName)
   }
 
   @Cron(cronTime || CronExpression.EVERY_DAY_AT_MIDNIGHT, cronOptions)

@@ -8,8 +8,14 @@ import { RouterModule } from './router'
 @Module({
   imports: [
     // Library
-    NestCoreModule.forRoot({ configs, envFilePath: ['.env'] }),
-    NestPrismaModule.forRoot(),
+    NestCoreModule.forRoot({
+      configs,
+      envFilePath: ['.env'],
+    }),
+    NestPrismaModule.forRoot({
+      multiTenant: false,
+      replication: false,
+    }),
 
     // App Register
     SharedModule.register(),

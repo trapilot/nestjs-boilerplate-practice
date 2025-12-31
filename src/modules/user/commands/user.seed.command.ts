@@ -30,7 +30,7 @@ export class UserSeedCommand extends CommandRunner {
 
         const hashedPassword = this.cryptoService.bcrypt(process.env.MOCK_USER_PASS, passwordSalt)
 
-        await this.prisma.user.upsert({
+        await this.prisma.client.user.upsert({
           where: { email: process.env.MOCK_USER_EMAIL },
           create: {
             email: process.env.MOCK_USER_EMAIL,

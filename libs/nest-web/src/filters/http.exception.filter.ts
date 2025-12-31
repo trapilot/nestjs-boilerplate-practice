@@ -7,11 +7,11 @@ import {
   IMessageProperties,
   IRequestApp,
   IResponseApp,
-  IResponseException,
   MessageService,
   ResponseErrorDto,
   ResponseMetadataDto,
 } from 'lib/nest-core'
+import { IResponseException } from '../interfaces'
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {

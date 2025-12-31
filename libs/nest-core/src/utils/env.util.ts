@@ -1,3 +1,4 @@
+import { hostname } from 'os'
 import { APP_ENV } from '../constants'
 import { ENUM_APP_ENVIRONMENT } from '../enums'
 
@@ -20,5 +21,9 @@ export class EnvUtil {
 
   static isProduction(): boolean {
     return this.isEnv(ENUM_APP_ENVIRONMENT.PRODUCTION)
+  }
+
+  static getHostname(): string {
+    return hostname()
   }
 }

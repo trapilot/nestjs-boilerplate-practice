@@ -1,7 +1,12 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
-import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
-import { IResponseList, IResponsePaging } from 'lib/nest-web'
+import {
+  IPrismaOptions,
+  IPrismaParams,
+  IPrismaReturnList,
+  IPrismaReturnPaging,
+  PrismaService,
+} from 'lib/nest-prisma'
 import { TProductCategory } from '../interfaces'
 
 @Injectable()
@@ -9,22 +14,22 @@ export class ProductCategoryService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.ProductCategoryFindUniqueArgs): Promise<TProductCategory> {
-    return await this.prisma.productCategory.findUnique(kwargs)
+    return await this.prisma.client.productCategory.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.ProductCategoryFindFirstArgs = {}): Promise<TProductCategory> {
-    return await this.prisma.productCategory.findFirst(kwargs)
+    return await this.prisma.client.productCategory.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.ProductCategoryFindManyArgs = {}): Promise<TProductCategory[]> {
-    return await this.prisma.productCategory.findMany(kwargs)
+    return await this.prisma.client.productCategory.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.ProductCategoryFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TProductCategory> {
-    const productCategory = await this.prisma.productCategory
+    const productCategory = await this.prisma.client.productCategory
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -39,7 +44,7 @@ export class ProductCategoryService {
     where: Prisma.ProductCategoryWhereInput,
     kwargs: Omit<Prisma.ProductCategoryFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TProductCategory> {
-    const productCategory = await this.prisma.productCategory
+    const productCategory = await this.prisma.client.productCategory
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -68,24 +73,20 @@ export class ProductCategoryService {
     where?: Prisma.ProductCategoryWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponseList> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.productCategory.list(where, params, options)
-    })
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.client.productCategory.list(where, params, options)
   }
 
   async paginate(
     where?: Prisma.ProductCategoryWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponsePaging> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.productCategory.paginate(where, params, options)
-    })
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.client.productCategory.paginate(where, params, options)
   }
 
   async count(where?: Prisma.ProductCategoryWhereInput): Promise<number> {
-    return await this.prisma.productCategory.count({
+    return await this.prisma.client.productCategory.count({
       where,
     })
   }
@@ -94,14 +95,14 @@ export class ProductCategoryService {
     id: number,
     kwargs: Omit<Prisma.ProductCategoryFindUniqueArgs, 'where'> = {},
   ): Promise<TProductCategory> {
-    return await this.prisma.productCategory.findUnique({
+    return await this.prisma.client.productCategory.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.ProductCategoryUncheckedCreateInput): Promise<TProductCategory> {
-    const productCategory = await this.prisma.productCategory.create({
+    const productCategory = await this.prisma.client.productCategory.create({
       data,
     })
     return productCategory
@@ -113,7 +114,7 @@ export class ProductCategoryService {
   ): Promise<TProductCategory> {
     const productCategory = await this.findOrFail(id)
 
-    return await this.prisma.productCategory.update({
+    return await this.prisma.client.productCategory.update({
       data,
       where: { id: productCategory.id },
     })
@@ -121,7 +122,7 @@ export class ProductCategoryService {
 
   async delete(productCategory: TProductCategory, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.client.$transaction(async (tx) => {
         await tx.productCategory.delete({ where: { id: productCategory.id } })
       })
       return true

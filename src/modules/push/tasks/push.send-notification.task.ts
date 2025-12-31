@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common'
 import { Cron, CronOptions } from '@nestjs/schedule'
 import { APP_TIMEZONE, EnvUtil, HelperService } from 'lib/nest-core'
-import { LoggerService } from 'lib/nest-logger'
+import { ENUM_LOGGER_TYPE, LoggerService } from 'lib/nest-logger'
 import { PushService } from '../services'
 
 const cronTime = process.env.CRONTAB_PUSH_SEND_NOTIFICATION
@@ -19,7 +19,7 @@ export class PushSendNotificationTask {
     private readonly pushService: PushService,
     private readonly helperService: HelperService,
   ) {
-    this.logger.setContext(cronName)
+    this.logger.setContext(ENUM_LOGGER_TYPE.SYSTEM, cronName)
   }
 
   @Cron(cronTime || '0 */3 * * * *', cronOptions)

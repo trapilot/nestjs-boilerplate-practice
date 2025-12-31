@@ -1,10 +1,17 @@
-import { Prisma } from '@runtime/prisma-client'
+import { PrismaMariaDb } from '@prisma/adapter-mariadb'
+import { PrismaPg } from '@prisma/adapter-pg'
+import * as runtime from '@prisma/client/runtime/client'
+import { Prisma, PrismaClient } from '@runtime/prisma-client'
 import { MESSAGE_LANGUAGES } from 'lib/nest-core'
-
-interface IBuildLanguageOptions<T> {
-  langField?: string
-  whereField?: T
-}
+import { applyExtensions } from '../extensions'
+import {
+  ClientProvider,
+  ClientWithExtends,
+  IPrismaAdapterCreateOptions,
+  IPrismaClientCreateOptions,
+  IPrismaLanguageBuildOptions,
+  IPrismaLoggerHooks,
+} from '../interfaces'
 
 export class PrismaUtil {
   static buildQuery(rawQuery: string, options: { params: string }): string {
@@ -37,7 +44,7 @@ export class PrismaUtil {
 
   static buildLanguages<WhereInput = any>(
     jsonObject: Record<string, any>,
-    options?: IBuildLanguageOptions<WhereInput>,
+    options?: IPrismaLanguageBuildOptions<WhereInput>,
   ): any {
     const langField = options?.langField || 'language'
     const data = MESSAGE_LANGUAGES.map((language) => {
@@ -52,5 +59,64 @@ export class PrismaUtil {
       createMany: { data, skipDuplicates: true },
       deleteMany: options?.whereField,
     }
+  }
+
+  private static createAdapter(
+    provider: ClientProvider,
+    options: IPrismaAdapterCreateOptions,
+  ): runtime.SqlDriverAdapterFactory {
+    if (provider === 'postgresql') {
+      return new PrismaPg(options.url)
+    }
+
+    if (provider === 'mysql') {
+      return new PrismaMariaDb(options.url)
+    }
+
+    throw new Error(`Unsupported provider: ${provider}`)
+  }
+
+  private static createClient(
+    provider: ClientProvider,
+    options: { url: string; loggerHooks: IPrismaLoggerHooks },
+  ): PrismaClient {
+    const client = new PrismaClient({
+      adapter: this.createAdapter(provider, { url: options.url }),
+      log: options.loggerHooks.logLevels,
+    })
+
+    if (options.loggerHooks?.onError) client.$on('error', options.loggerHooks.onError)
+    if (options.loggerHooks?.onQuery) client.$on('query', options.loggerHooks.onQuery)
+    if (options.loggerHooks?.onWarn) client.$on('warn', options.loggerHooks.onWarn)
+    if (options.loggerHooks?.onInfo) client.$on('info', options.loggerHooks.onInfo)
+
+    return client
+  }
+
+  static setupClient(
+    provider: ClientProvider,
+    options: IPrismaClientCreateOptions,
+  ): { writer: ClientWithExtends; readers: ClientWithExtends[] } {
+    const writer = applyExtensions(
+      this.createClient(provider, {
+        url: options.writeUrl,
+        loggerHooks: options.loggerHooks,
+      }),
+    )
+
+    if (options.replication && options.readUrls.length) {
+      const readers = []
+      for (const url of options.readUrls) {
+        const reader = applyExtensions(
+          this.createClient(provider, {
+            url: url,
+            loggerHooks: options.loggerHooks,
+          }),
+        )
+        readers.push(reader)
+      }
+      return { writer, readers }
+    }
+    return { writer, readers: [writer] }
   }
 }

@@ -10,6 +10,16 @@ export type TPassedLogger = {
   logger: Logger
 }
 
+export interface ILoggerFileOptions {
+  maxDays: number
+  maxSize: number
+}
+
+export interface ILoggerFileConfig {
+  default: ILoggerFileOptions
+  [key: string]: ILoggerFileOptions
+}
+
 export interface ILoggerDebugInfo {
   memory: {
     rss: number

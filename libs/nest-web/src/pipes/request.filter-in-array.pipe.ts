@@ -28,7 +28,7 @@ export function RequestFilterInArrayPipe<T>(
         .split(',')
         .map((val: string) => val.trim())
         .filter((val: string) => val)
-        .map((val: string) => StrUtil.parse<T>(val, options))
+        .map((val: string) => StrUtil.parse<T>(val, { parseAs: options?.parseAs }))
 
       this.addToRequestInstance(finalValue)
       return {

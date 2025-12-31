@@ -1,10 +1,15 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ENUM_PUSH_STATUS, ENUM_PUSH_TYPE, Notification, Prisma } from '@runtime/prisma-client'
-import { HelperService, MESSAGE_LANGUAGES } from 'lib/nest-core'
+import { ArrUtil, HelperService, MESSAGE_LANGUAGES } from 'lib/nest-core'
 import { LoggerService } from 'lib/nest-logger'
 import { NotifierService } from 'lib/nest-notifier'
-import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
-import { IResponseList, IResponsePaging } from 'lib/nest-web'
+import {
+  IPrismaOptions,
+  IPrismaParams,
+  IPrismaReturnList,
+  IPrismaReturnPaging,
+  PrismaService,
+} from 'lib/nest-prisma'
 import { IPushHistoryData, IPushMessageData, TPush } from '../interfaces'
 
 @Injectable()
@@ -16,22 +21,22 @@ export class PushService {
   ) {}
 
   async findOne(kwargs?: Prisma.PushFindUniqueArgs): Promise<TPush> {
-    return await this.prisma.push.findUnique(kwargs)
+    return await this.prisma.client.push.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.PushFindFirstArgs = {}): Promise<TPush> {
-    return await this.prisma.push.findFirst(kwargs)
+    return await this.prisma.client.push.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.PushFindManyArgs = {}): Promise<TPush[]> {
-    return await this.prisma.push.findMany(kwargs)
+    return await this.prisma.client.push.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.PushFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TPush> {
-    const push = await this.prisma.push
+    const push = await this.prisma.client.push
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -60,7 +65,7 @@ export class PushService {
     where: Prisma.PushWhereInput,
     kwargs: Omit<Prisma.PushFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TPush> {
-    const push = await this.prisma.push
+    const push = await this.prisma.client.push
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -75,37 +80,33 @@ export class PushService {
     where?: Prisma.PushWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponseList> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.push.list(where, params, options)
-    })
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.client.push.list(where, params, options)
   }
 
   async paginate(
     where?: Prisma.PushWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponsePaging> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.push.paginate(where, params, options)
-    })
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.client.push.paginate(where, params, options)
   }
 
   async count(where?: Prisma.PushWhereInput): Promise<number> {
-    return await this.prisma.push.count({
+    return await this.prisma.client.push.count({
       where,
     })
   }
 
   async find(id: number, kwargs: Omit<Prisma.PushFindUniqueArgs, 'where'> = {}): Promise<TPush> {
-    return await this.prisma.push.findUnique({
+    return await this.prisma.client.push.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.PushUncheckedCreateInput): Promise<TPush> {
-    const push = await this.prisma.push.create({
+    const push = await this.prisma.client.push.create({
       data,
     })
     return push
@@ -114,7 +115,7 @@ export class PushService {
   async update(id: number, data: Prisma.PushUncheckedUpdateInput): Promise<TPush> {
     const push = await this.findOrFail(id)
 
-    return await this.prisma.push.update({
+    return await this.prisma.client.push.update({
       data,
       where: { id: push.id },
     })
@@ -122,7 +123,7 @@ export class PushService {
 
   async delete(push: TPush, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.client.$transaction(async (tx) => {
         await tx.push.delete({ where: { id: push.id } })
       })
       return true
@@ -133,7 +134,7 @@ export class PushService {
 
   async inactive(id: number): Promise<TPush> {
     const push = await this.findOrFail(id)
-    return await this.prisma.push.update({
+    return await this.prisma.client.push.update({
       data: { isActive: false },
       where: { id: push.id },
     })
@@ -141,7 +142,7 @@ export class PushService {
 
   async active(id: number): Promise<TPush> {
     const push = await this.findOrFail(id)
-    return await this.prisma.push.update({
+    return await this.prisma.client.push.update({
       data: { isActive: true },
       where: { id: push.id },
     })
@@ -232,7 +233,7 @@ export class PushService {
     const whereORs: Prisma.MemberWhereInput = { OR: [] }
     if (push?.pivotGroups?.length) {
       for (const pivotGroups of push.pivotGroups) {
-        const group = await this.prisma.pushGroup.findUnique({
+        const group = await this.prisma.client.pushGroup.findUnique({
           where: { id: pivotGroups.groupId },
         })
         const whereAnd: Prisma.MemberWhereInput = {}
@@ -259,7 +260,7 @@ export class PushService {
       }
     }
 
-    const memberWithDevices = await this.prisma.member.findMany({
+    const memberWithDevices = await this.prisma.client.member.findMany({
       where: { isActive: true, isDeleted: false, isPhoneVerified: true, AND: whereORs },
       select: {
         id: true,
@@ -331,7 +332,7 @@ export class PushService {
         break
     }
 
-    return await this.prisma.push.update({
+    return await this.prisma.client.push.update({
       where: { id: push.id },
       data: {
         status: ENUM_PUSH_STATUS.PUSHING,
@@ -372,7 +373,7 @@ export class PushService {
       return await this.success(push, logger)
     }
 
-    const pushHistory = await this.prisma.pushHistory.create({
+    const pushHistory = await this.prisma.client.pushHistory.create({
       data: {
         totalDevice,
         pushId: push.id,
@@ -394,7 +395,7 @@ export class PushService {
 
     const chunks = this.helperService.arrayChunk(memberMessageHistories, 1_000)
     for (const data of chunks) {
-      await this.prisma.memberNotifyHistory.createMany({ data })
+      await this.prisma.client.memberNotifyHistory.createMany({ data })
     }
 
     const sentSuccessIds = []
@@ -437,7 +438,7 @@ export class PushService {
           }
 
           const _sent = await this.notifier.sendMessage({
-            to: tokens.join(','),
+            to: ArrUtil.join(tokens, { delimiter: ',', allowEmpty: false }),
             subject: 'a',
             content: 'a',
             data: messageData,
@@ -458,17 +459,15 @@ export class PushService {
 
     // mark member as pushed
     if (sentSuccessIds.length) {
-      await this.prisma.memberNotifyHistory.updateMany({
+      await this.prisma.client.memberNotifyHistory.updateMany({
         data: { pushedAt: pushHistory.createdAt },
         where: {
           pushHistoryId: pushHistory.id,
           memberId: { in: sentSuccessIds },
         },
       })
-      logger.info(`Success members: ${sentSuccessIds.join(',')}`)
     }
     if (sentFailureIds.length) {
-      logger.info(`Failure members: ${sentFailureIds.join(',')}`)
     }
 
     // completed
@@ -502,7 +501,7 @@ export class PushService {
 
     if (completed) {
       logger.info(`Complete: #${push.id}`)
-      return await this.prisma.push.update({
+      return await this.prisma.client.push.update({
         where: { id: push.id },
         data: { status: ENUM_PUSH_STATUS.COMPLETED },
       })
@@ -512,7 +511,7 @@ export class PushService {
 
   async skip(push: TPush, logger: LoggerService): Promise<TPush> {
     logger.info(`Cancel: #${push.id}`)
-    return await this.prisma.push.update({
+    return await this.prisma.client.push.update({
       where: { id: push.id },
       data: { status: ENUM_PUSH_STATUS.CANCELED },
     })

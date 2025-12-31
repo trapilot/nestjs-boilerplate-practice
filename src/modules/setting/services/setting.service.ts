@@ -3,8 +3,13 @@ import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { Prisma, Setting } from '@runtime/prisma-client'
 import { APP_TIMEZONE, CacheService, HelperService } from 'lib/nest-core'
-import { IPrismaOptions, IPrismaParams, PrismaService } from 'lib/nest-prisma'
-import { IResponseList, IResponsePaging } from 'lib/nest-web'
+import {
+  IPrismaOptions,
+  IPrismaParams,
+  IPrismaReturnList,
+  IPrismaReturnPaging,
+  PrismaService,
+} from 'lib/nest-prisma'
 import { ENUM_SETTING_TYPE } from '../enums'
 
 @Injectable()
@@ -28,7 +33,7 @@ export class SettingService {
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { timeZone: APP_TIMEZONE })
   async cleanUp(): Promise<boolean> {
     try {
-      const cacheSettings = await this.prisma.setting.findMany({
+      const cacheSettings = await this.prisma.client.setting.findMany({
         select: { code: true },
       })
 
@@ -41,19 +46,19 @@ export class SettingService {
   }
 
   async findOne(where: Prisma.SettingWhereUniqueInput): Promise<Setting> {
-    return this.prisma.setting.findUnique({ where })
+    return this.prisma.client.setting.findUnique({ where })
   }
 
   async findFirst(where: Prisma.SettingWhereInput): Promise<Setting> {
-    return await this.prisma.setting.findFirst({ where })
+    return await this.prisma.client.setting.findFirst({ where })
   }
 
   async findAll(where?: Prisma.SettingWhereInput): Promise<Setting[]> {
-    return await this.prisma.setting.findMany({ where })
+    return await this.prisma.client.setting.findMany({ where })
   }
 
   async findOrFail(id: number): Promise<Setting> {
-    return await this.prisma.setting
+    return await this.prisma.client.setting
       .findUniqueOrThrow({ where: { id: id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -67,46 +72,42 @@ export class SettingService {
     where?: Prisma.SettingWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponseList> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.setting.list(where, params, options)
-    })
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.client.setting.list(where, params, options)
   }
 
   async paginate(
     where?: Prisma.SettingWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
-  ): Promise<IResponsePaging> {
-    return await this.prisma.$extension(async (ex) => {
-      return await ex.setting.paginate(where, params, options)
-    })
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.client.setting.paginate(where, params, options)
   }
 
   async match(where: Prisma.SettingWhereInput): Promise<Setting> {
-    const setting = await this.prisma.setting.findFirst({ where })
+    const setting = await this.prisma.client.setting.findFirst({ where })
     return setting
   }
 
   async count(where?: Prisma.SettingWhereInput): Promise<number> {
-    return await this.prisma.setting.count({
+    return await this.prisma.client.setting.count({
       where,
     })
   }
 
   async create(data: Prisma.SettingUncheckedCreateInput): Promise<Setting> {
-    return await this.prisma.setting.create({ data })
+    return await this.prisma.client.setting.create({ data })
   }
 
   async deleteMany(where?: Prisma.SettingWhereInput): Promise<boolean> {
-    await this.prisma.setting.deleteMany({ where })
+    await this.prisma.client.setting.deleteMany({ where })
     return true
   }
 
   async update(id: number, data: Prisma.SettingUncheckedUpdateInput): Promise<Setting> {
     const setting = await this.findOrFail(id)
     if (setting) {
-      return await this.prisma.$transaction(async (tx) => {
+      return await this.prisma.client.$transaction(async (tx) => {
         await this.removeCache(setting.code)
         return await tx.setting.update({
           data,
@@ -166,8 +167,8 @@ export class SettingService {
 
     if (cacheValue == undefined) {
       const setting =
-        (await this.prisma.setting.findFirst({ where: { code: data.code } })) ||
-        (await this.prisma.setting.create({ data }))
+        (await this.prisma.client.setting.findFirst({ where: { code: data.code } })) ||
+        (await this.prisma.client.setting.create({ data }))
 
       cacheValue = JSON.stringify(setting)
 
@@ -182,8 +183,8 @@ export class SettingService {
 
     if (cacheValue == undefined) {
       const setting =
-        (await this.prisma.setting.findFirst({ where: { code: data.code } })) ||
-        (await this.prisma.setting.create({ data }))
+        (await this.prisma.client.setting.findFirst({ where: { code: data.code } })) ||
+        (await this.prisma.client.setting.create({ data }))
 
       cacheValue = this.getValue(setting)
 

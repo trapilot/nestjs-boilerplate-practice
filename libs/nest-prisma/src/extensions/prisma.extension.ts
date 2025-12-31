@@ -1,17 +1,22 @@
-import { Prisma, PrismaClient } from '@prisma/client/extension'
-import { IResponseList, IResponsePaging } from 'lib/nest-web'
-import { IPrismaIterator, IPrismaOptions, IPrismaParams } from '../interfaces'
+import { Prisma, PrismaClient } from '@runtime/prisma-client'
+import {
+  IPrismaIterator,
+  IPrismaOptions,
+  IPrismaParams,
+  IPrismaReturnList,
+  IPrismaReturnPaging,
+} from '../interfaces'
 
 export const withExtension = Prisma.defineExtension({
   model: {
     $allModels: {
-      async list(
-        this: PrismaClient,
-        where?: Prisma.Args<PrismaClient, 'findMany'>['where'],
+      async list<T>(
+        this: T,
+        where?: Prisma.Args<T, 'findMany'>['where'],
         params?: IPrismaParams,
         options?: IPrismaOptions & IPrismaIterator,
-      ): Promise<IResponseList> {
-        const context = Prisma.getExtensionContext(this) as PrismaClient
+      ): Promise<IPrismaReturnList> {
+        const context = Prisma.getExtensionContext(this) as any
 
         if (options?.bookType) {
           const iterator = context.yield(where, params, options)
@@ -35,13 +40,13 @@ export const withExtension = Prisma.defineExtension({
           data: records,
         }
       },
-      async paginate(
-        this: PrismaClient,
-        where?: Prisma.Args<PrismaClient, 'findMany'>['where'],
+      async paginate<T>(
+        this: T,
+        where?: Prisma.Args<T, 'findMany'>['where'],
         params?: IPrismaParams,
         options?: IPrismaOptions & IPrismaIterator,
-      ): Promise<IResponsePaging> {
-        const context = Prisma.getExtensionContext(this) as PrismaClient
+      ): Promise<IPrismaReturnPaging> {
+        const context = Prisma.getExtensionContext(this) as any
 
         if (options?.bookType) {
           const iterator = context.yield(where, params, options)
@@ -64,12 +69,12 @@ export const withExtension = Prisma.defineExtension({
           },
         }
       },
-      async *yield(
-        this: PrismaClient,
-        where?: Prisma.Args<PrismaClient, 'findMany'>['where'],
+      async *yield<T>(
+        this: T,
+        where?: Prisma.Args<T, 'findMany'>['where'],
         params?: IPrismaParams,
         options?: IPrismaOptions & IPrismaIterator,
-      ): AsyncGenerator<PrismaClient[], void, unknown> {
+      ): AsyncGenerator<T[], void, unknown> {
         const chunk = options?.chunk || 1_000
         const iterator = options?.iterator !== false
         const cursorField = Object.keys(params?.cursor || {})[0] || 'id'
@@ -77,7 +82,7 @@ export const withExtension = Prisma.defineExtension({
         const { distinct, orderBy, take } = params ?? {}
         const { select, include } = options ?? {}
 
-        const context = Prisma.getExtensionContext(this) as PrismaClient
+        const context = Prisma.getExtensionContext(this) as any
         do {
           const records = await context.findMany({
             where,
@@ -103,3 +108,7 @@ export const withExtension = Prisma.defineExtension({
     },
   },
 })
+
+export const applyExtensions = (client: PrismaClient) => {
+  return client.$extends(withExtension)
+}

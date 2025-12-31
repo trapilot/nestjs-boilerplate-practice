@@ -20,7 +20,14 @@ import {
   IAuthValidator,
   IAuthValidatorOptions,
 } from 'lib/nest-auth'
-import { APP_TIMEZONE, CryptoService, FileService, HelperService, IRequestApp } from 'lib/nest-core'
+import {
+  APP_TIMEZONE,
+  ArrUtil,
+  CryptoService,
+  FileService,
+  HelperService,
+  IRequestApp,
+} from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { IResult } from 'ua-parser-js'
 import {
@@ -60,14 +67,14 @@ export class UserAuthService implements IAuthValidator<TUser> {
   @Cron(CronExpression.EVERY_DAY_AT_2AM, { timeZone: APP_TIMEZONE })
   private async clearExpiredRefreshTokens() {
     const nowTime = this.helperService.dateCreate()
-    await this.prisma.userTokenHistory.deleteMany({
+    await this.prisma.client.userTokenHistory.deleteMany({
       where: { refreshExpired: { lte: nowTime } },
     })
   }
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT, { timeZone: APP_TIMEZONE })
   private async clearPasswordAttempts() {
-    await this.prisma.user.updateMany({
+    await this.prisma.client.user.updateMany({
       data: { passwordAttempt: 0 },
       where: { passwordAttempt: { gt: 0 }, isActive: true },
     })
@@ -95,7 +102,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
   }
 
   async getUserData(userId: number): Promise<TUser> {
-    const userData = await this.prisma.user
+    const userData = await this.prisma.client.user
       .findUniqueOrThrow({ include: this.authRelation, where: { id: userId } })
       .catch((_err: unknown) => {
         throw new ForbiddenException({
@@ -116,7 +123,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
     refreshToken: string,
     refreshPayload: AuthJwtRefreshPayloadDto,
   ) {
-    const userToken = await this.prisma.userTokenHistory.findFirst({
+    const userToken = await this.prisma.client.userTokenHistory.findFirst({
       where: { refreshToken },
     })
 
@@ -129,7 +136,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
 
     if (!userToken.isActive || this.helperService.dateCheckAfter(userToken.refreshExpired)) {
       // tracking spam refresh token
-      await this.prisma.userTokenHistory.update({
+      await this.prisma.client.userTokenHistory.update({
         where: { id: userToken.id },
         data: { refreshAttempt: { increment: 1 } },
       })
@@ -144,7 +151,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
       userToken.userId !== refreshPayload.user.id
     ) {
       // kick users that logged in. user must login again
-      await this.prisma.userTokenHistory.updateMany({
+      await this.prisma.client.userTokenHistory.updateMany({
         where: { userId: userToken.userId },
         data: { isActive: false },
       })
@@ -161,7 +168,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
     id: number,
     kwargs?: Omit<Prisma.UserFindUniqueOrThrowArgs, 'where'>,
   ): Promise<TUser> {
-    return await this.prisma.user
+    return await this.prisma.client.user
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -175,7 +182,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
     where: Prisma.UserWhereInput,
     kwargs?: Omit<Prisma.UserFindFirstOrThrowArgs, 'where'>,
   ): Promise<TUser> {
-    const user = await this.prisma.user
+    const user = await this.prisma.client.user
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -339,18 +346,18 @@ export class UserAuthService implements IAuthValidator<TUser> {
     const { payload, userToken, userRequest } = options
 
     try {
-      await this.prisma.user.update({
+      await this.prisma.client.user.update({
         data: { loginDate: payload.loginDate, loginToken: payload.loginToken, passwordAttempt: 0 },
         where: { id: user.id },
       })
 
       if (userToken) {
         // disabled old online refresh tokens
-        await this.prisma.userTokenHistory.updateMany({
+        await this.prisma.client.userTokenHistory.updateMany({
           data: { isActive: false, updatedAt: payload.loginDate },
           where: { userId: user.id, isActive: true, userToken: payload.loginToken },
         })
-        await this.prisma.userTokenHistory.create({
+        await this.prisma.client.userTokenHistory.create({
           data: {
             isActive: true,
             userId: user.id,
@@ -364,7 +371,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
           },
         })
         if (userRequest) {
-          await this.prisma.userLoginHistory.create({
+          await this.prisma.client.userLoginHistory.create({
             data: {
               userId: user.id,
               hostname: userRequest?.hostname,
@@ -392,14 +399,14 @@ export class UserAuthService implements IAuthValidator<TUser> {
   }
 
   private async increasePasswordAttempt(user: TUser): Promise<void> {
-    await this.prisma.user.update({
+    await this.prisma.client.user.update({
       data: { passwordAttempt: { increment: 1 } },
       where: { id: user.id },
     })
   }
 
   private async resetPasswordAttempt(user: TUser): Promise<void> {
-    await this.prisma.user.update({
+    await this.prisma.client.user.update({
       data: { passwordAttempt: 0 },
       where: { id: user.id },
     })
@@ -455,14 +462,14 @@ export class UserAuthService implements IAuthValidator<TUser> {
     }
 
     const { passwordHash } = this.authService.createPassword(dto.newPassword)
-    return await this.prisma.user.update({
+    return await this.prisma.client.user.update({
       data: { password: passwordHash, passwordAttempt: 0 },
       where: { id: user.id },
     })
   }
 
   async changeAvatar(user: TUser, data: Prisma.UserUncheckedUpdateInput): Promise<TUser> {
-    return await this.prisma.$transaction(async (tx) => {
+    return await this.prisma.client.$transaction(async (tx) => {
       const _user = await tx.user.update({ data, where: { id: user.id } })
       await this.fileService.unlink(user.avatar)
       return _user
@@ -493,7 +500,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
 
   async changeConfirmPassword(password: string): Promise<boolean> {
     const { passwordHash } = this.authService.createPassword(password)
-    await this.prisma.user.updateMany({
+    await this.prisma.client.user.updateMany({
       data: {
         passwordConfirm: passwordHash,
         updatedAt: undefined,
@@ -505,17 +512,14 @@ export class UserAuthService implements IAuthValidator<TUser> {
   async createConfirmToken(user: TUser, passwordHash: string): Promise<string> {
     const dateNow = this.helperService.dateCreate()
     const timestamp = this.helperService.dateGetTimestamp(dateNow)
-    return [
-      this.cryptoService.createHmac(`${user.id}`, {
-        algorithm: 'md5',
-        key: passwordHash,
-      }),
-      this.cryptoService.createHmac(`${timestamp}`, {
-        algorithm: 'sha256',
-        key: passwordHash,
-      }),
-      timestamp,
-    ].join(':')
+    return ArrUtil.join(
+      [
+        this.cryptoService.createHmac(`${user.id}`, { algorithm: 'md5', key: passwordHash }),
+        this.cryptoService.createHmac(`${timestamp}`, { algorithm: 'sha256', key: passwordHash }),
+        timestamp,
+      ],
+      { delimiter: ':' },
+    )
   }
 
   async verifyConfirmToken(user: TUser, token: string): Promise<boolean> {
@@ -534,7 +538,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
   }
 
   async signUp(dto: UserRequestSignUpDto): Promise<TUser> {
-    const emailExists = await this.prisma.user.count({ where: { email: dto.email } })
+    const emailExists = await this.prisma.client.user.count({ where: { email: dto.email } })
     if (emailExists) {
       throw new BadRequestException({
         statusCode: HttpStatus.CONFLICT,
@@ -543,7 +547,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
     }
 
     const { passwordHash } = this.authService.createPassword(dto.password)
-    return await this.prisma.user.create({
+    return await this.prisma.client.user.create({
       data: {
         ...dto,
         isPhoneVerified: false,
@@ -556,7 +560,7 @@ export class UserAuthService implements IAuthValidator<TUser> {
 
   async editProfile(id: number, dto: Prisma.UserUncheckedUpdateInput): Promise<TUser> {
     const user = await this.findOrFail(id)
-    const updated = await this.prisma.user.update({
+    const updated = await this.prisma.client.user.update({
       where: { id: user.id },
       data: dto,
     })

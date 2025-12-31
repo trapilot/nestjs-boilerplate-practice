@@ -1,5 +1,6 @@
 import { registerAs } from '@nestjs/config'
-import { APP_LANGUAGE, APP_START, APP_TIMEZONE, COUNTRY_LIST } from 'lib/nest-core'
+import { APP_LANGUAGE, APP_TIMEZONE, StrUtil } from 'lib/nest-core'
+import { ENUM_LOGGER_TYPE } from 'lib/nest-logger'
 
 export default registerAs(
   'app',
@@ -11,23 +12,23 @@ export default registerAs(
     version: '0.0.1',
     timezone: APP_TIMEZONE,
     language: APP_LANGUAGE,
-    startDate: APP_START,
-
-    country: {
-      availableList: COUNTRY_LIST,
-    },
-
-    membership: {
-      expiresIn: 1, // years
-      codeDigits: 8, // chars
-      firstTransaction: 30, // days
-    },
+    startDate: '2025-01-01T00:00:00Z',
 
     debug: {
       level: process.env.DEBUG_LEVEL || 'error',
       driver: process.env.DEBUG_DRIVER || 'file', // file | remote
       remote: {
         url: process.env.DEBUG_REMOTE,
+      },
+      file: {
+        default: {
+          maxDays: 90,
+          maxSize: 500 * 1024 * 1024,
+        },
+        [ENUM_LOGGER_TYPE.DATABASE]: {
+          maxDays: 2,
+          maxSize: 500 * 1024 * 1024,
+        },
       },
     },
 
@@ -38,11 +39,11 @@ export default registerAs(
 
     http: {
       host: process.env.HTTP_HOST ?? 'localhost',
-      port: Number.parseInt(process.env.HTTP_PORT ?? '3000'),
+      port: StrUtil.numeric(process.env.HTTP_PORT, 3000),
       prefix: process.env.HTTP_PREFIX ?? 'api',
     },
 
-    wssEnable: process.env.WSS_ENABLE === 'true',
-    jobEnable: process.env.JOB_ENABLE === 'true',
+    wssEnable: StrUtil.isTrue(process.env.WSS_ENABLE),
+    jobEnable: StrUtil.isTrue(process.env.JOB_ENABLE),
   }),
 )

@@ -1,19 +1,7 @@
 import { Prisma, PrismaClient } from '@prisma/client/extension'
 import { PrismaReplicaManager } from '../bases'
+import { PRISMA_READ_OPERATIONS } from '../constants'
 import { PrismaContext } from '../helpers'
-
-const readOperations = [
-  'findFirst',
-  'findFirstOrThrow',
-  'findMany',
-  'findUnique',
-  'findUniqueOrThrow',
-  'groupBy',
-  'aggregate',
-  'count',
-  'findRaw',
-  'aggregateRaw',
-]
 
 export const withReplica = (clients: PrismaClient[]) =>
   Prisma.defineExtension((client: PrismaClient) => {
@@ -70,7 +58,7 @@ export const withReplica = (clients: PrismaClient[]) =>
           }
 
           // read operation + default = replica
-          if (readOperations.includes(operation)) {
+          if (PRISMA_READ_OPERATIONS.includes(operation)) {
             const replica = replicaManager.pick()
             if (replica) {
               return model ? replica[model][operation](args) : replica[operation](args)

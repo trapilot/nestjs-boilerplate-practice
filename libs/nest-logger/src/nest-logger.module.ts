@@ -7,8 +7,9 @@ import {
   RequestMethod,
 } from '@nestjs/common'
 import { LOGGER_MODULE_OPTIONS } from './constants'
+import { LoggerOptionFactory } from './factories'
 import { ILoggerOptions } from './interfaces'
-import { LoggerOptionService, LoggerService } from './services'
+import { LoggerService } from './services'
 import { LoggerUtil } from './utils'
 
 @Module({})
@@ -42,11 +43,11 @@ export class NestLoggerModule implements NestModule {
       imports: [],
       providers: [
         LoggerService,
-        LoggerOptionService,
+        LoggerOptionFactory,
         {
           provide: LOGGER_MODULE_OPTIONS,
-          useFactory: async (optionsFactory: LoggerOptionService) => optionsFactory.createOptions(),
-          inject: [LoggerOptionService],
+          useFactory: async (optionsFactory: LoggerOptionFactory) => optionsFactory.createOptions(),
+          inject: [LoggerOptionFactory],
         },
       ],
       exports: [LoggerService],

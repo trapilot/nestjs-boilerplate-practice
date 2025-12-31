@@ -17,7 +17,7 @@ export function ToOutOfStockSale(): (target: any, key: string) => void {
 export function ToUnitPrice(): (target: any, key: string) => void {
   return Transform(({ obj, value }: { obj: TCartItem; value: number }) => {
     if (value === undefined || value === null) {
-      return NumberUtil.numeric(obj.product.salePrice, {
+      return NumberUtil.decimal(obj.product.salePrice, {
         useGrouping: true,
       })
     }
@@ -28,7 +28,7 @@ export function ToUnitPrice(): (target: any, key: string) => void {
 export function ToUnitPoint(): (target: any, key: string) => void {
   return Transform(({ obj, value }: { obj: TCartItem; value: number }) => {
     if (value === undefined || value === null) {
-      return NumberUtil.numeric(obj.product.salePoint, {
+      return NumberUtil.decimal(obj.product.salePoint, {
         useGrouping: true,
       })
     }
@@ -39,7 +39,7 @@ export function ToUnitPoint(): (target: any, key: string) => void {
 export function ToFinalPrice(): (target: any, key: string) => void {
   return Transform(({ obj }: { obj: TCartItem }) => {
     const unitPrice = obj?.unitPrice >= 0 ? obj?.unitPrice : obj.product.salePrice
-    return NumberUtil.numeric(unitPrice * obj.quantity, {
+    return NumberUtil.decimal(unitPrice * obj.quantity, {
       useGrouping: true,
     })
   })
@@ -48,7 +48,7 @@ export function ToFinalPrice(): (target: any, key: string) => void {
 export function ToFinalPoint(): (target: any, key: string) => void {
   return Transform(({ obj }: { obj: TCartItem }) => {
     const unitPoint = obj?.unitPoint >= 0 ? obj?.unitPoint : obj.product.salePoint
-    return NumberUtil.numeric(unitPoint * obj.quantity, {
+    return NumberUtil.decimal(unitPoint * obj.quantity, {
       useGrouping: true,
     })
   })
@@ -60,7 +60,7 @@ export function ToCartPrice(): (target: any, key: string) => void {
       const unitPrice = item?.unitPrice >= 0 ? item?.unitPrice : item.product.salePrice
       return sum + item.quantity * unitPrice
     }, 0)
-    return NumberUtil.numeric(cartPrice, {
+    return NumberUtil.decimal(cartPrice, {
       useGrouping: true,
     })
   })
@@ -72,7 +72,7 @@ export function ToCartPoint(): (target: any, key: string) => void {
       const unitPoint = item?.unitPoint >= 0 ? item?.unitPoint : item.product.salePoint
       return sum + item.quantity * unitPoint
     }, 0)
-    return NumberUtil.numeric(cartPoint, {
+    return NumberUtil.decimal(cartPoint, {
       useGrouping: true,
     })
   })

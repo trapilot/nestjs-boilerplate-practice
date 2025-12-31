@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client/extension'
 
 export class PrismaReplicaManager {
-  private rrIndex: number = 0
+  private cursor: number = 0
   private clients: PrismaClient[]
 
   constructor(clients: PrismaClient[]) {
@@ -17,8 +17,8 @@ export class PrismaReplicaManager {
   }
 
   pick(): PrismaClient {
-    const client = this.clients[this.rrIndex]
-    this.rrIndex = (this.rrIndex + 1) % this.clients.length
+    const client = this.clients[this.cursor]
+    this.cursor = (this.cursor + 1) % this.clients.length
 
     return client
   }
