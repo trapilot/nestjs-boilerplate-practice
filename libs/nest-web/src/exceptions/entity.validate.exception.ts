@@ -20,7 +20,7 @@ export class EntityValidateBuilder {
   private errors: ValidationError[] = []
 
   addError(options: IEntityValidateError): this {
-    if (this.errors.some((err) => err.property === options.property)) {
+    if (this.errors.some(err => err.property === options.property)) {
       return this
     }
 
@@ -39,7 +39,7 @@ export class EntityValidateBuilder {
   }
 
   addErrors(errors: IEntityValidateError[]): this {
-    errors.forEach((e) => this.addError(e))
+    errors.forEach(e => this.addError(e))
     return this
   }
 

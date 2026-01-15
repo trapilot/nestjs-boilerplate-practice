@@ -18,18 +18,18 @@ export class TierSeedCommand extends CommandRunner {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logger: LoggerService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {
     super()
   }
 
   @ScopeAsync(EnumScopeType.COMMAND, { context: 'seed' })
-  async run(): Promise<void> {
+  async run(_passedParam: string[], _options?: Record<string, string | number>): Promise<void> {
     this.logger.log(`${TierSeedCommand.name} is running...`)
 
     try {
       await this.seed()
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.error(err)
     } finally {
       this.logger.log(`${TierSeedCommand.name} stoped`)
@@ -37,7 +37,7 @@ export class TierSeedCommand extends CommandRunner {
     return
   }
 
-  async seed() {
+  async seed(): Promise<boolean> {
     const nowDate = this.helperService.dateNow()
     const tiers: Prisma.TierUncheckedCreateInput[] = [
       {
@@ -157,5 +157,6 @@ export class TierSeedCommand extends CommandRunner {
         })
       }
     }
+    return true
   }
 }

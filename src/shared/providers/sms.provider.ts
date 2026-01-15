@@ -12,12 +12,12 @@ export class SmsProvider {
 
   constructor(
     private readonly config: ConfigService,
-    private readonly logger: LoggerService,
+    private readonly logger: LoggerService
   ) {
     this.dryRun = this.config.get<boolean>('notification.sms.dryRun')
   }
 
-  send(payload: INotificationPayload) {
+  send(payload: INotificationPayload): boolean {
     if (this.dryRun) {
       throw new AppException({
         message: `Simulating SMS on Mobile Devices when developing. SMS message: ${payload.content}`,
@@ -39,10 +39,11 @@ export class SmsProvider {
     return this.process(payload)
   }
 
-  private process(payload: INotificationPayload): void {
+  private process(payload: INotificationPayload): boolean {
     this.twilioClient.messages.create({
       to: payload.to,
       body: payload.content,
     })
+    return true
   }
 }

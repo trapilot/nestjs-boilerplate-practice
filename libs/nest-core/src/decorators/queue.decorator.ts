@@ -4,7 +4,7 @@ import { QUEUE_PROCESSOR_CONFIG_KEY } from '../constants'
 
 export function QueueProcessor(
   name: string,
-  options?: Omit<NestWorkerOptions, 'name'>,
+  options?: Omit<NestWorkerOptions, 'name'>
 ): ClassDecorator {
   // @note: currently there is no way to inject ConfigService into decorators
   return Processor(
@@ -15,6 +15,6 @@ export function QueueProcessor(
     {
       name: `${process.env.APP_NAME}-${process.env.APP_ENV}:${name}:consumer`,
       ...options,
-    },
+    }
   )
 }

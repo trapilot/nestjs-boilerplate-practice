@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { AppException, LoggerService } from 'lib/nest-core'
-import { createTransport, Transporter } from 'nodemailer'
+import { Transporter, createTransport } from 'nodemailer'
 import { INotificationPayload } from '../interfaces'
 
 @Injectable()
@@ -12,12 +12,12 @@ export class EmailProvider {
 
   constructor(
     private readonly config: ConfigService,
-    private readonly logger: LoggerService,
+    private readonly logger: LoggerService
   ) {
     this.dryRun = this.config.get<boolean>('notification.email.dryRun')
   }
 
-  send(payload: INotificationPayload) {
+  send(payload: INotificationPayload): boolean {
     if (this.dryRun) {
       throw new AppException({
         message: `Simulating send email when developing.\n
@@ -36,7 +36,7 @@ export class EmailProvider {
 
         transporter.verify().catch((error: Error) => {
           throw new ReferenceError(
-            `Error occurred while verifying the transporter: ${error.message}`,
+            `Error occurred while verifying the transporter: ${error.message}`
           )
         })
 
@@ -47,11 +47,12 @@ export class EmailProvider {
     return this.process(payload)
   }
 
-  private process(payload: INotificationPayload): void {
+  private process(payload: INotificationPayload): boolean {
     this.transporter.sendMail({
       subject: payload?.subject,
       to: payload.to,
       ...payload,
     })
+    return true
   }
 }

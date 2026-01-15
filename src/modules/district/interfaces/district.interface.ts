@@ -1,5 +1,5 @@
 import { Country, District } from '@runtime/prisma-client'
 
-export interface TDistrict extends District {
+export type TDistrict = District & {
   country?: Country
 }

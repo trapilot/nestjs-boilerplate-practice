@@ -1,17 +1,17 @@
 import { Transform } from 'class-transformer'
 import { LocaleUtil } from 'lib/nest-core'
 import { UserAbilityUtil } from 'shared/helpers'
-import { TRole } from '../interfaces'
+import { IRoleResponseTransform, TRole } from '../interfaces'
 
-export function ToRolePermissions(): (target: any, key: string) => void {
-  return Transform(({ obj: role, value }: { obj: TRole; value: any }) => {
+export function ToRolePermissions(): (target: object, key: string) => void {
+  return Transform(({ obj: role }: { obj: TRole }): IRoleResponseTransform[] => {
     // console.log({ ToRolePermissions: role })
     if (role?.fullPermissions !== undefined) {
-      const mappedPermissions = {}
+      const mappedPermissions: Record<string, IRoleResponseTransform> = {}
       const rolesPermissions = role?.pivotPermissions ?? []
       const fullPermissions = role?.fullPermissions ?? []
       for (const perm of fullPermissions) {
-        const rolePerm = rolesPermissions.find((p) => p.permissionId === perm.id)
+        const rolePerm = rolesPermissions.find(p => p.permissionId === perm.id)
         const roleBit = rolePerm?.bitwise ?? 0
         if (perm.isActive && perm.context) {
           const { context, subject, title, bitwise } = perm
@@ -34,6 +34,5 @@ export function ToRolePermissions(): (target: any, key: string) => void {
       }
       return Object.values(mappedPermissions)
     }
-    return value
   })
 }

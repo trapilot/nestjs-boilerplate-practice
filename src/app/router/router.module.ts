@@ -29,7 +29,7 @@ export class RouterModule {
           { path: EnumRoutePath.APP, module: RoutesAppModule },
           { path: EnumRoutePath.WEB, module: RoutesWebModule },
           { path: EnumRoutePath.PUB, module: RoutesPublicModule },
-        ]),
+        ])
       )
     }
 

@@ -9,8 +9,8 @@ import {
 } from '../interfaces'
 import { UserUtil } from '../utils'
 
-export function ToUserPermissions(): (target: any, key: string) => void {
-  return Transform(({ obj: user, value }: IUserTransformOptions): IUserProfilePermission[] => {
+export function ToUserPermissions(): (target: object, key: string) => void {
+  return Transform(({ obj: user }: IUserTransformOptions): IUserProfilePermission[] => {
     // console.log({ ToUserPermissions: user })
     if (user?.pivotRoles !== undefined) {
       const grpContextPermission: IContextUserPermission = {}
@@ -53,9 +53,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
           }
         }
 
-        const exist = grpContextPermission[context].subjects.find(
-          (data) => data.subject === subject,
-        )
+        const exist = grpContextPermission[context].subjects.find(data => data.subject === subject)
         if (exist) {
           exist.actions = ArrUtil.unique([...exist.actions, ...UserAbilityUtil.toActions(bitwise)])
         } else {
@@ -68,7 +66,7 @@ export function ToUserPermissions(): (target: any, key: string) => void {
           })
           if (!grpContextPermission[context].group) {
             const activeSubjects = grpContextPermission[context].subjects.filter(
-              (subject) => subject.isVisible,
+              subject => subject.isVisible
             )
             grpContextPermission[context].group = activeSubjects.length > 1
           }
@@ -76,6 +74,5 @@ export function ToUserPermissions(): (target: any, key: string) => void {
       }
       return Object.values(grpContextPermission)
     }
-    return value
   })
 }

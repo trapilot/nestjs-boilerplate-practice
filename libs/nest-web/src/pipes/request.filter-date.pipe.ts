@@ -6,18 +6,18 @@ import { IRequestFilterDateOptions } from '../interfaces'
 
 export function RequestFilterDatePipe(
   field: string,
-  options?: IRequestFilterDateOptions,
+  options?: IRequestFilterDateOptions
 ): Type<PipeTransform> {
   @Injectable({ scope: Scope.REQUEST })
   class MixinRequestFilterDatePipe implements PipeTransform {
     constructor(
       @Inject(REQUEST) protected readonly request: IRequestApp,
-      private readonly helperService: HelperService,
+      private readonly helperService: HelperService
     ) {}
 
     async transform(
       value: string,
-      _metadata: ArgumentMetadata,
+      _metadata: ArgumentMetadata
     ): Promise<Record<string, string | { gte: Date; lte: Date }>> {
       if (!value || typeof value !== 'string') {
         return undefined

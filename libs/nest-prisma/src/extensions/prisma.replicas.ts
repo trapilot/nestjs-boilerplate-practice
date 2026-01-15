@@ -70,13 +70,13 @@ class PrismaReplicaManager {
 
   async connect() {
     if (this.clients.length) {
-      await Promise.all(this.clients.map((client) => client.$connect()))
+      await Promise.all(this.clients.map(client => client.$connect()))
     }
   }
 
   async disconnect() {
     if (this.clients.length) {
-      await Promise.all(this.clients.map((client) => client.$disconnect()))
+      await Promise.all(this.clients.map(client => client.$disconnect()))
     }
   }
 

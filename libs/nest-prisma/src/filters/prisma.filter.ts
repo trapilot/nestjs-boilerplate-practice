@@ -5,7 +5,7 @@ import { AppUtil, LoggerService, ScopeContext } from 'lib/nest-core'
 @Catch(
   Prisma.PrismaClientKnownRequestError,
   Prisma.PrismaClientInitializationError,
-  Prisma.PrismaClientValidationError,
+  Prisma.PrismaClientValidationError
 )
 export class PrismaFilter implements ExceptionFilter {
   constructor(private readonly logger: LoggerService) {}

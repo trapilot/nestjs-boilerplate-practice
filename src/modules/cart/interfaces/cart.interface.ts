@@ -1,10 +1,10 @@
 import { Cart, CartItem, EnumOrderSource, Member, Product } from '@runtime/prisma-client'
 
-export interface TCartItem extends CartItem {
+export type TCartItem = CartItem & {
   product?: Product
 }
 
-export interface TCart extends Cart {
+export type TCart = Cart & {
   member?: Member
   items?: TCartItem[]
 }

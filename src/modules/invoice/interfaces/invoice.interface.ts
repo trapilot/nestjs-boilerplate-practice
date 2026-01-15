@@ -1,6 +1,6 @@
 import { EnumPaymentMethod, Invoice } from '@runtime/prisma-client'
 
-export interface TInvoice extends Invoice {}
+export type TInvoice = Invoice
 
 export interface IInvoiceGroup {
   [key: string]: TInvoice[]

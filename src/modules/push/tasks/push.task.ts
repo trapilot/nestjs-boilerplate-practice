@@ -15,7 +15,7 @@ export class PushTask {
   constructor(
     private readonly logger: LoggerService,
     private readonly pushService: PushService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
 
   @Cron('0 */3 * * * *', {
@@ -25,7 +25,7 @@ export class PushTask {
   @ScopeAsync(EnumScopeType.CRON, {
     context: 'cron.push_send_notification',
   })
-  async execute() {
+  async execute(): Promise<void> {
     const waiting = await this.waitForNextPush()
     if (!waiting) {
       const pending = await this.pushService.getPending()
@@ -46,7 +46,9 @@ export class PushTask {
 
   async waitForNextPush(): Promise<boolean> {
     const pushing = await this.pushService.getPushing()
-    if (!pushing) return false
+    if (!pushing) {
+      return false
+    }
 
     if (this.helperService.dateCheckAfter(pushing.expiresAt)) {
       this.logger.log(`Expire: #${pushing.id}`)

@@ -65,7 +65,7 @@ export class NotificationAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument,
+    @RequestBookType() bookType: EnumFileExtensionDocument
   ): Promise<IResponsePaging> {
     const _where: Prisma.NotificationWhereInput = {
       ..._search,
@@ -111,7 +111,7 @@ export class NotificationAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.NotificationWhereInput = {
       ..._search,
@@ -251,7 +251,7 @@ export class NotificationAdminController {
       ...data,
       pivotGroups: {
         createMany: {
-          data: groupIds.map((groupId) => ({ groupId })),
+          data: groupIds.map(groupId => ({ groupId })),
           skipDuplicates: true,
         },
       },
@@ -292,14 +292,14 @@ export class NotificationAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: NotificationRequestUpdateDto,
-    @RequestParam('id') id: number,
+    @RequestParam('id') id: number
   ): Promise<IResponseData> {
     const { pushes, groupIds, ...data } = body
     const notification = await this.notificationService.update(id, {
       ...data,
       pivotGroups: {
         createMany: {
-          data: groupIds.map((groupId) => ({ groupId })),
+          data: groupIds.map(groupId => ({ groupId })),
           skipDuplicates: true,
         },
       },
@@ -337,7 +337,7 @@ export class NotificationAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
+    @AuthJwtPayload('user.id') deletedBy: number
   ): Promise<IResponseData> {
     const notification = await this.notificationService.find(id)
     if (notification) {

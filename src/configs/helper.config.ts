@@ -1,5 +1,5 @@
 import { registerAs } from '@nestjs/config'
-import { IConfigHelper, MESSAGE_FALLBACK, MESSAGE_LANGUAGES } from 'lib/nest-core'
+import { IConfigHelper, MESSAGE_FALLBACK, MESSAGE_LANGUAGES, TimeUtil } from 'lib/nest-core'
 
 export default registerAs(
   'helper',
@@ -9,7 +9,7 @@ export default registerAs(
     },
     jwt: {
       defaultSecretKey: process.env.APP_SECRET_KEY ?? 'APP=8CdW7PdmXqYqRe5E/Q==',
-      defaultExpirationTime: '1h',
+      defaultExpirationTime: TimeUtil.ms('1h'),
       notBeforeExpirationTime: 0,
     },
     http: {
@@ -20,5 +20,5 @@ export default registerAs(
       fallback: MESSAGE_FALLBACK,
       availableList: MESSAGE_LANGUAGES,
     },
-  }),
+  })
 )

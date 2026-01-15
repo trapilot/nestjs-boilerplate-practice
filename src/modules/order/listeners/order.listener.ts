@@ -8,7 +8,7 @@ export class OrderListener {
   constructor(private readonly orderService: OrderService) {}
 
   @OnEvent(OrderCreatedEvent.eventPath, { async: true })
-  async onCreated(event: OrderCreatedEvent) {
+  async onCreated(event: OrderCreatedEvent): Promise<void> {
     await this.orderService.onCreated(event.order)
   }
 }

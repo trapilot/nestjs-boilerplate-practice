@@ -1,6 +1,6 @@
 import { parentPort } from 'worker_threads'
 
-parentPort?.on('message', async (data) => {
+parentPort?.on('message', async data => {
   try {
     const [callbackFn, args] = data
 

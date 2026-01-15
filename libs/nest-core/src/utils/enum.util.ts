@@ -3,12 +3,12 @@ import { EnumLike, EnumValue } from '../interfaces'
 export class EnumUtil {
   static isEnum(data: any): boolean {
     if (!data || typeof data !== 'object') return false
-    return Object.values(data).some((v) => typeof v === 'string' || typeof v === 'number')
+    return Object.values(data).some(v => typeof v === 'string' || typeof v === 'number')
   }
 
   static relative<T = EnumValue>(
     value: T,
-    options: { enumRoot: EnumLike<T>; enumRelative: EnumLike<T> },
+    options: { enumRoot: EnumLike<T>; enumRelative: EnumLike<T> }
   ): T {
     const enumKey = this.findKey<any>(value, { enum: options.enumRoot })
     return options.enumRelative[enumKey] as T

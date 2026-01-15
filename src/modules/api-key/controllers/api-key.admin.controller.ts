@@ -70,7 +70,7 @@ export class ApiKeyAdminController {
     { _search, _params }: RequestListDto,
     @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto,
     @RequestQueryFilterInEnum('type', EnumApiKeyType) _type: RequestFilterDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument,
+    @RequestBookType() bookType: EnumFileExtensionDocument
   ): Promise<IResponsePaging> {
     const _where: Prisma.ApiKeyWhereInput = {
       ..._search,
@@ -109,7 +109,7 @@ export class ApiKeyAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.ApiKeyWhereInput = {
       ..._search,
@@ -215,7 +215,7 @@ export class ApiKeyAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: ApiKeyRequestUpdateDto,
-    @RequestParam('id') id: number,
+    @RequestParam('id') id: number
   ): Promise<IResponseData> {
     const apiKey = await this.apiKeyService.update(id, body)
 
@@ -280,7 +280,7 @@ export class ApiKeyAdminController {
   @Patch('/:id/renew')
   async renew(
     @RequestBody() body: ApiKeyRequestRenewDto,
-    @RequestParam('id') id: number,
+    @RequestParam('id') id: number
   ): Promise<IResponseData> {
     const apiKey = await this.apiKeyService.findOrFail(id)
     const renewApiKey = await this.apiKeyService.renew(apiKey, {
@@ -377,7 +377,7 @@ export class ApiKeyAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
+    @AuthJwtPayload('user.id') deletedBy: number
   ): Promise<IResponseData> {
     const apiKey = await this.apiKeyService.find(id)
     if (apiKey) {

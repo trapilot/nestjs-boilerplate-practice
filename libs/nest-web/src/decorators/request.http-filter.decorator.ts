@@ -44,7 +44,7 @@ export function RequestParamGuard(...classValidation: ClassConstructor<any>[]): 
 
 export function RequestQuery(
   field: string,
-  options?: IRequestFilterParseOptions,
+  options?: IRequestFilterParseOptions
 ): ParameterDecorator {
   const pipes = options?.pipes ?? []
   return Query(field, RequestFilterParsePipe(field, options), ...pipes)
@@ -76,15 +76,15 @@ export function ResponseApp(options?: ResponseDecoratorOptions): ParameterDecora
 export function RequestQueryFilterInBoolean(
   field: string,
   defaultValue?: boolean,
-  options?: IRequestFilterOptions,
+  options?: IRequestFilterOptions
 ): ParameterDecorator {
   return Query(
     field,
     RequestFilterInBooleanPipe(
       options?.queryField ?? field,
       [true, false].includes(defaultValue) ? [defaultValue] : [true, false],
-      options,
-    ),
+      options
+    )
   )
 }
 
@@ -92,7 +92,7 @@ export function RequestQueryFilterInBoolean(
 export function RequestQueryFilterInEnum<T>(
   field: string,
   defaultEnum: Record<string, any>,
-  options?: IRequestFilterEnumOptions,
+  options?: IRequestFilterEnumOptions
 ): ParameterDecorator {
   return Query(
     field,
@@ -100,15 +100,15 @@ export function RequestQueryFilterInEnum<T>(
       options?.queryField ?? field,
       defaultEnum,
       options?.defaultValue ?? (defaultEnum as T),
-      options,
-    ),
+      options
+    )
   )
 }
 
 //! Request query filter equal will convert into repository
 export function RequestQueryFilterEqual(
   field: string,
-  options?: IRequestFilterEqualOptions,
+  options?: IRequestFilterEqualOptions
 ): ParameterDecorator {
   return Query(field, RequestFilterEqualPipe(options?.queryField ?? field, options))
 }
@@ -116,7 +116,7 @@ export function RequestQueryFilterEqual(
 //! Request query filter greater than equal will convert into repository
 export function RequestQueryFilterGreaterThanEqual(
   field: string,
-  options?: IRequestFilterEqualOptions,
+  options?: IRequestFilterEqualOptions
 ): ParameterDecorator {
   return Query(field, RequestFilterGreaterThanEqualPipe(options?.queryField ?? field, options))
 }
@@ -124,7 +124,7 @@ export function RequestQueryFilterGreaterThanEqual(
 //! Request query filter less than equal will convert into repository
 export function RequestQueryFilterLowerThanEqual(
   field: string,
-  options?: IRequestFilterEqualOptions,
+  options?: IRequestFilterEqualOptions
 ): ParameterDecorator {
   return Query(field, RequestFilterLessThanEqualPipe(options?.queryField ?? field, options))
 }
@@ -132,7 +132,7 @@ export function RequestQueryFilterLowerThanEqual(
 //! Request query filter equal will convert into repository
 export function RequestQueryFilterBetween(
   field: string,
-  options?: IRequestFilterEqualOptions,
+  options?: IRequestFilterEqualOptions
 ): ParameterDecorator {
   return Query(field, RequestFilterBetweenPipe(options?.queryField ?? field, options))
 }
@@ -140,7 +140,7 @@ export function RequestQueryFilterBetween(
 //! Request query filter in convert into repository
 export function RequestQueryFilterInArray(
   field: string,
-  options?: IRequestFilterEqualOptions,
+  options?: IRequestFilterEqualOptions
 ): ParameterDecorator {
   return Query(field, RequestFilterInArrayPipe(options?.queryField ?? field, options))
 }
@@ -148,7 +148,7 @@ export function RequestQueryFilterInArray(
 //! Request query filter string contain will convert into repository
 export function RequestQueryFilterContain(
   field: string,
-  options?: IRequestFilterOptions,
+  options?: IRequestFilterOptions
 ): ParameterDecorator {
   return Query(field, RequestFilterContainPipe(options?.queryField ?? field, options))
 }
@@ -156,7 +156,7 @@ export function RequestQueryFilterContain(
 //! Request query filter string contain will convert into repository
 export function RequestQueryFilterSome(
   field: string,
-  options?: IRequestFilterEqualOptions,
+  options?: IRequestFilterEqualOptions
 ): ParameterDecorator {
   return Query(field, RequestFilterSomePipe(options?.queryField ?? field, options))
 }
@@ -164,7 +164,7 @@ export function RequestQueryFilterSome(
 //! Request query filter string contain will convert into repository
 export function RequestQueryFilterMany(
   field: string,
-  options?: IRequestFilterEqualOptions,
+  options?: IRequestFilterEqualOptions
 ): ParameterDecorator {
   return Query(field, RequestFilterManyPipe(options?.queryField ?? field, options))
 }
@@ -172,7 +172,7 @@ export function RequestQueryFilterMany(
 //! Request query filter date will convert into repository
 export function RequestQueryFilterDate(
   field: string,
-  options?: IRequestFilterDateOptions,
+  options?: IRequestFilterDateOptions
 ): ParameterDecorator {
   return Query(field, RequestFilterDatePipe(options?.queryField ?? field, options))
 }
@@ -186,9 +186,9 @@ export function RequestQueryList(options?: IRequestQueryListOptions): ParameterD
       options?.availableOrderBy
         ? options.availableOrderBy
         : options?.defaultOrderBy
-          ? options.defaultOrderBy.split('|').map((ord) => ord.split(':')[0])
-          : [],
+          ? options.defaultOrderBy.split('|').map(ord => ord.split(':')[0])
+          : []
     ),
-    RequestFilterPagingPipe(options?.defaultPerPage),
+    RequestFilterPagingPipe(options?.defaultPerPage)
   )
 }

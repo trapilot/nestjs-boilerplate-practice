@@ -1,6 +1,6 @@
 import { EnumOrderSource, Order } from '@runtime/prisma-client'
 
-export interface TOrder extends Order {}
+export type TOrder = Order
 
 export interface IOrderPlaceOptions {
   source: EnumOrderSource

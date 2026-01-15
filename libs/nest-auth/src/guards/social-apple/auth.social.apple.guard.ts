@@ -17,7 +17,7 @@ export class AuthSocialAppleGuard implements CanActivate {
 
   constructor(
     private readonly config: ConfigService,
-    private readonly authUtil: AuthUtil,
+    private readonly authUtil: AuthUtil
   ) {
     this.header = this.config.get<string>('auth.apple.header')
     this.prefix = this.config.get<string>('auth.apple.prefix')
@@ -44,11 +44,11 @@ export class AuthSocialAppleGuard implements CanActivate {
       request.user = payload
 
       return true
-    } catch (err: any) {
+    } catch (err: unknown) {
       throw new UnauthorizedException({
         statusCode: HttpStatus.UNAUTHORIZED,
         message: 'auth.error.socialAppleInvalid',
-        _error: err.message,
+        _error: err,
       })
     }
   }

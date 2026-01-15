@@ -10,7 +10,7 @@ import {
 } from '@runtime/prisma-client'
 
 export type TMemberMetadata = {
-  messages: any[]
+  messages: string[]
 }
 
 export type TMember = Member & {

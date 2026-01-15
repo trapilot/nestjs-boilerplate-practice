@@ -6,7 +6,7 @@ import { IRequestFilterEqualOptions } from '../interfaces'
 
 export function RequestFilterManyPipe(
   field: string,
-  options?: IRequestFilterEqualOptions,
+  options?: IRequestFilterEqualOptions
 ): Type<PipeTransform> {
   @Injectable({ scope: Scope.REQUEST })
   class MixinRequestFilterManyPipe implements PipeTransform {

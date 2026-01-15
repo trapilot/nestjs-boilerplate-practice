@@ -9,7 +9,7 @@ export class ReporterService implements OnApplicationBootstrap {
 
   constructor(
     private readonly logger: LoggerService,
-    private readonly metrics: MetricsService,
+    private readonly metrics: MetricsService
   ) {}
 
   onApplicationBootstrap() {
@@ -37,7 +37,7 @@ export class ReporterService implements OnApplicationBootstrap {
     key: string,
     value: number,
     labels?: Record<string, string | number>,
-    buckets?: number[],
+    buckets?: number[]
   ): void {
     try {
       this.metrics.observeHistogram(key, value, labels, buckets)
@@ -50,7 +50,7 @@ export class ReporterService implements OnApplicationBootstrap {
     key: string,
     value: number,
     labels?: Record<string, string | number>,
-    percentiles?: number[],
+    percentiles?: number[]
   ): void {
     try {
       this.metrics.observeSummary(key, value, labels, percentiles)
@@ -71,7 +71,7 @@ export class ReporterService implements OnApplicationBootstrap {
     action: string,
     key: string,
     labels: Record<string, string | number> | undefined,
-    error: unknown,
+    error: unknown
   ): void {
     this.logger.error({
       message: `Failed to ${action}`,

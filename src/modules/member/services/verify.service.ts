@@ -14,20 +14,21 @@ export class VerifyService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
 
-  async cleanUpVerifyTokens() {
+  async cleanUpVerifyTokens(): Promise<Date> {
     const nowDate = this.helperService.dateNow()
     await this.prisma.memberVerifyHistory.updateMany({
       where: { isActive: true, isExpired: true, expiresAt: { lte: nowDate } },
       data: { isActive: false },
     })
+    return nowDate
   }
 
   async random(
     data: IVerificationCreateOptions,
-    options: IVerificationRandomOptions & { maxAttempts: number },
+    options: IVerificationRandomOptions & { maxAttempts: number }
   ): Promise<TMemberVerifyHistory> {
     const nowDate = this.helperService.dateNow()
     const dateRange = this.helperService.dateRange(nowDate)
@@ -118,7 +119,7 @@ export class VerifyService {
       })
     }
 
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async tx => {
       await tx.memberVerifyHistory.updateMany({
         where: {
           memberId: token.memberId,

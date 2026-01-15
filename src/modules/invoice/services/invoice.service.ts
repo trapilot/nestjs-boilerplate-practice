@@ -23,7 +23,7 @@ export class InvoiceService {
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
 
   async findOne(kwargs?: Prisma.InvoiceFindUniqueArgs): Promise<TInvoice> {
@@ -40,7 +40,7 @@ export class InvoiceService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.InvoiceFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.InvoiceFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TInvoice> {
     const invoice = await this.prisma.invoice
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -55,7 +55,7 @@ export class InvoiceService {
 
   async matchOrFail(
     where: Prisma.InvoiceWhereInput,
-    kwargs: Omit<Prisma.InvoiceFindFirstOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.InvoiceFindFirstOrThrowArgs, 'where'> = {}
   ): Promise<TInvoice> {
     const invoice = await this.prisma.invoice
       .findFirstOrThrow({ ...kwargs, where })
@@ -70,7 +70,7 @@ export class InvoiceService {
 
   async differOrFail(
     where: Prisma.InvoiceWhereInput,
-    options?: { limit?: number; message?: string },
+    options?: { limit?: number; message?: string }
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -85,7 +85,7 @@ export class InvoiceService {
   async list(
     where?: Prisma.InvoiceWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.invoice.list(where, params, options)
   }
@@ -93,7 +93,7 @@ export class InvoiceService {
   async paginate(
     where?: Prisma.InvoiceWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.invoice.paginate(where, params, options)
   }
@@ -106,7 +106,7 @@ export class InvoiceService {
 
   async find(
     id: number,
-    kwargs: Omit<Prisma.InvoiceFindUniqueArgs, 'where'> = {},
+    kwargs: Omit<Prisma.InvoiceFindUniqueArgs, 'where'> = {}
   ): Promise<TInvoice> {
     return await this.prisma.invoice.findUnique({
       ...kwargs,
@@ -138,7 +138,7 @@ export class InvoiceService {
 
   async delete(invoice: TInvoice, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async tx => {
         await tx.invoice.delete({ where: { id: invoice.id } })
       })
       return true

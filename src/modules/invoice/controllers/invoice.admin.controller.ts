@@ -64,7 +64,7 @@ export class InvoiceAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument,
+    @RequestBookType() bookType: EnumFileExtensionDocument
   ): Promise<IResponsePaging> {
     const _where: Prisma.InvoiceWhereInput = {
       ..._search,
@@ -106,7 +106,7 @@ export class InvoiceAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.InvoiceWhereInput = {
       ..._search,
@@ -212,7 +212,7 @@ export class InvoiceAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: InvoiceRequestUpdateDto,
-    @RequestParam('id') id: number,
+    @RequestParam('id') id: number
   ): Promise<IResponseData> {
     const invoice = await this.invoiceService.update(id, body)
 
@@ -243,7 +243,7 @@ export class InvoiceAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
+    @AuthJwtPayload('user.id') deletedBy: number
   ): Promise<IResponseData> {
     const invoice = await this.invoiceService.find(id)
     if (invoice) {

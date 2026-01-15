@@ -37,7 +37,7 @@ export class PermissionRequestCreateDto {
   @IsObject()
   @ToObject({ type: RequestSentenceDto })
   @ApiProperty({ required: true, type: RequestSentenceDto })
-  title: any
+  title: object
 
   @IsOptional()
   @IsNumber()

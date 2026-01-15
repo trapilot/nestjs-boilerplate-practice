@@ -28,7 +28,7 @@ export class RequestBodyParserMiddleware implements NestMiddleware {
     this.textLimitInBytes = this.config.get<number>('request.body.text.limitInBytes')
     this.urlencodedLimitInBytes = this.config.get<number>('request.body.urlencoded.limitInBytes')
     this.applicationOctetStreamLimitInBytes = this.config.get<number>(
-      'request.body.applicationOctetStream.limitInBytes',
+      'request.body.applicationOctetStream.limitInBytes'
     )
   }
 

@@ -29,14 +29,14 @@ export class HelperService {
   arrayDifference<T>(a: T[], b: T[]): T[] {
     if (b.length === 0) return a
     if (a.length === 0) return b
-    const _a = a.filter((x) => !b.includes(x))
-    return [..._a, ...b.filter((x) => !_a.includes(x) && !a.includes(x))]
+    const _a = a.filter(x => !b.includes(x))
+    return [..._a, ...b.filter(x => !_a.includes(x) && !a.includes(x))]
   }
 
   arrayIntersection<T>(a: T[], b: T[]): T[] {
     if (a.length === 0 || b.length === 0) return []
-    const _a = a.filter((x) => b.includes(x))
-    return [..._a, ...b.filter((x) => !_a.includes(x) && a.includes(x))]
+    const _a = a.filter(x => b.includes(x))
+    return [..._a, ...b.filter(x => !_a.includes(x) && a.includes(x))]
   }
 
   arrayChunk<T>(a: T[], size: number): T[][] {
@@ -161,7 +161,7 @@ export class HelperService {
 
     const normalizedPath = pathname.toLowerCase()
 
-    return patterns.some((pattern) => {
+    return patterns.some(pattern => {
       if (!pattern) {
         return false
       }
@@ -212,7 +212,7 @@ export class HelperService {
   }
 
   parsePhone(phone: string): { country: string; phone: string } {
-    const country = Object.values(EnumCountryCode).find((code) => phone.startsWith(code)) || ''
+    const country = Object.values(EnumCountryCode).find(code => phone.startsWith(code)) || ''
     return {
       country,
       phone: phone.slice(country.length).trim(),

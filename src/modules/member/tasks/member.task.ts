@@ -10,24 +10,24 @@ export class MemberTask {
     @Inject(MEMBER_AUTH_TOKEN) private readonly authService: AuthService,
     private readonly memberService: MemberService,
     private readonly verifyService: VerifyService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
   @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_clean_up_refresh_tokens' })
-  async cleanUpRefreshTokens() {
+  async cleanUpRefreshTokens(): Promise<void> {
     await this.authService.cleanUpRefreshTokens()
   }
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
   @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_clean_up_verify_tokens' })
-  async cleanUpVerifyTokens() {
+  async cleanUpVerifyTokens(): Promise<void> {
     await this.verifyService.cleanUpVerifyTokens()
   }
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
   @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_earn_highest_purchase_in_birth' })
-  async handleEarnHighestPurchaseInBirth() {
+  async handleEarnHighestPurchaseInBirth(): Promise<void> {
     const chkDate = this.helperService.dateNow()
 
     await this.memberService.earnHighestBirthInvoice(chkDate)
@@ -35,7 +35,7 @@ export class MemberTask {
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
   @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_earn_point_from_purchases' })
-  async handleEarnPointFromPurchase() {
+  async handleEarnPointFromPurchase(): Promise<void> {
     const chkDate = this.helperService.dateNow()
 
     await this.memberService.earnPointFromInvoices(chkDate)
@@ -43,7 +43,7 @@ export class MemberTask {
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
   @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_release_points' })
-  async handleReleaseMemberPoints() {
+  async handleReleaseMemberPoints(): Promise<void> {
     const chkDate = this.helperService.dateNow()
 
     await this.memberService.releaseMemberPoints(chkDate)
@@ -51,7 +51,7 @@ export class MemberTask {
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
   @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_reset_points' })
-  async handleResetPoints() {
+  async handleResetPoints(): Promise<void> {
     const chkDate = this.helperService.dateNow()
 
     await this.memberService.resetMemberPoints(chkDate)
@@ -59,7 +59,7 @@ export class MemberTask {
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
   @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_reset_tiers' })
-  async handleResetTiers() {
+  async handleResetTiers(): Promise<void> {
     const chkDate = this.helperService.dateNow()
 
     await this.memberService.resetMemberTiers(chkDate)
@@ -67,7 +67,7 @@ export class MemberTask {
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
   @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_reset_birthpurchase_every_year' })
-  async handleResetBirthPurchseEveryYear() {
+  async handleResetBirthPurchseEveryYear(): Promise<void> {
     const chkDate = this.helperService.dateNow()
 
     await this.memberService.resetBirthPurchased(chkDate)

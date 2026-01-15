@@ -3,14 +3,14 @@ import { AuthContext, IAuthPayloadPermission } from 'lib/nest-auth'
 import { IUserTransformOptions } from '../interfaces'
 import { UserUtil } from '../utils'
 
-export function ToUserPayloadRoles(): (target: any, key: string) => void {
+export function ToUserPayloadRoles(): (target: object, key: string) => void {
   return Transform(({ obj: user }: IUserTransformOptions): number[] => {
     // console.log({ ToAuthUserRoles: user })
     return UserUtil.parseRoleIds(user)
   })
 }
 
-export function ToUserPayloadPermissions(): (target: any, key: string) => void {
+export function ToUserPayloadPermissions(): (target: object, key: string) => void {
   return Transform(({ obj: user }: IUserTransformOptions): IAuthPayloadPermission => {
     // console.log({ ToAuthUserPermissions: user })
     const { subjects } = AuthContext.getConfig()
@@ -25,7 +25,7 @@ export function ToUserPayloadPermissions(): (target: any, key: string) => void {
         const permBit = rolePerm?.bitwise ?? 0
 
         if (roleBit && permBit && rolePerm.isActive && subjects.includes(rolePerm.subject)) {
-          const subjectIndex = subjects.findIndex((subject) => subject === rolePerm.subject)
+          const subjectIndex = subjects.findIndex(subject => subject === rolePerm.subject)
           userPermissions[subjectIndex] |= roleBit & permBit
         }
       }

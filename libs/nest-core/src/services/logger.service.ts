@@ -66,7 +66,7 @@ export class LoggerService implements NestLoggerService {
   private isWrongExceptionsHandlerContract(
     level: Level,
     message: any,
-    params: any[],
+    params: any[]
   ): params is [string] {
     return (
       level === 'error' &&

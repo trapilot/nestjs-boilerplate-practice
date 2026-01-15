@@ -74,7 +74,7 @@ export class MediaAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument,
+    @RequestBookType() bookType: EnumFileExtensionDocument
   ): Promise<IResponsePaging> {
     const _where: Prisma.MediaWhereInput = {
       ..._search,
@@ -111,7 +111,7 @@ export class MediaAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.MediaWhereInput = {
       ..._search,
@@ -193,9 +193,9 @@ export class MediaAdminController {
         EnumFileExtensionImage.JPEG,
         EnumFileExtensionImage.JPG,
         EnumFileExtensionImage.PNG,
-      ]),
+      ])
     )
-    file: IFile,
+    file: IFile
   ): Promise<IResponseData> {
     const media = await this.mediaService.create({
       ...body,
@@ -233,7 +233,7 @@ export class MediaAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: MediaRequestUpdateDto,
-    @RequestParam('id') id: number,
+    @RequestParam('id') id: number
   ): Promise<IResponseData> {
     const media = await this.mediaService.update(id, body)
 
@@ -264,7 +264,7 @@ export class MediaAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
+    @AuthJwtPayload('user.id') deletedBy: number
   ): Promise<IResponseData> {
     const media = await this.mediaService.find(id)
     if (media) {

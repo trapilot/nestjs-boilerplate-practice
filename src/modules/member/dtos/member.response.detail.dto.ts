@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
 import { EnumMemberType } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
@@ -8,12 +7,12 @@ import { ResponseUserBelongDto } from 'lib/nest-web'
 import { TierResponseBelongDto } from 'modules/tier'
 
 class ResponseDataDetailDto {
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 100 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   id: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 2 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   tierId: number
@@ -33,12 +32,12 @@ class ResponseDataDetailDto {
   @Expose()
   cardId: string
 
-  @ApiProperty({ example: faker.internet.email() })
+  @ApiProperty({ example: 'payx@email.cc.co' })
   @Type(() => String)
   @Expose()
   email: string
 
-  @ApiProperty({ example: faker.person.lastName() })
+  @ApiProperty({ example: 'PayPay' })
   @Type(() => String)
   @Expose()
   name: string
@@ -73,7 +72,7 @@ class ResponseDataDetailDto {
   // @Expose()
   // gender: EnumUserType
 
-  @ApiProperty({ example: faker.location.streetAddress(false) })
+  @ApiProperty({ example: 'home #01' })
   @Type(() => String)
   @Expose()
   address: string
@@ -150,12 +149,12 @@ class ResponseDataDetailDto {
   @Expose({ groups: [EnumAuthLoginFrom.CMS] })
   isActive: boolean
 
-  @ApiProperty({ example: faker.date.recent() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @Type(() => Date)
   @Expose({ groups: [EnumAuthLoginFrom.CMS] })
   createdAt: Date
 
-  @ApiProperty({ example: faker.date.soon() })
+  @ApiProperty({ example: new Date(Date.now() - 1000 * 3600) })
   @Type(() => Date)
   @Expose({ groups: [EnumAuthLoginFrom.CMS] })
   updatedAt: Date
@@ -170,12 +169,12 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class MemberResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class MemberResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class MemberResponseBelongDto extends PickType(MemberResponseDetailDto, [

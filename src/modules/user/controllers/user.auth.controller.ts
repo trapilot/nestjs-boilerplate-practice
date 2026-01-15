@@ -7,10 +7,10 @@ import {
   AuthSocialAppleProtected,
   AuthSocialGoogleProtected,
   AuthTokenResponseDto,
-  EnumAuthScopeType,
   EnumAuthLoginFrom,
   EnumAuthLoginType,
   EnumAuthLoginWith,
+  EnumAuthScopeType,
 } from 'lib/nest-auth'
 import {
   EnumFileExtensionImage,
@@ -89,7 +89,7 @@ export class UserAuthController {
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
-    @RequestBody() body: UserRequestSignInDto,
+    @RequestBody() body: UserRequestSignInDto
   ): Promise<IResponseData> {
     const user = await this.authService.validateCredentials(body)
     const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
@@ -124,7 +124,7 @@ export class UserAuthController {
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
-    @AuthJwtPayload('user.email') email: string,
+    @AuthJwtPayload('user.email') email: string
   ): Promise<IResponseData> {
     const user = await this.authService.validateOAuthEmail({ email })
     const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
@@ -158,7 +158,7 @@ export class UserAuthController {
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
-    @AuthJwtPayload('user.email') email: string,
+    @AuthJwtPayload('user.email') email: string
   ): Promise<IResponseData> {
     const user = await this.authService.validateOAuthEmail({ email })
     const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
@@ -216,7 +216,7 @@ export class UserAuthController {
   @Put('/edit-profile')
   async editProfile(
     @RequestBody() body: UserEditProfileRequestDto,
-    @AuthJwtPayload('user.id') userId: number,
+    @AuthJwtPayload('user.id') userId: number
   ): Promise<IResponseData> {
     const { roleId, ...data } = body
     const profile = await this.authService.editProfile(userId, {
@@ -254,7 +254,7 @@ export class UserAuthController {
   async refresh(
     @AuthJwtToken() refreshToken: string,
     @AuthJwtPayload() refreshPayload: AuthJwtRefreshPayloadDto,
-    @AuthJwtPayload('user.id') userId: number,
+    @AuthJwtPayload('user.id') userId: number
   ): Promise<IResponseData> {
     const user = await this.authService.getUserData(userId)
     const auth = await this.authService.refresh(user, refreshToken, refreshPayload)
@@ -285,7 +285,7 @@ export class UserAuthController {
   @Put('/change-password')
   async changePassword(
     @RequestBody() body: UserRequestChangePasswordDto,
-    @AuthJwtPayload('user.id') userId: number,
+    @AuthJwtPayload('user.id') userId: number
   ): Promise<IResponseData> {
     const user = await this.authService.findOrFail(userId)
     const updated = await this.authService.changePassword(user, body)
@@ -329,9 +329,9 @@ export class UserAuthController {
         EnumFileExtensionImage.JPEG,
         EnumFileExtensionImage.JPG,
         EnumFileExtensionImage.PNG,
-      ]),
+      ])
     )
-    file: IFile,
+    file: IFile
   ): Promise<IResponseData> {
     const user = await this.authService.findOrFail(userId)
     const updated = await this.authService.changeAvatar(user, {
@@ -360,7 +360,7 @@ export class UserAuthController {
   @Post('/confirm-password')
   async confirmPassword(
     @RequestBody() { password }: UserVerifyPasswordRequestDto,
-    @AuthJwtPayload('user.id') userId: number,
+    @AuthJwtPayload('user.id') userId: number
   ): Promise<IResponseData> {
     const user = await this.authService.getUserData(userId)
     const token = await this.authService.verifyConfirmPassword(user, password)
@@ -384,7 +384,7 @@ export class UserAuthController {
   })
   @Post('/change-confirm-password')
   async changeConfirmPassword(
-    @RequestBody() body: UserRequestChangeConfirmPasswordDto,
+    @RequestBody() body: UserRequestChangeConfirmPasswordDto
   ): Promise<IResponseData> {
     await this.authService.changeConfirmPassword(body.password)
 

@@ -66,7 +66,7 @@ export class CryptoService {
   aes256Encrypt(
     data: string | Record<string, any> | Record<string, any>[],
     key: string,
-    iv: string,
+    iv: string
   ): string {
     const keyBuffer = Buffer.from(key, 'utf-8')
     const ivBuffer = Buffer.from(iv, 'utf-8')
@@ -82,7 +82,7 @@ export class CryptoService {
   aes256Decrypt(
     encrypted: string,
     key: string,
-    iv: string,
+    iv: string
   ): string | Record<string, any> | Record<string, any>[] {
     const keyBuffer = Buffer.from(key, 'utf-8')
     const ivBuffer = Buffer.from(iv, 'utf-8')
@@ -169,7 +169,7 @@ export class CryptoService {
         userIp,
         randToken,
       ].join('|'),
-      { algorithm: 'sha256' },
+      { algorithm: 'sha256' }
     )
   }
 

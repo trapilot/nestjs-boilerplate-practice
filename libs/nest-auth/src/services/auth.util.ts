@@ -50,17 +50,17 @@ export class AuthUtil {
     private readonly config: ConfigService,
     private readonly crypto: CryptoService,
     private readonly jwtService: JwtService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {
     // jwt
     this.jwtAccessTokenSecretKey = this.config.get<string>('auth.jwt.accessToken.secretKey')
     this.jwtAccessTokenExpirationTime = this.config.get<number>(
-      'auth.jwt.accessToken.expirationTime',
+      'auth.jwt.accessToken.expirationTime'
     )
 
     this.jwtRefreshTokenSecretKey = this.config.get<string>('auth.jwt.refreshToken.secretKey')
     this.jwtRefreshTokenExpirationTime = this.config.get<number>(
-      'auth.jwt.refreshToken.expirationTime',
+      'auth.jwt.refreshToken.expirationTime'
     )
 
     this.jwtPrefix = this.config.get<string>('auth.jwt.prefix')
@@ -82,14 +82,14 @@ export class AuthUtil {
     // google
     this.googleClient = new OAuth2Client(
       this.config.get<string>('auth.google.clientId'),
-      this.config.get<string>('auth.google.clientSecret'),
+      this.config.get<string>('auth.google.clientSecret')
     )
   }
 
   createAccessToken(
     subject: string | number,
     payload: AuthJwtAccessPayloadDto,
-    expiredIn: number,
+    expiredIn: number
   ): string {
     return this.jwtService.sign(payload, {
       secret: this.jwtAccessTokenSecretKey,
@@ -123,7 +123,7 @@ export class AuthUtil {
   createRefreshToken(
     subject: string | number,
     payload: AuthJwtRefreshPayloadDto,
-    expiredIn: number,
+    expiredIn: number
   ): string {
     return this.jwtService.sign(payload, {
       secret: this.jwtRefreshTokenSecretKey,
@@ -163,7 +163,7 @@ export class AuthUtil {
 
   createPayloadAccessToken<UserData = Record<string, any>>(
     data: UserData,
-    options: IAuthPayloadOptions,
+    options: IAuthPayloadOptions
   ): AuthJwtAccessPayloadDto<UserData> {
     return {
       user: data,

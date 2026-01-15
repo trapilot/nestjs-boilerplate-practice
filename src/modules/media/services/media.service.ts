@@ -27,7 +27,7 @@ export class MediaService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.MediaFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.MediaFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TMedia> {
     const media = await this.prisma.media
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -42,7 +42,7 @@ export class MediaService {
 
   async matchOrFail(
     where: Prisma.MediaWhereInput,
-    kwargs: Omit<Prisma.MediaFindFirstOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.MediaFindFirstOrThrowArgs, 'where'> = {}
   ): Promise<TMedia> {
     const media = await this.prisma.media
       .findFirstOrThrow({ ...kwargs, where })
@@ -57,7 +57,7 @@ export class MediaService {
 
   async differOrFail(
     where: Prisma.MediaWhereInput,
-    options?: { limit?: number; message?: string },
+    options?: { limit?: number; message?: string }
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -72,7 +72,7 @@ export class MediaService {
   async list(
     where?: Prisma.MediaWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.media.list(where, params, options)
   }
@@ -80,7 +80,7 @@ export class MediaService {
   async paginate(
     where?: Prisma.MediaWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.media.paginate(where, params, options)
   }
@@ -116,7 +116,7 @@ export class MediaService {
 
   async delete(media: TMedia, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async tx => {
         await tx.media.delete({ where: { id: media.id } })
       })
       return true

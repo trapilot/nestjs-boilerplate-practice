@@ -27,7 +27,7 @@ export class AppVersionService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.AppVersionFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.AppVersionFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TAppVersion> {
     const appVersion = await this.prisma.appVersion
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -42,7 +42,7 @@ export class AppVersionService {
 
   async matchOrFail(
     where: Prisma.AppVersionWhereInput,
-    kwargs: Omit<Prisma.AppVersionFindFirstOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.AppVersionFindFirstOrThrowArgs, 'where'> = {}
   ): Promise<TAppVersion> {
     const appVersion = await this.prisma.appVersion
       .findFirstOrThrow({ ...kwargs, where })
@@ -57,7 +57,7 @@ export class AppVersionService {
 
   async differOrFail(
     where: Prisma.AppVersionWhereInput,
-    options?: { limit?: number; message?: string },
+    options?: { limit?: number; message?: string }
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -72,7 +72,7 @@ export class AppVersionService {
   async list(
     where?: Prisma.AppVersionWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.appVersion.list(where, params, options)
   }
@@ -80,7 +80,7 @@ export class AppVersionService {
   async paginate(
     where?: Prisma.AppVersionWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.appVersion.paginate(where, params, options)
   }
@@ -93,7 +93,7 @@ export class AppVersionService {
 
   async find(
     id: number,
-    kwargs: Omit<Prisma.AppVersionFindUniqueArgs, 'where'> = {},
+    kwargs: Omit<Prisma.AppVersionFindUniqueArgs, 'where'> = {}
   ): Promise<TAppVersion> {
     return await this.prisma.appVersion.findUnique({
       ...kwargs,
@@ -137,7 +137,7 @@ export class AppVersionService {
 
   async delete(appVersion: TAppVersion, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async tx => {
         await tx.appVersion.delete({ where: { id: appVersion.id } })
       })
       return true

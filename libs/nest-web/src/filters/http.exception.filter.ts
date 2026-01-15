@@ -20,7 +20,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
   constructor(
     private readonly logger: LoggerService,
     private readonly message: MessageService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
 
   async catch(exception: HttpException, host: ArgumentsHost): Promise<void> {

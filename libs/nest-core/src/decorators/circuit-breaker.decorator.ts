@@ -60,12 +60,12 @@ type EventType =
   | 'failure'
 
 export function CircuitBreaker(
-  input: CircuitBreakerInput = { options: {}, circuitGroup: 'default' },
+  input: CircuitBreakerInput = { options: {}, circuitGroup: 'default' }
 ) {
   return function (
     target: object,
     _propertyKey: string | symbol,
-    descriptor: PropertyDescriptor,
+    descriptor: PropertyDescriptor
   ): void {
     const opts = input?.options ?? {}
     const opt: Options = {

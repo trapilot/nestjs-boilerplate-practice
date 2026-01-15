@@ -37,11 +37,11 @@ export class LoggerFactory {
     this.level = this.config.get<LevelWithSilent>('logger.level')
     this.driver = this.config.get<'file' | 'remote'>('logger.driver')
 
-    this.sensitiveFields = new Set(LOGGER_SENSITIVE_FIELDS.map((field) => field.toLowerCase()))
-    this.sensitivePaths = LOGGER_SENSITIVE_PATHS.map((path) =>
-      LOGGER_SENSITIVE_FIELDS.map((field) =>
-        field.includes('-') ? `${path}["${field}"]` : `${path}.${field}`,
-      ),
+    this.sensitiveFields = new Set(LOGGER_SENSITIVE_FIELDS.map(field => field.toLowerCase()))
+    this.sensitivePaths = LOGGER_SENSITIVE_PATHS.map(path =>
+      LOGGER_SENSITIVE_FIELDS.map(field =>
+        field.includes('-') ? `${path}["${field}"]` : `${path}.${field}`
+      )
     ).flat()
   }
 
@@ -203,7 +203,7 @@ export class LoggerFactory {
       if (obj.length > 10) {
         const newObj = obj
           .slice(0, 10)
-          .map((item) => this.sanitizeObject(item, maxDepth, currentDepth + 1))
+          .map(item => this.sanitizeObject(item, maxDepth, currentDepth + 1))
 
         newObj.push({
           truncated: `...[TRUNCATED] - total length ${obj.length}`,
@@ -211,7 +211,7 @@ export class LoggerFactory {
 
         return newObj
       }
-      return obj.map((item) => this.sanitizeObject(item, maxDepth, currentDepth + 1))
+      return obj.map(item => this.sanitizeObject(item, maxDepth, currentDepth + 1))
     }
 
     const result = { ...obj }
@@ -337,7 +337,7 @@ export class LoggerFactory {
 
     const normalizedPath = pathname.toLowerCase()
 
-    return patterns.some((pattern) => {
+    return patterns.some(pattern => {
       if (!pattern) {
         return false
       }

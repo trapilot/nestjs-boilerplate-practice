@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
@@ -28,7 +27,7 @@ export class MemberMockTask {
     private readonly logger: LoggerService,
     private readonly crypto: CryptoService,
     private readonly tierService: TierService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {
     this.nowDate = this.helperService.dateNow()
     this.startDate = this.config.get<Date>('app.startDate')
@@ -57,7 +56,7 @@ export class MemberMockTask {
     const dateCheck = lastMember ? lastMember.createdAt : this.startDate
 
     const dateExecute = this.helperService.dateForward(dateCheck, {
-      days: faker.number.int({ min: 1, max: 2 }),
+      days: this.helperService.randomNumberInRange(1, 2),
     })
     const codeDigits = this.config.getOrThrow<number>('module.member.codeDigits')
     const tierChart = this.tierService.getChart()
@@ -69,30 +68,26 @@ export class MemberMockTask {
     try {
       const referralCodes = []
       for (let i = 0; i < mockupNumbers; i++) {
-        const staffNumber = faker.number.int({ min: 0, max: 5 })
+        const staffNumber = this.helperService.randomNumberInRange(0, 5)
         const isStaff = staffNumber === 0
-        const isFemale = faker.datatype.boolean()
+        const isFemale = !this.helperService.randomNumberInRange(0, 1)
         const memberTier = isStaff ? tierChart.getStaffTier() : tierChart.getNormalTier()
         const tierData = tierChart.getStats(memberTier.id)
 
-        const fullPhone = faker.phone.number({ style: 'international' })
+        const fullPhone = this.helperService.padZero(i + 1, 8, 'CODE#')
         const { country, phone } = this.helperService.parsePhone(fullPhone)
 
         const code = this.helperService.padZero(i + 1, codeDigits, 'T')
         const invitedCode = referralCodes[Math.floor(Math.random() * referralCodes.length)]
-        const hasReferrer = faker.datatype.boolean()
+        const hasReferrer = !this.helperService.randomNumberInRange(0, 1)
 
-        let referralCode = faker.string.alpha({ length: 10, casing: 'upper' })
-        while (referralCodes.includes(referralCode)) {
-          referralCode = faker.string.alpha({ length: 10, casing: 'upper' })
-          // referralCode = fullPhone
-        }
+        const referralCode = fullPhone
         referralCodes.push(referralCode)
 
         const memberDate = isStaff
           ? this.helperService.dateCreate(new Date('2099-12-31'), { endOfDay: true })
           : dateRange.endOfYear
-        const birthDate = faker.date.birthdate({ mode: 'age', min: 20, max: 70 })
+        const birthDate = new Date(Date.now() - 40 * 12 * 30000 * 3600)
         const dateOfBirth = this.helperService.dateCreate(birthDate, { startOfDay: true })
         const extractDate = this.helperService.dateExtract(dateOfBirth)
         const expiryDate = this.helperService.dateCreate(memberDate, { endOfDay: true })
@@ -105,13 +100,13 @@ export class MemberMockTask {
             referralCode,
             invitedCode: hasReferrer ? invitedCode : undefined,
             type: isStaff ? EnumMemberType.STAFF : EnumMemberType.NORMAL,
-            email: faker.internet.email(),
-            name: faker.person.lastName(),
+            email: `payx${i + 1}@email.cc.co`,
+            name: `Pay X${i + 1}`,
             phone: i === 0 ? process.env.MOCK_MEMBER_PHONE : fullPhone,
             password: hashedPassword,
             phoneCountry: country,
             phoneNumber: phone,
-            address: faker.location.streetAddress(true),
+            address: `home #0${i + 1}`,
             locale: EnumAppLanguage.EN,
             gender: isFemale ? EnumUserType.FEMALE : EnumUserType.MALE,
             birthDate,
@@ -150,7 +145,7 @@ export class MemberMockTask {
           },
         })
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.error(err)
     } finally {
       this.logger.warn(`${MemberMockTask.name} done`)
@@ -161,7 +156,9 @@ export class MemberMockTask {
 
   private async runWithNumbers(): Promise<number> {
     const limitMembers = StrUtil.numeric(process.env.AUTO_GEN_MEMBER_NUMB, 0)
-    if (limitMembers <= 0) return 0
+    if (limitMembers <= 0) {
+      return 0
+    }
 
     const totalMembers = await this.prisma.member.count()
     return limitMembers - totalMembers

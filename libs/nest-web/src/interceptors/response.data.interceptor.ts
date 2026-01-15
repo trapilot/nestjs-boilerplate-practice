@@ -20,7 +20,7 @@ import { ResponseUtil } from '../utils'
 export class ResponseDataInterceptor<T, R> implements NestInterceptor<T, IResponseData<R>> {
   constructor(
     private readonly reflector: Reflector,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -30,7 +30,7 @@ export class ResponseDataInterceptor<T, R> implements NestInterceptor<T, IRespon
 
     return next.handle().pipe(
       map((res: IResponseData<R>) => this.send(context, res)),
-      catchError((err) => throwError(() => err)),
+      catchError(err => throwError(() => err))
     )
   }
 
@@ -41,12 +41,12 @@ export class ResponseDataInterceptor<T, R> implements NestInterceptor<T, IRespon
 
     const dtoClass = this.reflector.get<ClassConstructor<any>>(
       RESPONSE_DTO_CONSTRUCTOR_METADATA,
-      context.getHandler(),
+      context.getHandler()
     )
 
     const dtoTransform = this.reflector.get<ClassTransformOptions>(
       RESPONSE_DTO_TRANSFORM_METADATA,
-      context.getHandler(),
+      context.getHandler()
     )
 
     const dtoGroups = [req?.user?.loginFrom, req?.user?.scopeType]

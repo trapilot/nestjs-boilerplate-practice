@@ -64,7 +64,7 @@ export class ProductBrandAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument,
+    @RequestBookType() bookType: EnumFileExtensionDocument
   ): Promise<IResponsePaging> {
     const _where: Prisma.ProductBrandWhereInput = {
       ..._search,
@@ -101,7 +101,7 @@ export class ProductBrandAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.ProductBrandWhereInput = {
       ..._search,
@@ -203,7 +203,7 @@ export class ProductBrandAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: ProductBrandRequestUpdateDto,
-    @RequestParam('id') id: number,
+    @RequestParam('id') id: number
   ): Promise<IResponseData> {
     const productBrand = await this.productBrandService.update(id, body)
 
@@ -234,7 +234,7 @@ export class ProductBrandAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
+    @AuthJwtPayload('user.id') deletedBy: number
   ): Promise<IResponseData> {
     const productBrand = await this.productBrandService.find(id)
     if (productBrand) {

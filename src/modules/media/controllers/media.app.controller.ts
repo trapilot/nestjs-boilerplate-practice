@@ -37,7 +37,7 @@ export class MediaAppController {
       defaultOrderBy: 'sorting:asc',
       availableOrderBy: ['sorting'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.MediaWhereInput = {
       ..._search,
@@ -73,7 +73,7 @@ export class MediaAppController {
       defaultOrderBy: 'sorting:asc',
       availableOrderBy: ['sorting'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.MediaWhereInput = {
       ..._search,

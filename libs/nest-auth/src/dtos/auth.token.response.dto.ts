@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
 
@@ -14,7 +13,7 @@ export class AuthTokenResponseDto {
   expiresIn: number
 
   @ApiProperty({
-    example: faker.string.alphanumeric(30),
+    example: 'asjdgh124123jl213aazs',
     description: 'Will be valid JWT Encode string',
   })
   @Type(() => String)
@@ -22,7 +21,7 @@ export class AuthTokenResponseDto {
   accessToken: string
 
   @ApiProperty({
-    example: faker.string.alphanumeric(30),
+    example: '1iu3ijk23jihyuiasduiasd783y43h4',
     description: 'Will be valid JWT Encode string',
   })
   @Type(() => String)

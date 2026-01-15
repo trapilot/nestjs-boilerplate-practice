@@ -17,8 +17,10 @@ export interface IEncryptionSignOptions {
   outputFormat: BinaryToTextEncoding
 }
 
-export interface IEncryptionVerifyOptions
-  extends Pick<IEncryptionSignOptions, 'algorithm' | 'outputFormat'> {
+export interface IEncryptionVerifyOptions extends Pick<
+  IEncryptionSignOptions,
+  'algorithm' | 'outputFormat'
+> {
   publicKey: string | KeyObject
   signature: string
 }

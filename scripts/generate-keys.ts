@@ -147,7 +147,7 @@ class JwtKeysGenerator {
       //   )
 
       console.log('JWT keys generated successfully!')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(`Failed to generate JWT keys: ${err.message}`)
       process.exit(1)
     }
@@ -176,7 +176,7 @@ class JwtKeysGenerator {
       }
 
       console.log('JWT keys removed successfully!')
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(`Failed to remove JWT keys: ${err.message}`)
       process.exit(1)
     }

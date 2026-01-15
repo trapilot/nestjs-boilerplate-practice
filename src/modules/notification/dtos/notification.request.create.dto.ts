@@ -56,19 +56,19 @@ export class NotificationRequestCreateDto {
   @IsObject()
   @ToObject({ type: RequestSentenceDto })
   @ApiProperty({ required: true, type: RequestSentenceDto })
-  title: any
+  title: object
 
   @IsNotEmpty()
   @IsObject()
   @ToObject({ type: RequestParagraphDto })
   @ApiProperty({ required: true, type: RequestParagraphDto })
-  description: any
+  description: object
 
   @IsNotEmpty()
   @IsObject()
   @ToObject({ type: RequestContentDto })
   @ApiProperty({ required: true, type: RequestContentDto })
-  content: any
+  content: object
 
   @IsOptional()
   @IsBoolean()

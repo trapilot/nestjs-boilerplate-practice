@@ -21,7 +21,7 @@ export class SettingService {
     private readonly cache: CacheService,
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {
     const nowDate = this.helperService.dateNow()
 
@@ -69,7 +69,7 @@ export class SettingService {
   async list(
     where?: Prisma.SettingWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.setting.list(where, params, options)
   }
@@ -77,7 +77,7 @@ export class SettingService {
   async paginate(
     where?: Prisma.SettingWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.setting.paginate(where, params, options)
   }
@@ -105,7 +105,7 @@ export class SettingService {
   async update(id: number, data: Prisma.SettingUncheckedUpdateInput): Promise<Setting> {
     const setting = await this.findOrFail(id)
     if (setting) {
-      return await this.prisma.$transaction(async (tx) => {
+      return await this.prisma.$transaction(async tx => {
         await this.removeCache(setting.code)
         return await tx.setting.update({
           data,
@@ -125,20 +125,20 @@ export class SettingService {
   }
 
   private isNumber(type: EnumSettingType): boolean {
-    return EnumSettingType.NUMBER == type
+    return EnumSettingType.NUMBER === type
   }
 
   private getValueBoolean(value: string): boolean {
     return ['1', 'y', 'yes', 'ok', 'true'].includes(value.toLowerCase())
   }
 
-  private getValueArray(value: string): any[] {
+  private getValueArray<T>(value: string): T[] {
     const values = value.split(',')
-    const numbers = values.filter((i) => this.helperService.checkNumberString(i))
-    if (numbers.length == values.length) {
-      return values.map((i) => parseInt(i))
+    const numbers = values.filter(i => this.helperService.checkNumberString(i))
+    if (numbers.length === values.length) {
+      return values.map(i => parseInt(i)) as T[]
     }
-    return values
+    return values as T[]
   }
 
   getValue<T>(setting: Setting): T {
@@ -163,7 +163,7 @@ export class SettingService {
     const cacheKey = this.createKey(data.code)
     let cacheValue = await this.cache.get<string>(cacheKey)
 
-    if (cacheValue == undefined) {
+    if (cacheValue === undefined) {
       const setting =
         (await this.prisma.setting.findFirst({ where: { code: data.code } })) ||
         (await this.prisma.setting.create({ data }))
@@ -179,7 +179,7 @@ export class SettingService {
     const cacheKey = this.createKey(data.code)
     let cacheValue = await this.cache.get(cacheKey)
 
-    if (cacheValue == undefined) {
+    if (cacheValue === undefined) {
       const setting =
         (await this.prisma.setting.findFirst({ where: { code: data.code } })) ||
         (await this.prisma.setting.create({ data }))

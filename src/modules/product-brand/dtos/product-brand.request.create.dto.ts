@@ -8,7 +8,7 @@ export class ProductBrandRequestCreateDto {
   @IsObject()
   @ToObject({ type: RequestSentenceDto })
   @ApiProperty({ required: true, type: RequestSentenceDto })
-  name: any
+  name: object
 
   @IsNotEmpty()
   @IsBoolean()

@@ -20,7 +20,7 @@ export class RequestContextInterceptor<T> implements NestInterceptor<T> {
 
   constructor(
     private readonly config: ConfigService,
-    private readonly reflector: Reflector,
+    private readonly reflector: Reflector
   ) {
     this.timeoutInMs = this.config.get<number>('request.timeoutInMs')
   }
@@ -50,7 +50,7 @@ export class RequestContextInterceptor<T> implements NestInterceptor<T> {
     return ctxTimeout ?? this.timeoutInMs
   }
 
-  private handleTimeout(err: any) {
+  private handleTimeout(err: unknown) {
     if (err instanceof TimeoutError) {
       throw new RequestTimeoutException({
         statusCode: HttpStatus.REQUEST_TIMEOUT,

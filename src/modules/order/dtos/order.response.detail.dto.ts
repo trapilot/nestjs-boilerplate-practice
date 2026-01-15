@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
 import { EnumOrderSource, EnumOrderStatus } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
@@ -8,7 +7,7 @@ import { MemberResponseBelongDto } from 'modules/member'
 import { ProductResponseBelongDto } from 'modules/product'
 
 class ResponseDataDetailDto {
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   id: number
@@ -18,12 +17,12 @@ class ResponseDataDetailDto {
   @Expose()
   code: string
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   memberId: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   promotionId: number
@@ -31,12 +30,12 @@ class ResponseDataDetailDto {
   @ApiProperty({ example: '' })
   @Type(() => Number)
   @Expose()
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 10 })
   @ToDecimal()
   @Expose()
   totalPrice: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 10 })
   @ToDecimal()
   @Expose()
   totalPoint: number
@@ -44,22 +43,22 @@ class ResponseDataDetailDto {
   @ApiProperty({ example: '' })
   @Type(() => Number)
   @Expose()
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 10 })
   @ToDecimal()
   @Expose()
   discPrice: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 10 })
   @ToDecimal()
   @Expose()
   discPoint: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 10 })
   @ToDecimal()
   @Expose()
   finalPrice: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 10 })
   @ToDecimal()
   @Expose()
   finalPoint: number
@@ -79,44 +78,44 @@ class ResponseDataDetailDto {
   @Expose()
   isBirth: boolean
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate({ format: EnumDateFormat.DATE, ref: 'issuedAt' })
   @Expose()
   issueDate: Date
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate()
   @Expose()
   issuedAt: Date
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate()
   @Expose()
   createdAt: Date
 
-  @ApiProperty({ example: faker.date.recent() })
+  @ApiProperty({ example: new Date(Date.now() - 1000 * 3600) })
   @ToDate()
   @Expose()
   updatedAt: Date
 }
 
 class ResponseDataItemDto {
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   id: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   orderId: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   productId: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   promotionId: number
@@ -146,17 +145,17 @@ class ResponseDataItemDto {
   @Expose()
   finalPoint: number
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate()
   @Expose()
   expiryDate: Date
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate()
   @Expose()
   createdAt: Date
 
-  @ApiProperty({ example: faker.date.recent() })
+  @ApiProperty({ example: new Date(Date.now() - 1000 * 3600) })
   @ToDate()
   @Expose()
   updatedAt: Date
@@ -181,12 +180,12 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class OrderResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class OrderResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class OrderResponseBelongDto extends IntersectionType(
@@ -200,5 +199,5 @@ export class OrderResponseBelongDto extends IntersectionType(
     'finalPrice',
     'finalPoint',
   ] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}

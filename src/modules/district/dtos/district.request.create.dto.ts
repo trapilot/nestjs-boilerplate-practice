@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsBoolean, IsNotEmpty, IsNumber, IsObject } from 'class-validator'
 import { ToBoolean, ToNumber, ToObject } from 'lib/nest-core'
@@ -8,14 +7,14 @@ export class DistrictRequestCreateDto {
   @IsNotEmpty()
   @IsNumber()
   @ToNumber()
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 3 }) })
+  @ApiProperty({ example: 1 })
   countryId: number
 
   @IsNotEmpty()
   @IsObject()
   @ToObject({ type: RequestSentenceDto })
   @ApiProperty({ type: RequestSentenceDto })
-  name: any
+  name: object
 
   @IsNotEmpty()
   @IsBoolean()

@@ -1,9 +1,10 @@
 import { EnumProductExpiryType } from '@runtime/prisma-client'
 import { Transform } from 'class-transformer'
 import { DateUtil, IDateFormatOptions } from 'lib/nest-core'
+import { TProduct } from '../interfaces'
 
-export function ToDynamicExpiryDays(): (target: any, key: string) => void {
-  return Transform(({ obj, value }: any) => {
+export function ToDynamicExpiryDays(): (target: object, key: string) => void {
+  return Transform(({ obj, value }: { obj: TProduct; value: Date }) => {
     if (obj.expiryType === EnumProductExpiryType.DYNAMIC) {
       if (typeof value === 'string') {
         return Number(value)
@@ -15,9 +16,9 @@ export function ToDynamicExpiryDays(): (target: any, key: string) => void {
 }
 
 export function ToStaticExpiryDate(
-  options?: IDateFormatOptions,
-): (target: any, key: string) => void {
-  return Transform(({ obj, value }: any) => {
+  options?: IDateFormatOptions
+): (target: object, key: string) => void {
+  return Transform(({ obj, value }: { obj: TProduct; value: Date }) => {
     if (obj.expiryType === EnumProductExpiryType.STATIC) {
       return value ? DateUtil.format(value, options) : value
     }
@@ -26,9 +27,9 @@ export function ToStaticExpiryDate(
 }
 
 export function ToDynamicExpiryDate(
-  options?: IDateFormatOptions,
-): (target: any, key: string) => void {
-  return Transform(({ obj }: any) => {
+  options?: IDateFormatOptions
+): (target: object, key: string) => void {
+  return Transform(({ obj }: { obj: TProduct }) => {
     if (obj.expiryType === EnumProductExpiryType.DYNAMIC && obj?.dynamicExpiryDays) {
       const dynamicDate = new Date()
       dynamicDate.setDate(dynamicDate.getDate() + obj.dynamicExpiryDays)

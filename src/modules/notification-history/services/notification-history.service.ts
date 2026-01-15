@@ -18,20 +18,20 @@ export class NotificationHistoryService {
   }
 
   async findFirst(
-    kwargs: Prisma.MemberNotifyHistoryFindFirstArgs = {},
+    kwargs: Prisma.MemberNotifyHistoryFindFirstArgs = {}
   ): Promise<TNotificationHistory> {
     return await this.prisma.memberNotifyHistory.findFirst(kwargs)
   }
 
   async findAll(
-    kwargs: Prisma.MemberNotifyHistoryFindManyArgs = {},
+    kwargs: Prisma.MemberNotifyHistoryFindManyArgs = {}
   ): Promise<TNotificationHistory[]> {
     return await this.prisma.memberNotifyHistory.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.MemberNotifyHistoryFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.MemberNotifyHistoryFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TNotificationHistory> {
     const notificationHistory = await this.prisma.memberNotifyHistory
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -46,7 +46,7 @@ export class NotificationHistoryService {
 
   async matchOrFail(
     where: Prisma.MemberNotifyHistoryWhereInput,
-    kwargs: Omit<Prisma.MemberNotifyHistoryFindFirstOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.MemberNotifyHistoryFindFirstOrThrowArgs, 'where'> = {}
   ): Promise<TNotificationHistory> {
     const notificationHistory = await this.prisma.memberNotifyHistory
       .findFirstOrThrow({ ...kwargs, where })
@@ -61,7 +61,7 @@ export class NotificationHistoryService {
 
   async differOrFail(
     where: Prisma.MemberNotifyHistoryWhereInput,
-    options?: { limit?: number; message?: string },
+    options?: { limit?: number; message?: string }
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -76,7 +76,7 @@ export class NotificationHistoryService {
   async list(
     where?: Prisma.MemberNotifyHistoryWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.memberNotifyHistory.list(where, params, options)
   }
@@ -84,7 +84,7 @@ export class NotificationHistoryService {
   async paginate(
     where?: Prisma.MemberNotifyHistoryWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.memberNotifyHistory.paginate(where, params, options)
   }
@@ -97,7 +97,7 @@ export class NotificationHistoryService {
 
   async find(
     id: number,
-    kwargs: Omit<Prisma.MemberNotifyHistoryFindUniqueArgs, 'where'> = {},
+    kwargs: Omit<Prisma.MemberNotifyHistoryFindUniqueArgs, 'where'> = {}
   ): Promise<TNotificationHistory> {
     return await this.prisma.memberNotifyHistory.findUnique({
       ...kwargs,
@@ -106,7 +106,7 @@ export class NotificationHistoryService {
   }
 
   async create(
-    data: Prisma.MemberNotifyHistoryUncheckedCreateInput,
+    data: Prisma.MemberNotifyHistoryUncheckedCreateInput
   ): Promise<TNotificationHistory> {
     const notificationHistory = await this.prisma.memberNotifyHistory.create({
       data,
@@ -116,7 +116,7 @@ export class NotificationHistoryService {
 
   async update(
     id: number,
-    data: Prisma.MemberNotifyHistoryUncheckedUpdateInput,
+    data: Prisma.MemberNotifyHistoryUncheckedUpdateInput
   ): Promise<TNotificationHistory> {
     const notificationHistory = await this.findOrFail(id)
 
@@ -128,7 +128,7 @@ export class NotificationHistoryService {
 
   async delete(notificationHistory: TNotificationHistory, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async tx => {
         await tx.memberNotifyHistory.delete({ where: { id: notificationHistory.id } })
       })
       return true

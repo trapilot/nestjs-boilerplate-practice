@@ -1,5 +1,5 @@
 import { registerAs } from '@nestjs/config'
-import { APP_LANGUAGE, APP_TIMEZONE, DateUtil, IConfigApp, StrUtil } from 'lib/nest-core'
+import { APP_LANGUAGE, APP_START, APP_TIMEZONE, IConfigApp, StrUtil } from 'lib/nest-core'
 
 export default registerAs(
   'app',
@@ -11,7 +11,7 @@ export default registerAs(
     version: '0.0.1',
     timezone: APP_TIMEZONE,
     language: APP_LANGUAGE,
-    startDate: DateUtil.getDate('01/01/2025'),
+    startDate: APP_START,
 
     urlVersion: {
       prefix: 'v',
@@ -27,5 +27,5 @@ export default registerAs(
 
     wssEnable: StrUtil.isTrue(process.env.WSS_ENABLE),
     jobEnable: StrUtil.isTrue(process.env.JOB_ENABLE),
-  }),
+  })
 )

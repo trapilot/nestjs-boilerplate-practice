@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
 import {
   IsBoolean,
@@ -16,7 +15,7 @@ export class MemberRequestCreateDto {
   @IsNotEmpty()
   @IsString()
   @ToString()
-  @ApiProperty({ required: true, example: faker.person.lastName() })
+  @ApiProperty({ required: true, example: 'Payx' })
   name: string
 
   @IsNotEmpty()
@@ -41,7 +40,7 @@ export class MemberRequestCreateDto {
   @IsString()
   @ToString()
   @MaxLength(255)
-  @ApiProperty({ required: false, example: faker.location.streetAddress(true) })
+  @ApiProperty({ required: false, example: 'home #01' })
   address: string
 
   @IsOptional()
@@ -49,7 +48,7 @@ export class MemberRequestCreateDto {
   @ToString()
   @ApiProperty({
     required: false,
-    example: faker.date.birthdate({ mode: 'age', min: 20, max: 70 }),
+    example: new Date(Date.now() - 37 * 12 * 30000 * 3600),
   })
   birthDate: Date
 

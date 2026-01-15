@@ -41,7 +41,7 @@ export class TierChart {
       originalId ? this.infos[originalId] : this.infos[tierId],
       this.infos[tierIds[index - 1]] || this.infos[0],
       this.infos[tierId],
-      this.infos[tierIds[index + 1]] || this.infos[tierIds.length - 1],
+      this.infos[tierIds[index + 1]] || this.infos[tierIds.length - 1]
     )
   }
 
@@ -49,7 +49,7 @@ export class TierChart {
     tierId: number,
     tierMinId: number,
     oldSpending: number,
-    newSpending: number = 0,
+    newSpending: number = 0
   ): { tierData: TierData; tierValue: TierValue } {
     if (this.jumpOnFirstPurchase === false) {
       return this.getData(tierId, tierMinId, oldSpending, newSpending)
@@ -72,7 +72,7 @@ export class TierChart {
     tierId: number,
     tierMinId: number,
     oldSpending: number,
-    newSpending: number = 0,
+    newSpending: number = 0
   ): { tierData: TierData; tierValue: TierValue } {
     const tierSpending = oldSpending + newSpending
     const charts = this.charts[tierId] || []
@@ -89,7 +89,7 @@ export class TierChart {
 
   calculateDataInFirstPurchase(
     memberData: MemberData,
-    invoiceData: InvoiceData,
+    invoiceData: InvoiceData
   ): { tierData: TierData; tierValue: TierValue; invoiceIds: number[] } {
     if (this.jumpOnFirstPurchase === false) {
       return this.calculateData(memberData, invoiceData)
@@ -120,7 +120,7 @@ export class TierChart {
 
   calculateData(
     memberData: MemberData,
-    invoiceData: InvoiceData,
+    invoiceData: InvoiceData
   ): { tierData: TierData; tierValue: TierValue; invoiceIds: number[] } {
     const memberSpending = memberData.getRecentSpending()
     const totalSpending = memberSpending + invoiceData.totalAmount

@@ -1,6 +1,7 @@
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
 import { ResponseUserBelongDto } from 'lib/nest-web'
+import { IRoleResponseTransform } from '../interfaces'
 import { ToRolePermissions } from '../transforms'
 
 class ResponseDataDetailDto {
@@ -33,20 +34,20 @@ class ResponseDataDetailDto {
 class ResponseDataRelationDto extends ResponseUserBelongDto {
   @ToRolePermissions()
   @Expose()
-  permissions: any[]
+  permissions: IRoleResponseTransform[]
 }
 
 export class RoleResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class RoleResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class RoleResponseBelongDto extends IntersectionType(
   PickType(ResponseDataDetailDto, ['id', 'title', 'isActive'] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}

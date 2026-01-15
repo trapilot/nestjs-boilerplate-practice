@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
 import { EnumTierHistoryMethod } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
@@ -9,32 +8,32 @@ import { MemberResponseBelongDto } from 'modules/member'
 import { TierResponseBelongDto } from 'modules/tier'
 
 class ResponseDataDetailDto {
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   id: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   memberId: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   invoiceId: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   prevTierId: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   currTierId: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   minTierId: number
@@ -44,37 +43,37 @@ class ResponseDataDetailDto {
   @Expose()
   type: string
 
-  @ApiProperty({ example: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }) })
+  @ApiProperty({ example: 20 })
   @ToDecimal()
   @Expose()
   maximumSpending: number
 
-  @ApiProperty({ example: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }) })
+  @ApiProperty({ example: 20 })
   @ToDecimal()
   @Expose()
   personalSpending: number
 
-  @ApiProperty({ example: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }) })
+  @ApiProperty({ example: 20 })
   @ToDecimal()
   @Expose()
   referralSpending: number
 
-  @ApiProperty({ example: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }) })
+  @ApiProperty({ example: 20 })
   @ToDecimal()
   @Expose()
   excessSpending: number
 
-  @ApiProperty({ example: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }) })
+  @ApiProperty({ example: 20 })
   @ToDecimal()
   @Expose()
   renewalSpending: number
 
-  @ApiProperty({ example: faker.number.float({ min: 0, max: 100, fractionDigits: 2 }) })
+  @ApiProperty({ example: 20 })
   @ToDecimal()
   @Expose()
   upgradeSpending: number
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   expiryDate: Date
@@ -84,12 +83,12 @@ class ResponseDataDetailDto {
   @Expose()
   isActive: boolean
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate()
   @Expose()
   createdAt: Date
 
-  @ApiProperty({ example: faker.date.recent() })
+  @ApiProperty({ example: new Date(Date.now() - 1000 * 3600) })
   @ToDate()
   @Expose()
   updatedAt: Date
@@ -119,15 +118,15 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class TierHistoryResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class TierHistoryResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class TierHistoryResponseBelongDto extends IntersectionType(
   PickType(ResponseDataDetailDto, ['id'] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}

@@ -19,7 +19,7 @@ export class ApiKeyService {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
     private readonly crypto: CryptoService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {
     this.appEnv = config.get<EnumAppEnvironment>('app.env')
   }
@@ -38,7 +38,7 @@ export class ApiKeyService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.ApiKeyFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.ApiKeyFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TApiKey> {
     const apiKey = await this.prisma.apiKey
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -53,7 +53,7 @@ export class ApiKeyService {
 
   async matchOrFail(
     where: Prisma.ApiKeyWhereInput,
-    kwargs: Omit<Prisma.ApiKeyFindFirstOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.ApiKeyFindFirstOrThrowArgs, 'where'> = {}
   ): Promise<TApiKey> {
     const apiKey = await this.prisma.apiKey
       .findFirstOrThrow({ ...kwargs, where })
@@ -68,7 +68,7 @@ export class ApiKeyService {
 
   async differOrFail(
     where: Prisma.ApiKeyWhereInput,
-    options?: { limit?: number; message?: string },
+    options?: { limit?: number; message?: string }
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -83,7 +83,7 @@ export class ApiKeyService {
   async list(
     where?: Prisma.ApiKeyWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.apiKey.list(where, params, options)
   }
@@ -91,7 +91,7 @@ export class ApiKeyService {
   async paginate(
     where?: Prisma.ApiKeyWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.apiKey.paginate(where, params, options)
   }
@@ -104,7 +104,7 @@ export class ApiKeyService {
 
   async find(
     id: number,
-    kwargs: Omit<Prisma.ApiKeyFindUniqueArgs, 'where'> = {},
+    kwargs: Omit<Prisma.ApiKeyFindUniqueArgs, 'where'> = {}
   ): Promise<TApiKey> {
     return await this.prisma.apiKey.findUnique({
       ...kwargs,
@@ -148,7 +148,7 @@ export class ApiKeyService {
 
   async delete(apiKey: TApiKey, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async tx => {
         await tx.apiKey.delete({ where: { id: apiKey.id } })
       })
       return true

@@ -9,7 +9,13 @@ import {
   PrismaService,
 } from 'lib/nest-prisma'
 import { NotifierService } from 'shared/services'
-import { IPushHistoryData, IPushMessageData, TPush } from '../interfaces'
+import {
+  IPushAnalyticOptions,
+  IPushHistoryData,
+  IPushMemberGroup,
+  IPushMessageData,
+  TPush,
+} from '../interfaces'
 
 @Injectable()
 export class PushService {
@@ -17,7 +23,7 @@ export class PushService {
     private readonly prisma: PrismaService,
     private readonly logger: LoggerService,
     private readonly notifyService: NotifierService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
 
   async findOne(kwargs?: Prisma.PushFindUniqueArgs): Promise<TPush> {
@@ -34,7 +40,7 @@ export class PushService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.PushFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.PushFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TPush> {
     const push = await this.prisma.push
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -49,7 +55,7 @@ export class PushService {
 
   async differOrFail(
     where: Prisma.PushWhereInput,
-    options?: { limit?: number; message?: string },
+    options?: { limit?: number; message?: string }
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -63,7 +69,7 @@ export class PushService {
 
   async matchOrFail(
     where: Prisma.PushWhereInput,
-    kwargs: Omit<Prisma.PushFindFirstOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.PushFindFirstOrThrowArgs, 'where'> = {}
   ): Promise<TPush> {
     const push = await this.prisma.push
       .findFirstOrThrow({ ...kwargs, where })
@@ -79,7 +85,7 @@ export class PushService {
   async list(
     where?: Prisma.PushWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.push.list(where, params, options)
   }
@@ -87,7 +93,7 @@ export class PushService {
   async paginate(
     where?: Prisma.PushWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.push.paginate(where, params, options)
   }
@@ -123,7 +129,7 @@ export class PushService {
 
   async delete(push: TPush, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async tx => {
         await tx.push.delete({ where: { id: push.id } })
       })
       return true
@@ -183,7 +189,9 @@ export class PushService {
         status: EnumPushStatus.PENDING,
       },
     })
-    if (instant) return instant
+    if (instant) {
+      return instant
+    }
 
     // special date time
     const specialDateRule = await this.findFirst({
@@ -194,7 +202,9 @@ export class PushService {
         status: EnumPushStatus.PENDING,
       },
     })
-    if (specialDateRule) return specialDateRule
+    if (specialDateRule) {
+      return specialDateRule
+    }
 
     // other rule
     return await this.findFirst({
@@ -218,12 +228,14 @@ export class PushService {
     })
   }
 
-  private async getNotificationRef(_notification: Notification): Promise<any> {}
+  private async getNotificationRef(_notification: Notification): Promise<boolean> {
+    return true
+  }
 
-  private async getNotificationMembers(push: TPush): Promise<any> {
-    let totalDevice = 0
-    const memberPushes: { id: number; locale: string; isNotifiable: boolean }[] = []
-    const memberNotifications: { memberId: number; refId: number; refType: string }[] = []
+  private async matchNotificationMembers(push: TPush): Promise<IPushAnalyticOptions> {
+    let totalDevice: IPushAnalyticOptions['totalDevice'] = 0
+    const members: IPushAnalyticOptions['members'] = []
+    const notifications: IPushAnalyticOptions['notifications'] = []
 
     const whereORs: Prisma.MemberWhereInput = { OR: [] }
     if (push?.pivotGroups?.length) {
@@ -263,19 +275,22 @@ export class PushService {
         isNotifiable: true,
         deviceHistories: {
           where: { isActive: true },
-          select: { token: true },
+          select: { isActive: true, token: true },
         },
       },
     })
 
     for (const member of memberWithDevices) {
       totalDevice += member.deviceHistories.length
-      memberPushes.push({
+      members.push({
         id: member.id,
         locale: member.locale,
         isNotifiable: member.isNotifiable,
+        devices: member.deviceHistories.map(dh => {
+          return { isActive: dh.isActive, token: dh.token }
+        }),
       })
-      memberNotifications.push({
+      notifications.push({
         memberId: member.id,
         refId: push.notification.refId,
         refType: push.notification.type,
@@ -283,9 +298,9 @@ export class PushService {
     }
 
     return {
+      members,
+      notifications,
       totalDevice,
-      memberPushes,
-      memberNotifications,
     }
   }
 
@@ -341,8 +356,12 @@ export class PushService {
   private async validate(push: TPush): Promise<boolean> {
     const { isActive, title, refId } = push.notification
 
-    if (!isActive) return false
-    if (!title) return false
+    if (!isActive) {
+      return false
+    }
+    if (!title) {
+      return false
+    }
 
     if (refId) {
       const notificationRef = await this.getNotificationRef(push.notification)
@@ -358,12 +377,11 @@ export class PushService {
     // wait for pushing
     await this.pushing(push)
 
-    const { memberPushes, memberNotifications, totalDevice } =
-      await this.getNotificationMembers(push)
+    const { members, notifications, totalDevice } = await this.matchNotificationMembers(push)
 
     // force status to completed although invalid
-    if (totalDevice == 0) {
-      const memberIds = memberPushes.map((m: any) => m.id)
+    if (totalDevice === 0) {
+      const memberIds = members.map(m => m.id)
       this.logger.log(`Error: No devices ${JSON.stringify(memberIds)}`)
       return await this.success(push)
     }
@@ -377,14 +395,14 @@ export class PushService {
     })
 
     const memberMessageHistories: IPushHistoryData[] = []
-    for (const mp of memberNotifications) {
+    for (const n of notifications) {
       memberMessageHistories.push({
         pushHistoryId: pushHistory.id,
-        memberId: mp.memberId,
-        refId: mp.refId,
-        refType: mp.refType,
-        refValue: mp?.refValue,
-        refDischarge: mp?.refDischarge,
+        memberId: n.memberId,
+        refId: n.refId,
+        refType: n.refType,
+        refValue: n?.refValue,
+        refDischarge: n?.refDischarge,
       })
     }
 
@@ -397,11 +415,11 @@ export class PushService {
     const sentFailureIds = []
 
     const memberData = { total: 0, allowPush: 0, denyPush: 0 }
-    const memberGroup = MESSAGE_LANGUAGES.reduce((c, i) => {
+    const memberGroup: IPushMemberGroup = MESSAGE_LANGUAGES.reduce((c, i) => {
       return Object.assign(c, { [i]: [] })
     }, {})
 
-    for (const member of memberPushes) {
+    for (const member of members) {
       const { isNotifiable, locale } = member
       if (isNotifiable && locale in memberGroup) {
         memberGroup[locale].push(member)
@@ -414,16 +432,20 @@ export class PushService {
     this.logger.log(`PUSH HISTORY #${pushHistory.id} ${JSON.stringify(memberData)}`)
 
     for (const locale in memberGroup) {
-      const members = memberGroup[locale] ?? []
-      for (const member of members) {
+      const grpMembers = memberGroup[locale] ?? []
+      for (const member of grpMembers) {
         const tokens = member.devices
-          .filter((device: any) => device.isActive && device.token)
-          .map((device: any) => device.token)
+          .filter(device => device.isActive && device.token)
+          .map(device => device.token)
 
-        if (tokens.length === 0) continue
+        if (tokens.length === 0) {
+          continue
+        }
 
-        const mp = memberMessageHistories.find((mp: any) => mp.memberId === member.id)
-        if (!mp) continue
+        const mp = memberMessageHistories.find(mp => mp.memberId === member.id)
+        if (!mp) {
+          continue
+        }
 
         try {
           const messageData: IPushMessageData = {
@@ -434,8 +456,8 @@ export class PushService {
 
           const _sent = await this.notifyService.sendMessage({
             to: ArrUtil.join(tokens, { delimiter: ',', allowEmpty: false }),
-            subject: 'a',
-            content: 'a',
+            subject: 'test',
+            content: 'test',
             data: messageData,
           })
 

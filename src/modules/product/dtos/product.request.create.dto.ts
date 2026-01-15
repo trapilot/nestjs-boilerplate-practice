@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
 import { EnumProductExpiryType } from '@runtime/prisma-client'
 import {
@@ -32,26 +31,26 @@ export class ProductRequestCreateDto {
   @IsNotEmpty()
   @IsString()
   @ToString()
-  @ApiProperty({ required: true, example: `P00${faker.number.int({ min: 10, max: 99 })}` })
+  @ApiProperty({ required: true, example: `P0000005` })
   sku: string
 
   @IsNotEmpty()
   @IsObject()
   @ToObject({ type: RequestSentenceDto })
   @ApiProperty({ required: true, type: RequestSentenceDto })
-  name: any
+  name: object
 
   @IsNotEmpty()
   @IsObject()
   @ToObject({ type: RequestParagraphDto })
   @ApiProperty({ required: true, type: RequestParagraphDto })
-  termAndCond: any
+  termAndCond: object
 
   @IsNotEmpty()
   @IsObject()
   @ToObject({ type: RequestParagraphDto })
   @ApiProperty({ required: true, type: RequestParagraphDto })
-  content: any
+  content: object
 
   @IsNotEmpty()
   @IsNumber()
@@ -80,7 +79,7 @@ export class ProductRequestCreateDto {
   @IsNotEmpty()
   @IsNumber()
   @ToNumber()
-  @ValidateIf((dto) => dto.hasInventory === true)
+  @ValidateIf(dto => dto.hasInventory === true)
   @TransformIf((dto: ProductRequestCreateDto) => dto.hasInventory === true)
   @ApiProperty({ required: true, example: 99 })
   stockQty: number
@@ -88,7 +87,7 @@ export class ProductRequestCreateDto {
   @IsNotEmpty()
   @IsNumber()
   @ToNumber()
-  @ValidateIf((dto) => dto.hasLimitPerson === true)
+  @ValidateIf(dto => dto.hasLimitPerson === true)
   @TransformIf((dto: ProductRequestCreateDto) => dto.hasLimitPerson === true)
   @ApiProperty({ required: true, example: 0 })
   salePerPerson: number
@@ -96,7 +95,7 @@ export class ProductRequestCreateDto {
   @IsNotEmpty()
   @IsNumber()
   @ToNumber()
-  @ValidateIf((dto) => dto.hasDuePayment === true)
+  @ValidateIf(dto => dto.hasDuePayment === true)
   @TransformIf((dto: ProductRequestCreateDto) => dto.hasDuePayment === true)
   @ApiProperty({ required: true, example: 1 })
   duePaidDays: number
@@ -104,7 +103,7 @@ export class ProductRequestCreateDto {
   @IsNotEmpty()
   @IsEnum(EnumProductExpiryType)
   @ToString()
-  @ValidateIf((dto) => dto.hasExpiration)
+  @ValidateIf(dto => dto.hasExpiration)
   @TransformIf((dto: ProductRequestCreateDto) => dto.hasExpiration === true)
   @ApiProperty({
     required: true,
@@ -116,7 +115,7 @@ export class ProductRequestCreateDto {
   @IsNotEmpty()
   @IsNumber()
   @ToDynamicExpiryDays()
-  @ValidateIf((dto) => dto.hasExpiration && dto.expiryType === EnumProductExpiryType.DYNAMIC)
+  @ValidateIf(dto => dto.hasExpiration && dto.expiryType === EnumProductExpiryType.DYNAMIC)
   @TransformIf((dto: ProductRequestCreateDto) => dto.hasExpiration === true)
   @ApiProperty({ required: false, example: 7 })
   dynamicExpiryDays: number
@@ -124,9 +123,9 @@ export class ProductRequestCreateDto {
   @IsNotEmpty()
   @IsDate()
   @ToStaticExpiryDate({ endOfDay: true })
-  @ValidateIf((dto) => dto.hasExpiration && dto.expiryType === EnumProductExpiryType.STATIC)
+  @ValidateIf(dto => dto.hasExpiration && dto.expiryType === EnumProductExpiryType.STATIC)
   @TransformIf((dto: ProductRequestCreateDto) => dto.hasExpiration === true)
-  @ApiProperty({ required: false, example: faker.date.future() })
+  @ApiProperty({ required: false, example: new Date(Date.now() + 30000 * 3600) })
   staticExpiryDate: Date
 
   @IsNotEmpty()

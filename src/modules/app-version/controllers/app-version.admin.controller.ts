@@ -64,7 +64,7 @@ export class AppVersionAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument,
+    @RequestBookType() bookType: EnumFileExtensionDocument
   ): Promise<IResponsePaging> {
     const _where: Prisma.AppVersionWhereInput = {
       ..._search,
@@ -101,7 +101,7 @@ export class AppVersionAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.AppVersionWhereInput = {
       ..._search,
@@ -202,7 +202,7 @@ export class AppVersionAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: AppVersionRequestUpdateDto,
-    @RequestParam('id') id: number,
+    @RequestParam('id') id: number
   ): Promise<IResponseData> {
     const appVersion = await this.appVersionService.update(id, body)
 
@@ -295,7 +295,7 @@ export class AppVersionAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
+    @AuthJwtPayload('user.id') deletedBy: number
   ): Promise<IResponseData> {
     const appVersion = await this.appVersionService.find(id)
     if (appVersion) {

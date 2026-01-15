@@ -10,7 +10,7 @@ export class PrismaUtil {
     let index = 0
     let query = rawQuery
       .split('?')
-      .map((s) => `$${index++}${s}`)
+      .map(s => `$${index++}${s}`)
       .join('')
       .substring(index ? 2 : 0)
 
@@ -24,11 +24,11 @@ export class PrismaUtil {
 
   static buildBulkInsert(datas: any[], table: string, pk: string = 'id'): Prisma.Sql {
     if (datas.length) {
-      return Prisma.sql`INSERT INTO ${Prisma.raw(table)} (${Prisma.raw(Object.keys(datas[0]).join(','))}) VALUES ${Prisma.join(datas.map((i) => Prisma.sql`(${Prisma.join(Object.values(i))})`))} ON DUPLICATE KEY UPDATE ${Prisma.raw(
+      return Prisma.sql`INSERT INTO ${Prisma.raw(table)} (${Prisma.raw(Object.keys(datas[0]).join(','))}) VALUES ${Prisma.join(datas.map(i => Prisma.sql`(${Prisma.join(Object.values(i))})`))} ON DUPLICATE KEY UPDATE ${Prisma.raw(
         Object.keys(datas[0])
-          .filter((key) => key !== pk)
-          .map((key) => `${key} = VALUES(${key})`)
-          .join(','),
+          .filter(key => key !== pk)
+          .map(key => `${key} = VALUES(${key})`)
+          .join(',')
       )}`
     }
     return Prisma.sql`SELECT 1`
@@ -36,10 +36,10 @@ export class PrismaUtil {
 
   static buildLanguages<WhereInput = any>(
     jsonObject: Record<string, any>,
-    options?: IPrismaLanguageBuildOptions<WhereInput>,
+    options?: IPrismaLanguageBuildOptions<WhereInput>
   ): any {
     const langField = options?.langField || 'language'
-    const data = MESSAGE_LANGUAGES.map((language) => {
+    const data = MESSAGE_LANGUAGES.map(language => {
       const objValue = {}
       for (const jsonField in jsonObject) {
         objValue[langField] = language
@@ -55,7 +55,7 @@ export class PrismaUtil {
 
   static createAdapter(
     provider: IDatabaseProvider,
-    options: IPrismaAdapterCreateOptions,
+    options: IPrismaAdapterCreateOptions
   ): runtime.SqlDriverAdapterFactory {
     if (provider === 'postgres') {
       return new PrismaPg(options.url)

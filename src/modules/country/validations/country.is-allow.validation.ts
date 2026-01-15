@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
-  registerDecorator,
   ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
+  registerDecorator,
 } from 'class-validator'
 
 @ValidatorConstraint({ async: true })
@@ -20,7 +20,7 @@ export class IsAllowCountryConstraint implements ValidatorConstraintInterface {
 }
 
 export function IsAllowCountry(validationOptions?: ValidationOptions) {
-  return function (object: Record<string, any>, propertyName: string): void {
+  return function (object: object, propertyName: string): void {
     registerDecorator({
       name: 'IsAllowCountry',
       target: object.constructor,

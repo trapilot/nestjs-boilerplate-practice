@@ -45,10 +45,10 @@ class ResponseDataDetailDto {
 
 export class PermissionResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseUserBelongDto,
+  ResponseUserBelongDto
 ) {}
 
 export class PermissionResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseUserBelongDto,
+  ResponseUserBelongDto
 ) {}

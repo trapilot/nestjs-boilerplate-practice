@@ -64,7 +64,7 @@ export class CountryAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument,
+    @RequestBookType() bookType: EnumFileExtensionDocument
   ): Promise<IResponsePaging> {
     const _where: Prisma.CountryWhereInput = {
       ..._search,
@@ -102,7 +102,7 @@ export class CountryAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.CountryWhereInput = {
       ..._search,
@@ -205,7 +205,7 @@ export class CountryAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: CountryRequestUpdateDto,
-    @RequestParam('id') id: number,
+    @RequestParam('id') id: number
   ): Promise<IResponseData> {
     const country = await this.countryService.update(id, body)
 
@@ -236,7 +236,7 @@ export class CountryAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
+    @AuthJwtPayload('user.id') deletedBy: number
   ): Promise<IResponseData> {
     const country = await this.countryService.find(id)
     if (country) {

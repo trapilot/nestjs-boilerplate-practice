@@ -19,7 +19,7 @@ export class PrismaService extends PrismaExtensionService {
   constructor(
     @Inject(PRISMA_OPTIONS) private readonly options: IPrismaModuleOptions,
     private readonly config: ConfigService,
-    private readonly logger: LoggerService,
+    private readonly logger: LoggerService
   ) {
     const client = new PrismaClientExtension(
       {
@@ -29,7 +29,7 @@ export class PrismaService extends PrismaExtensionService {
         readUrls: config.get<string[]>('database.replication.slaves', []),
         debugMode: config.get<boolean>('database.debug', false),
       },
-      logger,
+      logger
     )
 
     super(client)
@@ -42,7 +42,7 @@ class PrismaClientExtension extends PrismaClient implements OnModuleInit, OnModu
 
   constructor(
     private readonly options: IPrismaClientOptions,
-    private readonly logger: LoggerService,
+    private readonly logger: LoggerService
   ) {
     super({
       log: [
@@ -130,7 +130,7 @@ class PrismaClientExtension extends PrismaClient implements OnModuleInit, OnModu
         slowQuery: duration > 1000,
         [LOGGER_MESSAGE_KEY]: PrismaUtil.buildQuery(query, { params }),
       },
-      this.context,
+      this.context
     )
   }
 

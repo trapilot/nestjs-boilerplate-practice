@@ -46,7 +46,7 @@ import { MemberService } from '../services'
 export class MemberAdminController {
   constructor(
     protected readonly authUtil: AuthUtil,
-    protected readonly memberService: MemberService,
+    protected readonly memberService: MemberService
   ) {}
 
   @ApiRequestPaging({
@@ -86,7 +86,7 @@ export class MemberAdminController {
     @RequestQueryFilterContain('phone') _phone: RequestFilterDto,
     @RequestQueryFilterContain('email') _email: RequestFilterDto,
     @RequestQueryFilterContain('name') _name: RequestFilterDto,
-    @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto,
+    @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto
   ): Promise<IResponsePaging> {
     const _where: Prisma.MemberWhereInput = {
       ..._search,
@@ -138,7 +138,7 @@ export class MemberAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.MemberWhereInput = {
       ..._search,
@@ -232,14 +232,14 @@ export class MemberAdminController {
         EnumFileExtensionImage.JPEG,
         EnumFileExtensionImage.JPG,
         EnumFileExtensionImage.PNG,
-      ]),
+      ])
     )
-    file: IFile,
+    file: IFile
   ): Promise<IResponseData> {
     const passwordHash = this.authUtil.createPassword(body.password)
     const member = await this.memberService.create(
       { ...body, avatar: file?.path ?? undefined, createdBy },
-      passwordHash,
+      passwordHash
     )
 
     return {
@@ -273,7 +273,7 @@ export class MemberAdminController {
   async put(
     @RequestBody() body: MemberRequestUpdateDto,
     @RequestParam('id') memberId: number,
-    @AuthJwtPayload('user.id') updatedBy: number,
+    @AuthJwtPayload('user.id') updatedBy: number
   ): Promise<IResponseData> {
     let password = undefined
     if (body?.password) {
@@ -383,9 +383,9 @@ export class MemberAdminController {
         EnumFileExtensionImage.JPEG,
         EnumFileExtensionImage.JPG,
         EnumFileExtensionImage.PNG,
-      ]),
+      ])
     )
-    file: IFile,
+    file: IFile
   ): Promise<IResponseData> {
     const member = await this.memberService.findOrFail(memberId)
     const updated = await this.memberService.changeAvatar(member, {
@@ -424,7 +424,7 @@ export class MemberAdminController {
   async addPoint(
     @RequestBody() body: MemberAddPointRequestDto,
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') createdBy: number,
+    @AuthJwtPayload('user.id') createdBy: number
   ): Promise<IResponseData> {
     const member = await this.memberService.addPoint(id, {
       point: body.point,

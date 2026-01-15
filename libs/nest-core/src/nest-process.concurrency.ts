@@ -23,14 +23,14 @@ process.on('message', async ({ callbackFn, args }: INestProcessArgs) => {
   }
 })
 
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', error => {
   if (process.send) {
     process.send({ error: { message: error.message, stack: error.stack } })
   }
   process.exit(1)
 })
 
-process.on('unhandledRejection', (reason) => {
+process.on('unhandledRejection', reason => {
   let errorMessage = String(reason)
   let errorStack = ''
 

@@ -21,7 +21,7 @@ export class DiskStorage implements StorageEngine {
   private getDestination: (
     req: any,
     file: IFile,
-    cb: (error: any, destination: string) => void,
+    cb: (error: any, destination: string) => void
   ) => void
 
   private readonly transcoding: { heic: boolean; hevc: boolean }
@@ -31,7 +31,7 @@ export class DiskStorage implements StorageEngine {
     opts: {
       userPath?: boolean
       transcoding?: { heic: boolean; hevc: boolean }
-    } & DiskStorageOptions,
+    } & DiskStorageOptions
   ) {
     // Set default path
     this.directory = directory || 'uploads'
@@ -88,7 +88,7 @@ export class DiskStorage implements StorageEngine {
   private defaultGetDestination(
     req: any,
     _file: IFile,
-    cb: (error: any, destination: string) => void,
+    cb: (error: any, destination: string) => void
   ) {
     let directory = this.directory
     if (this.userPath && !this.directory.includes('{userId}')) {
@@ -128,7 +128,7 @@ export class DiskStorage implements StorageEngine {
     file: IFile,
     destination: string,
     filename: string,
-    extension: string,
+    extension: string
   ): Promise<any> {
     const [_extension, isHEI] = FileUtil.isHighEfficiency(file.originalname)
 
@@ -158,7 +158,7 @@ export class DiskStorage implements StorageEngine {
 
       const outputName = this.createFileName(file.originalname).replace(
         new RegExp(`${extension}$`),
-        outputType.extension,
+        outputType.extension
       )
       const outputPath = FileUtil.join([destination, outputName])
 
@@ -193,7 +193,7 @@ export class DiskStorage implements StorageEngine {
     file: IFile,
     destination: string,
     filename: string,
-    extension: string,
+    extension: string
   ): Promise<any> {
     const [_extension, _isHEI, isHEV] = FileUtil.isHighEfficiency(file.originalname)
 
@@ -209,7 +209,7 @@ export class DiskStorage implements StorageEngine {
 
       const outputName = this.createFileName(file.originalname).replace(
         new RegExp(`${extension}$`),
-        outputType.extension,
+        outputType.extension
       )
       const outputPath = FileUtil.join([destination, outputName])
 
@@ -225,7 +225,7 @@ export class DiskStorage implements StorageEngine {
             await unlink(finalPath)
             resolve()
           })
-          .on('error', (err: any) => reject(err))
+          .on('error', (err: unknown) => reject(err))
           .save(outputPath)
       })
       // cspell:enable
@@ -287,10 +287,10 @@ export class DiskStorage implements StorageEngine {
     try {
       // Use async/await to get destination and filename
       const destination = await new Promise<string>((resolve, reject) =>
-        this.getDestination(req, file, (err, dest) => (err ? reject(err) : resolve(dest))),
+        this.getDestination(req, file, (err, dest) => (err ? reject(err) : resolve(dest)))
       )
       const filename = await new Promise<string>((resolve, reject) =>
-        this.getFilename(req, file, (err, name) => (err ? reject(err) : resolve(name))),
+        this.getFilename(req, file, (err, name) => (err ? reject(err) : resolve(name)))
       )
 
       let info
@@ -302,14 +302,14 @@ export class DiskStorage implements StorageEngine {
           file,
           destination,
           filename,
-          FileUtil.extractExtensionFromFilename(file.originalname),
+          FileUtil.extractExtensionFromFilename(file.originalname)
         )
       } else if (isVideo) {
         info = await this.handleFileVideo(
           file,
           destination,
           filename,
-          FileUtil.extractExtensionFromFilename(file.originalname),
+          FileUtil.extractExtensionFromFilename(file.originalname)
         )
       } else {
         info = await this.handleFileNormal(file, destination, filename)

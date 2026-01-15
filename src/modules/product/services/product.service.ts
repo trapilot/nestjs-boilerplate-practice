@@ -1,10 +1,4 @@
-import {
-  ConflictException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-  OnModuleInit,
-} from '@nestjs/common'
+import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
 import { HelperService } from 'lib/nest-core'
 import {
@@ -17,13 +11,11 @@ import {
 import { TProduct } from '../interfaces'
 
 @Injectable()
-export class ProductService implements OnModuleInit {
+export class ProductService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
-
-  onModuleInit() {}
 
   async findOne(kwargs?: Prisma.ProductFindUniqueArgs): Promise<TProduct> {
     return await this.prisma.product.findUnique(kwargs)
@@ -39,7 +31,7 @@ export class ProductService implements OnModuleInit {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.ProductFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.ProductFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TProduct> {
     return await this.prisma.product
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -53,7 +45,7 @@ export class ProductService implements OnModuleInit {
 
   async differOrFail(
     where: Prisma.ProductWhereInput,
-    options?: { limit?: number; message?: string },
+    options?: { limit?: number; message?: string }
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -68,7 +60,7 @@ export class ProductService implements OnModuleInit {
   async list(
     where?: Prisma.ProductWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.product.list(where, params, options)
   }
@@ -76,7 +68,7 @@ export class ProductService implements OnModuleInit {
   async paginate(
     where?: Prisma.ProductWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.product.paginate(where, params, options)
   }
@@ -89,7 +81,7 @@ export class ProductService implements OnModuleInit {
 
   async create(
     data: Prisma.ProductUncheckedCreateInput,
-    kwargs: Omit<Prisma.ProductFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.ProductFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TProduct> {
     const created = await this.prisma.product.create({ ...kwargs, data })
     return created
@@ -98,7 +90,7 @@ export class ProductService implements OnModuleInit {
   async update(
     id: number,
     data: Prisma.ProductUncheckedUpdateInput,
-    kwargs: Omit<Prisma.ProductFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.ProductFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TProduct> {
     const product = await this.findOrFail(id)
 

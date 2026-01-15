@@ -90,7 +90,7 @@ export class MemberData {
   private isMemberTierHistoryUpdate(
     tierHistory:
       | Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput
-      | Prisma.MemberTierHistoryUncheckedUpdateWithoutMemberInput,
+      | Prisma.MemberTierHistoryUncheckedUpdateWithoutMemberInput
   ): tierHistory is Prisma.MemberTierHistoryUncheckedUpdateWithoutMemberInput {
     return 'id' in tierHistory && !!tierHistory.id
   }
@@ -98,7 +98,7 @@ export class MemberData {
   private isMemberTierHistoryCreate(
     tierHistory:
       | Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput
-      | Prisma.MemberTierHistoryUncheckedUpdateWithoutMemberInput,
+      | Prisma.MemberTierHistoryUncheckedUpdateWithoutMemberInput
   ): tierHistory is Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput {
     return !this.isMemberTierHistoryUpdate(tierHistory)
   }
@@ -106,7 +106,7 @@ export class MemberData {
   addTierHistory(
     tierHistory:
       | Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput
-      | Prisma.MemberTierHistoryUncheckedUpdateWithoutMemberInput,
+      | Prisma.MemberTierHistoryUncheckedUpdateWithoutMemberInput
   ): MemberData {
     if (this.isMemberTierHistoryUpdate(tierHistory)) {
       const { personalSpending, referralSpending } = tierHistory
@@ -148,7 +148,7 @@ export class MemberData {
   }
 
   addPointHistory(
-    pointHistory: Prisma.MemberPointHistoryUncheckedCreateWithoutMemberInput,
+    pointHistory: Prisma.MemberPointHistoryUncheckedCreateWithoutMemberInput
   ): MemberData {
     if (pointHistory && pointHistory.point !== 0) {
       this.pointBalance += pointHistory.point
@@ -160,7 +160,7 @@ export class MemberData {
     return this
   }
 
-  setIsReferrer(flag: boolean = false) {
+  setIsReferrer(flag: boolean = false): MemberData {
     this.isReferrer = flag
     return this
   }
@@ -190,30 +190,30 @@ export class MemberData {
     return this
   }
 
-  setFirstPurchased() {
+  setFirstPurchased(): MemberData {
     this.hasFirstPurchased = true
     return this
   }
 
-  setBirthPurchased(flag: boolean = true) {
+  setBirthPurchased(flag: boolean = true): MemberData {
     this.hasBirthPurchased = flag
     return this
   }
 
-  setDiamondAchieved(flag: boolean = true) {
+  setDiamondAchieved(flag: boolean = true): MemberData {
     this.hasDiamondAchieved ||= flag
     return this
   }
 
-  getCurrTierData() {
-    return this.tierHistories.find((o) => o?.id)
+  getCurrTierData(): Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput {
+    return this.tierHistories.find(o => o?.id)
   }
 
   isLimitedTier(tierId: number): boolean {
     return tierId === this.minTierId
   }
 
-  getRecentSpending() {
+  getRecentSpending(): number {
     const recentData = this.getRecentTierData()
     if (recentData) {
       return this.isReferrer ? recentData.referralSpending : recentData.personalSpending
@@ -221,14 +221,14 @@ export class MemberData {
     return 0
   }
 
-  getRecentTierData() {
+  getRecentTierData(): Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput {
     if (this.tierHistories.length) {
       return this.tierHistories[this.tierHistories.length - 1]
     }
     return this.orgTierHistory.data
   }
 
-  getRecentPointData() {
+  getRecentPointData(): Prisma.MemberPointHistoryUncheckedCreateWithoutMemberInput {
     return this.pointHistories[this.pointHistories.length - 1] || null
   }
 }

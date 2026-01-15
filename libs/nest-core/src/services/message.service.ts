@@ -14,7 +14,7 @@ export class MessageService {
 
   constructor(
     private readonly i18n: I18nService,
-    private readonly config: ConfigService,
+    private readonly config: ConfigService
   ) {
     this.appEnv = this.config.get<EnumAppEnvironment>('app.env')
     this.defaultLanguage = this.config.get<string>('helper.message.fallback')
@@ -63,14 +63,14 @@ export class MessageService {
   private key(constraint: string): string {
     return constraint
       .replace(/Constraint$/g, '')
-      .replace(/\s(.)/g, ($1) => $1.toUpperCase())
+      .replace(/\s(.)/g, $1 => $1.toUpperCase())
       .replace(/\s/g, '')
-      .replace(/^(.)/, ($1) => $1.toLowerCase())
+      .replace(/^(.)/, $1 => $1.toLowerCase())
   }
 
   setValidationMessage(
     requestErrors: ValidationError[],
-    options?: IMessageErrorOptions,
+    options?: IMessageErrorOptions
   ): IMessageError[] {
     const messages: Array<IMessageError[]> = []
     const metadataStorage = getMetadataStorage()
@@ -84,7 +84,7 @@ export class MessageService {
         let propertyValue: string = requestError.value
         let errorLimits: ValidationMetadata[] = metadataStorage
           .getTargetValidationMetadatas(target.constructor, target.constructor.name, true, false)
-          .filter((meta) => meta.target === target.constructor)
+          .filter(meta => meta.target === target.constructor)
 
         while (children?.length > 0) {
           property = `${property}.${children[0].property}`
@@ -101,14 +101,14 @@ export class MessageService {
                 target.constructor,
                 target.constructor.name,
                 true,
-                false,
+                false
               )
-              .filter((meta) => meta.target === target.constructor)
+              .filter(meta => meta.target === target.constructor)
           }
         }
 
         for (const constraint of constraints) {
-          const errorMeta = errorLimits.find((meta) => meta.name === constraint)
+          const errorMeta = errorLimits.find(meta => meta.name === constraint)
           const errorPath = `request.${this.key(constraint)}`
 
           errors.push({

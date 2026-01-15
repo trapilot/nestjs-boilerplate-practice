@@ -22,7 +22,7 @@ export class TierService implements OnModuleInit {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async onModuleInit() {
+  async onModuleInit(): Promise<void> {
     const tierCharts = await this.findAll({
       include: { charts: true },
     })
@@ -47,7 +47,7 @@ export class TierService implements OnModuleInit {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.TierFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.TierFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TTier> {
     const tier = await this.prisma.tier
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -62,7 +62,7 @@ export class TierService implements OnModuleInit {
 
   async differOrFail(
     where: Prisma.TierWhereInput,
-    options?: { limit?: number; message?: string },
+    options?: { limit?: number; message?: string }
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -76,7 +76,7 @@ export class TierService implements OnModuleInit {
 
   async matchOrFail(
     where: Prisma.TierWhereInput,
-    kwargs: Omit<Prisma.TierFindFirstOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.TierFindFirstOrThrowArgs, 'where'> = {}
   ): Promise<TTier> {
     const tier = await this.prisma.tier
       .findFirstOrThrow({ ...kwargs, where })
@@ -92,7 +92,7 @@ export class TierService implements OnModuleInit {
   async list(
     where?: Prisma.TierWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.tier.list(where, params, options)
   }
@@ -100,7 +100,7 @@ export class TierService implements OnModuleInit {
   async paginate(
     where?: Prisma.TierWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.tier.paginate(where, params, options)
   }
@@ -136,7 +136,7 @@ export class TierService implements OnModuleInit {
 
   async delete(tier: TTier, _?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async tx => {
         await tx.tier.delete({ where: { id: tier.id } })
       })
       return true

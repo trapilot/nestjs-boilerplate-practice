@@ -7,7 +7,7 @@ import { InvoiceService } from '../services'
 export class InvoiceTask {
   constructor(
     private readonly invoiceService: InvoiceService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE, {
@@ -16,7 +16,7 @@ export class InvoiceTask {
   @ScopeAsync(EnumScopeType.CRON, {
     context: 'cron.invoice_handle_expire_over_due',
   })
-  async handleOverDueInvoice() {
+  async handleOverDueInvoice(): Promise<void> {
     const nowDate = this.helperService.dateNow()
     const chkDate = this.helperService.dateCreate(nowDate, {
       endOfDay: true,

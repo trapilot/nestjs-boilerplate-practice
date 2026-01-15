@@ -87,7 +87,7 @@ function HttpResponse(
   options: IResponseOptions &
     Partial<IResponseDataOptions> &
     Partial<IResponseListOptions> &
-    Partial<IResponseFileOptions>,
+    Partial<IResponseFileOptions>
 ) {
   const dtos: ClassConstructor<any>[] = []
   const decorators: Array<ClassDecorator | MethodDecorator> = []
@@ -109,7 +109,7 @@ function HttpResponse(
                 : { $ref: getSchemaPath(options.dto) },
             },
           },
-        }),
+        })
       )
     }
   }
@@ -150,12 +150,12 @@ function HttpResponse(
     ApiProduces('application/json'),
     UseInterceptors(...interceptors),
     ApiExtraModels(...dtos),
-    ...decorators,
+    ...decorators
   )
 }
 
 function HttpRequest(
-  options: IRequestOptions & Partial<IRequestDataOptions> & Partial<IRequestListOptions>,
+  options: IRequestOptions & Partial<IRequestDataOptions> & Partial<IRequestListOptions>
 ) {
   const decorators: Array<ClassDecorator | MethodDecorator> = []
 
@@ -194,15 +194,15 @@ function HttpRequest(
             statusCode: { type: 'number', example: HttpStatus.UNPROCESSABLE_ENTITY },
           },
         },
-      }),
+      })
     )
   } else if (options.file) {
     if (options.file?.multipleFields) {
       decorators.push(
         FileUploadMultipleFields(
           options.file.multipleFields.fields,
-          options.file.multipleFields?.options,
-        ),
+          options.file.multipleFields?.options
+        )
       )
     } else if (options.file?.multiple) {
       decorators.push(FileUploadMultiple(options.file.multiple))
@@ -218,17 +218,17 @@ function HttpRequest(
   }
 
   if (options?.params) {
-    const params: MethodDecorator[] = options.params.map((param) => ApiParam(param))
+    const params: MethodDecorator[] = options.params.map(param => ApiParam(param))
     decorators.push(...params)
   }
 
   if (options?.queries) {
-    const queries: MethodDecorator[] = options.queries.map((query) => ApiQuery(query))
+    const queries: MethodDecorator[] = options.queries.map(query => ApiQuery(query))
     decorators.push(...queries)
   }
 
   if (options?.headers) {
-    const headers: MethodDecorator[] = options.headers.map((header) => ApiHeader(header))
+    const headers: MethodDecorator[] = options.headers.map(header => ApiHeader(header))
     decorators.push(...headers)
   }
 
@@ -241,7 +241,7 @@ function HttpRequest(
         type: 'string',
         description:
           'Search will base on metadata.availableSearch with rule contains, and case insensitive',
-      }),
+      })
     )
   }
   if ((options as IRequestListOptions)?.paging === true) {
@@ -253,7 +253,7 @@ function HttpRequest(
         example: (options as IRequestListOptions)?.perPage ?? REQUEST_DEFAULT_PER_PAGE,
         type: 'number',
         description: 'Data per page',
-      }),
+      })
     )
     decorators.push(
       ApiQuery({
@@ -263,7 +263,7 @@ function HttpRequest(
         example: 1,
         type: 'number',
         description: 'Page number',
-      }),
+      })
     )
   }
   if ((options as IRequestListOptions)?.sortable === true) {
@@ -275,7 +275,7 @@ function HttpRequest(
         example: null,
         type: 'string',
         description: 'Order by base on metadata.availableOrderBy',
-      }),
+      })
     )
   }
   if ((options as IRequestListOptions)?.exportable === true) {
@@ -288,7 +288,7 @@ function HttpRequest(
         example: EnumFileExtensionDocument.CSV,
         type: 'string',
         description: 'Export file type',
-      }),
+      })
     )
   }
 
@@ -303,7 +303,7 @@ function HttpRequest(
       timezone: options?.timezone ?? TIMEZONE_LIST.length > 1,
       language: options?.language ?? MESSAGE_LANGUAGES.length > 1,
       ...options,
-    }),
+    })
   )
 }
 
@@ -338,7 +338,7 @@ function DocAuth(options?: IRequestAuthOptions & { docExpansion?: boolean }) {
           [AUTH_ACCESS_USER_HMAC_METADATA]: jwtAccessToken.user?.hmac === true,
         },
       }),
-      AuthUserScopeProtected(jwtAccessToken.scope),
+      AuthUserScopeProtected(jwtAccessToken.scope)
     )
 
     if (jwtAccessToken.user?.abilities) {
@@ -352,7 +352,7 @@ function DocAuth(options?: IRequestAuthOptions & { docExpansion?: boolean }) {
           // cspell:disable
           schema: { type: 'string', example: 'asdjakjsndjbasjkd' },
           // cspell:enable
-        }),
+        })
       )
     }
 
@@ -424,7 +424,7 @@ function DocAuth(options?: IRequestAuthOptions & { docExpansion?: boolean }) {
           message: { example: 'apiKey.error.forbidden' },
           statusCode: { type: 'number', example: HttpStatus.UNAUTHORIZED },
         },
-      },
+      }
     )
   }
 
@@ -434,7 +434,7 @@ function DocAuth(options?: IRequestAuthOptions & { docExpansion?: boolean }) {
         name: 'x-tenant-id',
         required: false,
         schema: { type: 'string' },
-      }),
+      })
     )
   }
 
@@ -443,7 +443,7 @@ function DocAuth(options?: IRequestAuthOptions & { docExpansion?: boolean }) {
       ApiResponse({
         status: HttpStatus.FORBIDDEN,
         schema: { oneOf },
-      }),
+      })
     )
   }
 
@@ -461,7 +461,7 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
         required: false,
         example: '123456',
         schema: { type: 'string' },
-      }),
+      })
     )
   } else if (options?.userOTT) {
     decorators.push(
@@ -470,7 +470,7 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
         required: false,
         example: 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6',
         schema: { type: 'string' },
-      }),
+      })
     )
   }
 
@@ -480,7 +480,7 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
         name: 'x-user-token',
         required: false,
         schema: { type: 'string' },
-      }),
+      })
     )
   }
 
@@ -490,7 +490,7 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
         name: 'x-user-agent',
         required: false,
         schema: { type: 'string' },
-      }),
+      })
     )
     oneOf.push(
       {
@@ -513,7 +513,7 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
           message: { example: 'request.error.userAgentOsInvalid' },
           statusCode: { type: 'number', example: HttpStatus.FORBIDDEN },
         },
-      },
+      }
     )
   }
 
@@ -523,7 +523,7 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
         name: 'x-user-type',
         required: false,
         schema: { type: 'string', enum: Object.values(EnumUserType) },
-      }),
+      })
     )
   }
 
@@ -533,7 +533,7 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
         name: 'x-cart-version',
         required: true,
         schema: { type: 'string', example: '1' },
-      }),
+      })
     )
   }
 
@@ -543,7 +543,7 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
         name: 'x-language',
         required: false,
         schema: { default: MESSAGE_LANGUAGES[0], type: 'string', enum: MESSAGE_LANGUAGES },
-      }),
+      })
     )
   }
 
@@ -554,7 +554,7 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
         name: 'x-timestamp',
         required: false,
         schema: { default: currentTimestamp, example: currentTimestamp, type: 'number' },
-      }),
+      })
     )
     oneOf.push({
       allOf: [{ $ref: getSchemaPath(ResponseDataDto) }],
@@ -572,7 +572,7 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
         description: 'Timezone header',
         required: false,
         schema: { default: TIMEZONE_LIST[0], type: 'string', enum: TIMEZONE_LIST },
-      }),
+      })
     )
     oneOf.push({
       allOf: [{ $ref: getSchemaPath(ResponseDataDto) }],
@@ -592,7 +592,7 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
       Object.entries(options.rateLimit).map(([name, config]) => [
         name,
         { ...config, ttl: config.seconds * 1000 },
-      ]),
+      ])
     )
     decorators.push(Throttle(rateLimitWithTtl))
   }
@@ -602,7 +602,7 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
       ApiResponse({
         status: HttpStatus.FORBIDDEN,
         schema: { oneOf },
-      }),
+      })
     )
   }
 
@@ -620,7 +620,7 @@ export function ApiRequestData(options: IRequestDataOptions) {
         type: ResponseDataDto,
         interceptor: ResponseDataInterceptor,
       },
-    }),
+    })
   )
 }
 
@@ -636,7 +636,7 @@ export function ApiRequestFile(options: IRequestFileOptions) {
       file: {
         interceptor: ResponseFileInterceptor,
       },
-    }),
+    })
   )
 }
 
@@ -657,7 +657,7 @@ export function ApiRequestList(options: Omit<IRequestListOptions, 'paging' | 'pe
       },
       exportable: isExportable,
       ...response,
-    }),
+    })
   )
 }
 
@@ -679,6 +679,6 @@ export function ApiRequestPaging(options: Omit<IRequestListOptions, 'paging'>) {
       },
       exportable: isExportable,
       ...response,
-    }),
+    })
   )
 }

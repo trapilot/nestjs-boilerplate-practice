@@ -1,9 +1,10 @@
 import { EnumMessageLanguage, LocaleUtil } from 'lib/nest-core'
 import { EnumAuthAbilityAction, EnumAuthAbilityContext, EnumAuthAbilitySubject } from 'shared/enums'
+import { ContextObject, PermissionObject, SubjectName, SubjectObject } from 'shared/interfaces'
 
-// cspell:disable
 export class UserAbilityUtil {
-  static getContexts() {
+  // cspell:disable
+  static getContexts(): ContextObject {
     return {
       [EnumAuthAbilityContext.DASHBOARD]: {
         title: {
@@ -87,7 +88,7 @@ export class UserAbilityUtil {
     }
   }
 
-  static getSubjectNames() {
+  static getSubjectNames(): SubjectObject {
     return {
       [EnumAuthAbilitySubject.DASHBOARD]: {
         [EnumMessageLanguage.EN]: 'Dashboard',
@@ -199,12 +200,13 @@ export class UserAbilityUtil {
       },
     }
   }
+  // cspell:enable
 
   static getSubjects(): string[] {
     return Object.values(EnumAuthAbilitySubject)
   }
 
-  static getSubjectActions(subject: EnumAuthAbilitySubject) {
+  static getSubjectActions(subject: EnumAuthAbilitySubject): EnumAuthAbilityAction[] {
     const subjectImports = this.getImportablePerms()
     const subjectExports = this.getExportablePerms()
     const subjectCRUDs = this.getCustomActionPerms()
@@ -226,19 +228,19 @@ export class UserAbilityUtil {
     return actions
   }
 
-  static getDisablePerms() {
+  static getDisablePerms(): EnumAuthAbilitySubject[] {
     return []
   }
 
-  static getImportablePerms() {
+  static getImportablePerms(): EnumAuthAbilitySubject[] {
     return []
   }
 
-  static getExportablePerms() {
+  static getExportablePerms(): EnumAuthAbilitySubject[] {
     return []
   }
 
-  static getInvisiblePerms() {
+  static getInvisiblePerms(): EnumAuthAbilitySubject[] {
     return [
       EnumAuthAbilitySubject.PERMISSION,
       EnumAuthAbilitySubject.SETTING,
@@ -249,7 +251,7 @@ export class UserAbilityUtil {
     ]
   }
 
-  static getCustomActionPerms() {
+  static getCustomActionPerms(): Record<string, EnumAuthAbilityAction[]> {
     return {
       [EnumAuthAbilitySubject.DASHBOARD]: [EnumAuthAbilityAction.READ],
       [EnumAuthAbilitySubject.FACT]: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
@@ -292,12 +294,14 @@ export class UserAbilityUtil {
 
     return actions.reduce((bitwise, action) => {
       const index = allActions.indexOf(action)
-      if (index === -1) return bitwise
+      if (index === -1) {
+        return bitwise
+      }
       return bitwise | (1 << index)
     }, 0)
   }
 
-  static toSubject(subject: string): any {
+  static toSubject(subject: string): SubjectName {
     return this.getSubjectNames()[subject]
   }
 
@@ -317,12 +321,12 @@ export class UserAbilityUtil {
     return null
   }
 
-  static toPermission<T = any>(
+  static toPermission(
     subject: EnumAuthAbilitySubject,
     actions: EnumAuthAbilityAction[],
     _disables: EnumAuthAbilitySubject[] = [],
-    _invisibles: EnumAuthAbilitySubject[] = [],
-  ): T {
+    _invisibles: EnumAuthAbilitySubject[] = []
+  ): PermissionObject {
     return {
       subject: subject.toString(),
       bitwise: this.toBitwise(actions),
@@ -330,7 +334,6 @@ export class UserAbilityUtil {
       context: this.findContext(subject),
       isActive: !_disables.includes(subject),
       isVisible: !_invisibles.includes(subject),
-    } as T
+    }
   }
 }
-// cspell:enable

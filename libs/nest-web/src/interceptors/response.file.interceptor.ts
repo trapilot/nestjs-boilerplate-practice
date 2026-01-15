@@ -29,7 +29,7 @@ import { IResponseFile } from '../interfaces'
 export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseFile> {
   constructor(
     private readonly reflector: Reflector,
-    private readonly fileService: FileService,
+    private readonly fileService: FileService
   ) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
@@ -44,7 +44,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
         }
         return await this.sendFromPath(context, res as IReturnPath)
       }),
-      catchError((err) => throwError(() => err)),
+      catchError(err => throwError(() => err))
     )
   }
 
@@ -54,7 +54,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
 
     const disposition = this.reflector.get<'attachment' | 'inline'>(
       RESPONSE_FILE_DISPOSITION_METADATA,
-      context.getHandler(),
+      context.getHandler()
     )
 
     if (Array.isArray(response.file)) {
@@ -81,7 +81,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
         const streamableFile = new StreamableFile(fileBuffer)
 
         res.on('finish', () => {
-          fs.unlink(zipFilePath, (unlinkErr) => {
+          fs.unlink(zipFilePath, unlinkErr => {
             if (unlinkErr) {
               console.error('Error deleting temporary file:', unlinkErr)
             }
@@ -103,7 +103,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
         passThroughStream.pipe(res)
 
         // Set up archive event handlers
-        archive.on('warning', (err) => {
+        archive.on('warning', err => {
           if (err.code === 'ENOENT') {
             console.warn('Archive warning:', err)
           } else {
@@ -111,7 +111,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
           }
         })
 
-        archive.on('error', (err) => {
+        archive.on('error', err => {
           console.error('Archive error:', err)
           if (!res.closed) {
             res.status(500).send('Error creating ZIP archive')
@@ -119,7 +119,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
         })
 
         // Log archive progress
-        archive.on('progress', (progress) => {
+        archive.on('progress', progress => {
           console.log('Archive progress:', progress)
         })
 
@@ -132,7 +132,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
           console.log('Response finished')
         })
 
-        res.on('error', (err) => {
+        res.on('error', err => {
           console.error('Response error:', err)
         })
 
@@ -190,7 +190,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
 
       res.on('finish', () => {
         if (fileTemporary) {
-          fs.unlink(filePath, (unlinkErr) => {
+          fs.unlink(filePath, unlinkErr => {
             if (unlinkErr) {
               console.error('Error deleting temporary file:', unlinkErr)
             }
@@ -207,12 +207,12 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
 
     const disposition = this.reflector.get<'attachment' | 'inline'>(
       RESPONSE_FILE_DISPOSITION_METADATA,
-      context.getHandler(),
+      context.getHandler()
     )
 
     const fileType = this.reflector.get<EnumFileExtension>(
       RESPONSE_FILE_TYPE_METADATA,
-      context.getHandler(),
+      context.getHandler()
     )
 
     const fileBuffer = response.file

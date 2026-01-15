@@ -8,7 +8,7 @@ export class MemberListener {
   constructor(private readonly memberService: MemberService) {}
 
   @OnEvent(MemberCreatedEvent.eventPath, { async: true })
-  async onCreated(event: MemberCreatedEvent) {
+  async onCreated(event: MemberCreatedEvent): Promise<void> {
     await this.memberService.onCreated(event.member)
   }
 }

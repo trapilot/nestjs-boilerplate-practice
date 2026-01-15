@@ -4,7 +4,7 @@ import bytes from 'bytes'
 import { CellValue, Workbook } from 'exceljs'
 import ffmpeg from 'fluent-ffmpeg'
 import * as fs from 'fs'
-import { stat } from 'fs/promises'
+import { stat, unlink } from 'fs/promises'
 import imageSize from 'image-size'
 import { FileUtil } from 'lib/nest-core'
 import { dirname, extname, relative } from 'path'
@@ -23,7 +23,7 @@ export class FileService {
 
     // Set the headers if provided
     if (rows.headers) {
-      worksheet.columns = rows.headers.map((header) => ({
+      worksheet.columns = rows.headers.map(header => ({
         header,
         key: header,
         width: header.length + 2, // Adjust width based on header length (optional)
@@ -31,7 +31,7 @@ export class FileService {
     }
 
     // Add rows to the worksheet
-    rows.data.forEach((row) => {
+    rows.data.forEach(row => {
       worksheet.addRow(row)
     })
 
@@ -52,7 +52,7 @@ export class FileService {
 
       // Add headers if provided
       if (row.headers) {
-        worksheet.columns = row.headers.map((header) => ({
+        worksheet.columns = row.headers.map(header => ({
           header,
           key: header,
           width: header.length + 2, // Adjust width based on header length (optional)
@@ -60,7 +60,7 @@ export class FileService {
       }
 
       // Add data rows to the worksheet
-      row.data.forEach((dataRow) => {
+      row.data.forEach(dataRow => {
         worksheet.addRow(dataRow)
       })
     }
@@ -124,7 +124,7 @@ export class FileService {
     const fileBuffer = file.buffer as Buffer
     const arrayBuffer = fileBuffer.buffer.slice(
       fileBuffer.byteOffset,
-      fileBuffer.byteOffset + fileBuffer.length,
+      fileBuffer.byteOffset + fileBuffer.length
     )
 
     // Read the buffer into the workbook (consider password protection)
@@ -134,7 +134,7 @@ export class FileService {
     const sheets: IFileRows[] = []
 
     // Iterate over all worksheets in the workbook
-    workbook.worksheets.forEach((worksheet) => {
+    workbook.worksheets.forEach(worksheet => {
       const sheetName = worksheet.name
 
       // Parse rows from the worksheet
@@ -206,17 +206,16 @@ export class FileService {
     return path
   }
 
-  async unlink(path: string): Promise<boolean> {
-    if (path) {
-      try {
-        fs.unlinkSync(path)
-      } catch (err: any) {
-        if (err?.code !== 'ENOENT') {
-          throw err
-        }
+  async removeLink(path: string): Promise<boolean> {
+    try {
+      await unlink(path)
+      return true
+    } catch (err: unknown) {
+      if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
+        return true
       }
+      throw err
     }
-    return true
   }
 
   ensureLink(path: string): boolean {
@@ -258,7 +257,7 @@ export class FileService {
 
   async writePdf(
     fileName: string,
-    options?: any,
+    options?: any
   ): Promise<{ pdf: typeof PDFDocument; filePath: string }> {
     const doc = new PDFDocument(options)
 
@@ -291,7 +290,7 @@ export class FileService {
       doc.pipe(bufferStream)
 
       // Collect chunks into the `buffers` array
-      bufferStream.on('data', (chunk) => {
+      bufferStream.on('data', chunk => {
         buffers.push(chunk)
       })
 
@@ -327,7 +326,7 @@ export class FileService {
 
           // Replace original file with converted file
           if (filePath !== outputPath) {
-            fs.rename(outputPath, filePath, (err) => {
+            fs.rename(outputPath, filePath, err => {
               if (err) {
                 throw err
               } else {
@@ -336,7 +335,7 @@ export class FileService {
             })
           }
         })
-        .on('error', (err) => {
+        .on('error', err => {
           if (filePath !== outputPath) {
             if (fs.existsSync(outputPath)) {
               fs.unlinkSync(outputPath)
@@ -371,7 +370,7 @@ export class FileService {
         resolve(zipFilePath)
       })
 
-      output.on('error', (err) => {
+      output.on('error', err => {
         console.error(`Error while creating ZIP file: ${err.message}`)
         reject(err)
       })
@@ -442,26 +441,6 @@ export class FileService {
 
     traverseDir(directory)
     return directories
-  }
-
-  async remove(path: string): Promise<boolean> {
-    if (path) {
-      try {
-        const stats = fs.statSync(path)
-
-        if (stats.isDirectory()) {
-          fs.rmSync(path, { recursive: true, force: true })
-        } else if (stats.isFile()) {
-          fs.unlinkSync(path)
-        }
-        return true
-      } catch (err: any) {
-        if (err?.code !== 'ENOENT') {
-          throw err
-        }
-      }
-    }
-    return false
   }
 
   async stats(path: string) {

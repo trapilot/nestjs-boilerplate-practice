@@ -25,7 +25,7 @@ export class NumberUtil {
         maximumFractionDigits: options?.maximumFractionDigits ?? 10,
         currencyDisplay: currLang === options?.language ? 'narrowSymbol' : undefined,
         useGrouping: options?.useGrouping ?? false,
-      },
+      }
     )
     return formatter.format(number)
   }

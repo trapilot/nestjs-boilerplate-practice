@@ -23,7 +23,7 @@ export class VersionCheckMiddleware implements NestMiddleware {
     }
 
     let noLongerSupported = false
-    const metadata: any = {}
+    let metadata: { app: { version: string; url: string } }
     try {
       const userAgent = JSON.parse(req.headers['x-user-agent'] as string)
       const appVersion = await this.appVersionService.findFirst({

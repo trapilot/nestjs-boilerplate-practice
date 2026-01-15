@@ -22,8 +22,8 @@ export interface IUserRoleTransformOptions {
 }
 
 export interface IUserTransformOptions {
-  value: any
-  key: any
+  value: object
+  key: string
   obj: IUserTransformData
 }
 
@@ -47,7 +47,7 @@ export interface IUserDataRole {
 export interface IUserDataPermission {
   context: string
   subject: string
-  title: any
+  title: string
   sorting: number
   bitwise: number
   isActive: boolean

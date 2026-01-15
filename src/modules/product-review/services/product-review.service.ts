@@ -27,7 +27,7 @@ export class ProductReviewService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.ProductReviewFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.ProductReviewFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TProductReview> {
     const productReview = await this.prisma.productReview
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -42,7 +42,7 @@ export class ProductReviewService {
 
   async matchOrFail(
     where: Prisma.ProductReviewWhereInput,
-    kwargs: Omit<Prisma.ProductReviewFindFirstOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.ProductReviewFindFirstOrThrowArgs, 'where'> = {}
   ): Promise<TProductReview> {
     const productReview = await this.prisma.productReview
       .findFirstOrThrow({ ...kwargs, where })
@@ -57,7 +57,7 @@ export class ProductReviewService {
 
   async differOrFail(
     where: Prisma.ProductReviewWhereInput,
-    options?: { limit?: number; message?: string },
+    options?: { limit?: number; message?: string }
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -72,7 +72,7 @@ export class ProductReviewService {
   async list(
     where?: Prisma.ProductReviewWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.productReview.list(where, params, options)
   }
@@ -80,7 +80,7 @@ export class ProductReviewService {
   async paginate(
     where?: Prisma.ProductReviewWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.productReview.paginate(where, params, options)
   }
@@ -93,7 +93,7 @@ export class ProductReviewService {
 
   async find(
     id: number,
-    kwargs: Omit<Prisma.ProductReviewFindUniqueArgs, 'where'> = {},
+    kwargs: Omit<Prisma.ProductReviewFindUniqueArgs, 'where'> = {}
   ): Promise<TProductReview> {
     return await this.prisma.productReview.findUnique({
       ...kwargs,
@@ -110,7 +110,7 @@ export class ProductReviewService {
 
   async update(
     id: number,
-    data: Prisma.ProductReviewUncheckedUpdateInput,
+    data: Prisma.ProductReviewUncheckedUpdateInput
   ): Promise<TProductReview> {
     const productReview = await this.findOrFail(id)
 
@@ -122,7 +122,7 @@ export class ProductReviewService {
 
   async delete(productReview: TProductReview, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async tx => {
         await tx.productReview.delete({ where: { id: productReview.id } })
       })
       return true

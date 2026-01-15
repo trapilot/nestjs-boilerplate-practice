@@ -8,7 +8,7 @@ export class AuthJwtRefreshGuard extends AuthGuard('jwtRefresh') {
       throw new ForbiddenException({
         statusCode: HttpStatus.UNAUTHORIZED,
         message: 'auth.error.refreshTokenUnauthorized',
-        _error: err ? err.message : info.message,
+        _error: err ?? info,
       })
     }
 

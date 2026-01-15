@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
-  registerDecorator,
   ValidationArguments,
   ValidationOptions,
   ValidatorConstraint,
   ValidatorConstraintInterface,
+  registerDecorator,
 } from 'class-validator'
 
 @ValidatorConstraint({ async: true })
@@ -14,7 +14,9 @@ export class HasAllowCountryConstraint implements ValidatorConstraintInterface {
   constructor(private readonly config: ConfigService) {}
 
   async validate(value: string, _args: ValidationArguments): Promise<boolean> {
-    if (!value) return false
+    if (!value) {
+      return false
+    }
 
     const countryList = this.config.getOrThrow<string[]>('module.country.availableList')
     if (countryList.find((code: string) => value.startsWith(code))) {
@@ -25,7 +27,7 @@ export class HasAllowCountryConstraint implements ValidatorConstraintInterface {
 }
 
 export function HasAllowCountry(validationOptions?: ValidationOptions) {
-  return function (object: Record<string, any>, propertyName: string): void {
+  return function (object: object, propertyName: string): void {
     registerDecorator({
       name: 'HasAllowCountry',
       target: object.constructor,

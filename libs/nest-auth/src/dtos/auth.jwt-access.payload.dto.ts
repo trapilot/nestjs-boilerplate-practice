@@ -1,5 +1,5 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
+import { APP_START } from 'lib/nest-core'
 import {
   EnumAuthLoginFrom,
   EnumAuthLoginType,
@@ -45,21 +45,21 @@ export class AuthJwtAccessPayloadDto<T = Record<string, any>> {
   @ApiProperty({
     required: true,
     nullable: false,
-    example: faker.date.recent(),
+    example: APP_START,
   })
   loginDate: Date
 
   @ApiProperty({
     required: true,
     nullable: false,
-    example: faker.string.alphanumeric(10),
+    example: 'asjdgh124123jl213aazs',
   })
   loginToken: string
 
   @ApiProperty({
     required: true,
     nullable: false,
-    example: faker.datatype.boolean(),
+    example: false,
   })
   loginRotate: boolean
 }

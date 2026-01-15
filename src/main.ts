@@ -6,12 +6,19 @@ import { AppModule } from 'app/app.module'
 import { CliModule } from 'app/cli.module'
 import { useContainer } from 'class-validator'
 import compression from 'compression'
-import { AppUtil, FileUtil, MessageService } from 'lib/nest-core'
+import {
+  AppUtil,
+  FileUtil,
+  INextFunction,
+  IRequestApp,
+  IResponseApp,
+  MessageService,
+} from 'lib/nest-core'
 import { CommandFactory } from 'nest-commander'
 import { AppEnvDto } from 'shared/dtos'
 import docSetup from 'src/swagger'
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
   const app: NestApplication = await NestFactory.create(AppModule, {
     cors: false,
     bodyParser: false,
@@ -92,7 +99,7 @@ async function bootstrap() {
   }
 
   // set response for log
-  app.use(function (req: any, res: any, next: Function) {
+  app.use(function (req: IRequestApp, res: IResponseApp, next: INextFunction) {
     // Ignore favicon
     if (req.originalUrl?.endsWith('favicon.ico')) {
       return res.sendStatus(204)
@@ -107,7 +114,7 @@ async function bootstrap() {
     }
 
     const orgSend = res.send.bind(res)
-    res.send = (body: any) => {
+    res.send = (body: unknown) => {
       res.body = body
       return orgSend(body)
     }
@@ -133,7 +140,7 @@ const isCli = process.argv.length >= 3
 if (isCli) {
   CommandFactory.run(CliModule, ['warn', 'debug', 'error', 'fatal'])
     .then(() => process.exit(0))
-    .catch((_err: any) => process.exit(1))
+    .catch((_err: unknown) => process.exit(1))
 } else {
   bootstrap()
 }

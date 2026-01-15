@@ -64,7 +64,7 @@ export class PushAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument,
+    @RequestBookType() bookType: EnumFileExtensionDocument
   ): Promise<IResponsePaging> {
     const _where: Prisma.PushWhereInput = {
       ..._search,
@@ -101,7 +101,7 @@ export class PushAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.PushWhereInput = {
       ..._search,
@@ -258,7 +258,7 @@ export class PushAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: PushRequestUpdateDto,
-    @RequestParam('id') id: number,
+    @RequestParam('id') id: number
   ): Promise<IResponseData> {
     const push = await this.pushService.update(id, body)
 
@@ -289,7 +289,7 @@ export class PushAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
+    @AuthJwtPayload('user.id') deletedBy: number
   ): Promise<IResponseData> {
     const push = await this.pushService.find(id)
     if (push) {

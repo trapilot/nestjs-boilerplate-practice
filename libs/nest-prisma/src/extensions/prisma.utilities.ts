@@ -26,7 +26,7 @@ export const useUtilities = Prisma.defineExtension({
         this: T,
         where?: Prisma.Args<T, 'findMany'>['where'],
         params?: IPrismaParams,
-        options?: IPrismaOptions & IPrismaIterator,
+        options?: IPrismaOptions & IPrismaIterator
       ): AsyncGenerator<T[], void, unknown> {
         const chunk = options?.chunk || 1_000
         const iterator = options?.iterator !== false
@@ -63,7 +63,7 @@ export const useUtilities = Prisma.defineExtension({
         this: T,
         where?: Prisma.Args<T, 'findMany'>['where'],
         params?: IPrismaParams,
-        options?: IPrismaOptions & IPrismaIterator,
+        options?: IPrismaOptions & IPrismaIterator
       ): Promise<IPrismaReturnList> {
         const context = Prisma.getExtensionContext(this)
 
@@ -95,7 +95,7 @@ export const useUtilities = Prisma.defineExtension({
         this: T,
         where?: Prisma.Args<T, 'findMany'>['where'],
         params?: IPrismaParams,
-        options?: IPrismaOptions & IPrismaIterator,
+        options?: IPrismaOptions & IPrismaIterator
       ): Promise<IPrismaReturnPaging> {
         const context = Prisma.getExtensionContext(this)
 

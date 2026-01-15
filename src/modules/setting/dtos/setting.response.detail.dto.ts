@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose, Transform, Type } from 'class-transformer'
 import { EnumSettingType } from '../enums'
@@ -78,12 +77,12 @@ export class SettingResponseDetailDto {
   @Expose()
   refer: string
 
-  @ApiProperty({ description: 'Date created at', example: faker.date.past() })
+  @ApiProperty({ description: 'Date created at', example: new Date(Date.now() - 30000 * 3600) })
   @Type(() => Date)
   @Expose()
   createdAt: Date
 
-  @ApiProperty({ description: 'Date updated at', example: faker.date.recent() })
+  @ApiProperty({ description: 'Date updated at', example: new Date(Date.now() - 1000 * 3600) })
   @Type(() => Date)
   @Expose()
   updatedAt: Date

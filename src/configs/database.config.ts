@@ -13,5 +13,5 @@ export default registerAs(
         allowEmpty: false,
       }),
     },
-  }),
+  })
 )

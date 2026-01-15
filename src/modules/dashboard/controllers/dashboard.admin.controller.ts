@@ -14,7 +14,7 @@ import { DashboardService } from '../services'
 export class DashboardAdminController {
   constructor(
     protected readonly dashboardService: DashboardService,
-    protected readonly helperService: HelperService,
+    protected readonly helperService: HelperService
   ) {}
 
   private getDates(): IDashboardDateRange {

@@ -8,7 +8,7 @@ export class CartListener {
   constructor(private readonly cartService: CartService) {}
 
   @OnEvent(CartCheckoutEvent.eventPath, { async: true })
-  async onCreated(event: CartCheckoutEvent) {
+  async onCreated(event: CartCheckoutEvent): Promise<void> {
     await this.cartService.handleCheckoutSuccess(event.cart)
   }
 }

@@ -8,7 +8,7 @@ import { IRequestFilterEqualOptions } from '../interfaces'
 
 export function RequestFilterBetweenPipe(
   field: string,
-  options?: IRequestFilterEqualOptions,
+  options?: IRequestFilterEqualOptions
 ): Type<PipeTransform> {
   @Injectable({ scope: Scope.REQUEST })
   class MixinRequestFilterBetweenPipe implements PipeTransform {
@@ -16,7 +16,7 @@ export function RequestFilterBetweenPipe(
 
     async transform(
       value: string,
-      metadata: ArgumentMetadata,
+      metadata: ArgumentMetadata
     ): Promise<Record<string, { gte: string | number; lte: string | number }>> {
       if (!value || typeof value !== 'string') {
         return undefined

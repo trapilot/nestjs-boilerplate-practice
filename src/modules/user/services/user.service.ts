@@ -27,10 +27,10 @@ export class UserService implements OnModuleInit {
     private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
     private readonly fileService: FileService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
 
-  onModuleInit() {
+  onModuleInit(): void {
     this.roleService = this.ref.get(RoleService, { strict: false })
   }
 
@@ -48,7 +48,7 @@ export class UserService implements OnModuleInit {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.UserFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.UserFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TUser> {
     return await this.prisma.user
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -62,7 +62,7 @@ export class UserService implements OnModuleInit {
 
   async differOrFail(
     where: Prisma.UserWhereInput,
-    options?: { limit?: number; message?: string },
+    options?: { limit?: number; message?: string }
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -76,7 +76,7 @@ export class UserService implements OnModuleInit {
 
   async matchOrFail(
     where: Prisma.UserWhereInput,
-    kwargs: Omit<Prisma.UserFindFirstOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.UserFindFirstOrThrowArgs, 'where'> = {}
   ): Promise<TUser> {
     const user = await this.prisma.user
       .findFirstOrThrow({ ...kwargs, where })
@@ -92,7 +92,7 @@ export class UserService implements OnModuleInit {
   async list(
     where?: Prisma.UserWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.user.list(where, params, options)
   }
@@ -100,7 +100,7 @@ export class UserService implements OnModuleInit {
   async paginate(
     where?: Prisma.UserWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.user.paginate(where, params, options)
   }
@@ -114,7 +114,7 @@ export class UserService implements OnModuleInit {
   async create(
     data: Prisma.UserUncheckedCreateInput,
     { passwordHash }: IAuthPassword,
-    options?: IUserCreatedOptions,
+    options?: IUserCreatedOptions
   ): Promise<TUser> {
     try {
       await this.differOrFail({ phone: data.phone })
@@ -142,8 +142,8 @@ export class UserService implements OnModuleInit {
           password: passwordHash,
         },
       })
-    } catch (err: any) {
-      this.fileService.unlink(data?.avatar)
+    } catch (err: unknown) {
+      this.fileService.removeLink(data?.avatar)
       throw err
     }
   }
@@ -151,7 +151,7 @@ export class UserService implements OnModuleInit {
   async update(
     id: number,
     data: Prisma.UserUncheckedUpdateInput,
-    options?: IUserUpdateOptions,
+    options?: IUserUpdateOptions
   ): Promise<TUser> {
     const user = await this.findOrFail(id)
 
@@ -167,7 +167,7 @@ export class UserService implements OnModuleInit {
 
     const { country, phone } = this.helperService.parsePhone(`${data.phone}`)
 
-    return await this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async tx => {
       if (options?.roleId) {
         await tx.usersRoles.deleteMany({ where: { userId: user.id } })
         await tx.usersRoles.create({ data: { userId: user.id, roleId: options.roleId } })
@@ -179,6 +179,7 @@ export class UserService implements OnModuleInit {
           ...data,
           phoneCountry: country,
           phoneNumber: phone,
+          updatedAt: options?.updatedAt,
         },
       })
       return updated
@@ -195,7 +196,7 @@ export class UserService implements OnModuleInit {
   async getLoginHistories(
     where?: Prisma.UserLoginHistoryWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.userLoginHistory.list(where, params, options)
   }

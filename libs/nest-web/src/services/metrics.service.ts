@@ -13,13 +13,13 @@ export class MetricsService {
 
   constructor(
     @Inject(Registry) private readonly registry: Registry,
-    @Inject(REQUEST_METRICS_OPTIONS) private readonly config: IRequestMetricsOptions,
+    @Inject(REQUEST_METRICS_OPTIONS) private readonly config: IRequestMetricsOptions
   ) {
     if (this.config.pushgatewayUrl) {
       this.pushgateway = new Pushgateway(
         this.config.pushgatewayUrl,
         this.config.pushgatewayOptions || [],
-        this.registry,
+        this.registry
       )
     }
   }
@@ -27,7 +27,7 @@ export class MetricsService {
   public incCounter(
     key: string,
     labels?: Record<string, string | number>,
-    value: number = 1,
+    value: number = 1
   ): void {
     if (!this.counter[key]) {
       this.counter[key] = new Counter({
@@ -56,7 +56,7 @@ export class MetricsService {
     key: string,
     value: number,
     labels?: Record<string, string | number>,
-    buckets?: number[],
+    buckets?: number[]
   ): void {
     if (!this.histogram[key]) {
       this.histogram[key] = new Histogram({
@@ -74,7 +74,7 @@ export class MetricsService {
     key: string,
     value: number,
     labels?: Record<string, string | number>,
-    percentiles?: number[],
+    percentiles?: number[]
   ): void {
     if (!this.summary[key]) {
       this.summary[key] = new Summary({

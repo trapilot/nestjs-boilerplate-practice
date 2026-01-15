@@ -1,4 +1,4 @@
-import { Role, User, UserLoginHistory, UsersRoles, UserTokenHistory } from '@runtime/prisma-client'
+import { Role, User, UserLoginHistory, UserTokenHistory, UsersRoles } from '@runtime/prisma-client'
 
 export type TUserTokenHistory = UserTokenHistory
 export type TUserLoginHistory = UserLoginHistory
@@ -17,4 +17,6 @@ export interface IUserCreatedOptions {
   roleId: number
 }
 
-export interface IUserUpdateOptions extends IUserCreatedOptions {}
+export interface IUserUpdateOptions extends IUserCreatedOptions {
+  updatedAt?: Date
+}

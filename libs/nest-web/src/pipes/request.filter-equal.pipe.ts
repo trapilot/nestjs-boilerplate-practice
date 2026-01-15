@@ -6,7 +6,7 @@ import { IRequestFilterEqualOptions } from '../interfaces'
 
 export function RequestFilterEqualPipe(
   field: string,
-  options?: IRequestFilterEqualOptions,
+  options?: IRequestFilterEqualOptions
 ): Type<PipeTransform> {
   @Injectable({ scope: Scope.REQUEST })
   class MixinRequestFilterEqualPipe implements PipeTransform {
@@ -14,7 +14,7 @@ export function RequestFilterEqualPipe(
 
     async transform(
       value: string,
-      _metadata: ArgumentMetadata,
+      _metadata: ArgumentMetadata
     ): Promise<Record<string, string | number>> {
       if (!value || typeof value !== 'string') {
         return undefined
@@ -48,7 +48,7 @@ export function RequestFilterEqualPipe(
 
 export function RequestFilterGreaterThanEqualPipe(
   field: string,
-  options?: IRequestFilterEqualOptions,
+  options?: IRequestFilterEqualOptions
 ): Type<PipeTransform> {
   @Injectable({ scope: Scope.REQUEST })
   class MixinRequestFilterGreaterThanEqualPipe implements PipeTransform {
@@ -56,7 +56,7 @@ export function RequestFilterGreaterThanEqualPipe(
 
     async transform(
       value: string,
-      _metadata: ArgumentMetadata,
+      _metadata: ArgumentMetadata
     ): Promise<Record<string, { gte: string | number }>> {
       if (!value || typeof value !== 'string') {
         return undefined
@@ -90,7 +90,7 @@ export function RequestFilterGreaterThanEqualPipe(
 
 export function RequestFilterLessThanEqualPipe(
   field: string,
-  options?: IRequestFilterEqualOptions,
+  options?: IRequestFilterEqualOptions
 ): Type<PipeTransform> {
   @Injectable({ scope: Scope.REQUEST })
   class MixinRequestFilterLessThanEqualPipe implements PipeTransform {
@@ -98,7 +98,7 @@ export function RequestFilterLessThanEqualPipe(
 
     async transform(
       value: string,
-      _metadata: ArgumentMetadata,
+      _metadata: ArgumentMetadata
     ): Promise<Record<string, { lte: string | number }>> {
       if (!value || typeof value !== 'string') {
         return undefined

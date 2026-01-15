@@ -7,13 +7,13 @@ import { IRequestFilterOptions } from '../interfaces'
 export function RequestFilterInBooleanPipe(
   field: string,
   defaultValue: boolean[],
-  options?: IRequestFilterOptions,
+  options?: IRequestFilterOptions
 ): Type<PipeTransform> {
   @Injectable({ scope: Scope.REQUEST })
   class MixinRequestFilterInBooleanPipe implements PipeTransform {
     constructor(
       @Inject(REQUEST) protected readonly request: IRequestApp,
-      private readonly helperService: HelperService,
+      private readonly helperService: HelperService
     ) {}
 
     async transform(value: string, _metadata: ArgumentMetadata): Promise<Record<string, any>> {

@@ -64,7 +64,7 @@ export class ProductReviewAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument,
+    @RequestBookType() bookType: EnumFileExtensionDocument
   ): Promise<IResponsePaging> {
     const _where: Prisma.ProductReviewWhereInput = {
       ..._search,
@@ -101,7 +101,7 @@ export class ProductReviewAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.ProductReviewWhereInput = {
       ..._search,
@@ -202,7 +202,7 @@ export class ProductReviewAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: ProductReviewRequestUpdateDto,
-    @RequestParam('id') id: number,
+    @RequestParam('id') id: number
   ): Promise<IResponseData> {
     const productReview = await this.productReviewService.update(id, body)
 
@@ -233,7 +233,7 @@ export class ProductReviewAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
+    @AuthJwtPayload('user.id') deletedBy: number
   ): Promise<IResponseData> {
     const productReview = await this.productReviewService.find(id)
     if (productReview) {

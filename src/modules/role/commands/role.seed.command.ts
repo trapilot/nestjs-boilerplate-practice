@@ -13,18 +13,18 @@ export class RoleSeedCommand extends CommandRunner {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly logger: LoggerService,
-    private readonly crypto: CryptoService,
+    private readonly crypto: CryptoService
   ) {
     super()
   }
 
   @ScopeAsync(EnumScopeType.COMMAND, { context: 'seed' })
-  async run(): Promise<void> {
+  async run(_passedParam: string[], _options?: Record<string, string | number>): Promise<void> {
     this.logger.log(`${RoleSeedCommand.name} is running...`)
 
     try {
       await this.migrate()
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.error(err)
     } finally {
       this.logger.log(`${RoleSeedCommand.name} stoped`)
@@ -32,7 +32,7 @@ export class RoleSeedCommand extends CommandRunner {
     return
   }
 
-  async migrate() {
+  async migrate(): Promise<boolean> {
     const USER_ROLES = {
       SUPER_ADMIN: {
         level: 0,
@@ -86,7 +86,9 @@ export class RoleSeedCommand extends CommandRunner {
       })
 
       for (const user of users) {
-        if (!user.email && !user.password) continue
+        if (!user.email && !user.password) {
+          continue
+        }
 
         const hashedPassword = this.crypto.bcrypt(user.password, passwordSalt)
         await this.prisma.user.upsert({
@@ -132,5 +134,6 @@ export class RoleSeedCommand extends CommandRunner {
       // increment roleId
       roleId++
     }
+    return true
   }
 }

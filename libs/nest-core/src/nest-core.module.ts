@@ -94,7 +94,7 @@ export class NestCoreModule {
             throwOnMissingKey: false,
             viewEngine: config.get<EnumFileExtensionTemplate>(
               'app.view',
-              EnumFileExtensionTemplate.HBS,
+              EnumFileExtensionTemplate.HBS
             ),
           }),
         }),
@@ -113,7 +113,7 @@ export class NestCoreModule {
                     namespace: config.get<string>('redis.cache.namespace'),
                     useUnlink: true,
                     keyPrefixSeparator: ':',
-                  },
+                  }
                 ),
               ],
             }
@@ -126,7 +126,7 @@ export class NestCoreModule {
             connection: {
               url: config.get<string>('redis.queue.url'),
               connectionName: `${config.get<string>(
-                'app.name',
+                'app.name'
               )}-${config.get<EnumAppEnvironment>('app.env')}:queue`,
             },
             prefix: config.get<string>('redis.queue.namespace'),
@@ -148,7 +148,7 @@ export class NestCoreModule {
             connection: {
               url: config.get<string>('redis.queue.url'),
               connectionName: `${config.get<string>(
-                'app.name',
+                'app.name'
               )}-${config.get<EnumAppEnvironment>('app.env')}:processor`,
             },
             prefix: config.get<string>('redis.queue.namespace'),

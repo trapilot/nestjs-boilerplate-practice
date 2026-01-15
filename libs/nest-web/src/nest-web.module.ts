@@ -58,7 +58,7 @@ import {
 export class NestWebModule implements NestModule {
   constructor(
     @Inject(REQUEST_LOGGER_OPTIONS) private readonly loggerOptions: IRequestLoggerOptions,
-    private readonly loggerFactory: LoggerFactory,
+    private readonly loggerFactory: LoggerFactory
   ) {}
 
   private static middlewareConfig?: (consumer: MiddlewareConsumer) => void
@@ -80,7 +80,7 @@ export class NestWebModule implements NestModule {
         ServeStaticModule.forRoot({
           rootPath: FileUtil.joinRoot(['public', 'admin']),
           serveRoot: '/admin',
-        }),
+        })
       )
     }
 
@@ -121,15 +121,15 @@ export class NestWebModule implements NestModule {
           useValue: options.metrics,
         },
         MetricsService,
-        ReporterService,
+        ReporterService
       )
 
       if (options.metrics.interceptors) {
         providers.push(
-          ...options.metrics.interceptors.map((interceptor) => ({
+          ...options.metrics.interceptors.map(interceptor => ({
             provide: APP_INTERCEPTOR,
             useClass: interceptor as Type<any>,
-          })),
+          }))
         )
       }
     }
@@ -208,7 +208,7 @@ export class NestWebModule implements NestModule {
         RequestCorsMiddleware,
         RequestSecurityMiddleware,
         RequestPerformanceMiddleware,
-        RequestBodyParserMiddleware,
+        RequestBodyParserMiddleware
       )
       .forRoutes('*')
 

@@ -21,7 +21,7 @@ export class PermissionService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.PermissionFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.PermissionFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TPermission> {
     return await this.prisma.permission
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -36,7 +36,7 @@ export class PermissionService {
   async list(
     where?: Prisma.PermissionWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.permission.list(where, params, options)
   }
@@ -44,12 +44,12 @@ export class PermissionService {
   async update(
     id: number,
     data: Prisma.PermissionUncheckedUpdateInput,
-    kwargs: Omit<Prisma.PermissionFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.PermissionFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TPermission> {
     const permission = await this.findOrFail(id, { include: { pivotRoles: true } })
     const rolePerms = permission?.pivotRoles ?? []
 
-    const updated = await this.prisma.$transaction(async (tx) => {
+    const updated = await this.prisma.$transaction(async tx => {
       const bitwise = Number(data.bitwise)
       for (const rolePerm of rolePerms) {
         const roleBitwise = rolePerm.bitwise & bitwise
@@ -81,7 +81,7 @@ export class PermissionService {
 
   async create(
     data: Prisma.PermissionUncheckedCreateInput,
-    kwargs: Omit<Prisma.PermissionFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.PermissionFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TPermission> {
     const created = await this.prisma.permission.create({
       ...kwargs,

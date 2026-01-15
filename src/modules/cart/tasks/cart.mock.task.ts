@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { Injectable } from '@nestjs/common'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { EnumOrderSource, EnumPointHistoryType, Prisma } from '@runtime/prisma-client'
@@ -14,7 +13,7 @@ export class CartMockTask {
     private readonly logger: LoggerService,
     private readonly memberService: MemberService,
     private readonly cartService: CartService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE, {
@@ -44,7 +43,7 @@ export class CartMockTask {
     try {
       for (const member of members) {
         const issuedAt = this.helperService.dateForward(member.updatedAt, {
-          days: faker.number.int({ min: 1, max: 5 }),
+          days: this.helperService.randomNumberInRange(1, 5),
         })
 
         // hard update issue date
@@ -107,13 +106,15 @@ export class CartMockTask {
             dateDebug: member.updatedAt,
             source: EnumOrderSource.SYSTEM,
             shipment: {
-              address: faker.location.streetAddress(true),
+              address: 'home #01',
               phone: member.phone,
             },
           })
-        } catch (err: any) {}
+        } catch (err: unknown) {
+          this.logger.error(err)
+        }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.error(err)
     } finally {
       this.logger.warn(`${CartMockTask.name} done`)
@@ -129,12 +130,12 @@ export class CartMockTask {
     return memberNumbersWithoutCart > 0
   }
 
-  private pickProducts(products: any[]) {
+  private pickProducts<T>(products: T[]): T[] {
     const shuffled = products.sort(() => 0.5 - Math.random())
     return shuffled.slice(0, this.randomNumber(1, 2))
   }
 
-  private randomNumber(min: number, max: number, step: number = 1) {
+  private randomNumber(min: number, max: number, step: number = 1): number {
     const range = Math.floor((max - min) / step) + 1
     const randomStep = Math.floor(Math.random() * range)
     return min + randomStep * step

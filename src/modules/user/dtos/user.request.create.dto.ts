@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
 import {
   IsBoolean,
@@ -32,13 +31,13 @@ export class UserRequestCreateDto {
   @ToString()
   @MinLength(1)
   @MaxLength(30)
-  @ApiProperty({ required: true, example: faker.person.lastName() })
+  @ApiProperty({ required: true, example: 'Payx' })
   name: string
 
   @IsOptional()
   @IsString()
   @ToString()
-  @ApiProperty({ required: true, example: faker.location.streetAddress() })
+  @ApiProperty({ required: true, example: 'home #01' })
   address: string
 
   @IsOptional()

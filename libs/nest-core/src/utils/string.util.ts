@@ -58,7 +58,7 @@ export class StrUtil {
       return value.split(options.delimiter, options?.maxSplit)
     }
 
-    const finalValue = value.split(options.delimiter).filter((v) => v)
+    const finalValue = value.split(options.delimiter).filter(v => v)
     if (options?.maxSplit) {
       return finalValue.join(options.delimiter).split(options.delimiter, options?.maxSplit)
     }
@@ -70,7 +70,7 @@ export class StrUtil {
       return value
         .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
         .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
-        .replace(/^./, (c) => c.toUpperCase())
+        .replace(/^./, c => c.toUpperCase())
     }
     return value.charAt(0).toUpperCase() + value.slice(1)
   }

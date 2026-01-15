@@ -14,7 +14,7 @@ export interface IAuthValidator<T = any> {
   validatePayload(
     payload: AuthJwtAccessPayloadDto,
     request: IRequestApp,
-    options: IAuthValidatorOptions,
+    options: IAuthValidatorOptions
   ): Promise<IAuthUserValidatorDto>
 
   getUserData(userId: number): Promise<T>

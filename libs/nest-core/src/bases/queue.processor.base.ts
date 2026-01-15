@@ -31,7 +31,7 @@ export abstract class QueueProcessorBase extends WorkerHost {
       if (isFatal) {
         try {
           AppUtil.captureException(error)
-        } catch (_) {}
+        } catch (_error: unknown) {}
       }
     }
   }

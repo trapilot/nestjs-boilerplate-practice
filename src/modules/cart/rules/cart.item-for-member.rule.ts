@@ -6,7 +6,7 @@ export class CartItemForMemberRule implements ICartRule {
   constructor(
     private readonly cartService: CartService,
     private readonly memberId: number,
-    private readonly issuedAt: Date,
+    private readonly issuedAt: Date
   ) {}
 
   async validate({ product, quantity }: TCartItem): Promise<void> {
@@ -15,7 +15,7 @@ export class CartItemForMemberRule implements ICartRule {
       const checkPoint = await this.cartService.checkPointRequire(
         this.memberId,
         pointRequire,
-        this.issuedAt,
+        this.issuedAt
       )
       if (!checkPoint) {
         throw new BadRequestException({

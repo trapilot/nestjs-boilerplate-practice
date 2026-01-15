@@ -65,7 +65,7 @@ export class TierAdminController {
       availableOrderBy: ['level'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument,
+    @RequestBookType() bookType: EnumFileExtensionDocument
   ): Promise<IResponsePaging> {
     const _where: Prisma.TierWhereInput = {
       ..._search,
@@ -102,7 +102,7 @@ export class TierAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.TierWhereInput = {
       ..._search,
@@ -216,7 +216,7 @@ export class TierAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: TierRequestUpdateDto,
-    @RequestParam('id') id: number,
+    @RequestParam('id') id: number
   ): Promise<IResponseData> {
     const { description, ...data } = body
     const jsonLanguage = { description }
@@ -257,7 +257,7 @@ export class TierAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
+    @AuthJwtPayload('user.id') deletedBy: number
   ): Promise<IResponseData> {
     const tier = await this.tierService.find(id)
     if (tier) {

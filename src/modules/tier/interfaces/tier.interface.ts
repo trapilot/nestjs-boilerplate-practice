@@ -1,8 +1,8 @@
 import { Tier, TierChart, TierLanguage } from '@runtime/prisma-client'
 
-export interface TTierChart extends Omit<TierChart, 'id'> {}
+export type TTierChart = TierChart
 
-export interface TTier extends Tier {
+export type TTier = Tier & {
   charts?: TTierChart[]
   languages?: TierLanguage[]
 }

@@ -41,7 +41,7 @@ export class SettingAdminController {
   constructor(
     protected readonly crypto: CryptoService,
     protected readonly message: MessageService,
-    protected readonly settingService: SettingService,
+    protected readonly settingService: SettingService
   ) {}
 
   @ApiRequestData({
@@ -55,7 +55,7 @@ export class SettingAdminController {
   @Get('core')
   async getUserMaxCertificate(
     @RequestUserIp() userIp: string,
-    @RequestUserAgent() userAgent: IResult,
+    @RequestUserAgent() userAgent: IResult
   ): Promise<IResponseData> {
     const languages: string[] = this.message.getAvailableLanguages()
 
@@ -118,7 +118,7 @@ export class SettingAdminController {
   })
   @Get('/')
   async list(
-    @RequestQueryFilterInEnum('group', EnumSettingGroup) _group: RequestFilterDto,
+    @RequestQueryFilterInEnum('group', EnumSettingGroup) _group: RequestFilterDto
   ): Promise<IResponseList> {
     const where: Prisma.SettingWhereInput = {
       ..._group,
@@ -185,7 +185,7 @@ export class SettingAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: SettingRequestUpdateDto,
-    @GetSetting() setting: Setting,
+    @GetSetting() setting: Setting
   ): Promise<IResponseData> {
     const check = this.settingService.checkValue(body.value, setting.type)
     if (!check) {

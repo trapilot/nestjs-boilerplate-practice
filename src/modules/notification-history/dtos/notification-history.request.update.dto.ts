@@ -3,5 +3,5 @@ import { NotificationHistoryRequestCreateDto } from './notification-history.requ
 
 export class NotificationHistoryRequestUpdateDto extends OmitType(
   NotificationHistoryRequestCreateDto,
-  [],
+  []
 ) {}

@@ -14,7 +14,7 @@ export class CountryRequestCreateDto {
   @IsObject()
   @ToObject({ type: RequestSentenceDto })
   @ApiProperty({ type: RequestSentenceDto })
-  name: any
+  name: object
 
   @IsNotEmpty()
   @IsBoolean()

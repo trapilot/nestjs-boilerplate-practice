@@ -67,7 +67,7 @@ export class NotificationHistoryAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument,
+    @RequestBookType() bookType: EnumFileExtensionDocument
   ): Promise<IResponsePaging> {
     const _where: Prisma.MemberNotifyHistoryWhereInput = {
       ..._search,
@@ -104,7 +104,7 @@ export class NotificationHistoryAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.MemberNotifyHistoryWhereInput = {
       ..._search,
@@ -205,7 +205,7 @@ export class NotificationHistoryAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: NotificationHistoryRequestUpdateDto,
-    @RequestParam('id') id: number,
+    @RequestParam('id') id: number
   ): Promise<IResponseData> {
     const notificationHistory = await this.notificationHistoryService.update(id, body)
 
@@ -236,7 +236,7 @@ export class NotificationHistoryAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
+    @AuthJwtPayload('user.id') deletedBy: number
   ): Promise<IResponseData> {
     const notificationHistory = await this.notificationHistoryService.find(id)
     if (notificationHistory) {

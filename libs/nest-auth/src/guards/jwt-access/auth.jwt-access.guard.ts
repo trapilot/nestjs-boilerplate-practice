@@ -15,7 +15,7 @@ export class AuthJwtAccessGuard extends AuthGuard('jwt') {
     const isAuthenticated = !err && user
     const isRequired = this.reflector.getAllAndOverride<boolean>(
       AUTH_ACCESS_REQUIRE_METADATA,
-      targets,
+      targets
     )
 
     if (isRequired) {
@@ -23,7 +23,7 @@ export class AuthJwtAccessGuard extends AuthGuard('jwt') {
         throw new UnauthorizedException({
           statusCode: HttpStatus.UNAUTHORIZED,
           message: 'auth.error.accessTokenUnauthorized',
-          _error: err ? err.message : info.message,
+          _error: err ?? info,
         })
       }
 

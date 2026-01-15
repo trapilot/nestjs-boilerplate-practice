@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType } from '@nestjs/swagger'
 import { EnumPushStatus, EnumPushType } from '@runtime/prisma-client'
 import { Exclude, Expose, Type } from 'class-transformer'
@@ -7,12 +6,12 @@ import { ResponseUserBelongDto } from 'lib/nest-web'
 import { NotificationResponseBelongDto } from 'modules/notification'
 
 class ResponseDataDetailDto {
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   id: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   notificationId: number
@@ -27,12 +26,12 @@ class ResponseDataDetailDto {
   @Expose()
   status: string
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: '08:30' })
   @ToDuration({ parts: 2 })
   @Expose()
   executeTime: string
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate({ format: EnumDateFormat.DB_DATE })
   @Expose()
   executeDate: string
@@ -52,12 +51,12 @@ class ResponseDataDetailDto {
   @Expose()
   month: number
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   startDate: Date
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   untilDate: Date
@@ -73,24 +72,24 @@ class ResponseDataDetailDto {
   @Expose()
   isActive: boolean
 
-  @ApiProperty({ example: faker.date.future() })
+  @ApiProperty({ example: new Date(Date.now() + 30000 * 3600) })
   @Type(() => Date)
   // @Expose()
   @Exclude()
   expiresAt: Date
 
-  @ApiProperty({ example: faker.date.future() })
+  @ApiProperty({ example: new Date(Date.now() + 30000 * 3600) })
   @Type(() => Date)
   // @Expose()
   @Exclude()
   scheduledAt: Date
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate()
   @Expose()
   createdAt: Date
 
-  @ApiProperty({ example: faker.date.recent() })
+  @ApiProperty({ example: new Date(Date.now() - 1000 * 3600) })
   @ToDate()
   @Expose()
   updatedAt: Date
@@ -105,15 +104,15 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class PushResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class PushResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class PushResponseBelongDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}

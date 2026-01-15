@@ -64,7 +64,7 @@ export class OrderAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument,
+    @RequestBookType() bookType: EnumFileExtensionDocument
   ): Promise<IResponsePaging> {
     const _where: Prisma.OrderWhereInput = {
       ..._search,
@@ -105,7 +105,7 @@ export class OrderAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.OrderWhereInput = {
       ..._search,
@@ -204,7 +204,7 @@ export class OrderAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: OrderRequestUpdateDto,
-    @RequestParam('id') id: number,
+    @RequestParam('id') id: number
   ): Promise<IResponseData> {
     const order = await this.orderService.update(id, body)
 
@@ -235,7 +235,7 @@ export class OrderAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
+    @AuthJwtPayload('user.id') deletedBy: number
   ): Promise<IResponseData> {
     const order = await this.orderService.find(id)
     if (order) {

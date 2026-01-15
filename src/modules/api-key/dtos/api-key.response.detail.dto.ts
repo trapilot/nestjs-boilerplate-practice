@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
 import { EnumApiKeyType } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
@@ -6,7 +5,7 @@ import { ToDate } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
 
 class ResponseDataDetailDto {
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   id: number
@@ -22,7 +21,7 @@ class ResponseDataDetailDto {
 
   @ApiProperty({
     description: 'Alias name of api key',
-    example: faker.person.jobTitle(),
+    example: 'director',
     required: true,
   })
   @Type(() => String)
@@ -31,7 +30,7 @@ class ResponseDataDetailDto {
 
   @ApiProperty({
     description: 'Unique key of api key',
-    example: faker.string.alpha(15),
+    example: 'asdjdh12z3asdas1s12dw2',
     required: true,
   })
   @Type(() => String)
@@ -40,7 +39,7 @@ class ResponseDataDetailDto {
 
   @ApiProperty({
     description: 'Hash key of api key',
-    example: faker.string.alpha(32),
+    example: 'asdjdh12z3asdas1s12dmxjxhhfrprh3URYNESAGw2',
     required: true,
   })
   @Type(() => String)
@@ -59,7 +58,7 @@ class ResponseDataDetailDto {
 
   @ApiProperty({
     description: 'Api Key start date',
-    example: faker.date.past(),
+    example: new Date(Date.now() - 1000 * 3600),
     required: false,
   })
   @ToDate()
@@ -68,19 +67,19 @@ class ResponseDataDetailDto {
 
   @ApiProperty({
     description: 'Api Key end date',
-    example: faker.date.future(),
+    example: new Date(Date.now() + 30000 * 3600),
     required: false,
   })
   @ToDate()
   @Expose()
   untilDate: Date
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate()
   @Expose()
   createdAt: Date
 
-  @ApiProperty({ example: faker.date.recent() })
+  @ApiProperty({ example: new Date(Date.now() - 1000 * 3600) })
   @ToDate()
   @Expose()
   updatedAt: Date
@@ -90,15 +89,15 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {}
 
 export class ApiKeyResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class ApiKeyResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class ApiKeyResponseBelongDto extends IntersectionType(
   PickType(ResponseDataDetailDto, ['id'] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}

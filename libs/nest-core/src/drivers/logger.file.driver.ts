@@ -45,7 +45,7 @@ export class LoggerFileDriver extends Writable {
   _cleanUpFileLogs(): void {
     try {
       this.cleanUpFileLogs()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.log({ err })
     }
   }
@@ -96,7 +96,7 @@ export class LoggerFileDriver extends Writable {
 
     try {
       const files = readdirSync(dirPath)
-        .filter((f) => f.startsWith(fileDate) && f.endsWith('.log'))
+        .filter(f => f.startsWith(fileDate) && f.endsWith('.log'))
         .sort((a, b) => {
           const numOne = Number(a.match(/\.(\d+)\.log$/)[1])
           const numTwo = Number(b.match(/\.(\d+)\.log$/)[1])
@@ -119,7 +119,7 @@ export class LoggerFileDriver extends Writable {
           filePath = lastFileForDay
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error checking existing log files:', err)
     }
 
@@ -223,7 +223,7 @@ export class LoggerFileDriver extends Writable {
       const entries = readdirSync(currentPath)
       const { maxDays } = this.getConfig(logType)
 
-      entries.forEach((entry) => {
+      entries.forEach(entry => {
         const fullPath = FileUtil.join([currentPath, entry])
         const stats = statSync(fullPath)
 
@@ -240,7 +240,7 @@ export class LoggerFileDriver extends Writable {
 
             // Calculate file age in days
             const fileAgeInDays = Math.floor(
-              (limitDate.getTime() - fileDate.getTime()) / (1000 * 3600 * 24),
+              (limitDate.getTime() - fileDate.getTime()) / (1000 * 3600 * 24)
             )
 
             // Delete if expired
@@ -248,7 +248,7 @@ export class LoggerFileDriver extends Writable {
               console.log(`[Cleanup] Deleting old log file: ${fullPath}`)
               unlinkSync(fullPath)
             }
-          } catch (err: any) {
+          } catch (err: unknown) {
             console.error(`Error processing file ${fullPath}:`, err)
           }
         }
@@ -257,7 +257,7 @@ export class LoggerFileDriver extends Writable {
 
     // Get a list of the original log types
     const rootLogTypes = readdirSync(this.directory)
-    rootLogTypes.forEach((type) => {
+    rootLogTypes.forEach(type => {
       const logPath = FileUtil.join([this.directory, type])
       if (existsSync(logPath) && statSync(logPath).isDirectory()) {
         recursiveScan(logPath, type)
@@ -280,8 +280,8 @@ export class LoggerFileDriver extends Writable {
     try {
       logByteLength = Buffer.byteLength(logStr, 'utf8')
       logType = JSON.parse(logStr).context
-    } catch (err: any) {
-      return callback(err)
+    } catch (err: unknown) {
+      return callback(err as Error)
     }
 
     // Wrap the write operation in a function to add to the queue

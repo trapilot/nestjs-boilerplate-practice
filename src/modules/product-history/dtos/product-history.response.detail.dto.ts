@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
 import { EnumRedemptionSource, EnumRedemptionStatus } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
@@ -9,37 +8,37 @@ import { OrderResponseBelongDto } from 'modules/order'
 import { ProductResponseBelongDto } from 'modules/product'
 
 class ResponseDataDetailDto {
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   id: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   memberId: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   productId: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   orderId: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   promotionId: number
 
-  @ApiProperty({ example: faker.number.float({ min: 100, max: 1_000 }) })
+  @ApiProperty({ example: 500 })
   @ToDecimal()
   @Expose()
   redeemPrice: number
 
-  @ApiProperty({ example: faker.number.int({ min: 10, max: 100 }) })
+  @ApiProperty({ example: 100 })
   @ToDecimal()
   @Expose()
   redeemPoint: number
@@ -59,47 +58,47 @@ class ResponseDataDetailDto {
   @Expose()
   isActive: boolean
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   startDate: Date
 
-  @ApiProperty({ example: faker.date.future() })
+  @ApiProperty({ example: new Date(Date.now() + 30000 * 3600) })
   @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   untilDate: Date
 
-  @ApiProperty({ example: faker.date.future() })
+  @ApiProperty({ example: new Date(Date.now() + 30000 * 3600) })
   @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   expiryDate: Date
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate({ format: EnumDateFormat.DATE, ref: 'issuedAt' })
   @Expose()
   issuedDate: Date
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate({ format: EnumDateFormat.DATE, ref: 'usedAt' })
   @Expose()
   usedDate: Date
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate()
   @Expose()
   usedAt: Date
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate()
   @Expose()
   issuedAt: Date
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate()
   @Expose()
   createdAt: Date
 
-  @ApiProperty({ example: faker.date.recent() })
+  @ApiProperty({ example: new Date(Date.now() - 1000 * 3600) })
   @ToDate()
   @Expose()
   updatedAt: Date
@@ -124,15 +123,15 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class ProductHistoryResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class ProductHistoryResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class ProductHistoryResponseBelongDto extends IntersectionType(
   PickType(ResponseDataDetailDto, ['id'] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}

@@ -47,7 +47,7 @@ export class ProductHistoryAppController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @AuthJwtPayload(['user.id', { parseAs: 'id' }]) memberId: number,
+    @AuthJwtPayload(['user.id', { parseAs: 'id' }]) memberId: number
   ): Promise<IResponsePaging> {
     const _where: Prisma.MemberProductHistoryWhereInput = {
       ..._search,
@@ -110,7 +110,7 @@ export class ProductHistoryAppController {
   @Patch('/:id/reserve')
   async reserve(
     @RequestParam('id') id: number,
-    @AuthJwtPayload(['user.id', { parseAs: 'id' }]) memberId: number,
+    @AuthJwtPayload(['user.id', { parseAs: 'id' }]) memberId: number
   ): Promise<IResponseData> {
     const productHistory = await this.productHistoryService.matchOrFail({
       id,

@@ -10,6 +10,6 @@ export const <%= singular(uppercased(name)) %>_DOC_ADMIN_PARAM_DETAIL = [
     name: 'id',
     allowEmptyValue: false,
     required: true,
-    type: () => Number,
+    type: Number,
   },
 ]

@@ -27,7 +27,7 @@ export class CountryService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.CountryFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.CountryFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TCountry> {
     const country = await this.prisma.country
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -42,7 +42,7 @@ export class CountryService {
 
   async differOrFail(
     where: Prisma.CountryWhereInput,
-    options?: { limit?: number; message?: string },
+    options?: { limit?: number; message?: string }
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -56,7 +56,7 @@ export class CountryService {
 
   async matchOrFail(
     where: Prisma.CountryWhereInput,
-    kwargs: Omit<Prisma.CountryFindFirstOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.CountryFindFirstOrThrowArgs, 'where'> = {}
   ): Promise<TCountry> {
     const country = await this.prisma.country
       .findFirstOrThrow({ ...kwargs, where })
@@ -72,7 +72,7 @@ export class CountryService {
   async list(
     where?: Prisma.CountryWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.country.list(where, params, options)
   }
@@ -80,7 +80,7 @@ export class CountryService {
   async paginate(
     where?: Prisma.CountryWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.country.paginate(where, params, options)
   }
@@ -93,7 +93,7 @@ export class CountryService {
 
   async find(
     id: number,
-    kwargs: Omit<Prisma.CountryFindUniqueArgs, 'where'> = {},
+    kwargs: Omit<Prisma.CountryFindUniqueArgs, 'where'> = {}
   ): Promise<TCountry> {
     return await this.prisma.country.findUnique({
       ...kwargs,
@@ -119,7 +119,7 @@ export class CountryService {
 
   async delete(country: TCountry, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async tx => {
         await tx.country.delete({ where: { id: country.id } })
       })
       return true

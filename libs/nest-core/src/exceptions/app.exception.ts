@@ -14,7 +14,7 @@ export class AppException extends HttpException {
         ...options,
         statusCode: options?.statusCode ?? options.httpStatus,
       },
-      options.httpStatus,
+      options.httpStatus
     )
   }
 }

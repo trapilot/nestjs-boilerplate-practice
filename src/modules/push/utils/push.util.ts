@@ -60,6 +60,6 @@ export class PushUtil {
   }
 
   static makeDtos(dtos: NotificationPushCreateDto[]): Prisma.PushCreateManyNotificationInput[] {
-    return dtos.map((dto) => this.makeDto(dto))
+    return dtos.map(dto => this.makeDto(dto))
   }
 }

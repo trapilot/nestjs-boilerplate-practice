@@ -7,7 +7,7 @@ export function RunInNewThread(timeout?: number) {
   return function (
     target: object,
     key: string,
-    descriptor: PropertyDescriptor,
+    descriptor: PropertyDescriptor
   ): PropertyDescriptor {
     const originalMethod = descriptor.value
 
@@ -71,7 +71,7 @@ export function RunInNewProcess(timeout?: number) {
   return function (
     target: object,
     key: string,
-    descriptor: PropertyDescriptor,
+    descriptor: PropertyDescriptor
   ): PropertyDescriptor {
     const originalMethod = descriptor.value
 
@@ -120,7 +120,7 @@ export function RunInNewProcess(timeout?: number) {
         if (error.name === 'ReferenceError') {
           console.error(
             'it is not possible to use custom errors or objects as a response because they do not exist in the new process.',
-            error,
+            error
           )
           return
         }

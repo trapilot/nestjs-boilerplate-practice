@@ -10,18 +10,18 @@ import { AppVersionService } from '../services'
 export class AppVersionSeedCommand extends CommandRunner {
   constructor(
     private readonly logger: LoggerService,
-    private readonly appVersionService: AppVersionService,
+    private readonly appVersionService: AppVersionService
   ) {
     super()
   }
 
   @ScopeAsync(EnumScopeType.COMMAND, { context: 'seed' })
-  async run(): Promise<void> {
+  async run(_passedParam: string[], _options?: Record<string, string | number>): Promise<void> {
     this.logger.log(`${AppVersionSeedCommand.name} is running...`)
 
     try {
       await this.seed()
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.error(err)
     } finally {
       this.logger.log(`${AppVersionSeedCommand.name} stoped`)
@@ -29,7 +29,7 @@ export class AppVersionSeedCommand extends CommandRunner {
     return
   }
 
-  async seed() {
+  async seed(): Promise<boolean> {
     await this.appVersionService.create({
       name: EnumAppVersionPlatform.AOS,
       type: EnumAppVersionPlatform.AOS,
@@ -44,5 +44,6 @@ export class AppVersionSeedCommand extends CommandRunner {
       isActive: true,
       isForce: true,
     })
+    return true
   }
 }

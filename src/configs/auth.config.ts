@@ -60,5 +60,5 @@ export default registerAs(
       maxAttempts: 3,
       ttl: TimeUtil.seconds('1d'),
     },
-  }),
+  })
 )

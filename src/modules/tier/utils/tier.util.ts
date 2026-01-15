@@ -2,22 +2,30 @@ import { TierValue } from '../helpers'
 import { TTier } from '../interfaces'
 
 export class TierUtil {
-  static ratio(rate: number) {
+  static ratio(rate: number): number {
     if (rate <= 0) {
       throw new Error('Rate value is invalid!')
     }
     return 1 / rate
   }
 
-  static convert(amount: number, rate: number) {
+  static convert(amount: number, rate: number): number {
     return TierUtil.round(amount / rate)
   }
 
-  static round(amount: number) {
+  static round(amount: number): number {
     return Math.round(amount)
   }
 
-  static parse(tier: TTier) {
+  static parse(tier: TTier): {
+    initialRate: number
+    personalRate: number
+    referralRate: number
+    initialRatio: number
+    personalRatio: number
+    referralRatio: number
+    birthdayRatio: number
+  } {
     return {
       initialRate: tier.initialRate,
       personalRate: tier.personalRate,

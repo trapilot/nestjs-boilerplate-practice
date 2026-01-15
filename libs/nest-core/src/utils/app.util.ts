@@ -28,6 +28,10 @@ export class AppUtil {
     console.error(exception)
   }
 
+  static catchMessage(err: unknown): string {
+    return err instanceof Error ? err.message : 'Unknown error'
+  }
+
   static getHostname(): string {
     return hostname()
   }
@@ -51,7 +55,7 @@ export class AppUtil {
   static async valiateDto(
     dto: ClassConstructor<any>,
     object: object,
-    options?: ValidatorOptions,
+    options?: ValidatorOptions
   ): Promise<ValidationError[]> {
     const classDto = plainToInstance(dto, object)
     return await validate(classDto, options)

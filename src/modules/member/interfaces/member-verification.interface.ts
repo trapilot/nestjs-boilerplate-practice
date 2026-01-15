@@ -36,7 +36,7 @@ export interface IVerificationSendOptions {
   text?: string
   template?: string
   language?: string
-  properties?: Record<string, any>
+  properties?: Record<string, number | string>
 }
 
 export interface IVerificationVerifyOptions extends IVerificationRequestOptions {

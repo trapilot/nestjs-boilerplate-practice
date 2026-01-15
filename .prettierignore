@@ -1,0 +1,7 @@
+coverage/
+data/
+dist/
+logs/
+packages/
+prisma/
+private/

@@ -7,7 +7,7 @@ export class NotifierService {
   constructor(
     private readonly emailProvider: EmailProvider,
     private readonly smsProvider: SmsProvider,
-    private readonly pushProvider: PushProvider,
+    private readonly pushProvider: PushProvider
   ) {}
 
   async sendSms(notification: INotificationPayload): Promise<boolean> {

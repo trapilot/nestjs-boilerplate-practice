@@ -12,7 +12,7 @@ export class ScopeContext {
 
   static async createAsync<T>(
     data: IScopeContextData,
-    next: (...args: any[]) => Promise<T>,
+    next: (...args: any[]) => Promise<T>
   ): Promise<T> {
     return this.storage.run(data, next)
   }
@@ -29,7 +29,7 @@ export class ScopeContext {
 
   static get<T extends keyof IScopeContextData>(
     key: T,
-    def?: IScopeContextData[T],
+    def?: IScopeContextData[T]
   ): IScopeContextData[T] | undefined {
     const ctx = this.current()
     return ctx?.[key] ?? def

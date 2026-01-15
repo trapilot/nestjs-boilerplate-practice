@@ -6,7 +6,7 @@ export function Exportable(options?: IExportableMetadata): PropertyDecorator {
     PropertyDecoratorStorage.register<IExportableMetadata>(
       target.constructor,
       propertyName,
-      options,
+      options
     )
   }
 }

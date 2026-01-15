@@ -1,3 +1,3 @@
 import { <%= singular(classify(name)) %> } from '@runtime/prisma-client'
 
-export interface T<%= singular(classify(name)) %> extends <%= singular(classify(name)) %> {}
+export type T<%= singular(classify(name)) %> = <%= singular(classify(name)) %>

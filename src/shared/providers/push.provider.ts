@@ -12,12 +12,12 @@ export class PushProvider {
 
   constructor(
     private readonly config: ConfigService,
-    private readonly logger: LoggerService,
+    private readonly logger: LoggerService
   ) {
     this.dryRun = this.config.get<boolean>('notification.push.dryRun')
   }
 
-  send(payload: INotificationPayload) {
+  send(payload: INotificationPayload): boolean {
     if (this.dryRun) {
       throw new AppException({
         message: `Simulating push on Mobile Devices when developing. SMS message: ${payload.content}`,
@@ -37,7 +37,7 @@ export class PushProvider {
     return this.process(payload)
   }
 
-  private process(payload: INotificationPayload): void {
+  private process(payload: INotificationPayload): boolean {
     const _result: admin.messaging.BatchResponse = {
       successCount: 0,
       failureCount: 0,
@@ -53,7 +53,8 @@ export class PushProvider {
         },
         data: payload?.data,
       },
-      this.dryRun,
+      this.dryRun
     )
+    return true
   }
 }

@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
 import { ToDate, ToDecimal } from 'lib/nest-core'
@@ -7,7 +6,7 @@ import { ProductResponseBelongDto } from 'modules/product'
 import { ToOutOfStockSale, ToOutOfStockStatus } from '../transforms'
 
 class ResponseDataDetailDto {
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   id: number
@@ -82,12 +81,12 @@ class ResponseDataDetailDto {
   @Expose()
   isOutOfSale: boolean
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate()
   @Expose()
   createdAt: Date
 
-  @ApiProperty({ example: faker.date.recent() })
+  @ApiProperty({ example: new Date(Date.now() - 1000 * 3600) })
   @ToDate()
   @Expose()
   updatedAt: Date
@@ -102,5 +101,5 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class CartItemResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}

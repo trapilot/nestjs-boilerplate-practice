@@ -60,7 +60,7 @@ export class MemberAuthController {
   @Post('/sign-up')
   async signUp(
     @RequestBody() body: MemberRequestSignUpDto,
-    @RequestUserOTP() otp: string,
+    @RequestUserOTP() otp: string
   ): Promise<IResponseData> {
     await this.authService.checkCode(otp, {
       channel: EnumVerificationChannel.SMS,
@@ -94,7 +94,7 @@ export class MemberAuthController {
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
-    @RequestBody() body: MemberSignInRequestDto,
+    @RequestBody() body: MemberSignInRequestDto
   ): Promise<IResponseData> {
     const member = await this.authService.validateCredentials(body)
     const auth = await this.authService.login(member, userIp, userAgent, userRequest, {
@@ -129,7 +129,7 @@ export class MemberAuthController {
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
-    @AuthJwtPayload<string>('user.email') email: string,
+    @AuthJwtPayload<string>('user.email') email: string
   ): Promise<IResponseData> {
     const member = await this.authService.validateOAuthEmail({ email })
     const auth = await this.authService.login(member, userIp, userAgent, userRequest, {
@@ -163,7 +163,7 @@ export class MemberAuthController {
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
-    @AuthJwtPayload('user.email') email: string,
+    @AuthJwtPayload('user.email') email: string
   ): Promise<IResponseData> {
     const member = await this.authService.validateOAuthEmail({ email })
     const auth = await this.authService.login(member, userIp, userAgent, userRequest, {
@@ -194,7 +194,7 @@ export class MemberAuthController {
   async refresh(
     @AuthJwtToken() refreshToken: string,
     @AuthJwtPayload() refreshPayload: AuthJwtRefreshPayloadDto,
-    @AuthJwtPayload('user.id') memberId: number,
+    @AuthJwtPayload('user.id') memberId: number
   ): Promise<IResponseData> {
     const member = await this.authService.getUserData(memberId)
     const auth = await this.authService.refresh(member, refreshToken, refreshPayload)
@@ -218,7 +218,7 @@ export class MemberAuthController {
   @Put('/reset-password')
   async resetPassword(
     @RequestBody() body: MemberResetPasswordRequestDto,
-    @RequestUserOTP() otp: string,
+    @RequestUserOTP() otp: string
   ): Promise<IResponseData> {
     await this.authService.checkCode(otp, {
       channel: EnumVerificationChannel.SMS,
@@ -262,7 +262,7 @@ export class MemberAuthController {
   @Post('/sign-up/verify-otp')
   async verifySignUpOpt(
     @RequestBody() body: MemberRequestOTPDto,
-    @RequestUserOTP() otp: string,
+    @RequestUserOTP() otp: string
   ): Promise<IResponseData> {
     const status = await this.authService.verifyOPT(otp, {
       type: EnumVerificationMethod.SIGN_UP,
@@ -303,7 +303,7 @@ export class MemberAuthController {
   @Post('/sign-up/verify-token')
   async verifySignUpToken(
     @RequestBody() body: MemberRequestTokenDto,
-    @RequestUserOTT() token: string,
+    @RequestUserOTT() token: string
   ): Promise<IResponseData> {
     const status = await this.authService.verifyToken(token, {
       type: EnumVerificationMethod.SIGN_UP,
@@ -329,7 +329,7 @@ export class MemberAuthController {
       subject: 'email.subject.resetPassword',
       template: 'email.reset-password.html',
       language: member.locale,
-      properties: member,
+      properties: {},
     })
     return { data: { code } }
   }
@@ -347,7 +347,7 @@ export class MemberAuthController {
   @Post('/reset-password/verify-otp')
   async verifyResetPasswordOtp(
     @RequestBody() body: MemberRequestOTPDto,
-    @RequestUserOTP() otp: string,
+    @RequestUserOTP() otp: string
   ): Promise<IResponseData> {
     await this.authService.checkMember({ phone: body.phone })
     const status = await this.authService.verifyOPT(otp, {

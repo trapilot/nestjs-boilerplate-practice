@@ -49,7 +49,7 @@ export class NestAuthModule {
           useFactory: (config: ConfigService): JwtModuleOptions => ({
             secret: config.get<string>('helper.jwt.defaultSecretKey'),
             signOptions: {
-              expiresIn: config.get<string>('helper.jwt.defaultExpirationTime'),
+              expiresIn: config.get<number>('helper.jwt.defaultExpirationTime'),
             },
           }),
         }),

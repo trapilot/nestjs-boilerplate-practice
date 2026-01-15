@@ -53,27 +53,30 @@ export class AuthService implements IAuthValidator<TUser> {
     private readonly crypto: CryptoService,
     private readonly fileService: FileService,
     private readonly helperService: HelperService,
-    private readonly authUtil: AuthUtil,
+    private readonly authUtil: AuthUtil
   ) {}
 
-  async cleanUpRefreshTokens() {
+  async cleanUpRefreshTokens(): Promise<Date> {
     const nowDate = this.helperService.dateNow()
     await this.prisma.userTokenHistory.deleteMany({
       where: { refreshExpired: { lte: nowDate } },
     })
+    return nowDate
   }
 
-  async cleanUpPasswordAttempts() {
+  async cleanUpPasswordAttempts(): Promise<Date> {
+    const nowDate = this.helperService.dateNow()
     await this.prisma.user.updateMany({
       data: { passwordAttempt: 0 },
       where: { passwordAttempt: { gt: 0 }, isActive: true },
     })
+    return nowDate
   }
 
   async validatePayload(
     payload: AuthJwtAccessPayloadDto,
     request: IRequestApp,
-    options: IAuthValidatorOptions,
+    options: IAuthValidatorOptions
   ): Promise<IAuthUserValidatorDto> {
     const userData = await this.getUserData(payload.user.id)
     if (options?.hmac) {
@@ -111,8 +114,8 @@ export class AuthService implements IAuthValidator<TUser> {
 
   private async checkRefreshTokenExpirationTime(
     refreshToken: string,
-    refreshPayload: AuthJwtRefreshPayloadDto,
-  ) {
+    refreshPayload: AuthJwtRefreshPayloadDto
+  ): Promise<boolean> {
     const userToken = await this.prisma.userTokenHistory.findFirst({
       where: { refreshToken },
     })
@@ -156,7 +159,7 @@ export class AuthService implements IAuthValidator<TUser> {
 
   async findOrFail(
     id: number,
-    kwargs?: Omit<Prisma.UserFindUniqueOrThrowArgs, 'where'>,
+    kwargs?: Omit<Prisma.UserFindUniqueOrThrowArgs, 'where'>
   ): Promise<TUser> {
     return await this.prisma.user
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -170,7 +173,7 @@ export class AuthService implements IAuthValidator<TUser> {
 
   async matchOrFail(
     where: Prisma.UserWhereInput,
-    kwargs?: Omit<Prisma.UserFindFirstOrThrowArgs, 'where'>,
+    kwargs?: Omit<Prisma.UserFindFirstOrThrowArgs, 'where'>
   ): Promise<TUser> {
     const user = await this.prisma.user
       .findFirstOrThrow({ ...kwargs, where })
@@ -188,7 +191,7 @@ export class AuthService implements IAuthValidator<TUser> {
       { email: dto.email },
       {
         include: this.authRelation,
-      },
+      }
     )
 
     const validate: boolean = await this.authUtil.verify(dto.password, user.password)
@@ -206,7 +209,7 @@ export class AuthService implements IAuthValidator<TUser> {
       { email: dto.email },
       {
         include: this.authRelation,
-      },
+      }
     )
     return user
   }
@@ -216,7 +219,7 @@ export class AuthService implements IAuthValidator<TUser> {
     userIp: string,
     userAgent: IResult,
     userRequest: IRequestApp,
-    options: Partial<IAuthPayloadOptions>,
+    options: Partial<IAuthPayloadOptions>
   ): Promise<UserResponseLoginDto> {
     if (!user.isActive) {
       throw new BadRequestException({
@@ -246,7 +249,7 @@ export class AuthService implements IAuthValidator<TUser> {
 
     const payloadRefreshToken = this.authUtil.createPayloadRefreshToken(
       payload.id,
-      payloadAccessToken,
+      payloadAccessToken
     )
 
     const [expiresIn, refreshIn] =
@@ -282,7 +285,7 @@ export class AuthService implements IAuthValidator<TUser> {
   async refresh(
     user: TUser,
     refreshToken: string,
-    refreshPayload: AuthJwtRefreshPayloadDto,
+    refreshPayload: AuthJwtRefreshPayloadDto
   ): Promise<AuthTokenResponseDto> {
     if (!refreshPayload?.loginRotate) {
       throw new ForbiddenException({
@@ -311,7 +314,7 @@ export class AuthService implements IAuthValidator<TUser> {
     const refreshIn = this.authUtil.getRefreshTokenExpirationTime()
     const payloadRefreshToken = this.authUtil.createPayloadRefreshToken(
       payload.id,
-      payloadAccessToken,
+      payloadAccessToken
     )
 
     refreshToken = this.authUtil.createRefreshToken(user.id, payloadRefreshToken, refreshIn)
@@ -370,11 +373,11 @@ export class AuthService implements IAuthValidator<TUser> {
           })
         }
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'auth.error.hanleLoginData',
-        error: err,
+        _error: err,
       })
     }
 
@@ -452,9 +455,9 @@ export class AuthService implements IAuthValidator<TUser> {
   }
 
   async changeAvatar(user: TUser, data: Prisma.UserUncheckedUpdateInput): Promise<TUser> {
-    return await this.prisma.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async tx => {
       const _user = await tx.user.update({ data, where: { id: user.id } })
-      await this.fileService.unlink(user.avatar)
+      await this.fileService.removeLink(user.avatar)
       return _user
     })
   }
@@ -502,7 +505,7 @@ export class AuthService implements IAuthValidator<TUser> {
         this.crypto.createHmac(`${timestamp}`, { algorithm: 'sha256', key: passwordHash }),
         timestamp,
       ],
-      { delimiter: ':' },
+      { delimiter: ':' }
     )
   }
 

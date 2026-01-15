@@ -13,18 +13,18 @@ export class UserSeedCommand extends CommandRunner {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly logger: LoggerService,
-    private readonly crypto: CryptoService,
+    private readonly crypto: CryptoService
   ) {
     super()
   }
 
   @ScopeAsync(EnumScopeType.COMMAND, { context: 'seed' })
-  async run(_passedParam: string[], _options?: any): Promise<void> {
+  async run(_passedParam: string[], _options?: Record<string, string | number>): Promise<void> {
     this.logger.log(`${UserSeedCommand.name} is running...`)
 
     try {
       await this.seed()
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.error(err)
     } finally {
       this.logger.log(`${UserSeedCommand.name} stoped`)
@@ -32,7 +32,7 @@ export class UserSeedCommand extends CommandRunner {
     return
   }
 
-  async seed() {
+  async seed(): Promise<boolean> {
     if (!process.env.MOCK_USER_PASS || !process.env.MOCK_USER_EMAIL) {
       return
     }
@@ -60,5 +60,6 @@ export class UserSeedCommand extends CommandRunner {
       },
       update: {},
     })
+    return true
   }
 }

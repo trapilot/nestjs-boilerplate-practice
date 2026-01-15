@@ -8,13 +8,13 @@ export class TierRequestCreateDto {
   @IsObject()
   @ToObject({ type: RequestSentenceDto })
   @ApiProperty({ type: RequestSentenceDto })
-  name: any
+  name: object
 
   @IsNotEmpty()
   @IsObject()
   @ToObject({ type: RequestSentenceDto })
   @ApiProperty({ type: RequestSentenceDto })
-  description: any
+  description: object
 
   @IsNotEmpty()
   @IsEnum(EnumTierCode)

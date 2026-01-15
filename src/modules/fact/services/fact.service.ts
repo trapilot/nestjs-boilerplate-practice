@@ -28,7 +28,7 @@ export class FactService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.FactFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.FactFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TFact> {
     return await this.prisma.fact
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -42,7 +42,7 @@ export class FactService {
 
   async matchOrFail(
     where: Prisma.FactWhereInput,
-    kwargs: Omit<Prisma.FactFindFirstOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.FactFindFirstOrThrowArgs, 'where'> = {}
   ): Promise<Fact> {
     const fact = await this.prisma.fact
       .findFirstOrThrow({ ...kwargs, where })
@@ -58,7 +58,7 @@ export class FactService {
   async list(
     where?: Prisma.FactWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.fact.list(where, params, options)
   }
@@ -66,7 +66,7 @@ export class FactService {
   async paginate(
     where?: Prisma.FactWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.fact.paginate(where, params, options)
   }
@@ -117,7 +117,7 @@ export class FactService {
 
       // await this.prisma.$transaction(async (tx) => {
       //   await tx.fact.delete({ where: { id: fact.id } })
-      //   await this.fileService.unlink(fact.thumbnail)
+      //   await this.fileService.removeLink(fact.thumbnail)
       // })
     }
     return fact

@@ -80,7 +80,7 @@ export class ProductAdminController {
       parseAs: 'number',
       queryField: 'salePrice',
     })
-    _price: RequestFilterDto,
+    _price: RequestFilterDto
   ): Promise<IResponsePaging> {
     const _where: Prisma.ProductWhereInput = {
       ..._search,
@@ -124,7 +124,7 @@ export class ProductAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.ProductWhereInput = {
       ..._search,
@@ -210,7 +210,7 @@ export class ProductAdminController {
     @RequestBody() body: ProductRequestUpdateDto,
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') updatedBy: number,
-    @UploadedFile() file: IFile,
+    @UploadedFile() file: IFile
   ): Promise<IResponseData> {
     const { content, termAndCond, ...dto } = body
     const jsonLanguage = { content, termAndCond }
@@ -265,7 +265,7 @@ export class ProductAdminController {
   async create(
     @RequestBody() body: ProductRequestCreateDto,
     @AuthJwtPayload('user.id') createdBy: number,
-    @UploadedFile(RequestRequiredPipe) file: IFile,
+    @UploadedFile(RequestRequiredPipe) file: IFile
   ): Promise<IResponseData> {
     const { content, termAndCond, ...dto } = body
     const jsonLanguage = { content, termAndCond }
@@ -307,7 +307,7 @@ export class ProductAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
+    @AuthJwtPayload('user.id') deletedBy: number
   ): Promise<IResponseData> {
     await this.productService.delete(id, deletedBy)
     return { data: { status: true } }

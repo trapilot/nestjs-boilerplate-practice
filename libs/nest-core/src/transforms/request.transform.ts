@@ -29,7 +29,7 @@ export function ToObject(transform: {
 export function ToArray(
   transform?: {
     type?: ClassConstructor<any> | EnumLike
-  } & ClassTransformOptions,
+  } & ClassTransformOptions
 ): (target: any, key: string) => void {
   return Transform(({ value }: any) => {
     const { type, ...options } = transform ?? {}

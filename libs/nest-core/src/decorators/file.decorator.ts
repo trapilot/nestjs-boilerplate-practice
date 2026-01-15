@@ -23,8 +23,8 @@ export function FileUploadSingle(options: IFileUploadSingle): MethodDecorator {
           fileSize: options?.fileSize ?? FILE_SIZE_IN_BYTES,
           files: 1,
         },
-      }),
-    ),
+      })
+    )
   )
 }
 
@@ -36,19 +36,19 @@ export function FileUploadMultiple(options: IFileUploadMultiple): MethodDecorato
         limits: {
           fileSize: options?.fileSize ?? FILE_SIZE_IN_BYTES,
         },
-      }),
-    ),
+      })
+    )
   )
 }
 
 export function FileUploadMultipleFields(
   fields: IFileUploadMultipleField[],
-  options?: IFileUploadMultipleFieldOptions,
+  options?: IFileUploadMultipleFieldOptions
 ): MethodDecorator {
   return applyDecorators(
     UseInterceptors(
       FileFieldsInterceptor(
-        fields.map((e) => ({
+        fields.map(e => ({
           name: e.field,
           maxCount: e.maxFiles || FILE_MAX_MULTIPLE,
         })),
@@ -57,9 +57,9 @@ export function FileUploadMultipleFields(
           limits: {
             fileSize: options?.fileSize ?? FILE_SIZE_IN_BYTES,
           },
-        },
-      ),
-    ),
+        }
+      )
+    )
   )
 }
 

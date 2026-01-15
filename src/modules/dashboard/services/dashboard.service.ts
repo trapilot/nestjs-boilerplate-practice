@@ -1,17 +1,15 @@
-import { Injectable, OnModuleInit } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { EnumInvoiceStatus } from '@runtime/prisma-client'
 import { HelperService } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { TDashboard } from '../interfaces'
 
 @Injectable()
-export class DashboardService implements OnModuleInit {
+export class DashboardService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
-
-  onModuleInit() {}
 
   async getSummary(startDate: Date, untilDate: Date): Promise<TDashboard> {
     const startTime = this.helperService.dateCreate(startDate, { startOfDay: true })
@@ -61,7 +59,7 @@ export class DashboardService implements OnModuleInit {
     }
   }
 
-  async viewDataList(_startDate: Date, _untilDate: Date) {
+  async viewDataList<T>(_startDate: Date, _untilDate: Date): Promise<T[]> {
     return []
   }
 }

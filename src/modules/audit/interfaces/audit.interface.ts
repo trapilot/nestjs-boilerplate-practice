@@ -1,7 +1,7 @@
 import { IRequestApp, IResponseApp } from 'lib/nest-core'
 
 export interface ILoggerMetadata {
-  [key: string]: any
+  [key: string]: string | number | object
 }
 
 export interface ILoggerData {

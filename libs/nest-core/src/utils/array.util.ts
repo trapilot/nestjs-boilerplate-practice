@@ -13,13 +13,13 @@ export class ArrUtil {
     if (options?.allowEmpty !== false) {
       return list.join(options.delimiter)
     }
-    return list.filter((v) => v && `${v}`.length).join(options.delimiter)
+    return list.filter(v => v && `${v}`.length).join(options.delimiter)
   }
 
   static find<T = any>(list: T[], options: IArrayFindOptions<string | T>): T {
     if (options?.field) {
-      return list.find((v) => v[options.field] === options.value)
+      return list.find(v => v[options.field] === options.value)
     }
-    return list.find((v) => v === options.value)
+    return list.find(v => v === options.value)
   }
 }

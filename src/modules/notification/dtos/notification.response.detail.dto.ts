@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
 import { EnumNotificationChannel, EnumNotificationMethod } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
@@ -7,7 +6,7 @@ import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
 import { PushResponseBelongDto } from 'modules/push'
 
 class ResponseDataDetailDto {
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   id: number
@@ -22,7 +21,7 @@ class ResponseDataDetailDto {
   @Expose()
   type: string
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   refId: number
@@ -52,19 +51,19 @@ class ResponseDataDetailDto {
   @Expose()
   isActive: boolean
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate()
   @Expose()
   createdAt: Date
 
-  @ApiProperty({ example: faker.date.recent() })
+  @ApiProperty({ example: new Date(Date.now() - 1000 * 3600) })
   @ToDate()
   @Expose()
   updatedAt: Date
 }
 
 class ResponseGroupRelationDto {
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   id: number
@@ -89,12 +88,12 @@ class ResponseGroupRelationDto {
   @Expose()
   phones: string[]
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @Type(() => Date)
   @Expose()
   joinSinceDate: Date[]
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() + 30000 * 3600) })
   @Type(() => Date)
   @Expose()
   joinUntilDate: Date[]
@@ -118,15 +117,15 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class NotificationResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class NotificationResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class NotificationResponseBelongDto extends IntersectionType(
   PickType(ResponseDataDetailDto, ['id'] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}

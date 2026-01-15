@@ -51,7 +51,7 @@ export interface IConfigHelper {
   }
   jwt: {
     defaultSecretKey: string
-    defaultExpirationTime: string
+    defaultExpirationTime: number
     notBeforeExpirationTime: number
   }
   http: {

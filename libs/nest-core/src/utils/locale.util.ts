@@ -5,10 +5,10 @@ export class LocaleUtil {
   static buildFields(
     jsonFields: Record<string, any>[],
     fieldName: string,
-    fieldLang: string = 'language',
+    fieldLang: string = 'language'
   ): any {
     return MESSAGE_LANGUAGES.reduce((fields, language) => {
-      const jsonField = jsonFields.find((jsonField) => jsonField[fieldLang] === language)
+      const jsonField = jsonFields.find(jsonField => jsonField[fieldLang] === language)
       fields[language] = jsonField?.[fieldName] ?? ''
       return fields
     }, {})

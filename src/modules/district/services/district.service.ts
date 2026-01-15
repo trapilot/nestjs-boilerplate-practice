@@ -27,7 +27,7 @@ export class DistrictService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.DistrictFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.DistrictFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TDistrict> {
     const district = await this.prisma.district
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -42,7 +42,7 @@ export class DistrictService {
 
   async differOrFail(
     where: Prisma.DistrictWhereInput,
-    options?: { limit?: number; message?: string },
+    options?: { limit?: number; message?: string }
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -56,7 +56,7 @@ export class DistrictService {
 
   async matchOrFail(
     where: Prisma.DistrictWhereInput,
-    kwargs: Omit<Prisma.DistrictFindFirstOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.DistrictFindFirstOrThrowArgs, 'where'> = {}
   ): Promise<TDistrict> {
     const district = await this.prisma.district
       .findFirstOrThrow({ ...kwargs, where })
@@ -72,7 +72,7 @@ export class DistrictService {
   async list(
     where?: Prisma.DistrictWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.district.list(where, params, options)
   }
@@ -80,7 +80,7 @@ export class DistrictService {
   async paginate(
     where?: Prisma.DistrictWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.district.paginate(where, params, options)
   }
@@ -93,7 +93,7 @@ export class DistrictService {
 
   async find(
     id: number,
-    kwargs: Omit<Prisma.DistrictFindUniqueArgs, 'where'> = {},
+    kwargs: Omit<Prisma.DistrictFindUniqueArgs, 'where'> = {}
   ): Promise<TDistrict> {
     return await this.prisma.district.findUnique({
       ...kwargs,
@@ -119,7 +119,7 @@ export class DistrictService {
 
   async delete(district: TDistrict, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async tx => {
         await tx.district.delete({ where: { id: district.id } })
       })
       return true

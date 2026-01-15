@@ -22,7 +22,7 @@ import { IRequestApp } from 'lib/nest-core'
 export class AuthUserScopeGuard implements CanActivate {
   constructor(
     private readonly ref: ModuleRef,
-    private readonly reflector: Reflector,
+    private readonly reflector: Reflector
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -48,7 +48,7 @@ export class AuthUserScopeGuard implements CanActivate {
 
       const scopes = this.reflector.get<EnumAuthScopeType>(
         AUTH_SCOPE_META_KEY,
-        context.getHandler(),
+        context.getHandler()
       )
 
       if (scopes.length === 0) {
@@ -73,12 +73,12 @@ export class AuthUserScopeGuard implements CanActivate {
 
     const syncRequired = this.reflector.getAllAndOverride<boolean>(
       AUTH_ACCESS_SYNCHRONIZE_METADATA,
-      targets,
+      targets
     )
 
     const hmacRequired = this.reflector.getAllAndOverride<boolean>(
       AUTH_ACCESS_USER_HMAC_METADATA,
-      targets,
+      targets
     )
 
     if (syncRequired || hmacRequired) {
@@ -93,7 +93,7 @@ export class AuthUserScopeGuard implements CanActivate {
 
         const checkActivated = this.reflector.getAllAndOverride<boolean>(
           AUTH_ACCESS_USER_ACTIVE_METADATA,
-          targets,
+          targets
         )
         if (checkActivated && !userData.isActive) {
           throw new ForbiddenException({
@@ -104,7 +104,7 @@ export class AuthUserScopeGuard implements CanActivate {
 
         const checkUnique = this.reflector.getAllAndOverride<boolean>(
           AUTH_ACCESS_USER_UNIQUE_METADATA,
-          targets,
+          targets
         )
         if (checkUnique) {
           const newDate = new Date(userData.loginDate).getTime()

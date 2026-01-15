@@ -13,18 +13,18 @@ export class PermissionMigrateCommand extends CommandRunner {
   constructor(
     private readonly prisma: PrismaService,
     private readonly logger: LoggerService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {
     super()
   }
 
   @ScopeAsync(EnumScopeType.COMMAND, { context: 'seed' })
-  async run(): Promise<void> {
+  async run(_passedParam: string[], _options?: Record<string, string | number>): Promise<void> {
     this.logger.log(`${PermissionMigrateCommand.name} is running...`)
 
     try {
       await this.migrate()
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.error(err)
     } finally {
       this.logger.log(`${PermissionMigrateCommand.name} stoped`)
@@ -32,7 +32,7 @@ export class PermissionMigrateCommand extends CommandRunner {
     return
   }
 
-  async migrate() {
+  async migrate(): Promise<boolean> {
     const updatedAt = this.helperService.dateNow()
     const permissions = this.getAllPermissions()
 
@@ -48,11 +48,11 @@ export class PermissionMigrateCommand extends CommandRunner {
       })
     }
 
-    await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async tx => {
       const removes = await tx.permission.findMany({
         where: { updatedAt: { lt: updatedAt } },
       })
-      const permissionIds = removes.map((p) => p.id)
+      const permissionIds = removes.map(p => p.id)
       await tx.rolesPermissions.deleteMany({
         where: { permissionId: { in: permissionIds } },
       })
@@ -60,6 +60,7 @@ export class PermissionMigrateCommand extends CommandRunner {
         where: { id: { in: permissionIds } },
       })
     })
+    return true
   }
 
   private getSorting(permission: Prisma.PermissionUncheckedCreateInput): number {
@@ -76,13 +77,13 @@ export class PermissionMigrateCommand extends CommandRunner {
     return sorting
   }
 
-  private getAllPermissions() {
+  private getAllPermissions(): Prisma.PermissionUncheckedCreateInput[] {
     const _disables = UserAbilityUtil.getDisablePerms()
     const _invisibles = UserAbilityUtil.getInvisiblePerms()
 
     const permissions: Prisma.PermissionUncheckedCreateInput[] = []
 
-    Object.values(EnumAuthAbilitySubject).forEach((subject) => {
+    Object.values(EnumAuthAbilitySubject).forEach(subject => {
       const actions = UserAbilityUtil.getSubjectActions(subject)
       permissions.push({
         subject: subject.toString(),

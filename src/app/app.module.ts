@@ -60,7 +60,7 @@ import { SchedulerModule } from './scheduler'
               { path: 'admin/auth/login', method: RequestMethod.POST },
               { path: 'admin/auth/refresh', method: RequestMethod.POST },
               { path: 'admin/settings', method: RequestMethod.ALL },
-              { path: 'admin/settings/:splat', method: RequestMethod.ALL },
+              { path: 'admin/settings/:splat', method: RequestMethod.ALL }
             )
             .forRoutes('*')
 
@@ -70,7 +70,7 @@ import { SchedulerModule } from './scheduler'
               { path: 'app/*spat', method: RequestMethod.ALL },
               { path: 'v:version/app/*spat', method: RequestMethod.ALL },
               { path: 'web/*spat', method: RequestMethod.ALL },
-              { path: 'v:version/web/*spat', method: RequestMethod.ALL },
+              { path: 'v:version/web/*spat', method: RequestMethod.ALL }
             )
         },
       },

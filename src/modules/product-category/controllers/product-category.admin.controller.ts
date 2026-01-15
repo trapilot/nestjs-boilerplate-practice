@@ -64,7 +64,7 @@ export class ProductCategoryAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument,
+    @RequestBookType() bookType: EnumFileExtensionDocument
   ): Promise<IResponsePaging> {
     const _where: Prisma.ProductCategoryWhereInput = {
       ..._search,
@@ -101,7 +101,7 @@ export class ProductCategoryAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.ProductCategoryWhereInput = {
       ..._search,
@@ -203,7 +203,7 @@ export class ProductCategoryAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: ProductCategoryRequestUpdateDto,
-    @RequestParam('id') id: number,
+    @RequestParam('id') id: number
   ): Promise<IResponseData> {
     const productCategory = await this.productCategoryService.update(id, body)
 
@@ -234,7 +234,7 @@ export class ProductCategoryAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
+    @AuthJwtPayload('user.id') deletedBy: number
   ): Promise<IResponseData> {
     const productCategory = await this.productCategoryService.find(id)
     if (productCategory) {

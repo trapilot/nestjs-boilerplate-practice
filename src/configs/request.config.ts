@@ -73,5 +73,5 @@ export default registerAs(
       ttl: TimeUtil.ms(500), // 0.5 secs
       limit: 5, // max request per reset time
     },
-  }),
+  })
 )

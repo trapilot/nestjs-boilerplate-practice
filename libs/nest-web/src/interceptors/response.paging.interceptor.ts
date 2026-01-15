@@ -36,7 +36,7 @@ export class ResponsePagingInterceptor<T, R> implements NestInterceptor<T, IResp
   constructor(
     private readonly message: MessageService,
     private readonly reflector: Reflector,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
@@ -48,7 +48,7 @@ export class ResponsePagingInterceptor<T, R> implements NestInterceptor<T, IResp
     const bookType = query?.bookType
     const exportFlag = this.reflector.get<boolean>(
       RESPONSE_FILE_EXPORT_METADATA,
-      context.getHandler(),
+      context.getHandler()
     )
 
     return next.handle().pipe(
@@ -58,13 +58,13 @@ export class ResponsePagingInterceptor<T, R> implements NestInterceptor<T, IResp
         }
         return await this.send(context, res as IReturnPaging<R>)
       }),
-      catchError((err) => throwError(() => err)),
+      catchError(err => throwError(() => err))
     )
   }
 
   private async send(
     context: ExecutionContext,
-    response: IReturnPaging<R>,
+    response: IReturnPaging<R>
   ): Promise<ResponseSuccessDto> {
     const ctx: HttpArgumentsHost = context.switchToHttp()
     const req: IRequestApp = ctx.getRequest<IRequestApp>()
@@ -72,12 +72,12 @@ export class ResponsePagingInterceptor<T, R> implements NestInterceptor<T, IResp
 
     const dtoClass = this.reflector.get<ClassConstructor<any>>(
       RESPONSE_DTO_CONSTRUCTOR_METADATA,
-      context.getHandler(),
+      context.getHandler()
     )
 
     const dtoTransform = this.reflector.get<ClassTransformOptions>(
       RESPONSE_DTO_TRANSFORM_METADATA,
-      context.getHandler(),
+      context.getHandler()
     )
 
     const dtoGroups = [req?.user?.loginFrom, req?.user?.scopeType]
@@ -136,12 +136,12 @@ export class ResponsePagingInterceptor<T, R> implements NestInterceptor<T, IResp
 
     const dtoClass = this.reflector.get<ClassConstructor<any>>(
       RESPONSE_DTO_CONSTRUCTOR_METADATA,
-      context.getHandler(),
+      context.getHandler()
     )
 
     const dtoTransform = this.reflector.get<ClassTransformOptions>(
       RESPONSE_DTO_TRANSFORM_METADATA,
-      context.getHandler(),
+      context.getHandler()
     )
 
     const dtoGroups = [req?.user?.loginFrom, req?.user?.scopeType]
@@ -204,7 +204,7 @@ export class ResponsePagingInterceptor<T, R> implements NestInterceptor<T, IResp
           })
 
           if (sheetHeaders.length === 0) {
-            sheetHeaders = sheetFields.map((field) => {
+            sheetHeaders = sheetFields.map(field => {
               const { header } = exportProperties.get(field) || {}
               if (header) {
                 return this.message.setMessage(header)
@@ -215,7 +215,7 @@ export class ResponsePagingInterceptor<T, R> implements NestInterceptor<T, IResp
 
           if (sheetHeaders.length === 0) {
             console.warn(
-              `${dtoClass.name} does not exists exportable properties. Please add Exportable decorator`,
+              `${dtoClass.name} does not exists exportable properties. Please add Exportable decorator`
             )
           }
         }

@@ -9,13 +9,13 @@ export class FactRequestCreateDto {
   @IsObject()
   @ToObject({ type: RequestSentenceDto })
   @ApiProperty({ required: true, type: RequestSentenceDto })
-  title: any
+  title: object
 
   @IsOptional()
   @IsObject()
   @ToObject({ type: RequestSentenceDto })
   @ApiProperty({ required: true, type: RequestSentenceDto })
-  content: any
+  content: object
 
   @IsNotEmpty()
   @IsEnum(EnumFactType)

@@ -10,13 +10,13 @@ export class UserTask {
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
   @ScopeAsync(EnumScopeType.CRON, { context: 'cron.user_clean_up_expired_refresh_tokens' })
-  async clearExpiredRefreshTokens() {
+  async clearExpiredRefreshTokens(): Promise<void> {
     await this.authService.cleanUpRefreshTokens()
   }
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
   @ScopeAsync(EnumScopeType.CRON, { context: 'cron.user_clean_up_pass_atempts' })
-  async clearPasswordAttempts() {
+  async clearPasswordAttempts(): Promise<void> {
     await this.authService.cleanUpPasswordAttempts()
   }
 }

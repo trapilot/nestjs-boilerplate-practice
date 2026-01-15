@@ -6,7 +6,7 @@ import { EnumRequestSortDirection } from '../enums'
 
 export function RequestFilterOrderPipe(
   defaultOrderBy: string,
-  availableOrderBy: string[] = [],
+  availableOrderBy: string[] = []
 ): Type<PipeTransform> {
   @Injectable({ scope: Scope.REQUEST })
   class MixinFilterOrderPipe implements PipeTransform {
@@ -14,7 +14,7 @@ export function RequestFilterOrderPipe(
 
     async transform(
       value: Record<string, any>,
-      _metadata: ArgumentMetadata,
+      _metadata: ArgumentMetadata
     ): Promise<Record<string, any>> {
       if (availableOrderBy.length === 0) return value
 
@@ -24,7 +24,7 @@ export function RequestFilterOrderPipe(
       return {
         ...value,
         _params: Object.assign({}, value?._params ?? {}, {
-          orderBy: orderBy.map((order) => {
+          orderBy: orderBy.map(order => {
             const [sortKey, sortDir] = order.split(':')
             return { [sortKey]: sortDir }
           }),

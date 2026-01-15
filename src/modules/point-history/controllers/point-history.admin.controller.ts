@@ -71,7 +71,7 @@ export class PointHistoryAdminController {
       raw: true,
     })
     rawCode: RequestFilterDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument,
+    @RequestBookType() bookType: EnumFileExtensionDocument
   ): Promise<IResponsePaging> {
     const _where: Prisma.MemberPointHistoryWhereInput = {
       ..._search,
@@ -117,7 +117,7 @@ export class PointHistoryAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _params }: RequestListDto
   ): Promise<IResponseList> {
     const _where: Prisma.MemberPointHistoryWhereInput = {
       ..._search,
@@ -226,7 +226,7 @@ export class PointHistoryAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: PointHistoryRequestUpdateDto,
-    @RequestParam('id') id: number,
+    @RequestParam('id') id: number
   ): Promise<IResponseData> {
     const pointHistory = await this.pointHistoryService.update(id, body)
 
@@ -257,7 +257,7 @@ export class PointHistoryAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
+    @AuthJwtPayload('user.id') deletedBy: number
   ): Promise<IResponseData> {
     const pointHistory = await this.pointHistoryService.find(id)
     if (pointHistory) {

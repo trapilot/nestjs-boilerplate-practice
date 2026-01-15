@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
 import { EnumPushType } from '@runtime/prisma-client'
 import { IsBoolean, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator'
@@ -38,7 +37,7 @@ export class PushRequestCreateDto {
   @IsDate()
   @ToDate({ format: EnumDateFormat.DB_DATE })
   @TransformIf((obj: PushRequestCreateDto) => PushUtil.isSpecDate(obj.type))
-  @ApiProperty({ required: true, example: faker.date.future() })
+  @ApiProperty({ required: true, example: new Date(Date.now() - 30000 * 3600) })
   executeDate: string
 
   @IsOptional()
@@ -66,14 +65,14 @@ export class PushRequestCreateDto {
   @IsDate()
   @ToDate({ startOfDay: true })
   @TransformIf((obj: PushRequestCreateDto) => PushUtil.isLoop(obj.type))
-  @ApiProperty({ required: false, example: faker.date.future() })
+  @ApiProperty({ required: false, example: new Date(Date.now() + 30000 * 3600) })
   startDate: Date
 
   @IsOptional()
   @IsDate()
   @ToDate({ endOfDay: true })
   @TransformIf((obj: PushRequestCreateDto) => PushUtil.isLoop(obj.type))
-  @ApiProperty({ required: false, example: faker.date.future() })
+  @ApiProperty({ required: false, example: new Date(Date.now() + 60000 * 3600) })
   untilDate: Date
 
   @IsOptional()

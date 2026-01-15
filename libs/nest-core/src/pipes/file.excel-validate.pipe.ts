@@ -35,7 +35,7 @@ export class FileExcelValidatePipe<T, N = Record<string, any>> implements PipeTr
 
   async validateParse(
     value: IFileRows<N>[],
-    classDto: ClassConstructor<T>,
+    classDto: ClassConstructor<T>
   ): Promise<IFileRows<T>[]> {
     const errors: ValidationError[] = []
     const dtos: IFileRows<T>[] = []
@@ -45,7 +45,7 @@ export class FileExcelValidatePipe<T, N = Record<string, any>> implements PipeTr
       const rowErrors: ValidationError[] = await validate(rowData)
 
       if (rowErrors.length > 0) {
-        rowErrors.map((rowError) => {
+        rowErrors.map(rowError => {
           rowError.contexts.row = index
           rowError.contexts.sheetName = parse.sheetName
           return rowError

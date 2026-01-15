@@ -13,7 +13,7 @@ export class InvoiceMockTask {
     private readonly prisma: PrismaService,
     private readonly logger: LoggerService,
     private readonly invoiceService: InvoiceService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {
     this.nowDate = this.helperService.dateNow()
   }
@@ -48,7 +48,7 @@ export class InvoiceMockTask {
           issuedAt: this.helperService.dateBackward(this.nowDate, { days: 2 }),
         })
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.error(err)
     } finally {
       this.logger.warn(`${InvoiceMockTask.name} done`)

@@ -10,18 +10,18 @@ import { SettingService } from '../services'
 export class SettingSeedCommand extends CommandRunner {
   constructor(
     private readonly logger: LoggerService,
-    private readonly settingService: SettingService,
+    private readonly settingService: SettingService
   ) {
     super()
   }
 
   @ScopeAsync(EnumScopeType.COMMAND, { context: 'seed' })
-  async run(): Promise<void> {
+  async run(_passedParam: string[], _options?: Record<string, string | number>): Promise<void> {
     this.logger.log(`${SettingSeedCommand.name} is running...`)
 
     try {
       await this.seed()
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.error(err)
     } finally {
       this.logger.log(`${SettingSeedCommand.name} stoped`)
@@ -29,7 +29,7 @@ export class SettingSeedCommand extends CommandRunner {
     return
   }
 
-  private async seed() {
+  private async seed(): Promise<boolean> {
     const exist = await this.settingService.match({ code: 'maintenance' })
     if (!exist) {
       await this.settingService.create({
@@ -42,5 +42,6 @@ export class SettingSeedCommand extends CommandRunner {
         isVisible: false,
       })
     }
+    return true
   }
 }

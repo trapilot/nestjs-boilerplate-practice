@@ -116,9 +116,7 @@ export interface IRequestGuardOptions {
 }
 
 export interface IRequestOptions
-  extends ApiOperationOptions,
-    IRequestAuthOptions,
-    IRequestGuardOptions {
+  extends ApiOperationOptions, IRequestAuthOptions, IRequestGuardOptions {
   headers?: ApiHeaderOptions[]
   params?: ApiParamOptions[]
   queries?: ApiQueryOptions[]

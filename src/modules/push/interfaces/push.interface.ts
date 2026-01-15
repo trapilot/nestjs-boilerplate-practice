@@ -1,11 +1,11 @@
 import { Notification, Push, PushGroup, PushGroupNotificationMixins } from '@runtime/prisma-client'
 
-interface TPushGroupNotificationMixins extends PushGroupNotificationMixins {
+type TPushGroupNotificationMixins = PushGroupNotificationMixins & {
   group?: PushGroup
   notification?: Notification
 }
 
-export interface TPush extends Push {
+export type TPush = Push & {
   notification?: Notification
   pivotGroups?: TPushGroupNotificationMixins[]
 }
@@ -24,4 +24,27 @@ export interface IPushMessageData {
   refId: string
   refType: string
   [key: string]: string
+}
+
+export interface IPushAnalyticOptions {
+  totalDevice: number
+  members: {
+    id: number
+    locale: string
+    isNotifiable: boolean
+    devices: {
+      isActive: boolean
+      token: string
+    }[]
+  }[]
+  notifications: {
+    memberId: number
+    refId: number
+    refType: string
+    refValue?: string
+    refDischarge?: string | Date
+  }[]
+}
+export interface IPushMemberGroup {
+  [key: string]: IPushAnalyticOptions['members']
 }

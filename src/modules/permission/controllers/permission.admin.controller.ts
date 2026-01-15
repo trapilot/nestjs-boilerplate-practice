@@ -63,7 +63,7 @@ export class PermissionAdminController {
     })
     { _search, _params }: RequestListDto,
     @RequestQueryFilterInBoolean('isActive', true) _enabled: RequestFilterDto,
-    @RequestQueryFilterInBoolean('isVisible', true) _visible: RequestFilterDto,
+    @RequestQueryFilterInBoolean('isVisible', true) _visible: RequestFilterDto
   ): Promise<IResponseList> {
     const _where: Prisma.PermissionWhereInput = {
       ..._search,
@@ -100,7 +100,7 @@ export class PermissionAdminController {
   async update(
     @RequestBody() body: PermissionRequestUpdateDto,
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') updatedBy: number,
+    @AuthJwtPayload('user.id') updatedBy: number
   ): Promise<IResponseData> {
     const { actions, ...dto } = body
 
@@ -140,7 +140,7 @@ export class PermissionAdminController {
   @Post('/')
   async create(
     @RequestBody() body: PermissionRequestCreateDto,
-    @AuthJwtPayload('user.id') createdBy: number,
+    @AuthJwtPayload('user.id') createdBy: number
   ): Promise<IResponseData> {
     const { actions, ...dto } = body
     const data: Prisma.PermissionUncheckedCreateInput = {

@@ -26,5 +26,5 @@ class ResponseUserRelationDto {
 
 export class UserResponseLoginHistoryDto extends IntersectionType(
   ResponseUserLoginHistoryDto,
-  ResponseUserRelationDto,
+  ResponseUserRelationDto
 ) {}

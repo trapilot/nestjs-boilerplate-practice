@@ -22,5 +22,5 @@ export default registerAs(
         serviceAccountPath: process.env.FIREBASE_ACCOUNT_PATH,
       },
     },
-  }),
+  })
 )

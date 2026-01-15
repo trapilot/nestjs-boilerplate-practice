@@ -11,7 +11,7 @@ export class AppExceptionFilter implements ExceptionFilter {
   constructor(
     private readonly logger: LoggerService,
     private readonly message: MessageService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
 
   async catch(exception: unknown, host: ArgumentsHost): Promise<void> {

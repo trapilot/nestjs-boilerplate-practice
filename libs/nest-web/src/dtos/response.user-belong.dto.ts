@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose, Transform, Type } from 'class-transformer'
 import { EnumAuthLoginFrom, EnumAuthScopeType } from 'lib/nest-auth'
@@ -7,7 +6,7 @@ import { ResponseUtil } from '../utils'
 class UserBelongInfo {
   @ApiProperty({
     description: 'Id that representative with your target data',
-    example: faker.number.int({ min: 1, max: 100 }),
+    example: 2,
   })
   @Type(() => Number)
   @Expose()
@@ -15,7 +14,7 @@ class UserBelongInfo {
 
   @ApiProperty({
     description: 'Name that representative with your target data',
-    example: faker.internet.username(),
+    example: 'nestjs_demo',
   })
   @Type(() => String)
   @Expose()

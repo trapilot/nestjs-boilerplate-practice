@@ -44,10 +44,10 @@ export class CartService implements OnModuleInit {
   constructor(
     private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
 
-  onModuleInit() {
+  onModuleInit(): void {
     this.memberService = this.ref.get(MemberService, { strict: false })
     this.orderService = this.ref.get(OrderService, { strict: false })
     this.productService = this.ref.get(ProductService, { strict: false })
@@ -67,7 +67,7 @@ export class CartService implements OnModuleInit {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.CartFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.CartFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TCart> {
     const cart = await this.prisma.cart
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -82,7 +82,7 @@ export class CartService implements OnModuleInit {
 
   async matchOrFail(
     where: Prisma.CartWhereInput,
-    kwargs: Omit<Prisma.CartFindFirstOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.CartFindFirstOrThrowArgs, 'where'> = {}
   ): Promise<TCart> {
     const cart = await this.prisma.cart
       .findFirstOrThrow({ ...kwargs, where })
@@ -97,7 +97,7 @@ export class CartService implements OnModuleInit {
 
   async differOrFail(
     where: Prisma.CartWhereInput,
-    options?: { limit?: number; message?: string },
+    options?: { limit?: number; message?: string }
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -112,7 +112,7 @@ export class CartService implements OnModuleInit {
   async list(
     where?: Prisma.CartWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.cart.list(where, params, options)
   }
@@ -120,7 +120,7 @@ export class CartService implements OnModuleInit {
   async paginate(
     where?: Prisma.CartWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.cart.paginate(where, params, options)
   }
@@ -158,7 +158,7 @@ export class CartService implements OnModuleInit {
 
   async delete(cart: TCart, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async tx => {
         await tx.cart.delete({ where: { id: cart.id } })
       })
       return true
@@ -338,14 +338,16 @@ export class CartService implements OnModuleInit {
   async checkPointRequire(
     memberId: number,
     pointRequire: number,
-    issuedAt: Date,
+    issuedAt: Date
   ): Promise<boolean> {
     const pointBalance = await this.memberService.getPointBalance(memberId, issuedAt)
     return pointRequire <= pointBalance
   }
 
   async checkSalePerPerson(memberId: number, product: Product): Promise<boolean> {
-    if (product.salePerPerson <= 0) return true
+    if (product.salePerPerson <= 0) {
+      return true
+    }
     const salePerPerson = await this.productService.getSalePerPerson(product.id, memberId)
     return salePerPerson < product.salePerPerson
   }

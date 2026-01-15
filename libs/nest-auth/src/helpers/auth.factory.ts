@@ -25,7 +25,7 @@ export abstract class AuthFactory {
     return abilities
       .map(({ subject, actions }) => {
         return actions
-          .map((action) => (ability: IAuthAbilityRule) => ability.can(action, subject))
+          .map(action => (ability: IAuthAbilityRule) => ability.can(action, subject))
           .flat(1)
       })
       .flat(1)

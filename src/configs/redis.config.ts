@@ -25,5 +25,5 @@ export default registerAs(
       url: process.env.STREAM_REDIS_URL,
       namespace: 'Stream',
     },
-  }),
+  })
 )

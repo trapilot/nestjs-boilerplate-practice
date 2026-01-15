@@ -10,18 +10,18 @@ import { ApiKeyService } from '../services'
 export class ApiKeySeedCommand extends CommandRunner {
   constructor(
     private readonly logger: LoggerService,
-    private readonly apiKeyService: ApiKeyService,
+    private readonly apiKeyService: ApiKeyService
   ) {
     super()
   }
 
   @ScopeAsync(EnumScopeType.COMMAND, { context: 'seed' })
-  async run(): Promise<void> {
+  async run(_passedParam: string[], _options?: Record<string, string | number>): Promise<void> {
     this.logger.log(`${ApiKeySeedCommand.name} is running...`)
 
     try {
       await this.seed()
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.error(err)
     } finally {
       this.logger.log(`${ApiKeySeedCommand.name} stoped`)
@@ -30,7 +30,7 @@ export class ApiKeySeedCommand extends CommandRunner {
     return
   }
 
-  async seed() {
+  async seed(): Promise<boolean> {
     const { key, hash } = await this.apiKeyService.createHashApiKey()
     await this.apiKeyService.create({
       name: `Api Key For ${EnumApiKeyType.CLIENT}`,
@@ -40,5 +40,6 @@ export class ApiKeySeedCommand extends CommandRunner {
       key,
       hash,
     })
+    return true
   }
 }

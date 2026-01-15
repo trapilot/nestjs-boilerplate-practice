@@ -23,13 +23,13 @@ export class MediaRequestCreateDto {
   @IsObject()
   @ToObject({ type: RequestSentenceDto })
   @ApiProperty({ required: true, type: RequestSentenceDto })
-  title: any
+  title: object
 
   @IsNotEmpty()
   @IsObject()
   @ToObject({ type: RequestSentenceDto })
   @ApiProperty({ required: true, type: RequestSentenceDto })
-  brief: any
+  brief: object
 
   @IsNotEmpty()
   @IsNumber()

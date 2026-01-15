@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
 import { EnumPointHistoryType } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
@@ -9,32 +8,32 @@ import { MemberResponseBelongDto } from 'modules/member'
 import { TierResponseBelongDto } from 'modules/tier'
 
 class ResponseDataDetailDto {
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   id: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   tierId: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   memberId: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   refereeId: number
 
-  @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
+  @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
   invoiceId: number
 
-  @ApiProperty({ example: faker.number.float({ min: 100, max: 10_000, fractionDigits: 0 }) })
+  @ApiProperty({ example: 10000 })
   @ToDecimal({ minimumFractionDigits: 2 })
   @Expose()
   invoiceAmount: number
@@ -44,17 +43,17 @@ class ResponseDataDetailDto {
   @Expose()
   type: string
 
-  @ApiProperty({ example: faker.number.int({ min: 10, max: 1000 }) })
+  @ApiProperty({ example: 1000 })
   @ToDecimal()
   @Expose()
   point: number
 
-  @ApiProperty({ example: faker.number.int({ min: 100, max: 1000 }) })
+  @ApiProperty({ example: 20000 })
   @ToDecimal()
   @Expose()
   pointBalance: number
 
-  @ApiProperty({ example: faker.number.float({ min: 0, max: 1 }) })
+  @ApiProperty({ example: 1.6 })
   @Type(() => Number)
   @Expose()
   multipleRatio: number
@@ -79,28 +78,28 @@ class ResponseDataDetailDto {
   @Expose()
   isActive: boolean
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate({ format: EnumDateFormat.DATE })
   @TransformIf((obj: ResponseDataDetailDto) => obj.point > 0)
   @Expose()
   expiryDate: Date
 
-  @ApiProperty({ example: faker.date.future() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   releaseDate: Date
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate({ format: EnumDateFormat.DATE, ref: 'createdAt' })
   @Expose()
   createdDate: Date
 
-  @ApiProperty({ example: faker.date.past() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate()
   @Expose()
   createdAt: Date
 
-  @ApiProperty({ example: faker.date.recent() })
+  @ApiProperty({ example: new Date(Date.now() - 1000 * 3600) })
   @ToDate()
   @Expose()
   updatedAt: Date
@@ -130,15 +129,15 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class PointHistoryResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class PointHistoryResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class PointHistoryResponseBelongDto extends IntersectionType(
   PickType(ResponseDataDetailDto, ['id'] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}

@@ -70,18 +70,19 @@ export class AuthService implements IAuthValidator<TMember>, OnModuleInit {
     private readonly fileService: FileService,
     private readonly notifyService: NotifierService,
     private readonly helperService: HelperService,
-    private readonly authUtil: AuthUtil,
+    private readonly authUtil: AuthUtil
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_6AM, { timeZone: APP_TIMEZONE })
-  async cleanUpRefreshTokens() {
+  async cleanUpRefreshTokens(): Promise<Date> {
     const nowDate = this.helperService.dateNow()
     await this.prisma.memberTokenHistory.deleteMany({
       where: { refreshExpired: { lte: nowDate } },
     })
+    return nowDate
   }
 
-  onModuleInit() {
+  onModuleInit(): void {
     this.verifyService = this.ref.get(VerifyService, { strict: true })
     this.tierService = this.ref.get(TierService, { strict: false })
   }
@@ -89,7 +90,7 @@ export class AuthService implements IAuthValidator<TMember>, OnModuleInit {
   async validatePayload(
     payload: AuthJwtAccessPayloadDto,
     _request: IRequestApp,
-    _options: IAuthValidatorOptions,
+    _options: IAuthValidatorOptions
   ): Promise<IAuthUserValidatorDto> {
     const userData = await this.getUserData(payload.user.id)
     const userPayload = await this.serializeUserData(userData)
@@ -116,8 +117,8 @@ export class AuthService implements IAuthValidator<TMember>, OnModuleInit {
 
   private async checkRefreshTokenExpirationTime(
     refreshToken: string,
-    refreshPayload: AuthJwtRefreshPayloadDto,
-  ) {
+    refreshPayload: AuthJwtRefreshPayloadDto
+  ): Promise<boolean> {
     const userToken = await this.prisma.memberTokenHistory.findFirst({
       where: { refreshToken },
     })
@@ -171,7 +172,7 @@ export class AuthService implements IAuthValidator<TMember>, OnModuleInit {
 
   async differOrFail(
     where: Prisma.MemberWhereInput,
-    options?: { limit?: number; message?: string },
+    options?: { limit?: number; message?: string }
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -185,7 +186,7 @@ export class AuthService implements IAuthValidator<TMember>, OnModuleInit {
 
   async matchOrFail(
     where: Prisma.MemberWhereInput,
-    include?: Prisma.MemberInclude,
+    include?: Prisma.MemberInclude
   ): Promise<TMember> {
     const member = await this.prisma.member
       .findFirstOrThrow({ where, include })
@@ -234,7 +235,7 @@ export class AuthService implements IAuthValidator<TMember>, OnModuleInit {
     userIp: string,
     userAgent: IResult,
     userRequest: IRequestApp,
-    options: Partial<IAuthPayloadOptions>,
+    options: Partial<IAuthPayloadOptions>
   ): Promise<MemberResponseLoginDto> {
     if (!member.isActive) {
       throw new BadRequestException({
@@ -263,7 +264,7 @@ export class AuthService implements IAuthValidator<TMember>, OnModuleInit {
     })
     const payloadRefreshToken = this.authUtil.createPayloadRefreshToken(
       payload.id,
-      payloadAccessToken,
+      payloadAccessToken
     )
 
     const [expiresIn, refreshIn] =
@@ -299,7 +300,7 @@ export class AuthService implements IAuthValidator<TMember>, OnModuleInit {
   async refresh(
     member: TMember,
     refreshToken: string,
-    refreshPayload: AuthJwtRefreshPayloadDto,
+    refreshPayload: AuthJwtRefreshPayloadDto
   ): Promise<AuthTokenResponseDto> {
     if (!refreshPayload?.loginRotate) {
       throw new ForbiddenException({
@@ -327,7 +328,7 @@ export class AuthService implements IAuthValidator<TMember>, OnModuleInit {
     const refreshIn = this.authUtil.getRefreshTokenExpirationTime()
     const payloadRefreshToken = this.authUtil.createPayloadRefreshToken(
       payload.id,
-      payloadAccessToken,
+      payloadAccessToken
     )
 
     refreshToken = this.authUtil.createRefreshToken(member.id, payloadRefreshToken, refreshIn)
@@ -397,7 +398,7 @@ export class AuthService implements IAuthValidator<TMember>, OnModuleInit {
 
       this.emitter.emit(
         MemberSignInEvent.eventPath,
-        new MemberSignInEvent(member.id, payload.loginToken),
+        new MemberSignInEvent(member.id, payload.loginToken)
       )
     } catch {
       throw new BadRequestException({
@@ -467,7 +468,7 @@ export class AuthService implements IAuthValidator<TMember>, OnModuleInit {
         length: this.config.get<number>('auth.otp.length'),
         seconds: this.config.get<number>('auth.otp.ttl'),
         maxAttempts: this.config.get<number>('auth.otp.maxAttempts'),
-      },
+      }
     )
 
     const content = options?.text
@@ -505,7 +506,7 @@ export class AuthService implements IAuthValidator<TMember>, OnModuleInit {
         seconds: this.config.get<number>('auth.token.ttl'),
         length: this.config.get<number>('auth.token.length'),
         maxAttempts: this.config.get<number>('auth.token.maxAttempts'),
-      },
+      }
     )
 
     const token = this.crypto.base64Encrypt(JSON.stringify({ email, code: verify.code }))

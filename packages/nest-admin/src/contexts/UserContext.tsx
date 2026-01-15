@@ -91,7 +91,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       // Fetch profile with new token
       await refreshProfile()
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Login failed:', err)
       setError(err?.message || 'Login failed')
       throw err

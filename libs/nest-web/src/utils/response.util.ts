@@ -8,9 +8,9 @@ export class ResponseUtil {
       transform: ClassTransformOptions
       allowProperties: Record<string, any>
       ignoreProperties: string[]
-    },
+    }
   ) {
-    return Object.keys(plainToInstance(options.type, {}, options.transform)).filter((property) => {
+    return Object.keys(plainToInstance(options.type, {}, options.transform)).filter(property => {
       if (data[property] === undefined) return false
       if (options.ignoreProperties.includes(property)) return true
       return options.allowProperties.has(property)
@@ -23,7 +23,7 @@ export class ResponseUtil {
       type: ClassConstructor<T>
       transform: ClassTransformOptions
       mappingProperties?: Record<string, any>
-    },
+    }
   ) {
     const transformOptions = {
       excludeExtraneousValues: true,
@@ -35,7 +35,7 @@ export class ResponseUtil {
       return plainToInstance(
         options.type,
         { __mappingProperties: options.mappingProperties, ...data },
-        transformOptions,
+        transformOptions
       )
     }
     return plainToInstance(options.type, data, transformOptions)
@@ -47,7 +47,7 @@ export class ResponseUtil {
       type: ClassConstructor<T>
       transform: ClassTransformOptions
       mappingProperties?: Record<string, any>
-    },
+    }
   ) {
     const transformOptions = {
       excludeExtraneousValues: true,
@@ -56,7 +56,7 @@ export class ResponseUtil {
     }
 
     if (options?.mappingProperties) {
-      data.forEach((v) => {
+      data.forEach(v => {
         return { __mappingProperties: options.mappingProperties, ...v }
       })
     }

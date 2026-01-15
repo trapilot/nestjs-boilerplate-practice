@@ -17,7 +17,7 @@ export class AuthSocialGoogleGuard implements CanActivate {
 
   constructor(
     private readonly config: ConfigService,
-    private readonly authUtil: AuthUtil,
+    private readonly authUtil: AuthUtil
   ) {
     this.header = this.config.get<string>('auth.google.header')
     this.prefix = this.config.get<string>('auth.google.prefix')
@@ -43,12 +43,12 @@ export class AuthSocialGoogleGuard implements CanActivate {
       request.user = payload
 
       return true
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.log({ err })
       throw new UnauthorizedException({
         statusCode: HttpStatus.UNAUTHORIZED,
         message: 'auth.error.socialGoogleInvalid',
-        _error: err.message,
+        _error: err,
       })
     }
   }

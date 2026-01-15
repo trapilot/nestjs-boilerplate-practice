@@ -1,6 +1,6 @@
 export class TimeUtil {
   static sleep(val: string | number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, this.ms(val)))
+    return new Promise(resolve => setTimeout(resolve, this.ms(val)))
   }
 
   static ms(val: number | string): number {
@@ -31,7 +31,7 @@ export class TimeUtil {
     }
     const match =
       /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(
-        str,
+        str
       )
     if (!match) {
       return

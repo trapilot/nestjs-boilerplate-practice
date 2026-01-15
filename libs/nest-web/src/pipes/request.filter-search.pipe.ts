@@ -10,7 +10,7 @@ export function RequestFilterSearchPipe(availableSearch: string[] = []): Type<Pi
 
     async transform(
       value: Record<string, any>,
-      _metadata: ArgumentMetadata,
+      _metadata: ArgumentMetadata
     ): Promise<Record<string, any>> {
       if (availableSearch.length === 0) return value
 
@@ -42,7 +42,7 @@ export function RequestFilterSearchPipe(availableSearch: string[] = []): Type<Pi
       }
 
       return {
-        OR: availableSearch.map((field) => {
+        OR: availableSearch.map(field => {
           return { [field]: { contains: searchValue } }
         }),
       }

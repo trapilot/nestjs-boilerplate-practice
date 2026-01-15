@@ -23,7 +23,7 @@ export class RequestSecurityGuard implements CanActivate {
   constructor(
     private readonly config: ConfigService,
     private readonly cache: CacheService,
-    private readonly crypto: CryptoService,
+    private readonly crypto: CryptoService
   ) {
     this.securityEnable = this.config.get<boolean>('request.security.enable')
     this.securityKey = this.config.get<string>('request.security.key')
@@ -115,7 +115,7 @@ export class RequestSecurityGuard implements CanActivate {
       nonce: string
       timestamp: number
       signature: string
-    },
+    }
   ): boolean {
     // Hash body of request on server
     const serverBodyHash = this.crypto.createHash(bodyPayload, {

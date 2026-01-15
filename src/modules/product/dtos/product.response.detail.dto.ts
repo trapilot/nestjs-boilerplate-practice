@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
 import { EnumProductExpiryType } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
@@ -29,7 +28,7 @@ class ResponseDataDetailDto {
   @Expose()
   sku: string
 
-  @ApiProperty({ example: faker.image.url() })
+  @ApiProperty({ example: '' })
   @ToUrl()
   @Expose()
   thumbnail: string
@@ -104,12 +103,12 @@ class ResponseDataDetailDto {
   @Expose()
   dynamicExpiryDays: number
 
-  @ApiProperty({ example: faker.date.future() })
+  @ApiProperty({ example: new Date(Date.now() + 30000 * 3600) })
   @ToDynamicExpiryDate({ format: EnumDateFormat.DATE })
   @Expose()
   dynamicExpiryDate: string
 
-  @ApiProperty({ example: faker.date.future() })
+  @ApiProperty({ example: new Date(Date.now() + 30000 * 3600) })
   @ToStaticExpiryDate({ format: EnumDateFormat.DATE })
   @Expose()
   staticExpiryDate: string
@@ -179,12 +178,12 @@ class ResponseDataDetailDto {
   @Expose()
   isDeleted: boolean
 
-  @ApiProperty({ example: faker.date.recent() })
+  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @Type(() => Date)
   @Expose()
   createdAt: Date
 
-  @ApiProperty({ example: faker.date.soon() })
+  @ApiProperty({ example: new Date(Date.now() - 1000 * 3600) })
   @Type(() => Date)
   @Expose()
   updatedAt: Date
@@ -204,12 +203,12 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class ProductResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class ProductResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}
 
 export class ProductResponseBelongDto extends IntersectionType(
@@ -221,5 +220,5 @@ export class ProductResponseBelongDto extends IntersectionType(
     'stockQty',
     'isActive',
   ] as const),
-  ResponseDataRelationDto,
+  ResponseDataRelationDto
 ) {}

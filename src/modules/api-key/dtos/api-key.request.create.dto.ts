@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
 import { EnumApiKeyType } from '@runtime/prisma-client'
 import { IsDate, IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator'
@@ -22,7 +21,7 @@ export class ApiKeyRequestCreateDto {
   @MaxLength(100)
   @ApiProperty({
     description: 'Api Key name',
-    example: faker.company.name(),
+    example: 'Payzone',
     required: true,
   })
   name: string
@@ -33,7 +32,7 @@ export class ApiKeyRequestCreateDto {
   @DateGreaterThanEqual(DateUtil.getNow())
   @ApiProperty({
     description: 'Api Key start date',
-    example: faker.date.recent(),
+    example: new Date(Date.now() - 1000 * 3600),
     required: false,
   })
   startDate: Date
@@ -44,7 +43,7 @@ export class ApiKeyRequestCreateDto {
   @PropertyGreaterThan('startDate')
   @ApiProperty({
     description: 'Api Key end date',
-    example: faker.date.future(),
+    example: new Date(Date.now() + 30000 * 3600),
     required: false,
   })
   untilDate: Date

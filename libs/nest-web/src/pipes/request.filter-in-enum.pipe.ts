@@ -8,7 +8,7 @@ export function RequestFilterInEnumPipe<T>(
   field: string,
   defaultEnum: Record<string, any>,
   defaultValue: T,
-  options?: IRequestFilterOptions,
+  options?: IRequestFilterOptions
 ): Type<PipeTransform> {
   @Injectable({ scope: Scope.REQUEST })
   class MixinRequestFilterInEnumPipe implements PipeTransform {

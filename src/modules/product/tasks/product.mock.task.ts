@@ -1,4 +1,3 @@
-import { faker } from '@faker-js/faker'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Cron, CronExpression } from '@nestjs/schedule'
@@ -12,6 +11,8 @@ import {
   StrUtil,
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
+import { TProductBrand } from 'modules/product-brand'
+import { TProductCategory } from 'modules/product-category'
 
 @Injectable()
 export class ProductMockTask {
@@ -22,7 +23,7 @@ export class ProductMockTask {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
     private readonly logger: LoggerService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {
     this.dateStarted = this.config.get<Date>('app.startDate')
   }
@@ -53,30 +54,32 @@ export class ProductMockTask {
     const categories = await this.getOrCreateCategories()
     const brands = await this.getOrCreateBrands()
     const dateExecute = this.helperService.dateForward(dateCheck, {
-      days: faker.number.int({ min: 1, max: 2 }),
+      days: this.helperService.randomNumberInRange(1, 2),
     })
 
     try {
       for (let i = 0; i < mockupNumbers; i++) {
-        const costPrice = faker.number.int({ min: 0, max: 1000 })
-        const salePoint = faker.number.int({ min: 0, max: 500 })
-        const stockQty = faker.number.int({ min: 100, max: 999 })
-        const duePaidDays = faker.number.int({ min: 7, max: 90 })
+        const costPrice = this.helperService.randomNumberInRange(0, 1000)
+        const salePoint = this.helperService.randomNumberInRange(0, 500)
+        const stockQty = this.helperService.randomNumberInRange(100, 999)
+        const duePaidDays = this.helperService.randomNumberInRange(7, 90)
         const code = this.helperService.padZero(i + 1, 8, 'P')
-        const salePerPerson = faker.number.int({ min: 1, max: 10 })
+        const salePerPerson = 1
 
-        const hasShipment = faker.datatype.boolean()
-        const hasInventory = faker.datatype.boolean()
-        const hasExpiration = faker.datatype.boolean()
-        const hasDuePayment = faker.datatype.boolean()
-        const hasLimitPerson = faker.datatype.boolean()
+        const hasShipment = !this.helperService.randomNumberInRange(0, 1)
+        const hasInventory = !this.helperService.randomNumberInRange(0, 1)
+        const hasExpiration = !this.helperService.randomNumberInRange(0, 1)
+        const hasDuePayment = !this.helperService.randomNumberInRange(0, 1)
+        const hasLimitPerson = !this.helperService.randomNumberInRange(0, 1)
 
         let expiryType: EnumProductExpiryType = EnumProductExpiryType.DYNAMIC
         let staticExpiryDate = undefined
-        let dynamicExpiryDays = faker.number.int({ min: 7, max: 30 })
+        let dynamicExpiryDays = this.helperService.randomNumberInRange(7, 30)
         if (Math.floor(Math.random() * 2)) {
           expiryType = EnumProductExpiryType.STATIC
-          staticExpiryDate = this.helperService.dateCreate(faker.date.future(), { endOfDay: true })
+          staticExpiryDate = this.helperService.dateCreate(new Date(Date.now() + 30000 * 3600), {
+            endOfDay: true,
+          })
           dynamicExpiryDays = undefined
         }
 
@@ -88,27 +91,27 @@ export class ProductMockTask {
             categoryId: category.id,
             brandId: brand.id,
             name: {
-              [EnumMessageLanguage.EN]: faker.commerce.productName(),
-              [EnumMessageLanguage.VI]: faker.commerce.productName(),
-              [EnumMessageLanguage.HK]: faker.commerce.productName(),
+              [EnumMessageLanguage.EN]: `Product No #0${i + 1}`,
+              [EnumMessageLanguage.VI]: `Product No #0${i + 1}`,
+              [EnumMessageLanguage.HK]: `Product No #0${i + 1}`,
             },
             languages: {
               createMany: {
                 data: [
                   {
                     language: EnumMessageLanguage.EN,
-                    content: `<p>${faker.lorem.paragraphs(5, '<br/>\n')}</p>`,
-                    termAndCond: `<p>${faker.lorem.sentences(5, '<br/>\n')}</p>`,
+                    content: `<p>Product content #0${i + 1}</p>`,
+                    termAndCond: `<p>Product term and condition #0${i + 1}</p>`,
                   },
                   {
                     language: EnumMessageLanguage.VI,
-                    content: `<p>${faker.lorem.paragraphs(5, '<br/>\n')}</p>`,
-                    termAndCond: `<p>${faker.lorem.sentences(5, '<br/>\n')}</p>`,
+                    content: `<p>Product content #0${i + 1}</p>`,
+                    termAndCond: `<p>Product term and condition #0${i + 1}</p>`,
                   },
                   {
                     language: EnumMessageLanguage.HK,
-                    content: `<p>${faker.lorem.paragraphs(5, '<br/>\n')}</p>`,
-                    termAndCond: `<p>${faker.lorem.sentences(5, '<br/>\n')}</p>`,
+                    content: `<p>Product content #0${i + 1}</p>`,
+                    termAndCond: `<p>Product term and condition #0${i + 1}</p>`,
                   },
                 ],
                 skipDuplicates: true,
@@ -134,7 +137,7 @@ export class ProductMockTask {
           },
         })
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       this.logger.error(err)
     } finally {
       this.logger.warn(`${ProductMockTask.name} done`)
@@ -145,17 +148,19 @@ export class ProductMockTask {
 
   private async runWithNumbers(): Promise<number> {
     const limitProducts = StrUtil.numeric(process.env.AUTO_GEN_PRODUCT_NUMB, 0)
-    if (limitProducts <= 0) return 0
+    if (limitProducts <= 0) {
+      return 0
+    }
 
     const totalProducts = await this.prisma.product.count()
     return limitProducts - totalProducts
   }
 
-  private async getOrCreateCategories() {
+  private async getOrCreateCategories(): Promise<TProductCategory[]> {
     const exists = await this.prisma.productCategory.exists()
     if (!exists) {
       await this.prisma.productCategory.createMany({
-        data: ['Barber', 'Hair removal', 'Med spa', 'Nails', 'Tanning', 'Braids'].map((name) => {
+        data: ['Barber', 'Hair removal', 'Med spa', 'Nails', 'Tanning', 'Braids'].map(name => {
           return {
             name: {
               [EnumMessageLanguage.EN]: name,
@@ -173,21 +178,21 @@ export class ProductMockTask {
     return await this.prisma.productCategory.findMany()
   }
 
-  private async getOrCreateBrands() {
+  private async getOrCreateBrands(): Promise<TProductBrand[]> {
     const exists = await this.prisma.productBrand.exists()
     if (!exists) {
       const BRANDS = ['L Oreal', 'Unilever', 'Procter & Gamble', 'LVMH', 'Beiersdorf', 'Coty Inc']
       await this.prisma.productBrand.createMany({
-        data: BRANDS.map((name) => {
+        data: BRANDS.map(name => {
           return {
             name: {
               [EnumMessageLanguage.EN]: name,
               [EnumMessageLanguage.VI]: name,
               [EnumMessageLanguage.HK]: name,
             },
-            address: faker.location.streetAddress(),
-            latitude: faker.location.latitude(),
-            longitude: faker.location.longitude(),
+            address: `International Airport`,
+            latitude: 10.8087479,
+            longitude: 106.6733667,
             createdAt: this.dateStarted,
             updatedAt: this.dateStarted,
           }

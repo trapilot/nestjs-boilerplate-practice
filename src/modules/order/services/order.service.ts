@@ -36,10 +36,10 @@ export class OrderService implements OnModuleInit {
   constructor(
     private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
-    private readonly helperService: HelperService,
+    private readonly helperService: HelperService
   ) {}
 
-  onModuleInit() {
+  onModuleInit(): void {
     this.memberService = this.ref.get(MemberService, { strict: false })
     this.invoiceService = this.ref.get(InvoiceService, { strict: false })
   }
@@ -58,7 +58,7 @@ export class OrderService implements OnModuleInit {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.OrderFindUniqueOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.OrderFindUniqueOrThrowArgs, 'where'> = {}
   ): Promise<TOrder> {
     const order = await this.prisma.order
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -73,7 +73,7 @@ export class OrderService implements OnModuleInit {
 
   async matchOrFail(
     where: Prisma.OrderWhereInput,
-    kwargs: Omit<Prisma.OrderFindFirstOrThrowArgs, 'where'> = {},
+    kwargs: Omit<Prisma.OrderFindFirstOrThrowArgs, 'where'> = {}
   ): Promise<TOrder> {
     const order = await this.prisma.order
       .findFirstOrThrow({ ...kwargs, where })
@@ -88,7 +88,7 @@ export class OrderService implements OnModuleInit {
 
   async differOrFail(
     where: Prisma.OrderWhereInput,
-    options?: { limit?: number; message?: string },
+    options?: { limit?: number; message?: string }
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -103,7 +103,7 @@ export class OrderService implements OnModuleInit {
   async list(
     where?: Prisma.OrderWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnList> {
     return await this.prisma.order.list(where, params, options)
   }
@@ -111,7 +111,7 @@ export class OrderService implements OnModuleInit {
   async paginate(
     where?: Prisma.OrderWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions,
+    options?: IPrismaOptions
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.order.paginate(where, params, options)
   }
@@ -147,7 +147,7 @@ export class OrderService implements OnModuleInit {
 
   async delete(order: TOrder, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async tx => {
         await tx.order.delete({ where: { id: order.id } })
       })
       return true
@@ -177,10 +177,10 @@ export class OrderService implements OnModuleInit {
     const invoiceNumber = await this.memberService.getInvoiceNumber(options.issuedAt)
     const recentPoints = await this.memberService.getPointRecents(cart.memberId, finalPoint)
 
-    const hasShipment = !!cart.items.find((item) => item.product.hasShipment)
+    const hasShipment = !!cart.items.find(item => item.product.hasShipment)
     const duePaidDays = cart.items
-      .filter((item) => item.product.hasDuePayment && item.product.duePaidDays > 0)
-      .map((item) => item.product.duePaidDays)
+      .filter(item => item.product.hasDuePayment && item.product.duePaidDays > 0)
+      .map(item => item.product.duePaidDays)
 
     const dueDate = duePaidDays.length
       ? this.helperService.dateForward(endOfDay, { days: Math.min(...duePaidDays) })
@@ -222,7 +222,7 @@ export class OrderService implements OnModuleInit {
               updatedAt: options.issuedAt,
               points: {
                 createMany: {
-                  data: recentPoints.map((recentPoint) => {
+                  data: recentPoints.map(recentPoint => {
                     pointBalance -= recentPoint.point
                     return {
                       memberId: cart.memberId,
@@ -242,7 +242,7 @@ export class OrderService implements OnModuleInit {
           },
           items: {
             createMany: {
-              data: cart.items.map((item) => ({
+              data: cart.items.map(item => ({
                 productId: item.productId,
                 quantity: item.quantity,
                 unitPrice: item.product.salePrice,
@@ -257,7 +257,7 @@ export class OrderService implements OnModuleInit {
           },
           redeems: {
             createMany: {
-              data: cart.items.flatMap((item) =>
+              data: cart.items.flatMap(item =>
                 Array.from({ length: item.quantity }, () => ({
                   memberId: cart.memberId,
                   productId: item.productId,
@@ -268,7 +268,7 @@ export class OrderService implements OnModuleInit {
                   issuedAt: options.issuedAt,
                   createdAt: options.issuedAt,
                   updatedAt: options.issuedAt,
-                })),
+                }))
               ),
               skipDuplicates: true,
             },
@@ -292,11 +292,11 @@ export class OrderService implements OnModuleInit {
           },
         },
       }),
-      ...cart.items.map((item) =>
+      ...cart.items.map(item =>
         this.prisma.product.update({
           where: { id: item.productId },
           data: { unpaidQty: { increment: item.quantity } },
-        }),
+        })
       ),
     ])
     return order

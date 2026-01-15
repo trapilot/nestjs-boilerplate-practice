@@ -10,11 +10,11 @@ export class SettingRemoveCommand extends CommandRunner {
     super()
   }
 
-  async run(): Promise<void> {
+  async run(_passedParam: string[], _options?: Record<string, string | number>): Promise<void> {
     try {
       await this.settingService.deleteMany()
-    } catch (err: any) {
-      throw new Error(err.message)
+    } catch (err: unknown) {
+      throw err
     }
 
     return

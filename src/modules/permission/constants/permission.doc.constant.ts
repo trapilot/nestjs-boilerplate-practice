@@ -8,13 +8,13 @@ export const PERMISSION_DOC_ADMIN_QUERY_LIST = [
     name: 'isActive',
     allowEmptyValue: true,
     required: false,
-    type: () => Boolean,
+    type: Boolean,
   },
   {
     name: 'isVisible',
     allowEmptyValue: true,
     required: false,
-    type: () => Boolean,
+    type: Boolean,
   },
 ]
 export const PERMISSION_DOC_ADMIN_PARAM_DETAIL = [
@@ -22,6 +22,6 @@ export const PERMISSION_DOC_ADMIN_PARAM_DETAIL = [
     name: 'id',
     allowEmptyValue: false,
     required: true,
-    type: () => Number,
+    type: Number,
   },
 ]

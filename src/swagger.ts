@@ -1,16 +1,22 @@
-import { INestApplication } from '@nestjs/common'
+import { INestApplication, Type } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { SecuritySchemeObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface'
 import { RoutesAdminModule, RoutesAppModule, RoutesPublicModule, RoutesWebModule } from 'app/router'
 import { EnumAppEnvironment } from 'lib/nest-core'
 import { writeFileSync } from 'node:fs'
 
-export default async function (app: INestApplication) {
+interface ISecurityOptions {
+  name: string
+  options: SecuritySchemeObject
+}
+
+export default async function (app: INestApplication): Promise<void> {
   const config = app.get(ConfigService)
   const env = config.get<EnumAppEnvironment>('app.env')
   const appVersion = config.get<boolean>('app.urlVersion.version')
 
-  const builder = () => {
+  const builder = (): DocumentBuilder => {
     const documentBuilder = new DocumentBuilder()
       .setTitle(`[${process.env.APP_NAME}] APIs Specification`)
       .setDescription(`API developed throughout the API with NestJS`)
@@ -26,8 +32,10 @@ export default async function (app: INestApplication) {
     return documentBuilder
   }
 
-  const apiKeys = [{ name: 'apiKey', options: { type: 'apiKey', in: 'header', name: 'x-api-key' } }]
-  const bearerAuths = [
+  const apiKeys: ISecurityOptions[] = [
+    { name: 'apiKey', options: { type: 'apiKey', in: 'header', name: 'x-api-key' } },
+  ]
+  const bearerAuths: ISecurityOptions[] = [
     { name: 'accessToken', options: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } },
     { name: 'refreshToken', options: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } },
   ]
@@ -44,25 +52,25 @@ const setup = (
   documentOptions: {
     env: EnumAppEnvironment
     prefix: string
-    routes: any[]
-    apiKeys?: any[]
-    bearerAuths?: any[]
-  },
-) => {
+    routes: Type<unknown>[]
+    apiKeys?: ISecurityOptions[]
+    bearerAuths?: ISecurityOptions[]
+  }
+): void => {
   if (documentOptions?.apiKeys) {
-    documentOptions.apiKeys.forEach((apiKey) =>
-      documentBuilder.addApiKey(apiKey.options, apiKey.name),
+    documentOptions.apiKeys.forEach(apiKey =>
+      documentBuilder.addApiKey(apiKey.options, apiKey.name)
     )
   }
   if (documentOptions?.bearerAuths) {
-    documentOptions.bearerAuths.forEach((bearerAuth) =>
-      documentBuilder.addBearerAuth(bearerAuth.options, bearerAuth.name),
+    documentOptions.bearerAuths.forEach(bearerAuth =>
+      documentBuilder.addBearerAuth(bearerAuth.options, bearerAuth.name)
     )
   }
 
   const documentJsonFile = `public/docs/swagger-${documentOptions.prefix}.json`
   documentBuilder.setDescription(
-    `Json Schema: <a target="_blank" href="${documentJsonFile}">click here</a>`,
+    `Json Schema: <a target="_blank" href="${documentJsonFile}">click here</a>`
   )
   const documentBuild = documentBuilder.build()
   const document = SwaggerModule.createDocument(app, documentBuild, {
