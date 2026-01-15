@@ -8,7 +8,7 @@ export const POINT_HISTORY_DOC_ADMIN_QUERY_LIST = [
     name: 'memberCode',
     allowEmptyValue: true,
     required: false,
-    type: String,
+    type: 'string',
   },
 ]
 export const POINT_HISTORY_DOC_ADMIN_PARAM_DETAIL = [
@@ -16,6 +16,6 @@ export const POINT_HISTORY_DOC_ADMIN_PARAM_DETAIL = [
     name: 'id',
     allowEmptyValue: false,
     required: true,
-    type: Number,
+    type: 'number',
   },
 ]

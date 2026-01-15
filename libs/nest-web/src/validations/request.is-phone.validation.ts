@@ -7,26 +7,24 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator'
-import { CountryCode } from 'libphonenumber-js/types.cjs'
 
 @ValidatorConstraint({ async: true })
 @Injectable()
 export class IsPhoneConstraint implements ValidatorConstraintInterface {
-  validate(value: string, args: ValidationArguments): boolean {
+  validate(value: string, _args: ValidationArguments): boolean {
     if (!value) return false
 
-    const [regions] = args.constraints
-    if (regions && regions.length) {
-      for (const region in regions) {
-        if (isPhoneNumber(value, region as CountryCode)) {
-          return true
-        }
-      }
-      return false
-    }
+    // const [regions] = args.constraints
+    // if (regions && regions.length) {
+    //   for (const region in regions) {
+    //     if (isPhoneNumber(value, region)) {
+    //       return true
+    //     }
+    //   }
+    //   return false
+    // }
 
-    // return isPhoneNumber(value)
-    return true
+    return isPhoneNumber(value) || true
   }
 }
 

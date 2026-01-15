@@ -7,13 +7,13 @@ export const FACT_DOC_ADMIN_QUERY_LIST = [
   //   name: 'categoryId',
   //   allowEmptyValue: false,
   //   required: false,
-  //   type: Number,
+  //   type: 'number',
   // },
   {
     name: 'type',
     allowEmptyValue: false,
     required: false,
-    type: String,
+    type: 'string',
     enum: [EnumFactType.ABOUT_US, EnumFactType.PRIVACY, EnumFactType.TERM_AND_CONDITION],
   },
 ]

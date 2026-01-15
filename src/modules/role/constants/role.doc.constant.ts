@@ -8,7 +8,7 @@ export const ROLE_DOC_ADMIN_QUERY_LIST = [
     name: 'isActive',
     allowEmptyValue: true,
     required: false,
-    type: Boolean,
+    type: 'boolean',
   },
 ]
 export const ROLE_DOC_ADMIN_PARAM_DETAIL = [
@@ -16,6 +16,6 @@ export const ROLE_DOC_ADMIN_PARAM_DETAIL = [
     name: 'id',
     allowEmptyValue: false,
     required: true,
-    type: Number,
+    type: 'number',
   },
 ]

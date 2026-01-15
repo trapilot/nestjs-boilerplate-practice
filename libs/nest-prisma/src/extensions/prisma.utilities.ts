@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from '@runtime/prisma-client'
+import { Prisma } from '@runtime/prisma-client'
 import {
   IPrismaIterator,
   IPrismaOptions,

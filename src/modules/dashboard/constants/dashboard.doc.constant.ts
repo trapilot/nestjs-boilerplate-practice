@@ -9,7 +9,7 @@ export const DASHBOARD_DOC_ADMIN_PARAM_DETAIL = [
     name: 'id',
     allowEmptyValue: false,
     required: true,
-    type: Number,
+    type: 'number',
     example: 1,
   },
 ]

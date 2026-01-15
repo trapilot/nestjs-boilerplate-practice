@@ -7,7 +7,6 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator'
-import { IsEmailOptions } from 'validator'
 
 @ValidatorConstraint({ async: true })
 @Injectable()
@@ -25,7 +24,10 @@ export class IsEmailConstraint implements ValidatorConstraintInterface {
   }
 }
 
-export function IsEmail(emailOptions?: IsEmailOptions, validationOptions?: ValidationOptions) {
+export function IsEmail(
+  emailOptions?: Record<string, string>,
+  validationOptions?: ValidationOptions
+) {
   return function (object: Record<string, any>, propertyName: string): void {
     registerDecorator({
       name: 'IsEmail',

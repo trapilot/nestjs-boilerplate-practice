@@ -11,7 +11,7 @@ import { REQUEST_DEFAULT_PER_PAGE } from '../constants'
 export class ResponseDataDto<T> {
   @ApiProperty({
     name: 'success',
-    type: Boolean,
+    type: 'boolean',
     required: true,
     nullable: false,
     description: 'Return specific status code for every endpoints',
