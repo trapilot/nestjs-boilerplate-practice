@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType } from '@nestjs/swagger'
-import { ENUM_PUSH_STATUS, ENUM_PUSH_TYPE } from '@runtime/prisma-client'
+import { EnumPushStatus, EnumPushType } from '@runtime/prisma-client'
 import { Exclude, Expose, Type } from 'class-transformer'
-import { ENUM_DATE_FORMAT, ToDate, ToDuration } from 'lib/nest-core'
+import { EnumDateFormat, ToDate, ToDuration } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { NotificationResponseBelongDto } from 'modules/notification/dtos'
+import { NotificationResponseBelongDto } from 'modules/notification'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
@@ -17,12 +17,12 @@ class ResponseDataDetailDto {
   @Expose()
   notificationId: number
 
-  @ApiProperty({ example: ENUM_PUSH_TYPE.DAILY })
+  @ApiProperty({ example: EnumPushType.DAILY })
   @Type(() => String)
   @Expose()
   type: string
 
-  @ApiProperty({ example: ENUM_PUSH_STATUS.COMPLETED })
+  @ApiProperty({ example: EnumPushStatus.COMPLETED })
   @Type(() => String)
   @Expose()
   status: string
@@ -33,7 +33,7 @@ class ResponseDataDetailDto {
   executeTime: string
 
   @ApiProperty({ example: faker.date.past() })
-  @ToDate({ format: ENUM_DATE_FORMAT.DB_DATE })
+  @ToDate({ format: EnumDateFormat.DB_DATE })
   @Expose()
   executeDate: string
 
@@ -53,12 +53,12 @@ class ResponseDataDetailDto {
   month: number
 
   @ApiProperty({ example: faker.date.past() })
-  @ToDate({ format: ENUM_DATE_FORMAT.DATE })
+  @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   startDate: Date
 
   @ApiProperty({ example: faker.date.past() })
-  @ToDate({ format: ENUM_DATE_FORMAT.DATE })
+  @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   untilDate: Date
 

@@ -1,13 +1,14 @@
 import { registerAs } from '@nestjs/config'
-import { TimeUtil } from 'lib/nest-core'
+import { IConfigAuth } from 'lib/nest-auth'
+import { StrUtil, TimeUtil } from 'lib/nest-core'
 
 export default registerAs(
   'auth',
-  (): Record<string, any> => ({
+  (): IConfigAuth => ({
     jwt: {
       accessToken: {
         secretKey: process.env.AUTH_JWT_ACCESS_TOKEN_SECRET_KEY ?? `${process.env.APP_NAME}_as_k`,
-        expirationTime: TimeUtil.seconds(process.env.AUTH_JWT_ACCESS_TOKEN_EXPIRED || '30m'),
+        expirationTime: StrUtil.seconds(process.env.AUTH_JWT_ACCESS_TOKEN_EXPIRED, '30m'),
       },
 
       refreshToken: {
@@ -44,9 +45,20 @@ export default registerAs(
       clientSecret: process.env.AUTH_SOCIAL_GOOGLE_CLIENT_SECRET,
     },
 
-    xApiKey: { header: 'x-api-key' },
+    xApiKey: {
+      header: 'x-api-key',
+    },
 
-    otp: { length: 6, maxAttempts: 5, ttl: TimeUtil.seconds('5m') },
-    token: { length: 32, maxAttempts: 3, ttl: TimeUtil.seconds('1d') },
+    otp: {
+      length: 6,
+      maxAttempts: 5,
+      ttl: TimeUtil.seconds('5m'),
+    },
+
+    token: {
+      length: 32,
+      maxAttempts: 3,
+      ttl: TimeUtil.seconds('1d'),
+    },
   }),
 )

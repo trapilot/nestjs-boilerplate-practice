@@ -1,8 +1,8 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { ENUM_FILE_BOOK_TYPE } from 'lib/nest-core'
+import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
+import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -16,7 +16,7 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { PRODUCT_REVIEW_DOC_ADMIN_QUERY_LIST, PRODUCT_REVIEW_DOC_OPERATION } from '../constants'
 import {
   ProductReviewRequestCreateDto,
@@ -40,14 +40,14 @@ export class ProductReviewAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.PRODUCT_REVIEW,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.PRODUCT_REVIEW,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -64,14 +64,14 @@ export class ProductReviewAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: ENUM_FILE_BOOK_TYPE,
+    @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
     const _where: Prisma.ProductReviewWhereInput = {
       ..._search,
     }
 
     const pagination = await this.productReviewService.paginate(_where, _params, {
-      bookType,
+      document: bookType,
     })
     return pagination
   }
@@ -85,7 +85,7 @@ export class ProductReviewAdminController {
     docExclude: true,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: false,
@@ -121,14 +121,14 @@ export class ProductReviewAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.PRODUCT_REVIEW,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.PRODUCT_REVIEW,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -151,15 +151,15 @@ export class ProductReviewAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.PRODUCT_REVIEW,
-            actions: [ENUM_APP_ABILITY_ACTION.CREATE],
+            subject: EnumAuthAbilitySubject.PRODUCT_REVIEW,
+            actions: [EnumAuthAbilityAction.CREATE],
           },
         ],
       },
@@ -182,15 +182,15 @@ export class ProductReviewAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.PRODUCT_REVIEW,
-            actions: [ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.PRODUCT_REVIEW,
+            actions: [EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -216,15 +216,15 @@ export class ProductReviewAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.PRODUCT_REVIEW,
-            actions: [ENUM_APP_ABILITY_ACTION.DELETE],
+            subject: EnumAuthAbilitySubject.PRODUCT_REVIEW,
+            actions: [EnumAuthAbilityAction.DELETE],
           },
         ],
       },

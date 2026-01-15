@@ -13,7 +13,7 @@ import {
   AUTH_ACCESS_USER_HMAC_METADATA,
   AUTH_ACCESS_USER_UNIQUE_METADATA,
   AUTH_SCOPE_META_KEY,
-  ENUM_AUTH_SCOPE_TYPE,
+  EnumAuthScopeType,
   IAuthValidator,
 } from 'lib/nest-auth'
 import { IRequestApp } from 'lib/nest-core'
@@ -46,7 +46,7 @@ export class AuthUserScopeGuard implements CanActivate {
 
       const { user: payload } = request
 
-      const scopes = this.reflector.get<ENUM_AUTH_SCOPE_TYPE>(
+      const scopes = this.reflector.get<EnumAuthScopeType>(
         AUTH_SCOPE_META_KEY,
         context.getHandler(),
       )

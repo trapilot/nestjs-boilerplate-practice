@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, UnsupportedMediaTypeException } from '@nestjs/common'
 import { PipeTransform } from '@nestjs/common/interfaces'
-import { ENUM_FILE_MIME } from '../enums'
+import { EnumFileExtensionDocument } from '../enums'
 import { IFile, IFileRows } from '../interfaces'
 import { FileService } from '../services'
 
@@ -17,7 +17,7 @@ export class FileExcelExtractPipe<T> implements PipeTransform {
     await this.validate(value)
 
     const extracts: IFileRows<T>[] =
-      value.mimetype === ENUM_FILE_MIME.CSV
+      value.mimetype === EnumFileExtensionDocument.CSV
         ? await this.extractsCsv(value)
         : await this.extractsExcel(value)
 
@@ -26,7 +26,7 @@ export class FileExcelExtractPipe<T> implements PipeTransform {
 
   async validate(value: IFile): Promise<void> {
     const mimetype = value.mimetype.toLowerCase()
-    const supportedFiles: string[] = [ENUM_FILE_MIME.CSV, ENUM_FILE_MIME.XLSX]
+    const supportedFiles: string[] = [EnumFileExtensionDocument.CSV, EnumFileExtensionDocument.XLSX]
 
     if (!supportedFiles.includes(mimetype)) {
       throw new UnsupportedMediaTypeException({

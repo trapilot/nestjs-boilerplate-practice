@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { ENUM_ORDER_SOURCE } from '@runtime/prisma-client'
-import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
+import { EnumOrderSource } from '@runtime/prisma-client'
+import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import {
   ApiRequestData,
   IResponseData,
@@ -28,7 +28,7 @@ export class CartAppController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: false,
         require: true,
@@ -50,7 +50,7 @@ export class CartAppController {
     docExpansion: false,
     cartVersion: true,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: false,
         require: true,
@@ -68,7 +68,7 @@ export class CartAppController {
   ): Promise<IResponseData> {
     const cartData = await this.cartService.validate(memberId, cartVersion)
     const cartReset = await this.cartService.checkout(cartData.id, {
-      source: ENUM_ORDER_SOURCE.APP,
+      source: EnumOrderSource.APP,
       shipment: {
         address: body?.address,
         phone: body?.phone,
@@ -84,7 +84,7 @@ export class CartAppController {
     docExpansion: false,
     cartVersion: true,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: false,
         require: true,
@@ -116,7 +116,7 @@ export class CartAppController {
     docExpansion: false,
     cartVersion: true,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: false,
         require: true,
@@ -145,7 +145,7 @@ export class CartAppController {
     docExpansion: false,
     cartVersion: true,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: false,
         require: true,

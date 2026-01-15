@@ -1,10 +1,9 @@
-export enum ENUM_SETTING_GROUP {
+export enum EnumSettingGroup {
   SYSTEM = 'SYSTEM',
   APP_VERSION = 'APP_VERSION',
-  OPEN_WORK = 'OPEN_WORK',
 }
 
-export enum ENUM_SETTING_TYPE {
+export enum EnumSettingType {
   BOOLEAN = 'BOOLEAN',
   YESNO = 'YESNO',
   ONOFF = 'ONOFF',

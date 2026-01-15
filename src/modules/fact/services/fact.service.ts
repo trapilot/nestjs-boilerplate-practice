@@ -7,7 +7,7 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { ENUM_FACT_TYPE } from '../enums'
+import { EnumFactType } from '../enums'
 import { TFact } from '../interfaces'
 
 @Injectable()
@@ -15,22 +15,22 @@ export class FactService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.FactFindUniqueArgs): Promise<Fact> {
-    return this.prisma.client.fact.findUnique(kwargs)
+    return this.prisma.fact.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.FactFindFirstArgs = {}): Promise<Fact> {
-    return await this.prisma.client.fact.findFirst(kwargs)
+    return await this.prisma.fact.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.FactFindManyArgs = {}): Promise<TFact[]> {
-    return await this.prisma.client.fact.findMany(kwargs)
+    return await this.prisma.fact.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.FactFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TFact> {
-    return await this.prisma.client.fact
+    return await this.prisma.fact
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -44,7 +44,7 @@ export class FactService {
     where: Prisma.FactWhereInput,
     kwargs: Omit<Prisma.FactFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<Fact> {
-    const fact = await this.prisma.client.fact
+    const fact = await this.prisma.fact
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -60,7 +60,7 @@ export class FactService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.fact.list(where, params, options)
+    return await this.prisma.fact.list(where, params, options)
   }
 
   async paginate(
@@ -68,31 +68,31 @@ export class FactService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.fact.paginate(where, params, options)
+    return await this.prisma.fact.paginate(where, params, options)
   }
 
   async count(where?: Prisma.FactWhereInput): Promise<number> {
-    return await this.prisma.client.fact.count({
+    return await this.prisma.fact.count({
       where,
     })
   }
 
   async find(id: number, kwargs: Omit<Prisma.FactFindUniqueArgs, 'where'> = {}): Promise<Fact> {
-    return await this.prisma.client.fact.findUnique({
+    return await this.prisma.fact.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.FactUncheckedCreateInput): Promise<TFact> {
-    const created = await this.prisma.client.fact.create({ data })
+    const created = await this.prisma.fact.create({ data })
     return created
   }
 
   async update(id: number, data: Prisma.FactUncheckedUpdateInput): Promise<TFact> {
     const fact = await this.findOrFail(id)
 
-    const updated = await this.prisma.client.fact.update({
+    const updated = await this.prisma.fact.update({
       data,
       where: { id: fact.id },
     })
@@ -110,12 +110,12 @@ export class FactService {
         })
       }
 
-      return await this.prisma.client.fact.update({
+      return await this.prisma.fact.update({
         where: { id: fact.id },
         data: { isActive: false },
       })
 
-      // await this.prisma.client.$transaction(async (tx) => {
+      // await this.prisma.$transaction(async (tx) => {
       //   await tx.fact.delete({ where: { id: fact.id } })
       //   await this.fileService.unlink(fact.thumbnail)
       // })
@@ -125,15 +125,15 @@ export class FactService {
 
   async change(id: number, data: Prisma.FactUncheckedUpdateInput): Promise<TFact> {
     const fact = await this.findOrFail(id)
-    return await this.prisma.client.fact.update({
+    return await this.prisma.fact.update({
       data,
       where: { id: fact.id },
     })
   }
 
   async factories(): Promise<void> {
-    await this.prisma.client.fact.createMany({
-      data: Object.values(ENUM_FACT_TYPE).map((type: string) => {
+    await this.prisma.fact.createMany({
+      data: Object.values(EnumFactType).map((type: string) => {
         return { type }
       }),
     })

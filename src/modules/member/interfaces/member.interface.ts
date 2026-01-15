@@ -1,5 +1,5 @@
 import {
-  ENUM_SLIP_TYPE,
+  EnumSlipType,
   Member,
   MemberDeviceHistory,
   MemberPointHistory,
@@ -38,6 +38,6 @@ export interface IMemberData extends IMemberRecentData {
 }
 
 export interface ISlipCounterOptions {
-  type: ENUM_SLIP_TYPE
+  type: EnumSlipType
   prefix?: string
 }

@@ -19,7 +19,7 @@ export class RoleLimitedLevelPipe implements PipeTransform {
 
   async transform(roleId: number): Promise<number> {
     const userLevel = this.request?.user?.user?.level ?? Number.MAX_SAFE_INTEGER
-    const role = await this.prisma.client.role.findUnique({ where: { id: roleId } })
+    const role = await this.prisma.role.findUnique({ where: { id: roleId } })
 
     if (role.level < userLevel) {
       throw new BadRequestException({

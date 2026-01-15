@@ -68,9 +68,9 @@ Full structure of module
     ├── processors          // queue processors
     ├── rules
     ├── services
-    ├── tasks               // cronjobs
+    ├── tasks
     ├── transforms
-    ├── utils               // common class
+    ├── utils               // utilities class
     ├── validators
     └── moduleA.auth.module.ts
     └── moduleA.module.ts
@@ -154,41 +154,41 @@ Use these commands to set up your local environment and populate the database wi
 
 ```sh
 # Clean up the project (e.g., remove old builds, reset the database)
-yarn app:reset
+pnpm app:reset
 
 # Create and generate environment variables
-yarn app:env create
-yarn app:env generate
+pnpm app:env create
+pnpm app:env generate
 
 # Run the main seeding scripts
-yarn start:cli api-key:seed
-yarn start:cli app-version:seed
-
-# Seed example products and members
-yarn start:cli product:seed -i 100
-yarn start:cli member:seed -i 100
-yarn start:cli cart:seed
+pnpm start:cli api-key:seed
+pnpm start:cli app-version:seed
 
 # Apply new settings for roles & permissions
-yarn migrate:role
-yarn migrate:permission
+pnpm migrate:role
+pnpm migrate:permission
+
+# Seed example products and members
+pnpm start:cli product:seed -i 1000
+pnpm start:cli member:seed -i 1000
+pnpm start:cli cart:seed
 
 # Run the project
-yarn start:dev              # development mode
-yarn start:debug            # debug mode
-yarn start:cli [command]    # run a specific CLI command
+pnpm start:dev              # development mode
+pnpm start:debug            # debug mode
+pnpm start:cli [command]    # run a specific CLI command
 
 # Generate a new module
-yarn schematics:generate
+pnpm schematics:generate
 
 # Build & generate an internal admin portal
-yarn admin:generate
+pnpm admin:generate
 
 # Run Prisma Studio to explore and edit data
-yarn db:studio
+pnpm db:studio
 
 # Build the project
-yarn build
+pnpm build
 
 # Bundle the project for production
-yarn bundle
+pnpm bundle

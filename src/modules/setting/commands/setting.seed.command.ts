@@ -1,7 +1,6 @@
-import { Logger } from '@nestjs/common'
-import { NEST_CLI } from 'lib/nest-core'
+import { EnumScopeType, LoggerService, ScopeAsync } from 'lib/nest-core'
 import { Command, CommandRunner } from 'nest-commander'
-import { ENUM_SETTING_GROUP, ENUM_SETTING_TYPE } from '../enums'
+import { EnumSettingGroup, EnumSettingType } from '../enums'
 import { SettingService } from '../services'
 
 @Command({
@@ -9,29 +8,36 @@ import { SettingService } from '../services'
   description: 'Seed settings',
 })
 export class SettingSeedCommand extends CommandRunner {
-  private readonly logger = new Logger(NEST_CLI)
-
-  constructor(private readonly settingService: SettingService) {
+  constructor(
+    private readonly logger: LoggerService,
+    private readonly settingService: SettingService,
+  ) {
     super()
   }
 
+  @ScopeAsync(EnumScopeType.COMMAND, { context: 'seed' })
   async run(): Promise<void> {
-    this.logger.warn(`${SettingSeedCommand.name} is running...`)
+    this.logger.log(`${SettingSeedCommand.name} is running...`)
+
     try {
-      await this.maintenance()
-    } catch (_err: any) {}
+      await this.seed()
+    } catch (err: any) {
+      this.logger.error(err)
+    } finally {
+      this.logger.log(`${SettingSeedCommand.name} stoped`)
+    }
     return
   }
 
-  private async maintenance() {
+  private async seed() {
     const exist = await this.settingService.match({ code: 'maintenance' })
     if (!exist) {
       await this.settingService.create({
         name: 'Maintenance Mode',
         code: 'maintenance',
-        group: ENUM_SETTING_GROUP.SYSTEM,
         description: 'Maintenance Mode',
-        type: ENUM_SETTING_TYPE.BOOLEAN,
+        group: EnumSettingGroup.SYSTEM,
+        type: EnumSettingType.BOOLEAN,
         value: 'false',
         isVisible: false,
       })

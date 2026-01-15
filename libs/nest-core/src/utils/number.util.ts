@@ -1,24 +1,24 @@
-import { ENUM_MESSAGE_LANGUAGE, ENUM_NUMBER_CURRENCY, ENUM_NUMBER_LOCALE } from '../enums'
-import { AppContext } from '../helpers'
+import { EnumMessageLanguage, EnumNumberCurrency, EnumNumberLocale } from '../enums'
+import { ScopeContext } from '../helpers'
 import { INumberFormatOptions } from '../interfaces'
 import { EnumUtil } from './enum.util'
 
 export class NumberUtil {
   static format(number: number, options: INumberFormatOptions): string {
-    const currLang = options?.language || AppContext.language()
+    const currLang = options?.language || ScopeContext.getReqLang()
 
     const formatter = new Intl.NumberFormat(
       EnumUtil.relative(currLang, {
-        enumRoot: ENUM_MESSAGE_LANGUAGE,
-        enumRelative: ENUM_NUMBER_LOCALE,
+        enumRoot: EnumMessageLanguage,
+        enumRelative: EnumNumberLocale,
       }),
       {
         style: options.style,
         currency:
           options.style === 'currency'
             ? EnumUtil.relative(currLang, {
-                enumRoot: ENUM_MESSAGE_LANGUAGE,
-                enumRelative: ENUM_NUMBER_CURRENCY,
+                enumRoot: EnumMessageLanguage,
+                enumRelative: EnumNumberCurrency,
               })
             : undefined,
         minimumFractionDigits: options?.minimumFractionDigits,

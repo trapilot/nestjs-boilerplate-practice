@@ -1,11 +1,10 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { ENUM_NOTIFICATION_CHANNEL, ENUM_NOTIFICATION_TYPE } from '@runtime/prisma-client'
+import { EnumNotificationChannel, EnumNotificationMethod } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
-import { ToDate, ToNestedArray } from 'lib/nest-core'
+import { EnumMessageRefType, ToDate, ToNestedArray } from 'lib/nest-core'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
-import { PushResponseBelongDto } from 'modules/push/dtos'
-import { ENUM_NOTIFICATION_REF_TYPE } from '../enums'
+import { PushResponseBelongDto } from 'modules/push'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
@@ -13,12 +12,12 @@ class ResponseDataDetailDto {
   @Expose()
   id: number
 
-  @ApiProperty({ example: ENUM_NOTIFICATION_CHANNEL.SMS })
+  @ApiProperty({ example: EnumNotificationChannel.SMS })
   @Type(() => String)
   @Expose()
   channel: string
 
-  @ApiProperty({ example: ENUM_NOTIFICATION_TYPE.TEXT })
+  @ApiProperty({ example: EnumNotificationMethod.TEXT })
   @Type(() => String)
   @Expose()
   type: string
@@ -28,7 +27,7 @@ class ResponseDataDetailDto {
   @Expose()
   refId: number
 
-  @ApiProperty({ example: ENUM_NOTIFICATION_REF_TYPE.TEXT })
+  @ApiProperty({ example: EnumMessageRefType.TEXT })
   @Type(() => String)
   @Expose()
   refType: string

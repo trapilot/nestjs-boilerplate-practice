@@ -1,4 +1,5 @@
 export * from './request.context.interceptor'
+export * from './response.cache.interceptor'
 export * from './response.data.interceptor'
 export * from './response.file.interceptor'
 export * from './response.listing.interceptor'

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 import { Prisma } from '@runtime/prisma-client'
-import { ENUM_AUTH_SIGN_UP_FROM, IAuthPassword } from 'lib/nest-auth'
+import { EnumAuthSignUpFrom, IAuthPassword } from 'lib/nest-auth'
 import { FileService, HelperService } from 'lib/nest-core'
 import {
   IPrismaOptions,
@@ -16,12 +16,13 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { RoleService } from 'modules/role/services'
+import { RoleService } from 'modules/role'
 import { IUserCreatedOptions, IUserUpdateOptions, TUser } from '../interfaces'
 
 @Injectable()
 export class UserService implements OnModuleInit {
   private roleService: RoleService
+
   constructor(
     private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
@@ -34,22 +35,22 @@ export class UserService implements OnModuleInit {
   }
 
   async findOne(kwargs?: Prisma.UserFindUniqueArgs): Promise<TUser> {
-    return await this.prisma.client.user.findUnique(kwargs)
+    return await this.prisma.user.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.UserFindFirstArgs = {}): Promise<TUser> {
-    return await this.prisma.client.user.findFirst(kwargs)
+    return await this.prisma.user.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.UserFindManyArgs = {}): Promise<TUser[]> {
-    return await this.prisma.client.user.findMany(kwargs)
+    return await this.prisma.user.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.UserFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TUser> {
-    return await this.prisma.client.user
+    return await this.prisma.user
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -77,7 +78,7 @@ export class UserService implements OnModuleInit {
     where: Prisma.UserWhereInput,
     kwargs: Omit<Prisma.UserFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TUser> {
-    const user = await this.prisma.client.user
+    const user = await this.prisma.user
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -93,7 +94,7 @@ export class UserService implements OnModuleInit {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.user.list(where, params, options)
+    return await this.prisma.user.list(where, params, options)
   }
 
   async paginate(
@@ -101,11 +102,11 @@ export class UserService implements OnModuleInit {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.user.paginate(where, params, options)
+    return await this.prisma.user.paginate(where, params, options)
   }
 
   async count(where?: Prisma.UserWhereInput): Promise<number> {
-    return await this.prisma.client.user.count({
+    return await this.prisma.user.count({
       where,
     })
   }
@@ -131,13 +132,13 @@ export class UserService implements OnModuleInit {
 
       const { country, phone } = this.helperService.parsePhone(data.phone)
 
-      return await this.prisma.client.user.create({
+      return await this.prisma.user.create({
         data: {
           ...data,
           phoneCountry: country,
           phoneNumber: phone,
           isActive: true,
-          signUpFrom: ENUM_AUTH_SIGN_UP_FROM.CMS,
+          signUpFrom: EnumAuthSignUpFrom.CMS,
           password: passwordHash,
         },
       })
@@ -166,7 +167,7 @@ export class UserService implements OnModuleInit {
 
     const { country, phone } = this.helperService.parsePhone(`${data.phone}`)
 
-    return await this.prisma.client.$transaction(async (tx) => {
+    return await this.prisma.$transaction(async (tx) => {
       if (options?.roleId) {
         await tx.usersRoles.deleteMany({ where: { userId: user.id } })
         await tx.usersRoles.create({ data: { userId: user.id, roleId: options.roleId } })
@@ -185,7 +186,7 @@ export class UserService implements OnModuleInit {
   }
 
   async changeAvatar(user: TUser, data: Prisma.UserUncheckedUpdateInput): Promise<TUser> {
-    return await this.prisma.client.user.update({
+    return await this.prisma.user.update({
       data,
       where: { id: user.id },
     })
@@ -196,6 +197,6 @@ export class UserService implements OnModuleInit {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.userLoginHistory.list(where, params, options)
+    return await this.prisma.userLoginHistory.list(where, params, options)
   }
 }

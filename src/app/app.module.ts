@@ -1,37 +1,29 @@
-import { HttpStatus, MiddlewareConsumer, Module } from '@nestjs/common'
+import { HttpStatus, MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common'
 import { ValidationError } from 'class-validator'
-import { NestAuthModule } from 'lib/nest-auth'
-import { APP_ENV, APP_NAME, NestCoreModule } from 'lib/nest-core'
+import { APP_ENV, APP_NAME, ENV_CONFIG, NestCoreModule, StrUtil } from 'lib/nest-core'
 import { NestPrismaModule } from 'lib/nest-prisma'
 import { EntityValidateException, NestWebModule } from 'lib/nest-web'
 import { AppVersionModule } from 'modules/app-version'
 import { SettingModule } from 'modules/setting'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
-import { UserAbilityFactory } from 'shared/helpers'
 import { SharedModule } from 'shared/shared.module'
 import configs from '../configs'
+import { MaintenanceCheckMiddleware, VersionCheckMiddleware } from './middleware'
 import { RouterModule } from './router'
-import { WorkerModule } from './worker'
+import { SchedulerModule } from './scheduler'
 
 @Module({
-  controllers: [],
   imports: [
-    // Library
     NestCoreModule.forRoot({
       configs,
       cache: true,
-      envFilePath: ['.env'],
+      envFilePath: ENV_CONFIG,
     }),
     NestPrismaModule.forRoot({
-      multiTenant: false,
+      multiTenant: StrUtil.isTrue(process.env.MULTITENANT_ENABLE),
       replication: true,
     }),
-    NestAuthModule.forRoot({
-      factory: UserAbilityFactory,
-      subjects: ENUM_APP_ABILITY_SUBJECT,
-      actions: ENUM_APP_ABILITY_ACTION,
-    }),
     NestWebModule.forRoot({
+      admin: true,
       validator: {
         transform: true,
         whitelist: true,
@@ -51,19 +43,43 @@ import { WorkerModule } from './worker'
           environment: APP_ENV,
         },
       },
+      logger: {
+        autoLogging: true,
+        excludeRoutes: [
+          { path: '*', method: RequestMethod.OPTIONS },
+          { path: 'audit/*spat', method: RequestMethod.ALL },
+          { path: 'v:version/audit/*spat', method: RequestMethod.ALL },
+        ],
+      },
       middleware: {
         imports: [SettingModule, AppVersionModule],
         configure: (consumer: MiddlewareConsumer) => {
-          AppVersionModule.middleware(consumer)
-          SettingModule.middleware(consumer)
+          consumer
+            .apply(MaintenanceCheckMiddleware)
+            .exclude(
+              { path: 'admin/auth/login', method: RequestMethod.POST },
+              { path: 'admin/auth/refresh', method: RequestMethod.POST },
+              { path: 'admin/settings', method: RequestMethod.ALL },
+              { path: 'admin/settings/:splat', method: RequestMethod.ALL },
+            )
+            .forRoutes('*')
+
+          consumer
+            .apply(VersionCheckMiddleware)
+            .forRoutes(
+              { path: 'app/*spat', method: RequestMethod.ALL },
+              { path: 'v:version/app/*spat', method: RequestMethod.ALL },
+              { path: 'web/*spat', method: RequestMethod.ALL },
+              { path: 'v:version/web/*spat', method: RequestMethod.ALL },
+            )
         },
       },
     }),
 
     // App Register
     SharedModule.register(),
-    WorkerModule.register(),
     RouterModule.register({ http: true }),
+    SchedulerModule.register({ queue: true, task: true }),
   ],
 })
 export class AppModule {}

@@ -25,7 +25,8 @@ export class IsPhoneConstraint implements ValidatorConstraintInterface {
       return false
     }
 
-    return isPhoneNumber(value)
+    // return isPhoneNumber(value)
+    return true
   }
 }
 

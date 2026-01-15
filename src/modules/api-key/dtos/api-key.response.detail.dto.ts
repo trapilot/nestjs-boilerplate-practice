@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { ENUM_API_KEY_TYPE } from '@runtime/prisma-client'
+import { EnumApiKeyType } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
 import { ToDate } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
@@ -13,12 +13,12 @@ class ResponseDataDetailDto {
 
   @ApiProperty({
     description: 'Type of api key',
-    example: ENUM_API_KEY_TYPE.CLIENT,
-    enum: ENUM_API_KEY_TYPE,
+    example: EnumApiKeyType.CLIENT,
+    enum: EnumApiKeyType,
     required: true,
   })
   @Type(() => String)
-  type: ENUM_API_KEY_TYPE
+  type: EnumApiKeyType
 
   @ApiProperty({
     description: 'Alias name of api key',

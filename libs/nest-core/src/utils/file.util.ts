@@ -1,7 +1,8 @@
+import bytes from 'bytes'
 import * as fs from 'fs'
+import * as mime from 'mime'
 import { basename, join, relative } from 'path'
-import { APP_PATH, FILE_MIME_TYPE, ROOT_PATH } from '../constants'
-import { ENUM_FILE_MIME } from '../enums'
+import { APP_PATH, ROOT_PATH } from '../constants'
 import { IFile, IFileFormatOptions } from '../interfaces'
 import { ArrUtil } from './array.util'
 
@@ -26,8 +27,20 @@ export class FileUtil {
     return _fileName + _fileExtension
   }
 
+  static kilobytes(val: number) {
+    return bytes(`${val}kb`)
+  }
+
+  static megabytes(val: number) {
+    return bytes(`${val}mb`)
+  }
+
   static relative(from: string, to: string): string {
     return relative(from, to)
+  }
+
+  static normalize(path: string): string {
+    return path.replaceAll('\\', '/')
   }
 
   static basename(path: string, suffix?: string): string {
@@ -46,40 +59,6 @@ export class FileUtil {
     return join(APP_PATH, ...args)
   }
 
-  static parseExtension(fileName: string, def: string = ''): string {
-    const lastDotIndex = fileName.lastIndexOf('.')
-    if (lastDotIndex === -1 || lastDotIndex === 0) {
-      return def
-    }
-    return fileName.substring(lastDotIndex + 1)
-  }
-
-  static parseMimetype(fileName: string, def: string = ''): string {
-    const fileExtension = this.parseExtension(fileName)
-    if (fileExtension.length) return def
-
-    for (const mimeType in FILE_MIME_TYPE) {
-      const meta = FILE_MIME_TYPE[mimeType]
-      if (meta.extensions && meta.extensions.includes(fileExtension)) {
-        return mimeType
-      }
-    }
-    return def
-  }
-
-  static mapMimetype(mimetype: ENUM_FILE_MIME, def: string = ''): string {
-    for (const _mimeType in FILE_MIME_TYPE) {
-      if (_mimeType === mimetype) {
-        const meta = FILE_MIME_TYPE[_mimeType]
-        if (meta.extensions && meta.extensions.length) {
-          return meta.extensions[0]
-        }
-        return def
-      }
-    }
-    return def
-  }
-
   static isVideo(file: IFile): boolean {
     return file.mimetype.startsWith('video/')
   }
@@ -89,8 +68,8 @@ export class FileUtil {
   }
 
   static isHighEfficiency(fileName: string): [extension: string, heiFlg: boolean, hevFlg: boolean] {
-    const fileExt = this.parseExtension(fileName)
-    const fileMime = this.parseMimetype(fileName)
+    const fileExt = this.extractExtensionFromFilename(fileName)
+    const fileMime = this.extractMimeFromFilename(fileName)
     if (['heic', 'heif'].includes(fileMime) || ['.heic', '.heif'].includes(fileExt)) {
       return [fileExt, true, false]
     }
@@ -118,6 +97,19 @@ export class FileUtil {
       }
     }
     return totalSize
+  }
+
+  static extractExtensionFromFilename(filename: string): string {
+    return filename.slice(filename.lastIndexOf('.') + 1).toLowerCase()
+  }
+
+  static extractMimeFromFilename(filename: string): string {
+    return mime.getType(this.extractExtensionFromFilename(filename))
+  }
+
+  static extractFilenameFromPath(filePath: string): string {
+    const parts = filePath.split('/')
+    return parts[parts.length - 1]
   }
 
   static getTemplate(fileName: string, language?: string): string {

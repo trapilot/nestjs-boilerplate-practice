@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsString, IsUrl } from 'class-validator'
-import { ENUM_APP_ENVIRONMENT } from 'lib/nest-core'
+import { EnumAppEnvironment } from 'lib/nest-core'
 
 export class AppEnvDto {
   @IsString()
@@ -8,8 +8,8 @@ export class AppEnvDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsEnum(ENUM_APP_ENVIRONMENT)
-  APP_ENV: ENUM_APP_ENVIRONMENT
+  @IsEnum(EnumAppEnvironment)
+  APP_ENV: EnumAppEnvironment
 
   @IsUrl({ require_tld: false })
   @IsNotEmpty()

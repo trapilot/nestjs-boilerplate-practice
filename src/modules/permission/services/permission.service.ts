@@ -8,22 +8,22 @@ export class PermissionService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.PermissionFindUniqueArgs): Promise<TPermission> {
-    return await this.prisma.client.permission.findUnique(kwargs)
+    return await this.prisma.permission.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.PermissionFindFirstArgs = {}): Promise<TPermission> {
-    return await this.prisma.client.permission.findFirst(kwargs)
+    return await this.prisma.permission.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.PermissionFindManyArgs = {}): Promise<TPermission[]> {
-    return await this.prisma.client.permission.findMany(kwargs)
+    return await this.prisma.permission.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.PermissionFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TPermission> {
-    return await this.prisma.client.permission
+    return await this.prisma.permission
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -38,7 +38,7 @@ export class PermissionService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.permission.list(where, params, options)
+    return await this.prisma.permission.list(where, params, options)
   }
 
   async update(
@@ -49,7 +49,7 @@ export class PermissionService {
     const permission = await this.findOrFail(id, { include: { pivotRoles: true } })
     const rolePerms = permission?.pivotRoles ?? []
 
-    const updated = await this.prisma.client.$transaction(async (tx) => {
+    const updated = await this.prisma.$transaction(async (tx) => {
       const bitwise = Number(data.bitwise)
       for (const rolePerm of rolePerms) {
         const roleBitwise = rolePerm.bitwise & bitwise
@@ -83,7 +83,7 @@ export class PermissionService {
     data: Prisma.PermissionUncheckedCreateInput,
     kwargs: Omit<Prisma.PermissionFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TPermission> {
-    const created = await this.prisma.client.permission.create({
+    const created = await this.prisma.permission.create({
       ...kwargs,
       data,
     })

@@ -4,8 +4,8 @@
 OUTPUT_ZIP="nestjs-boilerplate.zip"
 DIR_TO_ZIP="."
 
-# yarn start:clean;
-# yarn schematics:clean;
+# pnpm start:clean;
+# pnpm schematics:clean;
 rm -f "$OUTPUT_ZIP"
 
 zip -r $OUTPUT_ZIP $DIR_TO_ZIP -x \
@@ -17,7 +17,7 @@ zip -r $OUTPUT_ZIP $DIR_TO_ZIP -x \
   "logs/*" \
   ".env" \
   "zip.sh" \
-  "yarn.lock" \
+  "pnpm-lock.yaml" \
   "public/docs/*"  "public/pdfs/*"  "public/invoices/*" "public/uploads/*" "public/static/fonts/*" \
   "private/data/*" "private/certs/*" \
-  "packages/nest-schematics/dist/*" "packages/nest-schematics/node_modules/*" "packages/nest-schematics/yarn.lock"
+  "packages/nest-schematics/dist/*" "packages/nest-schematics/node_modules/*" "packages/nest-schematics/pnpm-lock.yaml"

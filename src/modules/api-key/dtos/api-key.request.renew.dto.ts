@@ -8,7 +8,7 @@ export class ApiKeyRequestRenewDto {
   @IsOptional()
   @IsDate()
   @ToDate({ startOfDay: true })
-  @DateGreaterThanEqual(DateUtil.nowDate())
+  @DateGreaterThanEqual(DateUtil.getNow())
   @ApiProperty({
     description: 'Api Key start date',
     example: faker.date.recent(),

@@ -10,7 +10,7 @@ import { Reflector } from '@nestjs/core'
 import archiver from 'archiver'
 import * as fs from 'fs'
 import {
-  ENUM_FILE_MIME,
+  EnumFileExtension,
   FileService,
   FileUtil,
   IResponseApp,
@@ -65,7 +65,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
 
       // Set headers for ZIP response
       res
-        .setHeader('Content-Type', FileUtil.parseMimetype(zipFileName))
+        .setHeader('Content-Type', FileUtil.extractMimeFromFilename(zipFileName))
         .setHeader('Content-Disposition', `${disposition}; filename=${zipFileName}`)
         .setHeader('Transfer-Encoding', 'chunked')
         .setHeader('X-Accel-Buffering', 'no') // Disable buffering in proxies
@@ -184,7 +184,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
       const streamableFile = new StreamableFile(fileBuffer)
 
       res
-        .setHeader('Content-Type', FileUtil.parseMimetype(filePath))
+        .setHeader('Content-Type', FileUtil.extractMimeFromFilename(filePath))
         .setHeader('Content-Length', fileBuffer.length)
         .setHeader('Content-Disposition', `${disposition}; filename=${fileName}`)
 
@@ -210,7 +210,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
       context.getHandler(),
     )
 
-    const fileType = this.reflector.get<ENUM_FILE_MIME>(
+    const fileType = this.reflector.get<EnumFileExtension>(
       RESPONSE_FILE_TYPE_METADATA,
       context.getHandler(),
     )
@@ -221,7 +221,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
     // set headers
     const filename = FileUtil.format(fileOutput, {
       timestamp: response?.timestamp,
-      extension: FileUtil.mapMimetype(fileType),
+      extension: FileUtil.extractMimeFromFilename(fileType),
     })
 
     res

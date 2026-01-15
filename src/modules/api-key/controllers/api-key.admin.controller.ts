@@ -1,8 +1,8 @@
 import { Controller, Delete, Get, Patch, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { ENUM_API_KEY_TYPE, Prisma } from '@runtime/prisma-client'
-import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { ENUM_FILE_BOOK_TYPE } from 'lib/nest-core'
+import { EnumApiKeyType, Prisma } from '@runtime/prisma-client'
+import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
+import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -19,7 +19,7 @@ import {
   RequestQueryFilterInEnum,
   RequestQueryList,
 } from 'lib/nest-web'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { API_KEY_DOC_ADMIN_QUERY_LIST, API_KEY_DOC_OPERATION } from '../constants'
 import {
   ApiKeyRequestCreateDto,
@@ -44,14 +44,14 @@ export class ApiKeyAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.API_KEY,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.API_KEY,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -69,8 +69,8 @@ export class ApiKeyAdminController {
     })
     { _search, _params }: RequestListDto,
     @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto,
-    @RequestQueryFilterInEnum('type', ENUM_API_KEY_TYPE) _type: RequestFilterDto,
-    @RequestBookType() bookType: ENUM_FILE_BOOK_TYPE,
+    @RequestQueryFilterInEnum('type', EnumApiKeyType) _type: RequestFilterDto,
+    @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
     const _where: Prisma.ApiKeyWhereInput = {
       ..._search,
@@ -79,7 +79,7 @@ export class ApiKeyAdminController {
     }
 
     const pagination = await this.apiKeyService.paginate(_where, _params, {
-      bookType,
+      document: bookType,
     })
     return pagination
   }
@@ -93,7 +93,7 @@ export class ApiKeyAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: false,
@@ -129,14 +129,14 @@ export class ApiKeyAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.API_KEY,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.API_KEY,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -159,15 +159,15 @@ export class ApiKeyAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.API_KEY,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.CREATE],
+            subject: EnumAuthAbilitySubject.API_KEY,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.CREATE],
           },
         ],
       },
@@ -195,15 +195,15 @@ export class ApiKeyAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.API_KEY,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.API_KEY,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -229,15 +229,15 @@ export class ApiKeyAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.API_KEY,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.API_KEY,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -260,15 +260,15 @@ export class ApiKeyAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.API_KEY,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.API_KEY,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -298,15 +298,15 @@ export class ApiKeyAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.API_KEY,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.API_KEY,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -329,15 +329,15 @@ export class ApiKeyAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.API_KEY,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.API_KEY,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -360,15 +360,15 @@ export class ApiKeyAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.API_KEY,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.DELETE],
+            subject: EnumAuthAbilitySubject.API_KEY,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.DELETE],
           },
         ],
       },

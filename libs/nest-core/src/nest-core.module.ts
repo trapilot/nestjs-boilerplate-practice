@@ -1,4 +1,4 @@
-import { createClient, createKeyv, RedisClientOptions } from '@keyv/redis'
+import { createKeyv } from '@keyv/redis'
 import { HttpModule } from '@nestjs/axios'
 import { BullModule } from '@nestjs/bullmq'
 import { CACHE_MANAGER, CacheModule, CacheOptions } from '@nestjs/cache-manager'
@@ -7,19 +7,18 @@ import { ConfigFactory, ConfigModule, ConfigService } from '@nestjs/config'
 import { APP_FILTER } from '@nestjs/core'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ScheduleModule } from '@nestjs/schedule'
-import { NestLoggerModule } from 'lib/nest-logger'
-import { NestNotifierModule } from 'lib/nest-notifier'
 import { HeaderResolver, I18nJsonLoader, I18nModule } from 'nestjs-i18n'
-import { REALTIME_CACHE, REALTIME_PUB, REALTIME_STREAM, REALTIME_SUB } from './constants'
-import { ENUM_MESSAGE_LANGUAGE } from './enums'
+import { QUEUE_CONFIG_KEY, QUEUE_PROCESSOR_CONFIG_KEY } from './constants'
+import { EnumAppEnvironment, EnumFileExtensionTemplate, EnumMessageLanguage } from './enums'
 import { AppExceptionFilter } from './filters'
+import { LoggerFactory } from './helpers'
 import {
   CacheService,
   CryptoService,
   FileService,
   HelperService,
+  LoggerService,
   MessageService,
-  RealtimeService,
 } from './services'
 import { FileUtil } from './utils'
 
@@ -27,8 +26,8 @@ import { FileUtil } from './utils'
 export class NestCoreModule {
   static forRoot(options: {
     configs: Array<ConfigFactory | Promise<ConfigFactory>>
-    cache?: boolean
-    envFilePath?: string[]
+    cache: boolean
+    envFilePath: string[]
   }): DynamicModule {
     return {
       global: true,
@@ -38,101 +37,27 @@ export class NestCoreModule {
         FileService,
         CryptoService,
         MessageService,
-        RealtimeService,
+        LoggerService,
         HelperService,
+        LoggerFactory,
       ],
       providers: [
         FileService,
         CryptoService,
         MessageService,
-        RealtimeService,
+        LoggerService,
         HelperService,
+        LoggerFactory,
         {
           provide: CacheService,
           useExisting: CACHE_MANAGER,
         },
         {
           provide: APP_FILTER,
-          useFactory: (messageService: MessageService, helperService: HelperService) => {
-            return new AppExceptionFilter(messageService, helperService)
+          useFactory: (logger: LoggerService, message: MessageService, helper: HelperService) => {
+            return new AppExceptionFilter(logger, message, helper)
           },
           inject: [MessageService, HelperService],
-        },
-        {
-          provide: REALTIME_PUB,
-          inject: [ConfigService],
-          useFactory: async (configService: ConfigService) => {
-            const host = configService.get<string>('redis.pubsub.host')
-            const port = configService.get<number>('redis.pubsub.port')
-
-            if (host && port) {
-              const client = createClient({
-                socket: { host, port },
-                database: configService.get<number>('redis.pubsub.database', 2),
-                username: configService.get<string>('redis.pubsub.username'),
-                password: configService.get<string>('redis.pubsub.password'),
-              })
-              await client.connect()
-              return client
-            }
-          },
-        },
-        {
-          provide: REALTIME_SUB,
-          inject: [ConfigService],
-          useFactory: async (configService: ConfigService) => {
-            const host = configService.get<string>('redis.pubsub.host')
-            const port = configService.get<number>('redis.pubsub.port')
-
-            if (host && port) {
-              const client = createClient({
-                socket: { host, port },
-                database: configService.get<number>('redis.pubsub.database', 2),
-                username: configService.get<string>('redis.pubsub.username'),
-                password: configService.get<string>('redis.pubsub.password'),
-              })
-              await client.connect()
-              return client
-            }
-          },
-        },
-        {
-          provide: REALTIME_CACHE,
-          inject: [ConfigService],
-          useFactory: async (configService: ConfigService) => {
-            const host = configService.get<string>('redis.realtime.host')
-            const port = configService.get<number>('redis.realtime.port')
-
-            if (host && port) {
-              const client = createClient({
-                socket: { host, port },
-                database: configService.get<number>('redis.realtime.database', 3),
-                username: configService.get<string>('redis.realtime.username'),
-                password: configService.get<string>('redis.realtime.password'),
-              })
-              await client.connect()
-              return client
-            }
-          },
-        },
-        {
-          provide: REALTIME_STREAM,
-          inject: [ConfigService],
-          useFactory: async (configService: ConfigService) => {
-            const host = configService.get<string>('redis.stream.host')
-            const port = configService.get<number>('redis.stream.port')
-
-            if (host && port) {
-              const client = createClient({
-                socket: { host, port },
-                database: configService.get<number>('redis.stream.database', 4),
-                username: configService.get<string>('redis.stream.username'),
-                password: configService.get<string>('redis.stream.password'),
-              })
-              await client.connect()
-              return client
-            }
-          },
         },
       ],
       imports: [
@@ -156,9 +81,9 @@ export class NestCoreModule {
           inject: [ConfigService],
           resolvers: [new HeaderResolver(['x-language'])],
           useFactory: (config: ConfigService) => ({
-            fallbackLanguage: config.getOrThrow<ENUM_MESSAGE_LANGUAGE>('helper.message.fallback'),
+            fallbackLanguage: config.getOrThrow<EnumMessageLanguage>('helper.message.fallback'),
             fallbacks: config
-              .get<ENUM_MESSAGE_LANGUAGE[]>('helper.message.availableList')
+              .get<EnumMessageLanguage[]>('helper.message.availableList')
               .reduce((a, v) => ({ ...a, [`${v}_*`]: v }), {}),
             loaderOptions: {
               path: FileUtil.joinApp(['resources', 'languages']),
@@ -167,61 +92,79 @@ export class NestCoreModule {
             logging: false,
             skipAsyncHook: true,
             throwOnMissingKey: false,
-            viewEngine: config.get<'hbs' | 'pug' | 'ejs'>('app.view', 'hbs'),
+            viewEngine: config.get<EnumFileExtensionTemplate>(
+              'app.view',
+              EnumFileExtensionTemplate.HBS,
+            ),
           }),
         }),
         CacheModule.registerAsync({
           isGlobal: true,
           imports: [ConfigModule],
           inject: [ConfigService],
-          useFactory: async (configService: ConfigService): Promise<CacheOptions> => {
-            const host = configService.get<string>('redis.cache.host')
-            const port = configService.get<number>('redis.cache.port')
-            const max = configService.get<number>('redis.cache.max')
-            const ttl = configService.get<number>('redis.cache.ttl')
-
-            if (host && port) {
-              return {
-                max,
-                ttl,
-                stores: [
-                  createKeyv({
-                    socket: { host, port },
-                    database: configService.get<number>('redis.cache.database', 0),
-                    username: configService.get<string>('redis.cache.username'),
-                    password: configService.get<string>('redis.cache.password'),
-                  } as RedisClientOptions).store,
-                ],
-              }
+          useFactory: async (config: ConfigService): Promise<CacheOptions> => {
+            return {
+              namespace: config.get<string>('redis.cache.namespace'),
+              stores: [
+                createKeyv(
+                  { url: config.get<string>('redis.cache.url') },
+                  {
+                    connectionTimeout: 30000,
+                    namespace: config.get<string>('redis.cache.namespace'),
+                    useUnlink: true,
+                    keyPrefixSeparator: ':',
+                  },
+                ),
+              ],
             }
-            return { max, ttl }
           },
         }),
-        BullModule.forRootAsync({
+        BullModule.forRootAsync(QUEUE_CONFIG_KEY, {
           imports: [ConfigModule],
           inject: [ConfigService],
-          useFactory: (configService: ConfigService) => ({
+          useFactory: (config: ConfigService) => ({
             connection: {
-              host: configService.get<string>('redis.queue.host'),
-              port: configService.get<number>('redis.queue.port'),
-              db: configService.get<number>('redis.cache.database', 1),
-              username: configService.get<string>('redis.queue.username'),
-              password: configService.get<string>('redis.queue.password'),
-              tls: configService.get<any>('redis.queue.tls'),
+              url: config.get<string>('redis.queue.url'),
+              connectionName: `${config.get<string>(
+                'app.name',
+              )}-${config.get<EnumAppEnvironment>('app.env')}:queue`,
             },
+            prefix: config.get<string>('redis.queue.namespace'),
             defaultJobOptions: {
               backoff: {
                 type: 'exponential',
-                delay: 3_000,
+                delay: 3000,
               },
               attempts: 3,
+              removeOnComplete: 20,
+              removeOnFail: 50,
+            },
+          }),
+        }),
+        BullModule.forRootAsync(QUEUE_PROCESSOR_CONFIG_KEY, {
+          imports: [ConfigModule],
+          inject: [ConfigService],
+          useFactory: (config: ConfigService) => ({
+            connection: {
+              url: config.get<string>('redis.queue.url'),
+              connectionName: `${config.get<string>(
+                'app.name',
+              )}-${config.get<EnumAppEnvironment>('app.env')}:processor`,
+            },
+            prefix: config.get<string>('redis.queue.namespace'),
+            defaultJobOptions: {
+              backoff: {
+                type: 'exponential',
+                delay: 3000,
+              },
+              attempts: 3,
+              removeOnComplete: 20,
+              removeOnFail: 50,
             },
           }),
         }),
         EventEmitterModule.forRoot({ ignoreErrors: true }),
         ScheduleModule.forRoot(),
-        NestLoggerModule.forRoot(),
-        NestNotifierModule.forRoot(),
       ],
     }
   }

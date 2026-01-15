@@ -1,3 +1,3 @@
-export * from './member-auth.service'
-export * from './member-verification.service'
+export * from './auth.service'
 export * from './member.service'
+export * from './verify.service'

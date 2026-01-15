@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
+import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -14,7 +14,7 @@ import {
   RequestQueryFilterInBoolean,
   RequestQueryList,
 } from 'lib/nest-web'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { UserAbilityUtil } from 'shared/helpers'
 import { PERMISSION_DOC_ADMIN_QUERY_LIST, PERMISSION_DOC_OPERATION } from '../constants'
 import {
@@ -39,14 +39,14 @@ export class PermissionAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.PERMISSION,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.PERMISSION,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -79,15 +79,15 @@ export class PermissionAdminController {
     docExclude: true,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.PERMISSION,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.PERMISSION,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -120,15 +120,15 @@ export class PermissionAdminController {
     docExclude: true,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.PERMISSION,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.CREATE],
+            subject: EnumAuthAbilitySubject.PERMISSION,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.CREATE],
           },
         ],
       },

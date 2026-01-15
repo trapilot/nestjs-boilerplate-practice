@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsEnum, IsNotEmpty, IsNumber, IsObject } from 'class-validator'
-import { ENUM_TIER_CODE, ToNumber, ToObject, ToString } from 'lib/nest-core'
+import { EnumTierCode, ToNumber, ToObject, ToString } from 'lib/nest-core'
 import { RequestSentenceDto } from 'lib/nest-web'
 
 export class TierRequestCreateDto {
@@ -17,9 +17,9 @@ export class TierRequestCreateDto {
   description: any
 
   @IsNotEmpty()
-  @IsEnum(ENUM_TIER_CODE)
+  @IsEnum(EnumTierCode)
   @ToString()
-  @ApiProperty({ enum: ENUM_TIER_CODE, example: ENUM_TIER_CODE.NORMAL })
+  @ApiProperty({ enum: EnumTierCode, example: EnumTierCode.NORMAL })
   code: string
 
   @IsNotEmpty()

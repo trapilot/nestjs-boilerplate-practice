@@ -46,12 +46,13 @@ config.yml
 
 # build img
 # zip.sh
-dump.sh
 # tunnel.sh
+restore.sh
 *.tar
 *.zip
 *.xlsx
 *.csv
 *.graphql
+*.sql
 
 notes

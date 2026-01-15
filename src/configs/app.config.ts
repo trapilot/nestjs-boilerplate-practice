@@ -1,10 +1,9 @@
 import { registerAs } from '@nestjs/config'
-import { APP_LANGUAGE, APP_TIMEZONE, StrUtil } from 'lib/nest-core'
-import { ENUM_LOGGER_TYPE } from 'lib/nest-logger'
+import { APP_LANGUAGE, APP_TIMEZONE, DateUtil, IConfigApp, StrUtil } from 'lib/nest-core'
 
 export default registerAs(
   'app',
-  (): Record<string, any> => ({
+  (): IConfigApp => ({
     env: process.env.APP_ENV,
     url: process.env.APP_URL,
     web: process.env.WEB_URL,
@@ -12,25 +11,7 @@ export default registerAs(
     version: '0.0.1',
     timezone: APP_TIMEZONE,
     language: APP_LANGUAGE,
-    startDate: '2025-01-01T00:00:00Z',
-
-    debug: {
-      level: process.env.DEBUG_LEVEL || 'error',
-      driver: process.env.DEBUG_DRIVER || 'file', // file | remote
-      remote: {
-        url: process.env.DEBUG_REMOTE,
-      },
-      file: {
-        default: {
-          maxDays: 90,
-          maxSize: 500 * 1024 * 1024,
-        },
-        [ENUM_LOGGER_TYPE.DATABASE]: {
-          maxDays: 2,
-          maxSize: 500 * 1024 * 1024,
-        },
-      },
-    },
+    startDate: DateUtil.getDate('01/01/2025'),
 
     urlVersion: {
       prefix: 'v',
@@ -41,6 +22,7 @@ export default registerAs(
       host: process.env.HTTP_HOST ?? 'localhost',
       port: StrUtil.numeric(process.env.HTTP_PORT, 3000),
       prefix: process.env.HTTP_PREFIX ?? 'api',
+      compress: StrUtil.isTrue(process.env.HTTP_COMPRESS, true),
     },
 
     wssEnable: StrUtil.isTrue(process.env.WSS_ENABLE),

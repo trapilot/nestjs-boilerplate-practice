@@ -1,19 +1,20 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common'
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import { Reflector } from '@nestjs/core'
-import { ClassConstructor, ClassTransformOptions, plainToInstance } from 'class-transformer'
+import { ClassConstructor, ClassTransformOptions } from 'class-transformer'
 import {
-  AppContext,
   HelperService,
   IRequestApp,
   IResponseApp,
   ResponseMetadataDto,
   ResponseSuccessDto,
+  ScopeContext,
 } from 'lib/nest-core'
 import { Observable, throwError } from 'rxjs'
 import { catchError, map } from 'rxjs/operators'
-import { RESPONSE_DTO_CONSTRUCTOR_METADATA, RESPONSE_DTO_OPTIONS_METADATA } from '../constants'
+import { RESPONSE_DTO_CONSTRUCTOR_METADATA, RESPONSE_DTO_TRANSFORM_METADATA } from '../constants'
 import { IResponseData } from '../interfaces'
+import { ResponseUtil } from '../utils'
 
 @Injectable()
 export class ResponseDataInterceptor<T, R> implements NestInterceptor<T, IResponseData<R>> {
@@ -43,45 +44,38 @@ export class ResponseDataInterceptor<T, R> implements NestInterceptor<T, IRespon
       context.getHandler(),
     )
 
-    const dtoOptions = this.reflector.get<ClassTransformOptions>(
-      RESPONSE_DTO_OPTIONS_METADATA,
+    const dtoTransform = this.reflector.get<ClassTransformOptions>(
+      RESPONSE_DTO_TRANSFORM_METADATA,
       context.getHandler(),
     )
 
+    const dtoGroups = [req?.user?.loginFrom, req?.user?.scopeType]
+
     // metadata
-    const dateNow = this.helperService.dateCreate()
-    const ctxData = AppContext.current()
+    const nowDate = this.helperService.dateNow()
+    const ctxData = ScopeContext.getReqData()
     let metadata: ResponseMetadataDto = {
       path: req.path,
-      language: ctxData?.language ?? AppContext.language(),
-      timezone: ctxData?.timezone ?? AppContext.timezone(),
-      version: ctxData?.apiVersion ?? AppContext.apiVersion(),
-      timestamp: this.helperService.dateGetTimestamp(dateNow),
+      language: ctxData.language,
+      timezone: ctxData.timezone,
+      version: ctxData.version,
+      timestamp: this.helperService.dateGetTimestamp(nowDate),
     }
 
     const statusHttp = res.statusCode
     let result = response.data
 
-    const { _metadata } = response
-    const customProperty = _metadata?.customProperty
-
     if (result && dtoClass) {
-      if (customProperty?.serializeProperties) {
-        result = { __metadata: customProperty.serializeProperties, ...result }
-      }
-
-      result = plainToInstance(dtoClass, result, {
-        excludeExtraneousValues: true,
-        groups: [req?.user?.loginFrom, req?.user?.scopeType],
-        ...dtoOptions,
+      result = ResponseUtil.mapToInstance(result, {
+        type: dtoClass,
+        transform: { ...dtoGroups, ...dtoTransform },
+        mappingProperties: response?.metadata?.mappingProperties,
       })
     }
 
-    delete _metadata?.customProperty
-
     metadata = {
+      ...response.metadata,
       ...metadata,
-      ..._metadata,
     }
 
     res

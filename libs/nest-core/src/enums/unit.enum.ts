@@ -1,22 +1,5 @@
-export enum ENUM_UNIT_TYPE {
-  GRAM = 'GRAM',
-  KILOGRAM = 'KILOGRAM',
-  TON = 'TON',
-  POUND = 'POUND',
-  CUBIC_METER = 'CUBIC_METER',
-  CUBIC_CENTIMETER = 'CUBIC_CENTIMETER',
-  LITER = 'LITER',
-  MILLILITER = 'MILLILITER',
-  SQUARE_METER = 'SQUARE_METER',
-  SQUARE_CENTIMETER = 'SQUARE_CENTIMETER',
-  METER = 'METER',
-  CENTIMETER = 'CENTIMETER',
-  MILLIMETER = 'MILLIMETER',
-  INCH = 'INCH',
-  FOOT = 'FOOT',
-}
-
-export enum ENUM_UNIT_FORMAT {
+/* eslint-disable @typescript-eslint/no-duplicate-enum-values */
+export enum EnumUnitFormat {
   GRAM = 'g',
   KILOGRAM = 'kg',
   TON = 't',

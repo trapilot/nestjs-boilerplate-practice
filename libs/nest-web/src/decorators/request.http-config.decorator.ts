@@ -1,4 +1,4 @@
-import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager'
+import { CacheKey, CacheTTL } from '@nestjs/cache-manager'
 import {
   applyDecorators,
   HttpCode,
@@ -39,14 +39,14 @@ import {
   AuthUserScopeProtected,
 } from 'lib/nest-auth'
 import {
-  ENUM_FILE_BOOK_TYPE,
-  ENUM_USER_GENDER,
-  EnvUtil,
+  AppUtil,
+  EnumFileExtensionDocument,
+  EnumUserType,
   FileUploadMultiple,
   FileUploadMultipleFields,
   FileUploadSingle,
   MESSAGE_LANGUAGES,
-  MULTITENANCY_ENABLE,
+  MULTITENANT_ENABLE,
   NoFilesUpload,
   TIMEZONE_LIST,
 } from 'lib/nest-core'
@@ -61,9 +61,10 @@ import {
   RESPONSE_FILE_TYPE_METADATA,
 } from '../constants'
 import { ResponseDataDto, ResponseListDto, ResponsePagingDto } from '../dtos'
-import { ENUM_REQUEST_BODY_TYPE } from '../enums'
+import { EnumRequestBodyType } from '../enums'
 import { RequestSecurityGuard } from '../guards'
 import {
+  ResponseCacheInterceptor,
   ResponseDataInterceptor,
   ResponseFileInterceptor,
   ResponseListInterceptor,
@@ -118,7 +119,7 @@ function HttpResponse(
   }
 
   if (options?.cached) {
-    decorators.push(UseInterceptors(CacheInterceptor))
+    decorators.push(UseInterceptors(ResponseCacheInterceptor))
     if (typeof options.cached !== 'boolean') {
       if (options.cached?.key) {
         decorators.push(CacheKey(options.cached?.key))
@@ -164,14 +165,14 @@ function HttpRequest(
     const bodyType = options.body?.type
     const bodyDto = options.body?.dto
 
-    if (bodyType === ENUM_REQUEST_BODY_TYPE.FORM_URLENCODED) {
+    if (bodyType === EnumRequestBodyType.FORM_URLENCODED) {
       decorators.push(ApiConsumes('application/x-www-form-urlencoded'))
-    } else if (bodyType === ENUM_REQUEST_BODY_TYPE.FORM_DATA) {
+    } else if (bodyType === EnumRequestBodyType.FORM_DATA) {
       decorators.push(ApiConsumes('multipart/form-data'))
     } else if (!options?.file) {
-      if (bodyType === ENUM_REQUEST_BODY_TYPE.TEXT) {
+      if (bodyType === EnumRequestBodyType.TEXT) {
         decorators.push(ApiConsumes('text/plain'))
-      } else if (bodyType === ENUM_REQUEST_BODY_TYPE.JSON) {
+      } else if (bodyType === EnumRequestBodyType.JSON) {
         decorators.push(ApiConsumes('application/json'))
       } else {
         decorators.push(ApiConsumes('application/json'))
@@ -280,18 +281,18 @@ function HttpRequest(
   if ((options as IRequestListOptions)?.exportable === true) {
     decorators.push(
       ApiQuery({
-        name: 'exportType',
+        name: 'bookType',
         required: false,
         allowEmptyValue: true,
-        enum: ENUM_FILE_BOOK_TYPE,
-        example: ENUM_FILE_BOOK_TYPE.CSV,
+        enum: EnumFileExtensionDocument,
+        example: EnumFileExtensionDocument.CSV,
         type: 'string',
         description: 'Export file type',
       }),
     )
   }
 
-  if (options?.docExclude === true && !EnvUtil.isDevelopment()) {
+  if (options?.docExclude === true && !AppUtil.isLocal()) {
     decorators.push(ApiExcludeEndpoint())
   }
 
@@ -427,7 +428,7 @@ function DocAuth(options?: IRequestAuthOptions & { docExpansion?: boolean }) {
     )
   }
 
-  if (MULTITENANCY_ENABLE) {
+  if (MULTITENANT_ENABLE) {
     decorators.push(
       ApiHeader({
         name: 'x-tenant-id',
@@ -516,12 +517,12 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
     )
   }
 
-  if (options?.userGender) {
+  if (options?.userType) {
     decorators.push(
       ApiHeader({
-        name: 'x-user-gender',
+        name: 'x-user-type',
         required: false,
-        schema: { type: 'string', enum: Object.values(ENUM_USER_GENDER) },
+        schema: { type: 'string', enum: Object.values(EnumUserType) },
       }),
     )
   }

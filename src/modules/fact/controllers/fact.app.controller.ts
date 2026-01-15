@@ -1,10 +1,10 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
+import { EnumAuthScopeType } from 'lib/nest-auth'
 import { ApiRequestData, IResponseData } from 'lib/nest-web'
 import { FACT_DOC_OPERATION } from '../constants'
 import { FactResponseDetailDto } from '../dtos'
-import { ENUM_FACT_TYPE } from '../enums'
+import { EnumFactType } from '../enums'
 import { FactService } from '../services'
 
 @ApiTags(FACT_DOC_OPERATION)
@@ -17,7 +17,7 @@ export class FactAppController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: false,
         require: false,
@@ -31,7 +31,7 @@ export class FactAppController {
   async getTAC(): Promise<IResponseData> {
     const fact = await this.factService.findFirst({
       where: {
-        type: ENUM_FACT_TYPE.TERM_AND_CONDITION,
+        type: EnumFactType.TERM_AND_CONDITION,
         isActive: true,
       },
       orderBy: [{ sorting: 'desc' }, { id: 'desc' }],
@@ -44,7 +44,7 @@ export class FactAppController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: false,
         require: false,
@@ -58,7 +58,7 @@ export class FactAppController {
   async getAboutUs(): Promise<IResponseData> {
     const fact = await this.factService.findFirst({
       where: {
-        type: ENUM_FACT_TYPE.ABOUT_US,
+        type: EnumFactType.ABOUT_US,
         isActive: true,
       },
       orderBy: [{ sorting: 'desc' }, { id: 'desc' }],
@@ -71,7 +71,7 @@ export class FactAppController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: false,
         require: false,
@@ -85,7 +85,7 @@ export class FactAppController {
   async getPrivatePolicy(): Promise<IResponseData> {
     const fact = await this.factService.findFirst({
       where: {
-        type: ENUM_FACT_TYPE.PRIVACY,
+        type: EnumFactType.PRIVACY,
         isActive: true,
       },
       orderBy: [{ sorting: 'desc' }, { id: 'desc' }],

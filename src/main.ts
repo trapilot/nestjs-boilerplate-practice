@@ -4,10 +4,9 @@ import { NestApplication, NestFactory } from '@nestjs/core'
 import { IoAdapter } from '@nestjs/platform-socket.io'
 import { AppModule } from 'app/app.module'
 import { CliModule } from 'app/cli.module'
-import { plainToInstance } from 'class-transformer'
-import { useContainer, validate } from 'class-validator'
+import { useContainer } from 'class-validator'
 import compression from 'compression'
-import { FileUtil, INextFunction, IRequestApp, IResponseApp, MessageService } from 'lib/nest-core'
+import { AppUtil, FileUtil, MessageService } from 'lib/nest-core'
 import { CommandFactory } from 'nest-commander'
 import { AppEnvDto } from 'shared/dtos'
 import docSetup from 'src/swagger'
@@ -21,11 +20,12 @@ async function bootstrap() {
   })
 
   const config = app.get(ConfigService)
-  const appEnv: string = config.get<string>('app.env')
-  const appHost: string = config.get<string>('app.http.host', 'localhost')
-  const appPort: number = config.get<number>('app.http.port', 3000)
-  const appPrefix: string = config.get<string>('app.http.prefix', 'api')
   const appTz: string = config.get<string>('app.timezone')
+  const appEnv: string = config.get<string>('app.env')
+  const appHost: string = config.get<string>('app.http.host')
+  const appPort: number = config.get<number>('app.http.port')
+  const appPrefix: string = config.get<string>('app.http.prefix')
+  const appCompress: boolean = config.get<boolean>('app.http.compress')
   const urlVersionPrefix: string = config.get<string>('app.urlVersion.prefix')
 
   // Override Env
@@ -35,11 +35,8 @@ async function bootstrap() {
   // Logger
   const logger = new Logger()
 
-  // Compression
-  app.use(compression())
-
   // Global
-  app.setGlobalPrefix(`/${appPrefix}`, {
+  app.setGlobalPrefix(appPrefix, {
     exclude: [
       { path: '^admin/*splat', method: RequestMethod.ALL },
       { path: '^health/*splat', method: RequestMethod.ALL },
@@ -65,9 +62,21 @@ async function bootstrap() {
     prefix: urlVersionPrefix,
   })
 
+  // Compression
+  if (appCompress) {
+    app.use(compression())
+  }
+
   // Validate Env
-  const classEnv = plainToInstance(AppEnvDto, process.env)
-  const errors = await validate(classEnv)
+  const errors = await AppUtil.valiateDto(AppEnvDto, process.env, {
+    skipMissingProperties: false,
+    skipNullProperties: false,
+    skipUndefinedProperties: false,
+    validationError: {
+      target: false,
+      value: true,
+    },
+  })
   if (errors.length > 0) {
     const messageService = app.get(MessageService)
     const messageErrors = messageService.setValidationMessage(errors)
@@ -82,17 +91,18 @@ async function bootstrap() {
     app.useWebSocketAdapter(new IoAdapter(app))
   }
 
-  // Setup Tools
-  await docSetup(app)
-
   // set response for log
-  app.use(function (req: IRequestApp, res: IResponseApp, next: INextFunction) {
+  app.use(function (req: any, res: any, next: Function) {
     // Ignore favicon
     if (req.originalUrl?.endsWith('favicon.ico')) {
       return res.sendStatus(204)
     }
     // Ignore devtools
     if (req.originalUrl?.endsWith('devtools.json')) {
+      return res.sendStatus(204)
+    }
+    // Ignore admin vite
+    if (req.originalUrl?.endsWith('vite.svg')) {
       return res.sendStatus(204)
     }
 
@@ -104,6 +114,9 @@ async function bootstrap() {
 
     next()
   })
+
+  // Setup Tools
+  await docSetup(app)
 
   // Listen
   await app.listen(appPort, appHost)
@@ -120,7 +133,7 @@ const isCli = process.argv.length >= 3
 if (isCli) {
   CommandFactory.run(CliModule, ['warn', 'debug', 'error', 'fatal'])
     .then(() => process.exit(0))
-    .catch((_) => process.exit(1))
+    .catch((_err: any) => process.exit(1))
 } else {
   bootstrap()
 }

@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
-import { ENUM_PUSH_TYPE } from '@runtime/prisma-client'
+import { EnumPushType } from '@runtime/prisma-client'
 import { IsBoolean, IsDate, IsEnum, IsNotEmpty, IsNumber, IsOptional } from 'class-validator'
 import {
-  ENUM_DATE_FORMAT,
+  EnumDateFormat,
   ToBoolean,
   ToDate,
   ToDuration,
@@ -22,10 +22,10 @@ export class PushRequestCreateDto {
   notificationId: number
 
   @IsNotEmpty()
-  @IsEnum(ENUM_PUSH_TYPE)
+  @IsEnum(EnumPushType)
   @ToString()
-  @ApiProperty({ required: true, enum: ENUM_PUSH_TYPE, example: ENUM_PUSH_TYPE.INSTANT })
-  type: ENUM_PUSH_TYPE
+  @ApiProperty({ required: true, enum: EnumPushType, example: EnumPushType.INSTANT })
+  type: EnumPushType
 
   @IsNotEmpty()
   @IsDuration()
@@ -36,7 +36,7 @@ export class PushRequestCreateDto {
 
   @IsNotEmpty()
   @IsDate()
-  @ToDate({ format: ENUM_DATE_FORMAT.DB_DATE })
+  @ToDate({ format: EnumDateFormat.DB_DATE })
   @TransformIf((obj: PushRequestCreateDto) => PushUtil.isSpecDate(obj.type))
   @ApiProperty({ required: true, example: faker.date.future() })
   executeDate: string

@@ -1,6 +1,5 @@
-import { Logger } from '@nestjs/common'
-import { ENUM_API_KEY_TYPE } from '@runtime/prisma-client'
-import { NEST_CLI } from 'lib/nest-core'
+import { EnumApiKeyType } from '@runtime/prisma-client'
+import { EnumScopeType, LoggerService, ScopeAsync } from 'lib/nest-core'
 import { Command, CommandRunner } from 'nest-commander'
 import { ApiKeyService } from '../services'
 
@@ -9,29 +8,37 @@ import { ApiKeyService } from '../services'
   description: 'Seed api keys',
 })
 export class ApiKeySeedCommand extends CommandRunner {
-  private readonly logger = new Logger(NEST_CLI)
-
-  constructor(private readonly apiKeyService: ApiKeyService) {
+  constructor(
+    private readonly logger: LoggerService,
+    private readonly apiKeyService: ApiKeyService,
+  ) {
     super()
   }
 
+  @ScopeAsync(EnumScopeType.COMMAND, { context: 'seed' })
   async run(): Promise<void> {
-    this.logger.warn(`${ApiKeySeedCommand.name} is running...`)
+    this.logger.log(`${ApiKeySeedCommand.name} is running...`)
 
     try {
-      const { key, hash } = await this.apiKeyService.createHashApiKey()
-      await this.apiKeyService.create({
-        name: `Api Key For ${ENUM_API_KEY_TYPE.CLIENT}`,
-        type: ENUM_API_KEY_TYPE.CLIENT,
-        isActive: true,
-        isDeprecated: true,
-        key,
-        hash,
-      })
+      await this.seed()
     } catch (err: any) {
-      throw new Error(err.message)
+      this.logger.error(err)
+    } finally {
+      this.logger.log(`${ApiKeySeedCommand.name} stoped`)
     }
 
     return
+  }
+
+  async seed() {
+    const { key, hash } = await this.apiKeyService.createHashApiKey()
+    await this.apiKeyService.create({
+      name: `Api Key For ${EnumApiKeyType.CLIENT}`,
+      type: EnumApiKeyType.CLIENT,
+      isActive: true,
+      isDeprecated: true,
+      key,
+      hash,
+    })
   }
 }

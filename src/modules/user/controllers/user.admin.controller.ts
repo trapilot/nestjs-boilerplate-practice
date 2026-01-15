@@ -9,11 +9,12 @@ import {
 } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { AuthJwtPayload, AuthService, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
+import { AuthJwtPayload, AuthUtil, EnumAuthScopeType } from 'lib/nest-auth'
 import {
-  ENUM_FILE_MIME,
-  ENUM_FILE_BOOK_TYPE,
+  EnumFileExtensionDocument,
+  EnumFileExtensionImage,
   FILE_SIZE_IN_BYTES,
+  FileExtensionPipe,
   HelperService,
   IFile,
 } from 'lib/nest-core'
@@ -26,8 +27,6 @@ import {
   IResponsePaging,
   RequestBody,
   RequestBookType,
-  RequestFileRequiredPipe,
-  RequestFileTypePipe,
   RequestFilterDto,
   RequestListDto,
   RequestParam,
@@ -37,9 +36,10 @@ import {
   RequestQueryFilterMany,
   RequestQueryList,
   RequestRequiredMonthPipe,
+  RequestRequiredPipe,
   RequestRequiredYearPipe,
 } from 'lib/nest-web'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { USER_DOC_ADMIN_QUERY_LIST, USER_DOC_OPERATION, USER_UPLOAD_IMAGE_PATH } from '../constants'
 import {
   UserRequestChangeAvatarDto,
@@ -55,7 +55,7 @@ import { UserService } from '../services'
 @Controller({ path: '/users' })
 export class UserAdminController {
   constructor(
-    protected readonly authService: AuthService,
+    protected readonly authUtil: AuthUtil,
     protected readonly userService: UserService,
     protected readonly helperService: HelperService,
   ) {}
@@ -69,14 +69,14 @@ export class UserAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.USER,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.USER,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -93,7 +93,7 @@ export class UserAdminController {
       availableOrderBy: ['id', 'isActive'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: ENUM_FILE_BOOK_TYPE,
+    @RequestBookType() bookType: EnumFileExtensionDocument,
     @RequestQueryFilterMany('roleId', { parseAs: 'id' }) rawRole: RequestFilterDto,
     @RequestQueryFilterContain('phone') _phone: RequestFilterDto,
     @RequestQueryFilterContain('name') _name: RequestFilterDto,
@@ -117,7 +117,7 @@ export class UserAdminController {
     }
 
     const pagination = await this.userService.paginate(_where, _params, {
-      bookType,
+      document: bookType,
       include: _include,
     })
     return pagination
@@ -128,14 +128,14 @@ export class UserAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.USER,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.USER,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -168,14 +168,14 @@ export class UserAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.USER,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.USER,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -191,26 +191,26 @@ export class UserAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: ENUM_FILE_BOOK_TYPE,
+    @RequestBookType() bookType: EnumFileExtensionDocument,
     @RequestParam('id') id: number,
     @RequestQuery('month', { pipes: [RequestRequiredMonthPipe] }) month: number,
     @RequestQuery('year', { pipes: [RequestRequiredYearPipe] }) year: number,
   ): Promise<IResponseList> {
-    const dateNow = this.helperService.dateCreate()
-    const dateReq = this.helperService.dateSet(dateNow, { year, month })
-    const dates = this.helperService.dateRange(dateReq)
+    const nowDate = this.helperService.dateNow()
+    const reqDate = this.helperService.dateSet(nowDate, { year, month })
+    const dateRange = this.helperService.dateRange(reqDate)
 
     const _where: Prisma.UserLoginHistoryWhereInput = {
       ..._search,
       userId: id,
       loginDate: {
-        gte: dates.startOfMonth,
-        lte: dates.endOfMonth,
+        gte: dateRange.startOfMonth,
+        lte: dateRange.endOfMonth,
       },
     }
 
     const listing = await this.userService.getLoginHistories(_where, _params, {
-      bookType,
+      document: bookType,
     })
     return listing
   }
@@ -227,15 +227,15 @@ export class UserAdminController {
       },
     },
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.USER,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.CREATE],
+            subject: EnumAuthAbilitySubject.USER,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.CREATE],
           },
         ],
       },
@@ -248,12 +248,16 @@ export class UserAdminController {
   async create(
     @RequestBody() body: UserRequestCreateDto,
     @UploadedFile(
-      new RequestFileTypePipe([ENUM_FILE_MIME.JPEG, ENUM_FILE_MIME.JPG, ENUM_FILE_MIME.PNG]),
+      FileExtensionPipe([
+        EnumFileExtensionImage.JPEG,
+        EnumFileExtensionImage.JPG,
+        EnumFileExtensionImage.PNG,
+      ]),
     )
     file: IFile,
   ): Promise<IResponseData> {
     const { roleId, ...data } = body
-    const authPassword = this.authService.createPassword(body.password)
+    const authPassword = this.authUtil.createPassword(body.password)
     const created = await this.userService.create(
       { ...data, avatar: file?.path ?? undefined },
       authPassword,
@@ -270,15 +274,15 @@ export class UserAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.USER,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.USER,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -317,7 +321,7 @@ export class UserAdminController {
     }
 
     if (data?.password) {
-      const authPassword = this.authService.createPassword(data.password)
+      const authPassword = this.authUtil.createPassword(data.password)
       data.password = authPassword.passwordHash
     }
 
@@ -339,15 +343,15 @@ export class UserAdminController {
       },
     },
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.USER,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.USER,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -362,8 +366,12 @@ export class UserAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') updatedBy: number,
     @UploadedFile(
-      new RequestFileRequiredPipe('avatar'),
-      new RequestFileTypePipe([ENUM_FILE_MIME.JPEG, ENUM_FILE_MIME.JPG, ENUM_FILE_MIME.PNG]),
+      RequestRequiredPipe,
+      FileExtensionPipe([
+        EnumFileExtensionImage.JPEG,
+        EnumFileExtensionImage.JPG,
+        EnumFileExtensionImage.PNG,
+      ]),
     )
     file: IFile,
   ): Promise<IResponseData> {

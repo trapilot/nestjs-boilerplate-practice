@@ -1,5 +1,5 @@
 import { Expose, Type } from 'class-transformer'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 
 export class RolePermissionResponseDto {
   @Type(() => Number)
@@ -12,11 +12,11 @@ export class RolePermissionResponseDto {
 
   @Type(() => String)
   @Expose()
-  subject: ENUM_APP_ABILITY_SUBJECT
+  subject: EnumAuthAbilitySubject
 
   @Expose()
-  action: ENUM_APP_ABILITY_ACTION
+  action: EnumAuthAbilityAction
 
   @Expose()
-  actions: ENUM_APP_ABILITY_ACTION[]
+  actions: EnumAuthAbilityAction[]
 }

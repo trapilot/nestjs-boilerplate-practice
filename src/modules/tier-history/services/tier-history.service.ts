@@ -14,22 +14,22 @@ export class TierHistoryService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.MemberTierHistoryFindUniqueArgs): Promise<TTierHistory> {
-    return await this.prisma.client.memberTierHistory.findUnique(kwargs)
+    return await this.prisma.memberTierHistory.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.MemberTierHistoryFindFirstArgs = {}): Promise<TTierHistory> {
-    return await this.prisma.client.memberTierHistory.findFirst(kwargs)
+    return await this.prisma.memberTierHistory.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.MemberTierHistoryFindManyArgs = {}): Promise<TTierHistory[]> {
-    return await this.prisma.client.memberTierHistory.findMany(kwargs)
+    return await this.prisma.memberTierHistory.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.MemberTierHistoryFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TTierHistory> {
-    const tierHistory = await this.prisma.client.memberTierHistory
+    const tierHistory = await this.prisma.memberTierHistory
       .findUniqueOrThrow({
         ...kwargs,
         where: { id },
@@ -47,7 +47,7 @@ export class TierHistoryService {
     where: Prisma.MemberTierHistoryWhereInput,
     kwargs: Omit<Prisma.MemberTierHistoryFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TTierHistory> {
-    const tierHistory = await this.prisma.client.memberTierHistory
+    const tierHistory = await this.prisma.memberTierHistory
       .findFirstOrThrow({
         ...kwargs,
         where,
@@ -80,7 +80,7 @@ export class TierHistoryService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.memberTierHistory.list(where, params, options)
+    return await this.prisma.memberTierHistory.list(where, params, options)
   }
 
   async paginate(
@@ -88,11 +88,11 @@ export class TierHistoryService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.memberTierHistory.paginate(where, params, options)
+    return await this.prisma.memberTierHistory.paginate(where, params, options)
   }
 
   async count(where?: Prisma.MemberTierHistoryWhereInput): Promise<number> {
-    return await this.prisma.client.memberTierHistory.count({
+    return await this.prisma.memberTierHistory.count({
       where,
     })
   }
@@ -101,14 +101,14 @@ export class TierHistoryService {
     id: number,
     kwargs: Omit<Prisma.MemberTierHistoryFindUniqueArgs, 'where'> = {},
   ): Promise<TTierHistory> {
-    return await this.prisma.client.memberTierHistory.findUnique({
+    return await this.prisma.memberTierHistory.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.MemberTierHistoryUncheckedCreateInput): Promise<TTierHistory> {
-    const tierHistory = await this.prisma.client.memberTierHistory.create({
+    const tierHistory = await this.prisma.memberTierHistory.create({
       data,
     })
     return tierHistory
@@ -119,7 +119,7 @@ export class TierHistoryService {
     data: Prisma.MemberTierHistoryUncheckedUpdateInput,
   ): Promise<TTierHistory> {
     const tierHistory = await this.findOrFail(id)
-    return await this.prisma.client.memberTierHistory.update({
+    return await this.prisma.memberTierHistory.update({
       data,
       where: { id: tierHistory.id },
     })
@@ -127,7 +127,7 @@ export class TierHistoryService {
 
   async delete(tierHistory: TTierHistory, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.client.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx) => {
         await tx.memberTierHistory.delete({ where: { id: tierHistory.id } })
       })
       return true

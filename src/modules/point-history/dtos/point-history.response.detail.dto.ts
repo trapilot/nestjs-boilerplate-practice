@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { ENUM_POINT_TYPE } from '@runtime/prisma-client'
+import { EnumPointHistoryType } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
-import { ENUM_DATE_FORMAT, ToDate, ToDecimal, TransformIf } from 'lib/nest-core'
+import { EnumDateFormat, ToDate, ToDecimal, TransformIf } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { InvoiceResponseBelongDto } from 'modules/invoice/dtos'
-import { MemberResponseBelongDto } from 'modules/member/dtos'
-import { TierResponseBelongDto } from 'modules/tier/dtos'
+import { InvoiceResponseBelongDto } from 'modules/invoice'
+import { MemberResponseBelongDto } from 'modules/member'
+import { TierResponseBelongDto } from 'modules/tier'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
@@ -39,7 +39,7 @@ class ResponseDataDetailDto {
   @Expose()
   invoiceAmount: number
 
-  @ApiProperty({ example: ENUM_POINT_TYPE.PURCHASE })
+  @ApiProperty({ example: EnumPointHistoryType.PURCHASE })
   @Type(() => String)
   @Expose()
   type: string
@@ -80,18 +80,18 @@ class ResponseDataDetailDto {
   isActive: boolean
 
   @ApiProperty({ example: faker.date.past() })
-  @ToDate({ format: ENUM_DATE_FORMAT.DATE })
+  @ToDate({ format: EnumDateFormat.DATE })
   @TransformIf((obj: ResponseDataDetailDto) => obj.point > 0)
   @Expose()
   expiryDate: Date
 
   @ApiProperty({ example: faker.date.future() })
-  @ToDate({ format: ENUM_DATE_FORMAT.DATE })
+  @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   releaseDate: Date
 
   @ApiProperty({ example: faker.date.past() })
-  @ToDate({ format: ENUM_DATE_FORMAT.DATE, ref: 'createdAt' })
+  @ToDate({ format: EnumDateFormat.DATE, ref: 'createdAt' })
   @Expose()
   createdDate: Date
 

@@ -1,8 +1,6 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
-import { ENUM_PUSH_STATUS, ENUM_PUSH_TYPE, Notification, Prisma } from '@runtime/prisma-client'
-import { ArrUtil, HelperService, MESSAGE_LANGUAGES } from 'lib/nest-core'
-import { LoggerService } from 'lib/nest-logger'
-import { NotifierService } from 'lib/nest-notifier'
+import { EnumPushStatus, EnumPushType, Notification, Prisma } from '@runtime/prisma-client'
+import { ArrUtil, HelperService, LoggerService, MESSAGE_LANGUAGES } from 'lib/nest-core'
 import {
   IPrismaOptions,
   IPrismaParams,
@@ -10,33 +8,35 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
+import { NotifierService } from 'shared/services'
 import { IPushHistoryData, IPushMessageData, TPush } from '../interfaces'
 
 @Injectable()
 export class PushService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly notifier: NotifierService,
+    private readonly logger: LoggerService,
+    private readonly notifyService: NotifierService,
     private readonly helperService: HelperService,
   ) {}
 
   async findOne(kwargs?: Prisma.PushFindUniqueArgs): Promise<TPush> {
-    return await this.prisma.client.push.findUnique(kwargs)
+    return await this.prisma.push.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.PushFindFirstArgs = {}): Promise<TPush> {
-    return await this.prisma.client.push.findFirst(kwargs)
+    return await this.prisma.push.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.PushFindManyArgs = {}): Promise<TPush[]> {
-    return await this.prisma.client.push.findMany(kwargs)
+    return await this.prisma.push.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.PushFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TPush> {
-    const push = await this.prisma.client.push
+    const push = await this.prisma.push
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -65,7 +65,7 @@ export class PushService {
     where: Prisma.PushWhereInput,
     kwargs: Omit<Prisma.PushFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TPush> {
-    const push = await this.prisma.client.push
+    const push = await this.prisma.push
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -81,7 +81,7 @@ export class PushService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.push.list(where, params, options)
+    return await this.prisma.push.list(where, params, options)
   }
 
   async paginate(
@@ -89,24 +89,24 @@ export class PushService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.push.paginate(where, params, options)
+    return await this.prisma.push.paginate(where, params, options)
   }
 
   async count(where?: Prisma.PushWhereInput): Promise<number> {
-    return await this.prisma.client.push.count({
+    return await this.prisma.push.count({
       where,
     })
   }
 
   async find(id: number, kwargs: Omit<Prisma.PushFindUniqueArgs, 'where'> = {}): Promise<TPush> {
-    return await this.prisma.client.push.findUnique({
+    return await this.prisma.push.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.PushUncheckedCreateInput): Promise<TPush> {
-    const push = await this.prisma.client.push.create({
+    const push = await this.prisma.push.create({
       data,
     })
     return push
@@ -115,7 +115,7 @@ export class PushService {
   async update(id: number, data: Prisma.PushUncheckedUpdateInput): Promise<TPush> {
     const push = await this.findOrFail(id)
 
-    return await this.prisma.client.push.update({
+    return await this.prisma.push.update({
       data,
       where: { id: push.id },
     })
@@ -123,7 +123,7 @@ export class PushService {
 
   async delete(push: TPush, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.client.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx) => {
         await tx.push.delete({ where: { id: push.id } })
       })
       return true
@@ -134,7 +134,7 @@ export class PushService {
 
   async inactive(id: number): Promise<TPush> {
     const push = await this.findOrFail(id)
-    return await this.prisma.client.push.update({
+    return await this.prisma.push.update({
       data: { isActive: false },
       where: { id: push.id },
     })
@@ -142,7 +142,7 @@ export class PushService {
 
   async active(id: number): Promise<TPush> {
     const push = await this.findOrFail(id)
-    return await this.prisma.client.push.update({
+    return await this.prisma.push.update({
       data: { isActive: true },
       where: { id: push.id },
     })
@@ -151,15 +151,15 @@ export class PushService {
   async getPushing(): Promise<TPush> {
     return await this.findFirst({
       where: {
-        status: ENUM_PUSH_STATUS.PUSHING,
+        status: EnumPushStatus.PUSHING,
         isActive: true,
       },
     })
   }
 
   async getPending(): Promise<TPush> {
-    const dateNow = this.helperService.dateCreate()
-    const dateExtract = this.helperService.dateExtract(dateNow)
+    const nowDate = this.helperService.dateNow()
+    const dateExtract = this.helperService.dateExtract(nowDate)
 
     const currentDate = dateExtract.date
 
@@ -179,8 +179,8 @@ export class PushService {
       ..._kwargs,
       where: {
         ..._where,
-        type: ENUM_PUSH_TYPE.INSTANT,
-        status: ENUM_PUSH_STATUS.PENDING,
+        type: EnumPushType.INSTANT,
+        status: EnumPushStatus.PENDING,
       },
     })
     if (instant) return instant
@@ -190,8 +190,8 @@ export class PushService {
       ..._kwargs,
       where: {
         ..._where,
-        type: ENUM_PUSH_TYPE.DATETIME,
-        status: ENUM_PUSH_STATUS.PENDING,
+        type: EnumPushType.DATETIME,
+        status: EnumPushStatus.PENDING,
       },
     })
     if (specialDateRule) return specialDateRule
@@ -202,12 +202,7 @@ export class PushService {
       where: {
         ..._where,
         type: {
-          in: [
-            ENUM_PUSH_TYPE.DAILY,
-            ENUM_PUSH_TYPE.WEEKLY,
-            ENUM_PUSH_TYPE.MONTHLY,
-            ENUM_PUSH_TYPE.YEARLY,
-          ],
+          in: [EnumPushType.DAILY, EnumPushType.WEEKLY, EnumPushType.MONTHLY, EnumPushType.YEARLY],
         },
         hours: { lte: dateExtract.hour },
         minutes: { lte: dateExtract.minute },
@@ -233,7 +228,7 @@ export class PushService {
     const whereORs: Prisma.MemberWhereInput = { OR: [] }
     if (push?.pivotGroups?.length) {
       for (const pivotGroups of push.pivotGroups) {
-        const group = await this.prisma.client.pushGroup.findUnique({
+        const group = await this.prisma.pushGroup.findUnique({
           where: { id: pivotGroups.groupId },
         })
         const whereAnd: Prisma.MemberWhereInput = {}
@@ -260,7 +255,7 @@ export class PushService {
       }
     }
 
-    const memberWithDevices = await this.prisma.client.member.findMany({
+    const memberWithDevices = await this.prisma.member.findMany({
       where: { isActive: true, isDeleted: false, isPhoneVerified: true, AND: whereORs },
       select: {
         id: true,
@@ -294,17 +289,17 @@ export class PushService {
     }
   }
 
-  private async pushing(push: TPush, logger: LoggerService): Promise<TPush> {
-    logger.info(`Pushing: #${push.id}`)
+  private async pushing(push: TPush): Promise<TPush> {
+    this.logger.log(`Pushing: #${push.id}`)
 
     const isValid = await this.validate(push)
     if (!isValid) {
-      logger.info(`Error: Invalid data`)
-      return await this.skip(push, logger)
+      this.logger.log(`Error: Invalid data`)
+      return await this.skip(push)
     }
 
-    const dateNow = this.helperService.dateCreate()
-    const expiresAt = this.helperService.dateForward(push.untilDate || dateNow, {
+    const nowDate = this.helperService.dateNow()
+    const expiresAt = this.helperService.dateForward(push.untilDate || nowDate, {
       minutes: 5,
     })
 
@@ -316,26 +311,26 @@ export class PushService {
     })
 
     switch (push.type) {
-      case ENUM_PUSH_TYPE.DAILY:
+      case EnumPushType.DAILY:
         scheduledAt = this.helperService.dateForward(push.scheduledAt, { days: 1 })
         break
-      case ENUM_PUSH_TYPE.WEEKLY:
+      case EnumPushType.WEEKLY:
         scheduledAt = this.helperService.dateForward(push.scheduledAt, { days: 7 })
         break
-      case ENUM_PUSH_TYPE.MONTHLY:
+      case EnumPushType.MONTHLY:
         scheduledAt = this.helperService.dateForward(push.scheduledAt, { month: 1 })
         break
-      case ENUM_PUSH_TYPE.YEARLY:
+      case EnumPushType.YEARLY:
         scheduledAt = this.helperService.dateForward(push.scheduledAt, { year: 1 })
         break
       default:
         break
     }
 
-    return await this.prisma.client.push.update({
+    return await this.prisma.push.update({
       where: { id: push.id },
       data: {
-        status: ENUM_PUSH_STATUS.PUSHING,
+        status: EnumPushStatus.PUSHING,
         retries: { increment: 1 },
         expiresAt,
         scheduledAt,
@@ -359,9 +354,9 @@ export class PushService {
     return true
   }
 
-  async process(push: TPush, logger: LoggerService): Promise<TPush> {
+  async process(push: TPush): Promise<TPush> {
     // wait for pushing
-    await this.pushing(push, logger)
+    await this.pushing(push)
 
     const { memberPushes, memberNotifications, totalDevice } =
       await this.getNotificationMembers(push)
@@ -369,11 +364,11 @@ export class PushService {
     // force status to completed although invalid
     if (totalDevice == 0) {
       const memberIds = memberPushes.map((m: any) => m.id)
-      logger.info(`Error: No devices ${JSON.stringify(memberIds)}`)
-      return await this.success(push, logger)
+      this.logger.log(`Error: No devices ${JSON.stringify(memberIds)}`)
+      return await this.success(push)
     }
 
-    const pushHistory = await this.prisma.client.pushHistory.create({
+    const pushHistory = await this.prisma.pushHistory.create({
       data: {
         totalDevice,
         pushId: push.id,
@@ -395,7 +390,7 @@ export class PushService {
 
     const chunks = this.helperService.arrayChunk(memberMessageHistories, 1_000)
     for (const data of chunks) {
-      await this.prisma.client.memberNotifyHistory.createMany({ data })
+      await this.prisma.memberNotifyHistory.createMany({ data })
     }
 
     const sentSuccessIds = []
@@ -416,7 +411,7 @@ export class PushService {
       memberData.denyPush += isNotifiable ? 0 : 1
     }
 
-    logger.info(`PUSH HISTORY #${pushHistory.id} ${JSON.stringify(memberData)}`)
+    this.logger.log(`PUSH HISTORY #${pushHistory.id} ${JSON.stringify(memberData)}`)
 
     for (const locale in memberGroup) {
       const members = memberGroup[locale] ?? []
@@ -437,7 +432,7 @@ export class PushService {
             refType: mp.refType,
           }
 
-          const _sent = await this.notifier.sendMessage({
+          const _sent = await this.notifyService.sendMessage({
             to: ArrUtil.join(tokens, { delimiter: ',', allowEmpty: false }),
             subject: 'a',
             content: 'a',
@@ -452,14 +447,14 @@ export class PushService {
           //   sentFailureIds.push(member.id)
           // }
         } catch (err: unknown) {
-          logger.error(err)
+          this.logger.error(err)
         }
       }
     }
 
     // mark member as pushed
     if (sentSuccessIds.length) {
-      await this.prisma.client.memberNotifyHistory.updateMany({
+      await this.prisma.memberNotifyHistory.updateMany({
         data: { pushedAt: pushHistory.createdAt },
         where: {
           pushHistoryId: pushHistory.id,
@@ -471,26 +466,26 @@ export class PushService {
     }
 
     // completed
-    return await this.success(push, logger)
+    return await this.success(push)
   }
 
-  async success(push: TPush, logger: LoggerService): Promise<TPush> {
-    const dateNow = this.helperService.dateCreate()
-    const dateExtract = this.helperService.dateExtract(dateNow)
+  async success(push: TPush): Promise<TPush> {
+    const nowDate = this.helperService.dateNow()
+    const dateExtract = this.helperService.dateExtract(nowDate)
 
-    let completed = push.type === ENUM_PUSH_TYPE.INSTANT
+    let completed = push.type === EnumPushType.INSTANT
 
-    if (push.type === ENUM_PUSH_TYPE.DATETIME) {
+    if (push.type === EnumPushType.DATETIME) {
       completed = this.helperService.dateCheckAfter(push.expiresAt, {
         sinceDate: dateExtract.date,
       })
     }
 
     if (
-      push.type === ENUM_PUSH_TYPE.DAILY ||
-      push.type === ENUM_PUSH_TYPE.MONTHLY ||
-      push.type === ENUM_PUSH_TYPE.WEEKLY ||
-      push.type === ENUM_PUSH_TYPE.YEARLY
+      push.type === EnumPushType.DAILY ||
+      push.type === EnumPushType.MONTHLY ||
+      push.type === EnumPushType.WEEKLY ||
+      push.type === EnumPushType.YEARLY
     ) {
       if (push.untilDate) {
         completed = this.helperService.dateCheckAfter(push.untilDate, {
@@ -500,20 +495,20 @@ export class PushService {
     }
 
     if (completed) {
-      logger.info(`Complete: #${push.id}`)
-      return await this.prisma.client.push.update({
+      this.logger.log(`Complete: #${push.id}`)
+      return await this.prisma.push.update({
         where: { id: push.id },
-        data: { status: ENUM_PUSH_STATUS.COMPLETED },
+        data: { status: EnumPushStatus.COMPLETED },
       })
     }
     return push
   }
 
-  async skip(push: TPush, logger: LoggerService): Promise<TPush> {
-    logger.info(`Cancel: #${push.id}`)
-    return await this.prisma.client.push.update({
+  async skip(push: TPush): Promise<TPush> {
+    this.logger.log(`Cancel: #${push.id}`)
+    return await this.prisma.push.update({
       where: { id: push.id },
-      data: { status: ENUM_PUSH_STATUS.CANCELED },
+      data: { status: EnumPushStatus.CANCELED },
     })
   }
 }

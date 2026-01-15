@@ -1,13 +1,5 @@
 /* eslint-disable @typescript-eslint/no-duplicate-enum-values */
-export enum ENUM_DATE_DIFF {
-  MILIS = 'milis',
-  SECONDS = 'seconds',
-  MINUTES = 'minutes',
-  HOURS = 'hours',
-  DAYS = 'days',
-}
-
-export enum ENUM_DATE_FORMAT {
+export enum EnumDateFormat {
   DB_DATE = 'yyyy-MM-dd',
   DB_TIME = 'yyyy-MM-dd HH:mm:ssZ',
   DATE_TIME = 'dd/MM/yyyy HH:mm:ss',
@@ -38,19 +30,4 @@ export enum ENUM_DATE_FORMAT {
   SECOND_LONG = 'ss',
   SECOND_SHORT = 's',
   TIMEZONE = 'Z',
-}
-
-export enum ENUM_MONTH_NUMBER {
-  JANUARY = '01',
-  FEBRUARY = '02',
-  MARCH = '03',
-  APRIL = '04',
-  MAY = '05',
-  JUNE = '06',
-  JULY = '07',
-  AUGUST = '08',
-  SEPTEMBER = '09',
-  OCTOBER = '10',
-  NOVEMBER = '11',
-  DECEMBER = '12',
 }

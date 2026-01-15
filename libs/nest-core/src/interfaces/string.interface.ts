@@ -1,9 +1,15 @@
-export type IStringParse = 'id' | 'number' | 'string' | 'boolean' | 'datetime'
+export type IStringParse =
+  | 'id'
+  | 'number'
+  | 'string'
+  | 'boolean'
+  | 'datetime'
+  | 'seconds'
+  | 'miliseconds'
 
 export interface IStringFormatOptions {
-  uppercase: boolean
-  lowercase?: boolean
-  capitalize?: boolean
+  format?: 'uppercase' | 'lowercase' | 'capitalize'
+  spaceless?: boolean
   allowDigit?: boolean
 }
 

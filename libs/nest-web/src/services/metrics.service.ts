@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Counter, Gauge, Histogram, Pushgateway, Registry, Summary } from 'prom-client'
-import { REQUEST_METRICS_CONFIG_TOKEN } from '../constants'
-import { IRequestMetricsConfig, IResponseMetrics } from '../interfaces'
+import { REQUEST_METRICS_OPTIONS } from '../constants'
+import { IRequestMetricsOptions, IResponseMetrics } from '../interfaces'
 
 @Injectable()
 export class MetricsService {
@@ -13,7 +13,7 @@ export class MetricsService {
 
   constructor(
     @Inject(Registry) private readonly registry: Registry,
-    @Inject(REQUEST_METRICS_CONFIG_TOKEN) private readonly config: IRequestMetricsConfig,
+    @Inject(REQUEST_METRICS_OPTIONS) private readonly config: IRequestMetricsOptions,
   ) {
     if (this.config.pushgatewayUrl) {
       this.pushgateway = new Pushgateway(

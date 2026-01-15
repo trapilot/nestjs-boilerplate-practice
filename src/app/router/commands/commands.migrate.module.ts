@@ -1,13 +1,9 @@
 import { Module } from '@nestjs/common'
-import { ENUM_APP_CMD_TYPE } from 'lib/nest-core'
-import { PermissionModule } from 'modules/permission'
-import { RoleModule } from 'modules/role'
+import { PermissionMigrateCommand, PermissionModule } from 'modules/permission'
+import { RoleMigrateCommand, RoleModule } from 'modules/role'
 
 @Module({
-  providers: [
-    ...RoleModule.commands(ENUM_APP_CMD_TYPE.MIGRATE),
-    ...PermissionModule.commands(ENUM_APP_CMD_TYPE.MIGRATE),
-  ],
-  imports: [RoleModule, PermissionModule],
+  providers: [PermissionMigrateCommand, RoleMigrateCommand],
+  imports: [PermissionModule, RoleModule],
 })
 export class CommandsMigrateModule {}

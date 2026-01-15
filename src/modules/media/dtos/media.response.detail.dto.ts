@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { ENUM_MEDIA_TYPE } from '@runtime/prisma-client'
+import { EnumMediaType } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
 import { ToDate, ToUrl } from 'lib/nest-core'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
@@ -11,10 +11,10 @@ class ResponseDataDetailDto {
   @Expose()
   id: number
 
-  @ApiProperty({ enum: ENUM_MEDIA_TYPE, example: ENUM_MEDIA_TYPE.BANNER })
+  @ApiProperty({ enum: EnumMediaType, example: EnumMediaType.BANNER })
   @Type(() => String)
   @Expose()
-  type: ENUM_MEDIA_TYPE
+  type: EnumMediaType
 
   @ApiProperty({ example: faker.image.url() })
   @ToUrl()

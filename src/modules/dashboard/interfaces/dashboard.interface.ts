@@ -5,3 +5,8 @@ export interface TDashboard {
   totalPaidInvoices: number
   totalCancelInvoices: number
 }
+
+export interface IDashboardDateRange {
+  untilDate: Date
+  sinceDate: Date
+}

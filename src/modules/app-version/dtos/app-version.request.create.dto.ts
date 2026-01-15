@@ -1,19 +1,19 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
-import { ENUM_APP_VERSION_PLATFORM } from '@runtime/prisma-client'
+import { EnumAppVersionPlatform } from '@runtime/prisma-client'
 import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator'
 import { ToString } from 'lib/nest-core'
 
 export class AppVersionRequestCreateDto {
   @IsNotEmpty()
-  @IsEnum(ENUM_APP_VERSION_PLATFORM)
+  @IsEnum(EnumAppVersionPlatform)
   @ApiProperty({
     description: 'Api Key name',
-    example: ENUM_APP_VERSION_PLATFORM.AOS,
+    example: EnumAppVersionPlatform.AOS,
     required: true,
-    enum: ENUM_APP_VERSION_PLATFORM,
+    enum: EnumAppVersionPlatform,
   })
-  type: ENUM_APP_VERSION_PLATFORM
+  type: EnumAppVersionPlatform
 
   @IsNotEmpty()
   @IsString()
@@ -21,7 +21,7 @@ export class AppVersionRequestCreateDto {
   @MaxLength(100)
   @ApiProperty({
     description: 'Api version name',
-    example: ENUM_APP_VERSION_PLATFORM.AOS,
+    example: EnumAppVersionPlatform.AOS,
     required: true,
   })
   name: string

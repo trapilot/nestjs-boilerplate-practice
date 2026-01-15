@@ -1,6 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common'
 import { APP_FILTER } from '@nestjs/core'
-import { PRISMA_MODULE_OPTION_TOKEN } from './constants'
+import { PRISMA_OPTIONS } from './constants'
 import { PrismaFilter } from './filters'
 import { IPrismaModuleOptions } from './interfaces'
 import { PrismaService } from './services'
@@ -13,7 +13,7 @@ export class NestPrismaModule {
       module: NestPrismaModule,
       providers: [
         {
-          provide: PRISMA_MODULE_OPTION_TOKEN,
+          provide: PRISMA_OPTIONS,
           useValue: options,
         },
         {

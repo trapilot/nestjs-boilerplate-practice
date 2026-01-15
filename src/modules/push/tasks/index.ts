@@ -1,1 +1,1 @@
-export * from './push.send-notification.task'
+export * from './push.task'

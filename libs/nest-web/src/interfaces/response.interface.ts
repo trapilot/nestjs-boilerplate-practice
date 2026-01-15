@@ -1,9 +1,9 @@
 import { HttpStatus, NestInterceptor, Type } from '@nestjs/common'
 import { ClassConstructor } from 'class-transformer'
 import {
-  ENUM_FILE_DISPOSITION,
-  ENUM_FILE_MIME,
+  EnumFileExtension,
   IMessageError,
+  IMessageProperties,
   IReturnBuffer,
   IReturnData,
   IReturnIterator,
@@ -40,8 +40,8 @@ export interface IResponseListOptions extends IResponseOptions {
 }
 
 export interface IResponseFileOptions extends Omit<IResponseOptions, 'serializer' | 'cached'> {
-  disposition: ENUM_FILE_DISPOSITION
-  type?: ENUM_FILE_MIME
+  disposition: 'attachment' | 'inline'
+  type?: EnumFileExtension
   file: {
     interceptor?: Type<NestInterceptor>
   }
@@ -55,6 +55,7 @@ export interface IResponseMetrics {
 
 export interface IResponseException {
   message: string
+  messageProperties?: IMessageProperties
   httpStatus: number
   statusCode?: number
   metadata?: IReturnMetadata

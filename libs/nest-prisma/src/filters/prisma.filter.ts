@@ -1,6 +1,6 @@
 import { ArgumentsHost, BadRequestException, Catch, ExceptionFilter } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
-import { LoggerService } from 'lib/nest-logger'
+import { AppUtil, LoggerService, ScopeContext } from 'lib/nest-core'
 
 @Catch(
   Prisma.PrismaClientKnownRequestError,
@@ -12,21 +12,20 @@ export class PrismaFilter implements ExceptionFilter {
 
   catch(exception: Prisma.PrismaClientKnownRequestError, _host: ArgumentsHost) {
     // capture
-    this.capture(exception)
+    this.captureException(exception)
 
-    const errorCode = exception?.code ?? 'P0000'
-    throw new BadRequestException({
-      statusCode: errorCode,
-      message: `prisma.${errorCode}`,
-      metadata: {
-        customProperty: {
-          messageProperties: exception?.meta,
-        },
-      },
-    })
+    if (ScopeContext.isReq()) {
+      const errorCode = exception?.code ?? 'P0000'
+      throw new BadRequestException({
+        statusCode: errorCode,
+        message: `prisma.${errorCode}`,
+        messageProperties: exception?.meta,
+      })
+    }
+    throw new Error(this.shortErrorMessage(exception))
   }
 
-  private _shortErrorMessage(exception: any): string {
+  private shortErrorMessage(exception: any): string {
     const { message, code } = exception
 
     const trimMessage = message.trim('→')
@@ -40,9 +39,10 @@ export class PrismaFilter implements ExceptionFilter {
     return shortMessage.substring(shortMessage.indexOf('\n')).replace(/\n/g, '').trim()
   }
 
-  capture(exception: unknown): void {
+  captureException(exception: unknown): void {
     try {
       this.logger.error(exception)
+      AppUtil.captureException(exception)
     } catch (err: unknown) {
       console.log({ err })
     }

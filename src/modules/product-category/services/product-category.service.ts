@@ -14,22 +14,22 @@ export class ProductCategoryService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.ProductCategoryFindUniqueArgs): Promise<TProductCategory> {
-    return await this.prisma.client.productCategory.findUnique(kwargs)
+    return await this.prisma.productCategory.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.ProductCategoryFindFirstArgs = {}): Promise<TProductCategory> {
-    return await this.prisma.client.productCategory.findFirst(kwargs)
+    return await this.prisma.productCategory.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.ProductCategoryFindManyArgs = {}): Promise<TProductCategory[]> {
-    return await this.prisma.client.productCategory.findMany(kwargs)
+    return await this.prisma.productCategory.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.ProductCategoryFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TProductCategory> {
-    const productCategory = await this.prisma.client.productCategory
+    const productCategory = await this.prisma.productCategory
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -44,7 +44,7 @@ export class ProductCategoryService {
     where: Prisma.ProductCategoryWhereInput,
     kwargs: Omit<Prisma.ProductCategoryFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TProductCategory> {
-    const productCategory = await this.prisma.client.productCategory
+    const productCategory = await this.prisma.productCategory
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -74,7 +74,7 @@ export class ProductCategoryService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.productCategory.list(where, params, options)
+    return await this.prisma.productCategory.list(where, params, options)
   }
 
   async paginate(
@@ -82,11 +82,11 @@ export class ProductCategoryService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.productCategory.paginate(where, params, options)
+    return await this.prisma.productCategory.paginate(where, params, options)
   }
 
   async count(where?: Prisma.ProductCategoryWhereInput): Promise<number> {
-    return await this.prisma.client.productCategory.count({
+    return await this.prisma.productCategory.count({
       where,
     })
   }
@@ -95,14 +95,14 @@ export class ProductCategoryService {
     id: number,
     kwargs: Omit<Prisma.ProductCategoryFindUniqueArgs, 'where'> = {},
   ): Promise<TProductCategory> {
-    return await this.prisma.client.productCategory.findUnique({
+    return await this.prisma.productCategory.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.ProductCategoryUncheckedCreateInput): Promise<TProductCategory> {
-    const productCategory = await this.prisma.client.productCategory.create({
+    const productCategory = await this.prisma.productCategory.create({
       data,
     })
     return productCategory
@@ -114,7 +114,7 @@ export class ProductCategoryService {
   ): Promise<TProductCategory> {
     const productCategory = await this.findOrFail(id)
 
-    return await this.prisma.client.productCategory.update({
+    return await this.prisma.productCategory.update({
       data,
       where: { id: productCategory.id },
     })
@@ -122,7 +122,7 @@ export class ProductCategoryService {
 
   async delete(productCategory: TProductCategory, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.client.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx) => {
         await tx.productCategory.delete({ where: { id: productCategory.id } })
       })
       return true

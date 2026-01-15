@@ -1,20 +1,20 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
-import { ENUM_API_KEY_TYPE } from '@runtime/prisma-client'
+import { EnumApiKeyType } from '@runtime/prisma-client'
 import { IsDate, IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator'
 import { DateUtil, ToDate, ToString } from 'lib/nest-core'
 import { DateGreaterThanEqual, PropertyGreaterThan } from 'lib/nest-web'
 
 export class ApiKeyRequestCreateDto {
   @IsNotEmpty()
-  @IsEnum(ENUM_API_KEY_TYPE)
+  @IsEnum(EnumApiKeyType)
   @ApiProperty({
     description: 'Api Key name',
-    example: ENUM_API_KEY_TYPE.CLIENT,
+    example: EnumApiKeyType.CLIENT,
     required: true,
-    enum: ENUM_API_KEY_TYPE,
+    enum: EnumApiKeyType,
   })
-  type: ENUM_API_KEY_TYPE
+  type: EnumApiKeyType
 
   @IsNotEmpty()
   @IsString()
@@ -30,7 +30,7 @@ export class ApiKeyRequestCreateDto {
   @IsOptional()
   @IsDate()
   @ToDate({ startOfDay: true })
-  @DateGreaterThanEqual(DateUtil.nowDate())
+  @DateGreaterThanEqual(DateUtil.getNow())
   @ApiProperty({
     description: 'Api Key start date',
     example: faker.date.recent(),

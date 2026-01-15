@@ -1,4 +1,5 @@
-import { ENUM_DATE_FORMAT, ENUM_MESSAGE_LANGUAGE } from '../enums'
+import { DateObjectUnits } from 'luxon'
+import { EnumDateFormat, EnumMessageLanguage } from '../enums'
 
 export interface IDateExtractData {
   date: Date
@@ -25,28 +26,22 @@ export interface IDateCompareOptions {
 }
 
 export interface IDateCreateOptions {
+  timezone?: string
   startOfDay?: boolean
   endOfDay?: boolean
-  duration?: string
-  timezone?: string
+  durationSet?: DateObjectUnits
 }
 
-export interface IDateRequestOptions extends IDateCreateOptions {
+export interface IDateFormatOptions extends IDateCreateOptions {
   default?: any
-  format?: ENUM_DATE_FORMAT
-  durationSet?: {
-    hour?: boolean
-    minute?: boolean
-    second?: boolean
-    millisecond?: boolean
-  }
+  format?: EnumDateFormat
   relativeDaysFromNow?: number
 }
 
 export interface IDateFriendlyOptions {
   days: number
-  language?: ENUM_MESSAGE_LANGUAGE
-  format?: ENUM_DATE_FORMAT | string
+  language?: EnumMessageLanguage
+  format?: EnumDateFormat | string
 }
 
 export interface IDateRoundDownOptions {

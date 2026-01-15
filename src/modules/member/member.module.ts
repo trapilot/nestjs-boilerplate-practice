@@ -1,38 +1,17 @@
 import { Module } from '@nestjs/common'
-import { ENUM_APP_API_TYPE, ENUM_APP_CMD_TYPE, ModuleBase } from 'lib/nest-core'
-import { InvoiceModule } from 'modules/invoice'
-import { TierModule } from 'modules/tier'
-import { MemberSeedCommand } from './commands'
-import { MemberAdminController, MemberAppController } from './controllers'
-import { MemberService } from './services'
-import {
-  MemberEarnHighestBirthPurchasedTask,
-  MemberEarnPointTask,
-  MemberReleasePointTask,
-  MemberResetBirthPurchasedTask,
-  MemberResetPointTask,
-  MemberResetTierTask,
-} from './tasks'
+import { MEMBER_AUTH_TOKEN } from './constants'
+import { AuthService, MemberService, VerifyService } from './services'
 
 @Module({
-  providers: [MemberService],
-  exports: [MemberService],
-  imports: [TierModule, InvoiceModule],
+  providers: [
+    {
+      provide: MEMBER_AUTH_TOKEN,
+      useClass: AuthService,
+    },
+    MemberService,
+    VerifyService,
+  ],
+  exports: [MEMBER_AUTH_TOKEN, MemberService, VerifyService],
+  imports: [],
 })
-export class MemberModule extends ModuleBase {
-  static _tasks = [
-    MemberResetBirthPurchasedTask,
-    MemberResetTierTask,
-    MemberResetPointTask,
-    MemberEarnPointTask,
-    MemberEarnHighestBirthPurchasedTask,
-    MemberReleasePointTask,
-  ]
-  static _controllers = {
-    [ENUM_APP_API_TYPE.CMS]: [MemberAdminController],
-    [ENUM_APP_API_TYPE.APP]: [MemberAppController],
-  }
-  static _commands = {
-    [ENUM_APP_CMD_TYPE.SEED]: [MemberSeedCommand],
-  }
-}
+export class MemberModule {}

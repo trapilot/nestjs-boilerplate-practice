@@ -2,12 +2,12 @@ import { INestApplication } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { RoutesAdminModule, RoutesAppModule, RoutesPublicModule, RoutesWebModule } from 'app/router'
-import { ENUM_APP_ENVIRONMENT } from 'lib/nest-core'
+import { EnumAppEnvironment } from 'lib/nest-core'
 import { writeFileSync } from 'node:fs'
 
 export default async function (app: INestApplication) {
   const config = app.get(ConfigService)
-  const env = config.get<ENUM_APP_ENVIRONMENT>('app.env')
+  const env = config.get<EnumAppEnvironment>('app.env')
   const appVersion = config.get<boolean>('app.urlVersion.version')
 
   const builder = () => {
@@ -17,7 +17,7 @@ export default async function (app: INestApplication) {
       .setVersion('1.0')
       .addServer('/')
 
-    if (env === ENUM_APP_ENVIRONMENT.DEVELOPMENT && process.env.UAT_URL) {
+    if (env === EnumAppEnvironment.DEVELOPMENT && process.env.UAT_URL) {
       documentBuilder.addServer(process.env.UAT_URL)
     }
     if (appVersion) {
@@ -42,7 +42,7 @@ const setup = (
   app: INestApplication,
   documentBuilder: DocumentBuilder,
   documentOptions: {
-    env: ENUM_APP_ENVIRONMENT
+    env: EnumAppEnvironment
     prefix: string
     routes: any[]
     apiKeys?: any[]
@@ -78,7 +78,7 @@ const setup = (
     customfavIcon: '/public/favicon.ico',
     swaggerOptions: {
       docExpansion: 'none',
-      persistAuthorization: documentOptions.env === ENUM_APP_ENVIRONMENT.DEVELOPMENT,
+      persistAuthorization: documentOptions.env === EnumAppEnvironment.DEVELOPMENT,
       displayOperationId: true,
       operationsSorter: 'method',
       // tagsSorter: 'alpha',

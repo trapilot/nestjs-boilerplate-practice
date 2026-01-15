@@ -1,4 +1,4 @@
-export enum ENUM_FACT_TYPE {
+export enum EnumFactType {
   TERM_AND_CONDITION = 'TERM_AND_CONDITION',
   ABOUT_US = 'ABOUT_US',
   PRIVACY = 'PRIVACY',

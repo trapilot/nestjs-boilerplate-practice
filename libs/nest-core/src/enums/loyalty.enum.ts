@@ -1,9 +1,0 @@
-export enum ENUM_TIER_CODE {
-  NORMAL = 'NORMAL',
-  BLUE = 'BLUE',
-  SILVER = 'SILVER',
-  GOLD = 'GOLD',
-  BLACK = 'BLACK',
-  PLATINUM = 'PLATINUM',
-  DIAMOND = 'DIAMOND',
-}

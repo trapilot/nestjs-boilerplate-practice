@@ -14,22 +14,22 @@ export class <%= singular(classify(name)) %>Service {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.<%= singular(classify(name)) %>FindUniqueArgs): Promise<T<%= singular(classify(name)) %>> {
-    return await this.prisma.client.<%= singular(lowercased(name)) %>.findUnique(kwargs)
+    return await this.prisma.<%= singular(lowercased(name)) %>.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.<%= singular(classify(name)) %>FindFirstArgs = {}): Promise<T<%= singular(classify(name)) %>> {
-    return await this.prisma.client.<%= singular(lowercased(name)) %>.findFirst(kwargs)
+    return await this.prisma.<%= singular(lowercased(name)) %>.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.<%= singular(classify(name)) %>FindManyArgs = {}): Promise<T<%= singular(classify(name)) %>[]> {
-    return await this.prisma.client.<%= singular(lowercased(name)) %>.findMany(kwargs)
+    return await this.prisma.<%= singular(lowercased(name)) %>.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.<%= singular(classify(name)) %>FindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<T<%= singular(classify(name)) %>> {
-    const <%= singular(lowercased(name)) %> = await this.prisma.client.<%= singular(lowercased(name)) %>
+    const <%= singular(lowercased(name)) %> = await this.prisma.<%= singular(lowercased(name)) %>
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -44,7 +44,7 @@ export class <%= singular(classify(name)) %>Service {
     where: Prisma.<%= singular(classify(name)) %>WhereInput,
     kwargs: Omit<Prisma.<%= singular(classify(name)) %>FindFirstOrThrowArgs, 'where'> = {},
   ): Promise<T<%= singular(classify(name)) %>> {
-    const <%= singular(lowercased(name)) %> = await this.prisma.client.<%= singular(lowercased(name)) %>
+    const <%= singular(lowercased(name)) %> = await this.prisma.<%= singular(lowercased(name)) %>
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -74,7 +74,7 @@ export class <%= singular(classify(name)) %>Service {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.<%= singular(lowercased(name)) %>.list(where, params, options)
+    return await this.prisma.<%= singular(lowercased(name)) %>.list(where, params, options)
   }
 
   async paginate(
@@ -82,24 +82,24 @@ export class <%= singular(classify(name)) %>Service {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.<%= singular(lowercased(name)) %>.paginate(where, params, options)
+    return await this.prisma.<%= singular(lowercased(name)) %>.paginate(where, params, options)
   }
 
   async count(where?: Prisma.<%= singular(classify(name)) %>WhereInput): Promise<number> {
-    return await this.prisma.client.<%= singular(lowercased(name)) %>.count({
+    return await this.prisma.<%= singular(lowercased(name)) %>.count({
       where,
     })
   }
 
   async find(id: number, kwargs: Omit<Prisma.<%= singular(classify(name)) %>FindUniqueArgs, 'where'> = {}): Promise<T<%= singular(classify(name)) %>> {
-    return await this.prisma.client.<%= singular(lowercased(name)) %>.findUnique({
+    return await this.prisma.<%= singular(lowercased(name)) %>.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.<%= singular(classify(name)) %>UncheckedCreateInput): Promise<T<%= singular(classify(name)) %>> {
-    const <%= singular(lowercased(name)) %> = await this.prisma.client.<%= singular(lowercased(name)) %>.create({
+    const <%= singular(lowercased(name)) %> = await this.prisma.<%= singular(lowercased(name)) %>.create({
       data,
     })
     return <%= singular(lowercased(name)) %>
@@ -108,7 +108,7 @@ export class <%= singular(classify(name)) %>Service {
   async update(id: number, data: Prisma.<%= singular(classify(name)) %>UncheckedUpdateInput): Promise<T<%= singular(classify(name)) %>> {
     const <%= singular(lowercased(name)) %> = await this.findOrFail(id)
 
-    return await this.prisma.client.<%= singular(lowercased(name)) %>.update({
+    return await this.prisma.<%= singular(lowercased(name)) %>.update({
       data,
       where: { id: <%= singular(lowercased(name)) %>.id },
     })

@@ -1,14 +1,17 @@
 import { ClassConstructor, plainToInstance, Transform } from 'class-transformer'
-import { AppContext } from '../helpers'
-import { IDateRequestOptions, INumberReturnOptions } from '../interfaces'
-import { DateUtil, LocaleUtil, NumberUtil, UrlUtil } from '../utils'
+import { EnumRouteType } from '../enums'
+import { ScopeContext } from '../helpers'
+import { IDateFormatOptions, INumberReturnOptions } from '../interfaces'
+import { AppUtil, DateUtil, LocaleUtil, NumberUtil } from '../utils'
 
 export function ToUrl(host?: string): (target: any, key: string) => void {
-  return Transform(({ value }: any) => UrlUtil.build(value, host))
+  return Transform(({ value: path }: any) => {
+    return AppUtil.buildUrl(path, host)
+  })
 }
 
 export function ToDate(
-  transform?: { ref?: string } & IDateRequestOptions,
+  transform?: { ref?: string } & IDateFormatOptions,
 ): (target: any, key: string) => void {
   return Transform(({ value, obj }: any) => {
     const { ref, ...options } = transform ?? {}
@@ -59,7 +62,7 @@ export function ToEnum(
         }
 
         if (value && transform.locale) {
-          value = value[AppContext.language()] || transform?.default
+          value = value[ScopeContext.getReqLang()] || transform?.default
         }
 
         return enums[value] || transform?.default
@@ -74,7 +77,7 @@ export function ToDecimal(options?: INumberReturnOptions): (target: any, key: st
     const decimal = value ?? obj[key.replace('Format', '')]
     if (typeof decimal === 'number') {
       return NumberUtil.decimal(decimal ?? 0, {
-        useGrouping: !AppContext.isAdminRequest(),
+        useGrouping: !ScopeContext.isReqRoute(EnumRouteType.CMS),
         ...options,
       })
     }
@@ -85,7 +88,7 @@ export function ToDecimal(options?: INumberReturnOptions): (target: any, key: st
 export function ToCurrency(options?: INumberReturnOptions): (target: any, key: string) => void {
   return Transform(({ value, obj, key }: any) => {
     return NumberUtil.currency(value ?? obj[key.replace('Format', '')] ?? 0, {
-      useGrouping: !AppContext.isAdminRequest(),
+      useGrouping: !ScopeContext.isReqRoute(EnumRouteType.CMS),
       ...options,
     })
   })
@@ -95,7 +98,7 @@ export function ToPercent(): (target: any, key: string) => void {
   return Transform(({ value, obj, key }: any) => {
     // return `${value ?? obj[key.replace('Format', '')] ?? 0}%`
     return NumberUtil.currency(value ?? obj[key.replace('Format', '')] ?? 0, {
-      useGrouping: !AppContext.isAdminRequest(),
+      useGrouping: !ScopeContext.isReqRoute(EnumRouteType.CMS),
     })
   })
 }
@@ -126,7 +129,7 @@ export function ToNestedArray<T>(transform: {
           }
 
           if (data && transform.locale) {
-            data = data[AppContext.language()] || transform?.default
+            data = data[ScopeContext.getReqLang()] || transform?.default
           }
           if (data && transform?.type) {
             data = plainToInstance(transform.type, data, { excludeExtraneousValues: true })
@@ -160,7 +163,7 @@ export function ToNestedField<T>(transform: {
       }
 
       if (data && transform.locale) {
-        data = data[AppContext.language()] || transform?.default
+        data = data[ScopeContext.getReqLang()] || transform?.default
       }
       if (data && transform?.type) {
         return plainToInstance(transform.type, data, { excludeExtraneousValues: true })
@@ -205,7 +208,7 @@ export function ToLocaleField<T>(transform: {
 export function ToLocale(field?: string): (target: any, key: string) => void {
   return Transform(({ obj, value }: any) => {
     if (field) value = obj[field] ?? null
-    return value ? value[AppContext.language()] : value
+    return value ? value[ScopeContext.getReqLang()] : value
   })
 }
 

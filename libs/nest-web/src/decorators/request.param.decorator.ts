@@ -1,14 +1,18 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common'
-import { ENUM_AUTH_LOGIN_FROM } from 'lib/nest-auth'
-import { ENUM_USER_GENDER, EnumUtil, IRequestApp } from 'lib/nest-core'
+import { createParamDecorator, ExecutionContext, Ip } from '@nestjs/common'
+import { EnumAuthLoginFrom } from 'lib/nest-auth'
+import { EnumFileExtensionDocument, EnumUserType, EnumUtil, IRequestApp } from 'lib/nest-core'
 import { IResult, UAParser } from 'ua-parser-js'
 
 export const RequestBookType = createParamDecorator(
-  <T = string>(_data: string, ctx: ExecutionContext): T => {
+  (_data: string, ctx: ExecutionContext): EnumFileExtensionDocument => {
     const req = ctx.switchToHttp().getRequest<IRequestApp>()
-    return req?.query?.exportType as T
+    return req?.query?.bookType as EnumFileExtensionDocument
   },
 )
+
+export function RequestUserIp(): ParameterDecorator {
+  return Ip()
+}
 
 export const RequestUserData = createParamDecorator(<T>(data: string, ctx: ExecutionContext): T => {
   const req = ctx.switchToHttp().getRequest<IRequestApp>()
@@ -31,16 +35,16 @@ export const RequestUserAgent: () => ParameterDecorator = createParamDecorator(
 )
 
 export const RequestUserFrom: () => ParameterDecorator = createParamDecorator(
-  (_data: string, ctx: ExecutionContext): ENUM_AUTH_LOGIN_FROM => {
+  (_data: string, ctx: ExecutionContext): EnumAuthLoginFrom => {
     const req = ctx.switchToHttp().getRequest<IRequestApp>()
     try {
       const originalUrl = req?.originalUrl ?? ''
       if (originalUrl.includes('/admin/')) {
-        return ENUM_AUTH_LOGIN_FROM.CMS
+        return EnumAuthLoginFrom.CMS
       } else if (originalUrl.includes('/app/')) {
-        return ENUM_AUTH_LOGIN_FROM.APP
+        return EnumAuthLoginFrom.APP
       } else if (originalUrl.includes('/web/')) {
-        return ENUM_AUTH_LOGIN_FROM.WEB
+        return EnumAuthLoginFrom.WEB
       }
     } catch (_err: unknown) {}
     return null
@@ -68,19 +72,19 @@ export const RequestUserOTT: () => ParameterDecorator = createParamDecorator(
   },
 )
 
-export const RequestUserLanguage: () => ParameterDecorator = createParamDecorator(
+export const RequestUserLang: () => ParameterDecorator = createParamDecorator(
   (_data: string, ctx: ExecutionContext): string => {
     const { __language } = ctx.switchToHttp().getRequest<IRequestApp>()
     return __language
   },
 )
 
-export const RequestUserGender: () => ParameterDecorator = createParamDecorator(
+export const RequestUserType: () => ParameterDecorator = createParamDecorator(
   (data: string, ctx: ExecutionContext): string => {
     const req = ctx.switchToHttp().getRequest<IRequestApp>()
-    const userGender = (req.headers['x-user-gender'] as string) ?? undefined
-    return EnumUtil.findKey<string>(userGender?.toUpperCase(), {
-      enum: ENUM_USER_GENDER,
+    const userType = (req.headers['x-user-type'] as string) ?? undefined
+    return EnumUtil.findKey<string>(userType?.toLowerCase(), {
+      enum: EnumUserType,
       fallback: data,
     })
   },

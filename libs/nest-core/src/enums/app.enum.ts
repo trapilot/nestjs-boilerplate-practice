@@ -1,36 +1,21 @@
 /* eslint-disable @typescript-eslint/no-duplicate-enum-values */
-export enum ENUM_APP_ENVIRONMENT {
+export enum EnumAppEnvironment {
   PRODUCTION = 'production',
   STABLE = 'stable',
   STAGING = 'staging',
   DEVELOPMENT = 'development',
 }
 
-export enum ENUM_APP_API_TYPE {
-  PUB = 'PUB',
-  CMS = 'CMS',
-  APP = 'APP',
-  WEB = 'WEB',
+export enum EnumAppLanguage {
+  EN = 'en',
+  VI = 'vi',
+  CN = 'zh_CN',
+  HK = 'zh_HK',
+  TW = 'zh_TW',
+  MO = 'zh_MO',
 }
 
-export enum ENUM_APP_API_ROUTE {
-  PUB = '/',
-  CMS = '/admin',
-  APP = '/app',
-  WEB = '/web',
-}
-
-export enum ENUM_APP_CMD_TYPE {
-  SEED = 'SEED',
-  MIGRATE = 'MIGRATE',
-}
-
-export enum ENUM_DEVICE_PLATFORM {
-  IOS = 'IOS',
-  AOS = 'AOS',
-}
-
-export enum ENUM_APP_TIMEZONE {
+export enum EnumAppTimezone {
   UTC = 'UTC',
   GMT = 'GMT',
   AMERICA_NEW_YORK = 'America/New_York',
@@ -52,11 +37,66 @@ export enum ENUM_APP_TIMEZONE {
   AUSTRALIA_MELBOURNE = 'Australia/Melbourne',
 }
 
-export enum ENUM_APP_LANGUAGE {
+export enum EnumNumberLocale {
   EN = 'en',
-  VI = 'vi',
-  CN = 'zh_CN',
-  HK = 'zh_HK',
-  TW = 'zh_TW',
-  MO = 'zh_MO',
+  VI = 'vn-VI',
+  CN = 'zh-CN',
+  HK = 'zh-HK',
+  TW = 'zh-TW',
+  MO = 'zh-MO',
+}
+
+export enum EnumNumberCurrency {
+  EN = 'USD',
+  VI = 'VND',
+  CN = 'HKD',
+  HK = 'HKD',
+  TW = 'HKD',
+  MO = 'HKD',
+}
+
+export enum EnumScopeType {
+  HTTP = 'http',
+  CRON = 'cron',
+  QUEUE = 'queue',
+  COMMAND = 'command',
+}
+
+export enum EnumRouteType {
+  PUB = 'pub',
+  CMS = 'cms',
+  APP = 'app',
+  WEB = 'web',
+}
+
+export enum EnumRoutePath {
+  PUB = '/',
+  CMS = '/admin',
+  APP = '/app',
+  WEB = '/web',
+}
+
+export enum EnumUserType {
+  UNKNOWN = 'unknown',
+  MALE = 'make',
+  FEMALE = 'female',
+}
+
+export enum EnumLoggerSeverity {
+  CRITICAL = 'critical',
+  ERROR = 'error',
+  WARNING = 'warning',
+  INFO = 'info',
+  DEBUG = 'debug',
+  TRACE = 'trace',
+}
+
+export enum EnumTierCode {
+  NORMAL = 'NORMAL',
+  BLUE = 'BLUE',
+  SILVER = 'SILVER',
+  GOLD = 'GOLD',
+  BLACK = 'BLACK',
+  PLATINUM = 'PLATINUM',
+  DIAMOND = 'DIAMOND',
 }

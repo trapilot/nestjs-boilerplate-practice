@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { APP_RESPONSE } from '../constants'
+import { RESPONSE_CONTENT_OK } from '../constants'
 
 @ApiTags('Health')
 @Controller('/health')
@@ -9,13 +9,13 @@ export class HealthController {
   @ApiOperation({ summary: 'Check app ready' })
   @ApiOkResponse({ type: String })
   async ready(): Promise<string> {
-    return APP_RESPONSE
+    return RESPONSE_CONTENT_OK
   }
 
   @Get('/live')
   @ApiOperation({ summary: 'Check app live' })
   @ApiOkResponse({ type: String })
   async live(): Promise<string> {
-    return APP_RESPONSE
+    return RESPONSE_CONTENT_OK
   }
 }

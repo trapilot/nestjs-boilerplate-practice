@@ -8,11 +8,11 @@ import {
 } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 import {
-  ENUM_INVOICE_STATUS,
-  ENUM_ORDER_STATUS,
-  ENUM_POINT_TYPE,
-  ENUM_REDEMPTION_SOURCE,
-  ENUM_REDEMPTION_STATUS,
+  EnumInvoiceStatus,
+  EnumOrderStatus,
+  EnumPointHistoryType,
+  EnumRedemptionSource,
+  EnumRedemptionStatus,
   Prisma,
 } from '@runtime/prisma-client'
 import { HelperService } from 'lib/nest-core'
@@ -23,9 +23,9 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TCart } from 'modules/cart/interfaces'
-import { InvoiceService } from 'modules/invoice/services'
-import { MemberService } from 'modules/member/services'
+import { TCart } from 'modules/cart'
+import { InvoiceService } from 'modules/invoice'
+import { MemberService } from 'modules/member'
 import { IOrderPlaceOptions, TOrder } from '../interfaces'
 
 @Injectable()
@@ -45,22 +45,22 @@ export class OrderService implements OnModuleInit {
   }
 
   async findOne(kwargs?: Prisma.OrderFindUniqueArgs): Promise<TOrder> {
-    return await this.prisma.client.order.findUnique(kwargs)
+    return await this.prisma.order.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.OrderFindFirstArgs = {}): Promise<TOrder> {
-    return await this.prisma.client.order.findFirst(kwargs)
+    return await this.prisma.order.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.OrderFindManyArgs = {}): Promise<TOrder[]> {
-    return await this.prisma.client.order.findMany(kwargs)
+    return await this.prisma.order.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.OrderFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TOrder> {
-    const order = await this.prisma.client.order
+    const order = await this.prisma.order
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -75,7 +75,7 @@ export class OrderService implements OnModuleInit {
     where: Prisma.OrderWhereInput,
     kwargs: Omit<Prisma.OrderFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TOrder> {
-    const order = await this.prisma.client.order
+    const order = await this.prisma.order
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -105,7 +105,7 @@ export class OrderService implements OnModuleInit {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.order.list(where, params, options)
+    return await this.prisma.order.list(where, params, options)
   }
 
   async paginate(
@@ -113,24 +113,24 @@ export class OrderService implements OnModuleInit {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.order.paginate(where, params, options)
+    return await this.prisma.order.paginate(where, params, options)
   }
 
   async count(where?: Prisma.OrderWhereInput): Promise<number> {
-    return await this.prisma.client.order.count({
+    return await this.prisma.order.count({
       where,
     })
   }
 
   async find(id: number, kwargs: Omit<Prisma.OrderFindUniqueArgs, 'where'> = {}): Promise<TOrder> {
-    return await this.prisma.client.order.findUnique({
+    return await this.prisma.order.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.OrderUncheckedCreateInput): Promise<TOrder> {
-    const order = await this.prisma.client.order.create({
+    const order = await this.prisma.order.create({
       data,
     })
     return order
@@ -139,7 +139,7 @@ export class OrderService implements OnModuleInit {
   async update(id: number, data: Prisma.OrderUncheckedUpdateInput): Promise<TOrder> {
     const order = await this.findOrFail(id)
 
-    return await this.prisma.client.order.update({
+    return await this.prisma.order.update({
       data,
       where: { id: order.id },
     })
@@ -147,7 +147,7 @@ export class OrderService implements OnModuleInit {
 
   async delete(order: TOrder, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.client.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx) => {
         await tx.order.delete({ where: { id: order.id } })
       })
       return true
@@ -186,15 +186,15 @@ export class OrderService implements OnModuleInit {
       ? this.helperService.dateForward(endOfDay, { days: Math.min(...duePaidDays) })
       : undefined
 
-    const [order] = await this.prisma.client.$transaction([
-      this.prisma.client.order.create({
+    const [order] = await this.prisma.$transaction([
+      this.prisma.order.create({
         data: {
           memberId: cart.memberId,
           finalPrice,
           finalPoint,
           code: orderNumber,
           source: options.source,
-          status: ENUM_ORDER_STATUS.PENDING,
+          status: EnumOrderStatus.PENDING,
           issuedAt: options.issuedAt,
           createdAt: options.issuedAt,
           updatedAt: options.issuedAt,
@@ -215,7 +215,7 @@ export class OrderService implements OnModuleInit {
               paidPoint: finalPoint,
               finalPrice: finalPrice,
               finalPoint: finalPoint,
-              status: ENUM_INVOICE_STATUS.PARTIALLY_PAID,
+              status: EnumInvoiceStatus.PARTIALLY_PAID,
               dueDate: dueDate,
               issuedAt: options.issuedAt,
               createdAt: options.issuedAt,
@@ -228,7 +228,7 @@ export class OrderService implements OnModuleInit {
                       memberId: cart.memberId,
                       tierId: cart.member.tierId,
                       invoiceAmount: finalPrice,
-                      type: ENUM_POINT_TYPE.PURCHASE,
+                      type: EnumPointHistoryType.PURCHASE,
                       pointBalance,
                       point: recentPoint.point * -1,
                       expiryDate: recentPoint.date,
@@ -263,8 +263,8 @@ export class OrderService implements OnModuleInit {
                   productId: item.productId,
                   redeemPrice: item.product.salePrice,
                   redeemPoint: item.product.salePoint,
-                  source: ENUM_REDEMPTION_SOURCE.ORDER,
-                  status: ENUM_REDEMPTION_STATUS.PENDING,
+                  source: EnumRedemptionSource.ORDER,
+                  status: EnumRedemptionStatus.PENDING,
                   issuedAt: options.issuedAt,
                   createdAt: options.issuedAt,
                   updatedAt: options.issuedAt,
@@ -275,7 +275,7 @@ export class OrderService implements OnModuleInit {
           },
         },
       }),
-      this.prisma.client.cart.update({
+      this.prisma.cart.update({
         where: { id: cart.id },
         data: {
           version: 1,
@@ -293,7 +293,7 @@ export class OrderService implements OnModuleInit {
         },
       }),
       ...cart.items.map((item) =>
-        this.prisma.client.product.update({
+        this.prisma.product.update({
           where: { id: item.productId },
           data: { unpaidQty: { increment: item.quantity } },
         }),
@@ -306,7 +306,7 @@ export class OrderService implements OnModuleInit {
     //     finalPoint,
     //     code: orderNumber,
     //     source: options.source,
-    //     status: ENUM_ORDER_STATUS.PENDING,
+    //     status: EnumOrderStatus.PENDING,
     //     issuedAt: issuedAt,
     //     createdAt: issuedAt,
     //     updatedAt: issuedAt,
@@ -318,7 +318,7 @@ export class OrderService implements OnModuleInit {
     //         paidPoint: finalPoint,
     //         finalPrice: finalPrice,
     //         finalPoint: finalPoint,
-    //         status: ENUM_INVOICE_STATUS.PENDING,
+    //         status: EnumInvoiceStatus.PENDING,
     //         issuedAt: issuedAt,
     //         createdAt: issuedAt,
     //         updatedAt: issuedAt,
@@ -328,7 +328,7 @@ export class OrderService implements OnModuleInit {
     //                 memberId: cart.memberId,
     //                 tierId: cart.member.tierId,
     //                 invoiceAmount: finalPrice,
-    //                 type: ENUM_POINT_TYPE.PURCHASE,
+    //                 type: EnumPointHistoryType.PURCHASE,
     //                 point: finalPoint * -1,
     //                 pointBalance: pointBalance - finalPoint,
     //                 expiryDate: this.memberService.getPointExpirationDate(issuedAt),

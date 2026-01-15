@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsObject } from 'class-validator'
-import { ILoggerData, ILoggerMetadata } from 'lib/nest-logger'
+import { ILoggerData, ILoggerMetadata } from '../interfaces'
 
 export class AuditRequestEntryDto {
   @ApiProperty({

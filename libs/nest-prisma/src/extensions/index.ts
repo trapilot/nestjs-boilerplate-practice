@@ -1,2 +1,2 @@
-export * from './prisma.extension'
-export * from './prisma.replica'
+export * from './prisma.replicas'
+export * from './prisma.utilities'

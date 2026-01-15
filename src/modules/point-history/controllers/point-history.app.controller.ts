@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
+import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import {
   ApiRequestData,
   ApiRequestPaging,
@@ -29,7 +29,7 @@ export class PointHistoryAppController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: false,
         require: true,
@@ -69,7 +69,7 @@ export class PointHistoryAppController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,

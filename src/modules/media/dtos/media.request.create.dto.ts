@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { ENUM_MEDIA_TYPE } from '@runtime/prisma-client'
+import { EnumMediaType } from '@runtime/prisma-client'
 import {
   IsBoolean,
   IsEnum,
@@ -9,16 +9,15 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator'
-import { ToBoolean, ToNumber, ToObject, ToString } from 'lib/nest-core'
+import { EnumMessageRefType, ToBoolean, ToNumber, ToObject, ToString } from 'lib/nest-core'
 import { RequestSentenceDto } from 'lib/nest-web'
-import { ENUM_MEDIA_REF_TYPE } from '../enums'
 
 export class MediaRequestCreateDto {
   @IsNotEmpty()
-  @IsEnum(ENUM_MEDIA_TYPE)
+  @IsEnum(EnumMediaType)
   @ToString()
-  @ApiProperty({ required: true, enum: ENUM_MEDIA_TYPE, example: ENUM_MEDIA_TYPE.BANNER })
-  type: ENUM_MEDIA_TYPE
+  @ApiProperty({ required: true, enum: EnumMediaType, example: EnumMediaType.BANNER })
+  type: EnumMediaType
 
   @IsNotEmpty()
   @IsObject()
@@ -39,9 +38,9 @@ export class MediaRequestCreateDto {
   sorting: number
 
   @IsOptional()
-  @IsEnum(ENUM_MEDIA_REF_TYPE)
+  @IsEnum(EnumMessageRefType)
   @ToString()
-  @ApiProperty({ required: false, enum: ENUM_MEDIA_REF_TYPE, example: ENUM_MEDIA_REF_TYPE.TEXT })
+  @ApiProperty({ required: false, enum: EnumMessageRefType, example: EnumMessageRefType.TEXT })
   refType: string
 
   @IsOptional()

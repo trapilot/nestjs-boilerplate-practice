@@ -1,13 +1,12 @@
 import { Injectable } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
-import { ILoggerEntry } from 'lib/nest-logger'
 import { PrismaService } from 'lib/nest-prisma'
 
 @Injectable()
 export class AuditService {
   constructor(private readonly prisma: PrismaService) {}
 
-  toHttpData(entry: ILoggerEntry): Prisma.AuditLogHttpUncheckedCreateInput {
+  toHttpData(entry: any): Prisma.AuditLogHttpUncheckedCreateInput {
     return {
       correlationId: entry.data.correlationId,
       type: entry.data.context,
@@ -36,6 +35,6 @@ export class AuditService {
   }
 
   async saveHttpData(data: Prisma.AuditLogHttpUncheckedCreateInput) {
-    await this.prisma.client.auditLogHttp.create({ data })
+    await this.prisma.auditLogHttp.create({ data })
   }
 }

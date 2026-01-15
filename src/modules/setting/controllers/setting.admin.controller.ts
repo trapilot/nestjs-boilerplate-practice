@@ -1,7 +1,7 @@
 import { BadRequestException, Controller, Get, HttpStatus, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma, Setting } from '@runtime/prisma-client'
-import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
+import { EnumAuthScopeType } from 'lib/nest-auth'
 import { CryptoService, FILE_SIZE_IN_BYTES, MessageService } from 'lib/nest-core'
 import {
   ApiRequestData,
@@ -15,7 +15,7 @@ import {
   RequestUserAgent,
   RequestUserIp,
 } from 'lib/nest-web'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { IResult } from 'ua-parser-js'
 import {
   SETTING_DOC_OPERATION,
@@ -32,16 +32,16 @@ import {
   SettingResponseListDto,
   SettingTimezoneResponseDto,
 } from '../dtos'
-import { ENUM_SETTING_GROUP } from '../enums'
+import { EnumSettingGroup } from '../enums'
 import { SettingService } from '../services'
 
 @ApiTags(SETTING_DOC_OPERATION)
 @Controller({ path: '/settings' })
 export class SettingAdminController {
   constructor(
+    protected readonly crypto: CryptoService,
+    protected readonly message: MessageService,
     protected readonly settingService: SettingService,
-    protected readonly cryptoService: CryptoService,
-    private readonly messageService: MessageService,
   ) {}
 
   @ApiRequestData({
@@ -57,7 +57,7 @@ export class SettingAdminController {
     @RequestUserIp() userIp: string,
     @RequestUserAgent() userAgent: IResult,
   ): Promise<IResponseData> {
-    const languages: string[] = this.messageService.getAvailableLanguages()
+    const languages: string[] = this.message.getAvailableLanguages()
 
     const tz: string = await this.settingService.getTimezone()
     const timezoneOffset: string = await this.settingService.getTimezoneOffset()
@@ -76,7 +76,7 @@ export class SettingAdminController {
         languages,
         file,
         timezone,
-        token: this.cryptoService.createUserToken(userIp, userAgent, true),
+        token: this.crypto.createUserToken(userIp, userAgent, true),
       },
     }
   }
@@ -88,7 +88,7 @@ export class SettingAdminController {
   })
   @Get('clean')
   async clean(): Promise<boolean> {
-    return await this.settingService.cleanUp()
+    return await this.settingService.clearCache()
   }
 
   @ApiRequestList({
@@ -100,14 +100,14 @@ export class SettingAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.SETTING,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.SETTING,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -118,7 +118,7 @@ export class SettingAdminController {
   })
   @Get('/')
   async list(
-    @RequestQueryFilterInEnum('group', ENUM_SETTING_GROUP) _group: RequestFilterDto,
+    @RequestQueryFilterInEnum('group', EnumSettingGroup) _group: RequestFilterDto,
   ): Promise<IResponseList> {
     const where: Prisma.SettingWhereInput = {
       ..._group,
@@ -134,14 +134,14 @@ export class SettingAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.SETTING,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.SETTING,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -163,15 +163,15 @@ export class SettingAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.SETTING,
-            actions: [ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.SETTING,
+            actions: [EnumAuthAbilityAction.UPDATE],
           },
         ],
       },

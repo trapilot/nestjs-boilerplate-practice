@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
+import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -16,8 +16,7 @@ import {
   RequestQueryFilterInBoolean,
   RequestQueryList,
 } from 'lib/nest-web'
-import { PermissionService } from 'modules/permission/services'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { ROLE_DOC_ADMIN_QUERY_LIST, ROLE_DOC_OPERATION } from '../constants'
 import { RequestRoleLevel } from '../decorators'
 import {
@@ -26,17 +25,13 @@ import {
   RoleResponseDetailDto,
   RoleResponseListDto,
 } from '../dtos'
-import { TRole } from '../interfaces'
 import { RoleLimitedLevelPipe, RoleNotSelfPipe } from '../pipes'
 import { RoleService } from '../services'
 
 @ApiTags(ROLE_DOC_OPERATION)
 @Controller({ path: '/roles' })
 export class RoleAdminController {
-  constructor(
-    protected readonly roleService: RoleService,
-    protected readonly permissionService: PermissionService,
-  ) {}
+  constructor(protected readonly roleService: RoleService) {}
 
   @ApiRequestPaging({
     summary: ROLE_DOC_OPERATION,
@@ -47,14 +42,14 @@ export class RoleAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.ROLE,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.ROLE,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -92,7 +87,7 @@ export class RoleAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: false,
@@ -133,14 +128,14 @@ export class RoleAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.ROLE,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.CREATE],
+            subject: EnumAuthAbilitySubject.ROLE,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.CREATE],
           },
         ],
       },
@@ -150,16 +145,13 @@ export class RoleAdminController {
     },
   })
   @Get('/new')
-  async new(): Promise<IResponseData<TRole>> {
-    const [role, fullPermissions] = await Promise.all([
-      this.roleService.fakeNew(),
-      this.permissionService.findAll({
-        where: { isActive: true },
-        orderBy: [{ sorting: 'asc' }],
-      }),
-    ])
+  async new(): Promise<IResponseData> {
+    const [role, permissions] = await this.roleService.getWithAllPerms()
     return {
-      data: Object.assign({}, role, { fullPermissions }),
+      data: {
+        role,
+        fullPermissions: permissions,
+      },
     }
   }
 
@@ -168,14 +160,14 @@ export class RoleAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.ROLE,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.ROLE,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -186,19 +178,12 @@ export class RoleAdminController {
   })
   @Get('/:id')
   async get(@RequestParam('id', RoleLimitedLevelPipe) id: number): Promise<IResponseData> {
-    const [role, fullPermissions] = await Promise.all([
-      this.roleService.findOrFail(id, {
-        include: {
-          pivotPermissions: true,
-        },
-      }),
-      this.permissionService.findAll({
-        where: { isActive: true },
-        orderBy: [{ sorting: 'asc' }],
-      }),
-    ])
+    const [role, permissions] = await this.roleService.getWithAllPerms(id)
     return {
-      data: Object.assign({}, role, { fullPermissions }),
+      data: {
+        role,
+        fullPermissions: permissions,
+      },
     }
   }
 
@@ -207,15 +192,15 @@ export class RoleAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.ROLE,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.ROLE,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -244,15 +229,15 @@ export class RoleAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.ROLE,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.CREATE],
+            subject: EnumAuthAbilitySubject.ROLE,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.CREATE],
           },
         ],
       },
@@ -276,15 +261,15 @@ export class RoleAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.ROLE,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.DELETE],
+            subject: EnumAuthAbilitySubject.ROLE,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.DELETE],
           },
         ],
       },
@@ -302,15 +287,15 @@ export class RoleAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.ROLE,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.ROLE,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -337,15 +322,15 @@ export class RoleAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.ROLE,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.ROLE,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },

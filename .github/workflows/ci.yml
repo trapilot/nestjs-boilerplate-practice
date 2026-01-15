@@ -40,10 +40,10 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        run: yarn --frozen-lockfile --non-interactive
+        run: pnpm --frozen-lockfile --non-interactive
 
       - name: Run Prisma Migrations
-        run: yarn db:deploy
+        run: pnpm db:deploy
         env:
           DATABASE_DEBUG: false
           DATABASE_LAZY: true
@@ -51,7 +51,7 @@ jobs:
           DATABASE_URL: mysql://test_user:test_pwd@localhost:3306/app_test
 
       - name: Run Tests
-        run: yarn test
+        run: pnpm test
         env:
           DATABASE_DEBUG: false
           DATABASE_LAZY: true

@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
-import { ENUM_TIER_CODE, ToDate, ToLocaleField } from 'lib/nest-core'
+import { EnumTierCode, ToDate, ToLocaleField } from 'lib/nest-core'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
 
 class ResponseDataDetailDto {
@@ -10,7 +10,7 @@ class ResponseDataDetailDto {
   @Expose()
   id: number
 
-  @ApiProperty({ example: ENUM_TIER_CODE.NORMAL })
+  @ApiProperty({ example: EnumTierCode.NORMAL })
   @Type(() => String)
   @Expose()
   code: string

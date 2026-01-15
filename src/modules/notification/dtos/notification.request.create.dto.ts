@@ -1,5 +1,5 @@
 import { ApiProperty, OmitType } from '@nestjs/swagger'
-import { ENUM_NOTIFICATION_CHANNEL, ENUM_NOTIFICATION_TYPE } from '@runtime/prisma-client'
+import { EnumNotificationChannel, EnumNotificationMethod } from '@runtime/prisma-client'
 import {
   IsArray,
   IsBoolean,
@@ -9,33 +9,32 @@ import {
   IsObject,
   IsOptional,
 } from 'class-validator'
-import { ToArray, ToBoolean, ToNumber, ToObject, ToString } from 'lib/nest-core'
+import { EnumMessageRefType, ToArray, ToBoolean, ToNumber, ToObject, ToString } from 'lib/nest-core'
 import { RequestContentDto, RequestParagraphDto, RequestSentenceDto } from 'lib/nest-web'
-import { PushRequestCreateDto } from 'modules/push/dtos'
-import { ENUM_NOTIFICATION_REF_TYPE } from '../enums'
+import { PushRequestCreateDto } from 'modules/push'
 
 export class NotificationPushCreateDto extends OmitType(PushRequestCreateDto, ['notificationId']) {}
 
 export class NotificationRequestCreateDto {
   @IsNotEmpty()
-  @IsEnum(ENUM_NOTIFICATION_CHANNEL)
+  @IsEnum(EnumNotificationChannel)
   @ToString()
   @ApiProperty({
     required: true,
-    enum: ENUM_NOTIFICATION_CHANNEL,
-    example: ENUM_NOTIFICATION_CHANNEL.SMS,
+    enum: EnumNotificationChannel,
+    example: EnumNotificationChannel.SMS,
   })
-  channel: ENUM_NOTIFICATION_CHANNEL
+  channel: EnumNotificationChannel
 
   @IsNotEmpty()
-  @IsEnum(ENUM_NOTIFICATION_TYPE)
+  @IsEnum(EnumNotificationMethod)
   @ToString()
   @ApiProperty({
     required: true,
-    enum: ENUM_NOTIFICATION_TYPE,
-    example: ENUM_NOTIFICATION_TYPE.TEXT,
+    enum: EnumNotificationMethod,
+    example: EnumNotificationMethod.TEXT,
   })
-  type: ENUM_NOTIFICATION_TYPE
+  type: EnumNotificationMethod
 
   @IsOptional()
   @IsNumber()
@@ -44,12 +43,12 @@ export class NotificationRequestCreateDto {
   refId: number
 
   @IsOptional()
-  @IsEnum(ENUM_NOTIFICATION_REF_TYPE)
+  @IsEnum(EnumMessageRefType)
   @ToString()
   @ApiProperty({
     required: false,
-    enum: ENUM_NOTIFICATION_REF_TYPE,
-    example: ENUM_NOTIFICATION_REF_TYPE.TEXT,
+    enum: EnumMessageRefType,
+    example: EnumMessageRefType.TEXT,
   })
   refType: string
 

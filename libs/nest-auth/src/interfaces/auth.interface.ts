@@ -4,15 +4,15 @@ import { EnumLike, IRequestApp } from 'lib/nest-core'
 import { IResult } from 'ua-parser-js'
 import { AuthJwtAccessPayloadDto } from '../dtos'
 import {
-  ENUM_AUTH_LOGIN_FROM,
-  ENUM_AUTH_LOGIN_TYPE,
-  ENUM_AUTH_LOGIN_WITH,
-  ENUM_AUTH_SCOPE_TYPE,
+  EnumAuthLoginFrom,
+  EnumAuthLoginType,
+  EnumAuthLoginWith,
+  EnumAuthScopeType,
 } from '../enums'
 import { AuthFactory } from '../helpers'
 
 export interface AuthModuleOptions {
-  factory: Type<AuthFactory>
+  abilityFactory: Type<AuthFactory>
   subjects: EnumLike | string[]
   actions: EnumLike | string[]
 }
@@ -33,10 +33,10 @@ export interface IAuthPayloadPermission {
 }
 
 export interface IAuthPayloadOptions {
-  scopeType: ENUM_AUTH_SCOPE_TYPE
-  loginType: ENUM_AUTH_LOGIN_TYPE
-  loginFrom: ENUM_AUTH_LOGIN_FROM
-  loginWith: ENUM_AUTH_LOGIN_WITH
+  scopeType: EnumAuthScopeType
+  loginType: EnumAuthLoginType
+  loginFrom: EnumAuthLoginFrom
+  loginWith: EnumAuthLoginWith
   loginDate: Date
   loginToken: string
   loginRotate: boolean
@@ -50,7 +50,7 @@ export interface IAuthRefetchOptions {
 }
 
 export interface IAuthJwtProtectedOptions {
-  types?: ENUM_AUTH_LOGIN_TYPE[]
+  types?: EnumAuthLoginType[]
   guards?: ClassConstructor<any>[]
   metadata?: {
     [key: string]: any

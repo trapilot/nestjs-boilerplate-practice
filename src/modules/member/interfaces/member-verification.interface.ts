@@ -1,6 +1,6 @@
 import {
-  ENUM_VERIFICATION_CHANNEL,
-  ENUM_VERIFICATION_TYPE,
+  EnumVerificationChannel,
+  EnumVerificationMethod,
   MemberVerifyHistory,
 } from '@runtime/prisma-client'
 
@@ -26,12 +26,12 @@ export interface IVerificationRandomOptions {
 }
 
 export interface IVerificationCreateOptions extends IVerificationRequestOptions {
-  channel: ENUM_VERIFICATION_CHANNEL
-  type: ENUM_VERIFICATION_TYPE
+  channel: EnumVerificationChannel
+  type: EnumVerificationMethod
 }
 
 export interface IVerificationSendOptions {
-  type: ENUM_VERIFICATION_TYPE
+  type: EnumVerificationMethod
   subject: string
   text?: string
   template?: string
@@ -40,5 +40,5 @@ export interface IVerificationSendOptions {
 }
 
 export interface IVerificationVerifyOptions extends IVerificationRequestOptions {
-  type: ENUM_VERIFICATION_TYPE
+  type: EnumVerificationMethod
 }

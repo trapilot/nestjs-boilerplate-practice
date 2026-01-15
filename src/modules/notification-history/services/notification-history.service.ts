@@ -14,26 +14,26 @@ export class NotificationHistoryService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.MemberNotifyHistoryFindUniqueArgs): Promise<TNotificationHistory> {
-    return await this.prisma.client.memberNotifyHistory.findUnique(kwargs)
+    return await this.prisma.memberNotifyHistory.findUnique(kwargs)
   }
 
   async findFirst(
     kwargs: Prisma.MemberNotifyHistoryFindFirstArgs = {},
   ): Promise<TNotificationHistory> {
-    return await this.prisma.client.memberNotifyHistory.findFirst(kwargs)
+    return await this.prisma.memberNotifyHistory.findFirst(kwargs)
   }
 
   async findAll(
     kwargs: Prisma.MemberNotifyHistoryFindManyArgs = {},
   ): Promise<TNotificationHistory[]> {
-    return await this.prisma.client.memberNotifyHistory.findMany(kwargs)
+    return await this.prisma.memberNotifyHistory.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.MemberNotifyHistoryFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TNotificationHistory> {
-    const notificationHistory = await this.prisma.client.memberNotifyHistory
+    const notificationHistory = await this.prisma.memberNotifyHistory
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -48,7 +48,7 @@ export class NotificationHistoryService {
     where: Prisma.MemberNotifyHistoryWhereInput,
     kwargs: Omit<Prisma.MemberNotifyHistoryFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TNotificationHistory> {
-    const notificationHistory = await this.prisma.client.memberNotifyHistory
+    const notificationHistory = await this.prisma.memberNotifyHistory
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -78,7 +78,7 @@ export class NotificationHistoryService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.memberNotifyHistory.list(where, params, options)
+    return await this.prisma.memberNotifyHistory.list(where, params, options)
   }
 
   async paginate(
@@ -86,11 +86,11 @@ export class NotificationHistoryService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.memberNotifyHistory.paginate(where, params, options)
+    return await this.prisma.memberNotifyHistory.paginate(where, params, options)
   }
 
   async count(where?: Prisma.MemberNotifyHistoryWhereInput): Promise<number> {
-    return await this.prisma.client.memberNotifyHistory.count({
+    return await this.prisma.memberNotifyHistory.count({
       where,
     })
   }
@@ -99,7 +99,7 @@ export class NotificationHistoryService {
     id: number,
     kwargs: Omit<Prisma.MemberNotifyHistoryFindUniqueArgs, 'where'> = {},
   ): Promise<TNotificationHistory> {
-    return await this.prisma.client.memberNotifyHistory.findUnique({
+    return await this.prisma.memberNotifyHistory.findUnique({
       ...kwargs,
       where: { id },
     })
@@ -108,7 +108,7 @@ export class NotificationHistoryService {
   async create(
     data: Prisma.MemberNotifyHistoryUncheckedCreateInput,
   ): Promise<TNotificationHistory> {
-    const notificationHistory = await this.prisma.client.memberNotifyHistory.create({
+    const notificationHistory = await this.prisma.memberNotifyHistory.create({
       data,
     })
     return notificationHistory
@@ -120,7 +120,7 @@ export class NotificationHistoryService {
   ): Promise<TNotificationHistory> {
     const notificationHistory = await this.findOrFail(id)
 
-    return await this.prisma.client.memberNotifyHistory.update({
+    return await this.prisma.memberNotifyHistory.update({
       data,
       where: { id: notificationHistory.id },
     })
@@ -128,7 +128,7 @@ export class NotificationHistoryService {
 
   async delete(notificationHistory: TNotificationHistory, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.client.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx) => {
         await tx.memberNotifyHistory.delete({ where: { id: notificationHistory.id } })
       })
       return true

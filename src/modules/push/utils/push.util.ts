@@ -1,46 +1,46 @@
-import { ENUM_PUSH_TYPE, Prisma } from '@runtime/prisma-client'
+import { EnumPushType, Prisma } from '@runtime/prisma-client'
 import { DateUtil } from 'lib/nest-core'
-import { NotificationPushCreateDto } from 'modules/notification/dtos'
+import { NotificationPushCreateDto } from 'modules/notification'
 
 export class PushUtil {
-  static canWeekday(type: ENUM_PUSH_TYPE): boolean {
-    return ENUM_PUSH_TYPE.DAILY === type
+  static canWeekday(type: EnumPushType): boolean {
+    return EnumPushType.DAILY === type
   }
 
-  static canDay(type: ENUM_PUSH_TYPE): boolean {
-    return ENUM_PUSH_TYPE.MONTHLY === type || ENUM_PUSH_TYPE.YEARLY === type
+  static canDay(type: EnumPushType): boolean {
+    return EnumPushType.MONTHLY === type || EnumPushType.YEARLY === type
   }
 
-  static canMonth(type: ENUM_PUSH_TYPE): boolean {
-    return ENUM_PUSH_TYPE.YEARLY === type
+  static canMonth(type: EnumPushType): boolean {
+    return EnumPushType.YEARLY === type
   }
 
-  static isInstant(type: ENUM_PUSH_TYPE): boolean {
-    return ENUM_PUSH_TYPE.INSTANT === type
+  static isInstant(type: EnumPushType): boolean {
+    return EnumPushType.INSTANT === type
   }
 
-  static isSpecDate(type: ENUM_PUSH_TYPE): boolean {
-    return ENUM_PUSH_TYPE.DATETIME === type
+  static isSpecDate(type: EnumPushType): boolean {
+    return EnumPushType.DATETIME === type
   }
 
-  static isLoop(type: ENUM_PUSH_TYPE): boolean {
+  static isLoop(type: EnumPushType): boolean {
     return (
-      ENUM_PUSH_TYPE.DAILY === type ||
-      ENUM_PUSH_TYPE.WEEKLY === type ||
-      ENUM_PUSH_TYPE.MONTHLY === type ||
-      ENUM_PUSH_TYPE.YEARLY === type
+      EnumPushType.DAILY === type ||
+      EnumPushType.WEEKLY === type ||
+      EnumPushType.MONTHLY === type ||
+      EnumPushType.YEARLY === type
     )
   }
 
-  static isOnce(type: ENUM_PUSH_TYPE): boolean {
-    return ENUM_PUSH_TYPE.INSTANT === type || ENUM_PUSH_TYPE.DATETIME === type
+  static isOnce(type: EnumPushType): boolean {
+    return EnumPushType.INSTANT === type || EnumPushType.DATETIME === type
   }
 
   private static getScheduledDate(dto: NotificationPushCreateDto): Date {
-    if (dto.type === ENUM_PUSH_TYPE.INSTANT) {
+    if (dto.type === EnumPushType.INSTANT) {
       return new Date()
     }
-    if (dto.type === ENUM_PUSH_TYPE.DATETIME) {
+    if (dto.type === EnumPushType.DATETIME) {
       return DateUtil.mergeDate(dto.executeDate, dto.executeTime)
     }
     return DateUtil.mergeDate(dto.startDate, dto.executeTime)

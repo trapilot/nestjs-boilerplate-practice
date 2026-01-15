@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common'
-import { ENUM_APP_API_TYPE, ModuleBase } from 'lib/nest-core'
-import { NotificationAdminController } from './controllers'
 import { NotificationService } from './services'
 
 @Module({
@@ -8,8 +6,4 @@ import { NotificationService } from './services'
   exports: [NotificationService],
   imports: [],
 })
-export class NotificationModule extends ModuleBase {
-  static _controllers = {
-    [ENUM_APP_API_TYPE.CMS]: [NotificationAdminController],
-  }
-}
+export class NotificationModule {}

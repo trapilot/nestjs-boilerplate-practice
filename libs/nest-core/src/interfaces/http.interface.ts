@@ -27,13 +27,6 @@ export interface IRequestApp<T = AuthJwtAccessPayloadDto> extends Request {
   rawBody?: any // custom raw body
 }
 
-export interface IRequestContext {
-  apiType: string
-  apiVersion: string
-  language: string
-  timezone: string
-}
-
 export interface IRequestFile<F = Record<string, any>> extends IRequestApp {
   fileInfo: F
 }
@@ -49,28 +42,25 @@ export interface IResponseApp extends Response {
 export type INextFunction = NextFunction
 
 export interface IReturnMetadata {
-  customProperty?: {
-    statusCode?: number
-    statusHttp?: HttpStatus
-    message?: string
-    messageProperties?: IMessageProperties
-    serializeProperties?: Record<string, any>
-  }
-  [key: string]: any
+  statusCode?: number
+  httpStatus?: HttpStatus
+  messagePath?: string
+  messageProperties?: IMessageProperties
+  mappingProperties?: Record<string, any> // propterties which map with object keys
 }
 
 export interface IReturnData<T = Record<string, any>> {
-  _metadata?: IReturnMetadata
+  metadata?: IReturnMetadata
   data: T
 }
 
 export interface IReturnList<T = Record<string, any>> {
-  _metadata?: IReturnMetadata
+  metadata?: IReturnMetadata
   data: T[]
 }
 
 export interface IReturnPaging<T = Record<string, any>> {
-  _metadata?: IReturnMetadata
+  metadata?: IReturnMetadata
   data: T[]
   pagination: {
     totalPage: number
@@ -79,7 +69,7 @@ export interface IReturnPaging<T = Record<string, any>> {
 }
 
 export interface IReturnIterator<T = Record<string, any>> {
-  _metadata?: IReturnMetadata
+  metadata?: IReturnMetadata
   data: AsyncGenerator<T[]>
   filePrefix?: string
   fileTimestamp?: boolean

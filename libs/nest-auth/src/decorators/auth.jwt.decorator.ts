@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common'
 import { IRequestApp, IStringParseOptions, StrUtil } from 'lib/nest-core'
 import { AUTH_ABILITY_META_KEY, AUTH_SCOPE_META_KEY } from '../constants'
-import { ENUM_AUTH_SCOPE_TYPE } from '../enums'
+import { EnumAuthScopeType } from '../enums'
 import {
   AuthJwtAccessGuard,
   AuthJwtRefreshGuard,
@@ -91,6 +91,6 @@ export function AuthUserAbilityProtected(...handlers: IAuthAbility[]): MethodDec
   )
 }
 
-export function AuthUserScopeProtected(...scopes: ENUM_AUTH_SCOPE_TYPE[]): MethodDecorator {
+export function AuthUserScopeProtected(...scopes: EnumAuthScopeType[]): MethodDecorator {
   return applyDecorators(UseGuards(AuthUserScopeGuard), SetMetadata(AUTH_SCOPE_META_KEY, scopes))
 }

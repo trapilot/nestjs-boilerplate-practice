@@ -1,6 +1,6 @@
 import { Controller, Post, VERSION_NEUTRAL } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { ENUM_LOGGER_TYPE } from 'lib/nest-logger'
+import { EnumScopeType } from 'lib/nest-core'
 import { ApiRequestData, IResponseData, RequestBody } from 'lib/nest-web'
 import { AUDIT_DOC_OPERATION } from '../constants'
 import { AuditRequestEntryDto } from '../dtos'
@@ -23,7 +23,7 @@ export class AuditPublicController {
   @Post('/send-entry')
   async createEntry(@RequestBody() body: AuditRequestEntryDto): Promise<IResponseData> {
     try {
-      if (body.data.context === ENUM_LOGGER_TYPE.HTTP) {
+      if (body.data.context === EnumScopeType.HTTP) {
         const data = this.auditService.toHttpData(body)
         await this.auditService.saveHttpData(data)
       }

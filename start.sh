@@ -9,6 +9,6 @@
 # echo 1 > /proc/sys/vm/overcommit_memory
 
 if [ "$DATABASE_MIGRATE" = "true" ]; then
-  yarn db:deploy;
+  pnpm db:deploy;
 fi
-yarn start:prod;
+pnpm start:prod;

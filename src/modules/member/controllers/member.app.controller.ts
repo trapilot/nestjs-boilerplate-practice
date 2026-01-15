@@ -1,19 +1,9 @@
 import { Controller, Delete, Get, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { IFile } from 'lib/nest-core'
-import {
-  ApiRequestData,
-  IResponseData,
-  RequestBody,
-  RequestFileRequiredPipe,
-  RequestFileTypePipe,
-} from 'lib/nest-web'
-import {
-  MEMBER_DOC_OPERATION,
-  MEMBER_UPLOAD_AVATAR_MIME,
-  MEMBER_UPLOAD_IMAGE_PATH,
-} from '../constants'
+import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
+import { EnumFileExtensionImage, FileExtensionPipe, IFile } from 'lib/nest-core'
+import { ApiRequestData, IResponseData, RequestBody, RequestRequiredPipe } from 'lib/nest-web'
+import { MEMBER_DOC_OPERATION, MEMBER_UPLOAD_IMAGE_PATH } from '../constants'
 import {
   MemberChangePasswordRequestDto,
   MemberCloseProfileRequestDto,
@@ -32,7 +22,7 @@ export class MemberAppController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: true,
         require: true,
@@ -55,7 +45,7 @@ export class MemberAppController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: true,
         require: true,
@@ -82,7 +72,7 @@ export class MemberAppController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: true,
         require: true,
@@ -112,7 +102,7 @@ export class MemberAppController {
       },
     },
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: true,
         require: true,
@@ -127,7 +117,14 @@ export class MemberAppController {
   @Put('upload-avatar')
   async uploadAvatar(
     @AuthJwtPayload('user.id') memberId: number,
-    @UploadedFile(new RequestFileRequiredPipe(), new RequestFileTypePipe(MEMBER_UPLOAD_AVATAR_MIME))
+    @UploadedFile(
+      RequestRequiredPipe,
+      FileExtensionPipe([
+        EnumFileExtensionImage.JPEG,
+        EnumFileExtensionImage.JPG,
+        EnumFileExtensionImage.PNG,
+      ]),
+    )
     file: IFile,
   ): Promise<IResponseData> {
     await this.memberService.update(memberId, {
@@ -142,7 +139,7 @@ export class MemberAppController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: true,
         require: true,

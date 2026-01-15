@@ -1,11 +1,14 @@
+import { useEffect } from 'react'
 import toast from 'react-hot-toast'
 import { Link, useNavigate } from 'react-router-dom'
 import { EditIcon, EyeIcon, TrashIcon } from '../../components/Icons'
 import { BooleanIcon } from '../../components/Icons/BooleanIcon'
 import { ListPage } from '../../components/Table/ListPage'
 import { ApiError } from '../../lib/apiError'
+import { setCorrelationId } from '../../lib/httpClient'
 import { apiKeyService } from '../../services/api-key.service'
 import type { components as ApiSchemasRoot } from '../../types/api'
+import { createCorrelationId } from '../../utils/crypto'
 
 type ApiSchemas = ApiSchemasRoot['schemas']
 
@@ -15,6 +18,14 @@ type Item = ApiSchemas['ApiKeyResponseListDto']
 
 export default function ApiKeysList() {
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const correlationId = createCorrelationId()
+    setCorrelationId(correlationId)
+    return () => {
+      setCorrelationId('')
+    }
+  }, [])
 
   const handleDelete = async (id: number | string) => {
     const ok = window.confirm('Are you sure you want to delete this API Key?')

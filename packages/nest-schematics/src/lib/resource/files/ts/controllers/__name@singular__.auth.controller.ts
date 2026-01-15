@@ -7,10 +7,10 @@ import {
   AuthSocialAppleProtected,
   AuthSocialGoogleProtected,
   AuthTokenResponseDto,
-  ENUM_AUTH_LOGIN_FROM,
-  ENUM_AUTH_LOGIN_TYPE,
-  ENUM_AUTH_LOGIN_WITH,
-  ENUM_AUTH_SCOPE_TYPE,
+  EnumAuthLoginFrom,
+  EnumAuthLoginType,
+  EnumAuthLoginWith,
+  EnumAuthScopeType,
 } from 'lib/nest-auth'
 import { IRequestApp } from 'lib/nest-core'
 import {
@@ -36,7 +36,7 @@ import { <%= singular(classify(name)) %>AuthService } from '../services'
 @ApiTags(<%= singular(uppercased(name)) %>_DOC_AUTH_OPERATION)
 @Controller({ version: '1', path: '/auth' })
 export class <%= singular(classify(name)) %>AuthController {
-  constructor(@Inject(ENUM_AUTH_SCOPE_TYPE.<%= authType %>) protected readonly authService: <%= singular(classify(name)) %>AuthService) {}
+  constructor(@Inject(EnumAuthScopeType.<%= authType %>) protected readonly authService: <%= singular(classify(name)) %>AuthService) {}
 
   @ApiRequestData({
     summary: <%= singular(uppercased(name)) %>_DOC_AUTH_OPERATION,
@@ -66,15 +66,15 @@ export class <%= singular(classify(name)) %>AuthController {
     @RequestUserIp() userIp: string,
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
-    @RequestUserFrom() userFrom: ENUM_AUTH_LOGIN_FROM,
+    @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
     @RequestBody() body: <%= singular(classify(name)) %>RequestSignInDto,
   ): Promise<IResponseData> {
     const user = await this.authService.credential(body)
     const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
-      scopeType: ENUM_AUTH_SCOPE_TYPE.<%= authType %>,
-      loginType: ENUM_AUTH_LOGIN_TYPE.CREDENTIAL,
-      loginWith: ENUM_AUTH_LOGIN_WITH.PHONE,
+      scopeType: EnumAuthScopeType.<%= authType %>,
+      loginType: EnumAuthLoginType.CREDENTIAL,
+      loginWith: EnumAuthLoginWith.PHONE,
       loginFrom: userFrom,
       loginToken: userToken,
       loginRotate: body.rememberMe !== false,
@@ -100,15 +100,15 @@ export class <%= singular(classify(name)) %>AuthController {
     @RequestUserIp() userIp: string,
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
-    @RequestUserFrom() userFrom: ENUM_AUTH_LOGIN_FROM,
+    @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
     @AuthJwtPayload('user.email') email: string,
   ): Promise<IResponseData> {
     const user = await this.authService.certificate({ email })
     const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
-      scopeType: ENUM_AUTH_SCOPE_TYPE.<%= authType %>,
-      loginType: ENUM_AUTH_LOGIN_TYPE.SOCIAL_GOOGLE,
-      loginWith: ENUM_AUTH_LOGIN_WITH.EMAIL,
+      scopeType: EnumAuthScopeType.<%= authType %>,
+      loginType: EnumAuthLoginType.SOCIAL_GOOGLE,
+      loginWith: EnumAuthLoginWith.EMAIL,
       loginFrom: userFrom,
       loginToken: userToken,
     })
@@ -133,15 +133,15 @@ export class <%= singular(classify(name)) %>AuthController {
     @RequestUserIp() userIp: string,
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
-    @RequestUserFrom() userFrom: ENUM_AUTH_LOGIN_FROM,
+    @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
     @AuthJwtPayload('user.email') email: string,
   ): Promise<IResponseData> {
     const user = await this.authService.certificate({ email })
     const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
-      scopeType: ENUM_AUTH_SCOPE_TYPE.<%= authType %>,
-      loginType: ENUM_AUTH_LOGIN_TYPE.SOCIAL_APPLE,
-      loginWith: ENUM_AUTH_LOGIN_WITH.EMAIL,
+      scopeType: EnumAuthScopeType.<%= authType %>,
+      loginType: EnumAuthLoginType.SOCIAL_APPLE,
+      loginWith: EnumAuthLoginWith.EMAIL,
       loginFrom: userFrom,
       loginToken: userToken,
     })
@@ -155,7 +155,7 @@ export class <%= singular(classify(name)) %>AuthController {
       medium: { limit: 5, seconds: 60 },
     },
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.<%= authType %>,
+      scope: EnumAuthScopeType.<%= authType %>,
       user: {
         synchronize: false,
         require: true,
@@ -199,7 +199,7 @@ export class <%= singular(classify(name)) %>AuthController {
   @ApiRequestData({
     summary: <%= singular(uppercased(name)) %>_DOC_AUTH_OPERATION,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.<%= authType %>,
+      scope: EnumAuthScopeType.<%= authType %>,
       user: {
         synchronize: true,
         require: true,

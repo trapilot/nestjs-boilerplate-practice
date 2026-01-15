@@ -8,7 +8,7 @@ import {
 import { ConfigService } from '@nestjs/config'
 import { IRequestApp } from 'lib/nest-core'
 import { AuthSocialGooglePayloadDto } from '../../dtos'
-import { AuthService } from '../../services'
+import { AuthUtil } from '../../services'
 
 @Injectable()
 export class AuthSocialGoogleGuard implements CanActivate {
@@ -16,11 +16,11 @@ export class AuthSocialGoogleGuard implements CanActivate {
   private readonly prefix: string
 
   constructor(
-    private readonly configService: ConfigService,
-    private readonly authService: AuthService,
+    private readonly config: ConfigService,
+    private readonly authUtil: AuthUtil,
   ) {
-    this.header = this.configService.get<string>('auth.google.header')
-    this.prefix = this.configService.get<string>('auth.google.prefix')
+    this.header = this.config.get<string>('auth.google.header')
+    this.prefix = this.config.get<string>('auth.google.prefix')
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -38,7 +38,7 @@ export class AuthSocialGoogleGuard implements CanActivate {
 
     try {
       const accessToken: string = requestHeader[1]
-      const payload = await this.authService.googleGetTokenInfo(accessToken)
+      const payload = await this.authUtil.googleGetTokenInfo(accessToken)
 
       request.user = payload
 

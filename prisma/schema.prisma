@@ -7,213 +7,6 @@ datasource db {
   provider = "mysql"
 }
 
-enum ENUM_MEDIA_TYPE {
-  BANNER
-  SLIDER
-}
-
-enum ENUM_API_KEY_TYPE {
-  SYSTEM
-  CLIENT
-  DEFAULT
-}
-
-enum ENUM_APP_VERSION_PLATFORM {
-  IOS
-  AOS
-  WEB
-}
-
-enum ENUM_VERIFICATION_CHANNEL {
-  SMS
-  EMAIL
-}
-
-enum ENUM_VERIFICATION_TYPE {
-  SIGN_UP
-  RESET_PASSWORD
-  FORGOT_PASSWORD
-  CHANGE_PASSWORD
-}
-
-enum ENUM_NOTIFICATION_CHANNEL {
-  SMS
-  EMAIL
-  WHATAPP
-}
-
-enum ENUM_NOTIFICATION_TYPE {
-  TEXT
-  REFERRENCE
-}
-
-enum ENUM_PUSH_TYPE {
-  INSTANT
-  DATETIME
-  DAILY
-  WEEKLY
-  MONTHLY
-  YEARLY
-}
-
-enum ENUM_PUSH_STATUS {
-  PENDING
-  PUSHING
-  COMPLETED
-  CANCELED
-}
-
-enum ENUM_ADDRESS_TYPE {
-  CONSTRUCTION
-}
-
-enum ENUM_MEMBER_TYPE {
-  STAFF
-  NORMAL
-  MASTER
-}
-
-enum ENUM_MEMBER_TIER {
-  STANDARD
-  BLUE
-  SILVER
-  GOLD
-  BLACK
-  PLATINUM
-  DIAMOND
-}
-
-enum ENUM_MEMBER_TIER_ACTION {
-  INITIAL
-  SYSTEM
-  UPGRADE
-  RENEWAL
-  DOWNGRADE
-}
-
-enum ENUM_REDEMPTION_SOURCE {
-  SYSTEM
-  ORDER
-  PROMOTION
-}
-
-enum ENUM_REDEMPTION_STATUS {
-  PENDING
-  APPROVED
-  REJECTED
-  EXPIRED
-  CANCELED
-  RESERVED
-  USED
-  FAILED
-}
-
-enum ENUM_POINT_TYPE {
-  INITIAL
-  IMPORT
-  SYSTEM
-  EXPIRY
-  REFUND
-  UPGRADE
-  RENEWAL
-  SHARE
-  PURCHASE
-  REWARD
-  REFER
-  WELCOME
-  REGISTER
-}
-
-enum ENUM_PRODUCT_TYPE {
-  SIMPLE
-  VIRTUAL
-  GROUPED
-  BUNDLE
-  CONFIGURABLE
-  DOWNLOADABLE
-}
-
-enum ENUM_PRODUCT_EXPIRY {
-  STATIC
-  DYNAMIC
-}
-
-enum ENUM_PROMOTION_RULE {
-  GTE
-  GT
-  LT
-  LTE
-}
-
-enum ENUM_PROMOTION_ACTION {
-  PERCENT_OF_PROUDCT
-  FIXED_AMOUNT_FOR_PRODUCT
-  FIXED_AMOUNT_FOR_WHOLE_CART
-  BUY_X_FIXED_AMOUNT_Y
-  BUY_X_PERCENT_Y
-}
-
-enum ENUM_POINT_SCHEMA_TYPE {
-  BRAND
-  SHOP
-  PRODUCT
-  PAYMENT
-  INVOICE
-  MONTHLY
-  WEEKLY
-  TIMESLOT
-  BIRTH_MONTH
-}
-
-enum ENUM_PAYMENT_STATUS {
-  PAID
-  CANCELED
-}
-
-enum ENUM_PAYMENT_METHOD {
-  CASH
-  CREDIT
-  PAYPAL
-  DEBIT
-}
-
-enum ENUM_ORDER_SOURCE {
-  SYSTEM
-  WEB
-  APP
-  POS
-}
-
-enum ENUM_ORDER_STATE {
-  LOCKED
-  UNLOCKED
-}
-
-enum ENUM_ORDER_STATUS {
-  PENDING
-  SHIPPED
-  DELIVERED
-  CANCELED
-}
-
-enum ENUM_INVOICE_STATUS {
-  PENDING
-  // SENT
-  // VIEWED
-  PARTIALLY_PAID
-  FULLY_PAID
-  OVERDUE
-  CANCELED
-  REFUNDED
-  FAILED
-  DISPUTED
-}
-
-enum ENUM_SLIP_TYPE {
-  ORDER
-  INVOICE
-}
-
 model Setting {
   id          Int       @id @default(autoincrement())
   type        String
@@ -235,51 +28,68 @@ model Setting {
   @@map("settings")
 }
 
+model Job {
+  id         Int           @id @default(autoincrement())
+  jobName    String
+  runDate    DateTime
+  status     EnumJobStatus @default(PENDING)
+  retryCount Int           @default(0)
+  priority   Int           @default(0)
+  lastError  String?
+  lockedAt   DateTime?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@unique([jobName, runDate])
+  @@index([status, retryCount])
+  @@map("jobs")
+}
+
 model Media {
-  id        Int             @id @default(autoincrement())
-  type      ENUM_MEDIA_TYPE @default(BANNER)
+  id        Int           @id @default(autoincrement())
+  type      EnumMediaType @default(BANNER)
   url       String
   mime      String?
   title     Json?
   brief     Json?
   refType   String?
   refValue  String?
-  startDate DateTime?       @default(now())
+  startDate DateTime?     @default(now())
   untilDate DateTime?
-  sorting   Int?            @default(0)
-  isActive  Boolean?        @default(true)
-  createdAt DateTime?       @default(now())
-  updatedAt DateTime        @updatedAt
+  sorting   Int?          @default(0)
+  isActive  Boolean?      @default(true)
+  createdAt DateTime?     @default(now())
+  updatedAt DateTime      @updatedAt
 
   @@map("medias")
 }
 
 model ApiKey {
-  id           Int               @id @default(autoincrement())
-  type         ENUM_API_KEY_TYPE @default(CLIENT)
+  id           Int            @id @default(autoincrement())
+  type         EnumApiKeyType @default(CLIENT)
   name         String
   key          String
   hash         String
-  isDeprecated Boolean?          @default(false)
-  isActive     Boolean?          @default(true)
+  isDeprecated Boolean?       @default(false)
+  isActive     Boolean?       @default(true)
   startDate    DateTime?
   untilDate    DateTime?
-  createdAt    DateTime?         @default(now())
-  updatedAt    DateTime?         @updatedAt
+  createdAt    DateTime?      @default(now())
+  updatedAt    DateTime?      @updatedAt
 
   @@map("api_keys")
 }
 
 model AppVersion {
-  id        Int                       @id @default(autoincrement())
-  type      ENUM_APP_VERSION_PLATFORM @unique @default(IOS)
+  id        Int                    @id @default(autoincrement())
+  type      EnumAppVersionPlatform @unique @default(IOS)
   name      String
   version   String
   url       String?
-  isForce   Boolean?                  @default(false)
-  isActive  Boolean?                  @default(true)
-  createdAt DateTime?                 @default(now())
-  updatedAt DateTime?                 @updatedAt
+  isForce   Boolean?               @default(false)
+  isActive  Boolean?               @default(true)
+  createdAt DateTime?              @default(now())
+  updatedAt DateTime?              @updatedAt
 
   @@map("app_versions")
 }
@@ -316,17 +126,17 @@ model District {
 }
 
 model Notification {
-  id          Int                       @id @default(autoincrement())
+  id          Int                     @id @default(autoincrement())
   refId       Int?
   refType     String?
-  channel     ENUM_NOTIFICATION_CHANNEL @default(EMAIL)
-  type        ENUM_NOTIFICATION_TYPE    @default(TEXT)
+  channel     EnumNotificationChannel @default(EMAIL)
+  type        EnumNotificationMethod  @default(TEXT)
   title       Json
   description Json?
   content     Json?
-  isActive    Boolean                   @default(true)
-  createdAt   DateTime?                 @default(now())
-  updatedAt   DateTime?                 @updatedAt
+  isActive    Boolean                 @default(true)
+  createdAt   DateTime?               @default(now())
+  updatedAt   DateTime?               @updatedAt
   createdBy   Int?
   updatedBy   Int?
 
@@ -340,10 +150,10 @@ model Notification {
 }
 
 model Push {
-  id             Int               @id @default(autoincrement())
+  id             Int             @id @default(autoincrement())
   notificationId Int
-  type           ENUM_PUSH_TYPE    @default(INSTANT)
-  status         ENUM_PUSH_STATUS? @default(PENDING)
+  type           EnumPushType    @default(INSTANT)
+  status         EnumPushStatus? @default(PENDING)
   executeTime    String?
   executeDate    String?
   hours          Int?
@@ -354,12 +164,12 @@ model Push {
   month          Int?
   startDate      DateTime?
   untilDate      DateTime?
-  retries        Int?              @default(0)
-  isActive       Boolean?          @default(true)
+  retries        Int?            @default(0)
+  isActive       Boolean?        @default(true)
   expiresAt      DateTime?
   scheduledAt    DateTime?
-  createdAt      DateTime?         @default(now())
-  updatedAt      DateTime?         @updatedAt
+  createdAt      DateTime?       @default(now())
+  updatedAt      DateTime?       @updatedAt
   createdBy      Int?
   updatedBy      Int?
 
@@ -588,21 +398,21 @@ model UserLoginHistory {
 }
 
 model UserVerifyHistory {
-  id         Int                       @id @default(autoincrement())
-  channel    ENUM_VERIFICATION_CHANNEL
-  type       ENUM_VERIFICATION_TYPE
+  id         Int                     @id @default(autoincrement())
+  channel    EnumVerificationChannel
+  type       EnumVerificationMethod
   code       String
   userId     Int?
   phone      String?
   email      String?
-  attempts   Int?                      @default(1)
-  isActive   Boolean?                  @default(true)
-  isVerified Boolean?                  @default(false)
+  attempts   Int?                    @default(1)
+  isActive   Boolean?                @default(true)
+  isVerified Boolean?                @default(false)
   verifiedAt DateTime?
-  isExpired  Boolean                   @default(false)
+  isExpired  Boolean                 @default(false)
   expiresAt  DateTime?
-  createdAt  DateTime?                 @default(now())
-  updatedAt  DateTime?                 @updatedAt
+  createdAt  DateTime?               @default(now())
+  updatedAt  DateTime?               @updatedAt
 
   user User? @relation(fields: [userId], references: [id])
 
@@ -623,15 +433,15 @@ model UsersRoles {
 }
 
 model Member {
-  id                       Int               @id @default(autoincrement())
+  id                       Int             @id @default(autoincrement())
   code                     String?
   tierId                   Int?
   minTierId                Int?
   countryId                Int?
   districtId               Int?
-  referralCode             String?           @unique
+  referralCode             String?         @unique
   invitedCode              String?
-  type                     ENUM_MEMBER_TYPE? @default(NORMAL)
+  type                     EnumMemberType? @default(NORMAL)
   email                    String?
   name                     String?
   refId                    String?
@@ -646,10 +456,10 @@ model Member {
   avatar                   String?
   birthDate                DateTime?
   expiryDate               DateTime?
-  pointBalance             Int?              @default(0)
-  personalSpending         Float?            @default(0)
-  referralSpending         Float?            @default(0)
-  maximumSpending          Float?            @default(0)
+  pointBalance             Int?            @default(0)
+  personalSpending         Float?          @default(0)
+  referralSpending         Float?          @default(0)
+  maximumSpending          Float?          @default(0)
   phoneCountry             String?
   phoneNumber              String?
   birthYear                Int?
@@ -658,27 +468,27 @@ model Member {
   loginToken               String?
   loginDate                DateTime?
   password                 String?
-  passwordAttempt          Int?              @default(0)
+  passwordAttempt          Int?            @default(0)
   passwordExpired          DateTime?
-  isActive                 Boolean?          @default(true)
-  isVisible                Boolean?          @default(true)
-  isDeleted                Boolean?          @default(false)
-  isNotifiable             Boolean?          @default(true)
-  isPromotable             Boolean?          @default(true)
-  isEmailVerified          Boolean?          @default(false)
-  isPhoneVerified          Boolean?          @default(false)
-  receivePromotionViaApp   Boolean?          @default(false)
-  receivePromotionViaEmail Boolean?          @default(false)
-  hasFirstPurchased        Boolean?          @default(false)
-  hasBirthPurchased        Boolean?          @default(false)
-  hasDiamondAchieved       Boolean?          @default(false)
+  isActive                 Boolean?        @default(true)
+  isVisible                Boolean?        @default(true)
+  isDeleted                Boolean?        @default(false)
+  isNotifiable             Boolean?        @default(true)
+  isPromotable             Boolean?        @default(true)
+  isEmailVerified          Boolean?        @default(false)
+  isPhoneVerified          Boolean?        @default(false)
+  receivePromotionViaApp   Boolean?        @default(false)
+  receivePromotionViaEmail Boolean?        @default(false)
+  hasFirstPurchased        Boolean?        @default(false)
+  hasBirthPurchased        Boolean?        @default(false)
+  hasDiamondAchieved       Boolean?        @default(false)
   hasFirstPurchasedAt      DateTime?
   hasBirthPurchasedAt      DateTime?
   hasDiamondAchievedAt     DateTime?
   startedAt                DateTime?
   deletedAt                DateTime?
-  createdAt                DateTime?         @default(now())
-  updatedAt                DateTime?         @updatedAt
+  createdAt                DateTime?       @default(now())
+  updatedAt                DateTime?       @updatedAt
   deletedBy                Int?
   createdBy                Int?
   updatedBy                Int?
@@ -776,21 +586,21 @@ model MemberDeviceHistory {
 }
 
 model MemberVerifyHistory {
-  id         Int                       @id @default(autoincrement())
-  channel    ENUM_VERIFICATION_CHANNEL
-  type       ENUM_VERIFICATION_TYPE
+  id         Int                     @id @default(autoincrement())
+  channel    EnumVerificationChannel
+  type       EnumVerificationMethod
   code       String
   memberId   Int?
   phone      String?
   email      String?
-  attempts   Int?                      @default(1)
-  isActive   Boolean?                  @default(true)
-  isVerified Boolean?                  @default(false)
+  attempts   Int?                    @default(1)
+  isActive   Boolean?                @default(true)
+  isVerified Boolean?                @default(false)
   verifiedAt DateTime?
-  isExpired  Boolean                   @default(false)
+  isExpired  Boolean                 @default(false)
   expiresAt  DateTime?
-  createdAt  DateTime?                 @default(now())
-  updatedAt  DateTime?                 @updatedAt
+  createdAt  DateTime?               @default(now())
+  updatedAt  DateTime?               @updatedAt
 
   member Member? @relation(fields: [memberId], references: [id])
 
@@ -819,25 +629,25 @@ model MemberNotifyHistory {
 }
 
 model MemberTierHistory {
-  id               Int                     @id @default(autoincrement())
+  id               Int                   @id @default(autoincrement())
   memberId         Int
   prevTierId       Int
   currTierId       Int
   minTierId        Int?
   invoiceId        Int?
-  type             ENUM_MEMBER_TIER_ACTION @default(INITIAL)
-  personalSpending Float?                  @default(0)
-  referralSpending Float?                  @default(0)
-  excessSpending   Float?                  @default(0)
-  renewalSpending  Float?                  @default(0)
-  upgradeSpending  Float?                  @default(0)
-  isActive         Boolean?                @default(true)
-  isVisible        Boolean?                @default(true)
-  isDeleted        Boolean?                @default(false)
+  type             EnumTierHistoryMethod @default(INITIAL)
+  personalSpending Float?                @default(0)
+  referralSpending Float?                @default(0)
+  excessSpending   Float?                @default(0)
+  renewalSpending  Float?                @default(0)
+  upgradeSpending  Float?                @default(0)
+  isActive         Boolean?              @default(true)
+  isVisible        Boolean?              @default(true)
+  isDeleted        Boolean?              @default(false)
   expiryDate       DateTime?
   deletedAt        DateTime?
-  createdAt        DateTime?               @default(now())
-  updatedAt        DateTime                @updatedAt
+  createdAt        DateTime?             @default(now())
+  updatedAt        DateTime              @updatedAt
 
   prevTier Tier     @relation(name: "prevMemberTier", fields: [prevTierId], references: [id])
   currTier Tier     @relation(name: "currMemberTier", fields: [currTierId], references: [id])
@@ -848,28 +658,28 @@ model MemberTierHistory {
 }
 
 model MemberPointHistory {
-  id            Int             @id @default(autoincrement())
+  id            Int                  @id @default(autoincrement())
   memberId      Int
   refereeId     Int?
   tierId        Int?
   invoiceId     Int?
   invoiceAmount Float?
-  type          ENUM_POINT_TYPE @default(INITIAL)
+  type          EnumPointHistoryType @default(INITIAL)
   multipleRatio Float?
   ratioNote     Json?
-  point         Int?            @default(0)
-  pointBalance  Int?            @default(0)
+  point         Int?                 @default(0)
+  pointBalance  Int?                 @default(0)
   remark        String?
-  isBirth       Boolean?        @default(false)
-  isFirst       Boolean?        @default(false)
-  isActive      Boolean?        @default(true)
-  isVisible     Boolean?        @default(true)
-  isPending     Boolean?        @default(false)
-  isDeleted     Boolean?        @default(false)
+  isBirth       Boolean?             @default(false)
+  isFirst       Boolean?             @default(false)
+  isActive      Boolean?             @default(true)
+  isVisible     Boolean?             @default(true)
+  isPending     Boolean?             @default(false)
+  isDeleted     Boolean?             @default(false)
   expiryDate    DateTime?
   releaseDate   DateTime?
-  createdAt     DateTime?       @default(now())
-  updatedAt     DateTime        @updatedAt
+  createdAt     DateTime?            @default(now())
+  updatedAt     DateTime             @updatedAt
   createdBy     Int?
   updatedBy     Int?
 
@@ -885,23 +695,23 @@ model MemberPointHistory {
 }
 
 model MemberProductHistory {
-  id          Int                     @id @default(autoincrement())
+  id          Int                   @id @default(autoincrement())
   memberId    Int
   productId   Int
   orderId     Int?
   promotionId Int?
-  redeemPrice Float?                  @default(0)
-  redeemPoint Int?                    @default(0)
-  source      ENUM_REDEMPTION_SOURCE? @default(SYSTEM)
-  status      ENUM_REDEMPTION_STATUS? @default(PENDING)
-  isActive    Boolean?                @default(true)
+  redeemPrice Float?                @default(0)
+  redeemPoint Int?                  @default(0)
+  source      EnumRedemptionSource? @default(SYSTEM)
+  status      EnumRedemptionStatus? @default(PENDING)
+  isActive    Boolean?              @default(true)
   startDate   DateTime?
   untilDate   DateTime?
   usedAt      DateTime?
   issuedAt    DateTime?
   deletedAt   DateTime?
-  createdAt   DateTime?               @default(now())
-  updatedAt   DateTime                @updatedAt
+  createdAt   DateTime?             @default(now())
+  updatedAt   DateTime              @updatedAt
   createdBy   Int?
   updatedBy   Int?
 
@@ -1033,23 +843,23 @@ model Promotion {
 }
 
 model Order {
-  id          Int               @id @default(autoincrement())
-  code        String?           @unique
+  id          Int             @id @default(autoincrement())
+  code        String?         @unique
   memberId    Int
   promotionId Int?
-  totalPrice  Float?            @default(0)
-  totalPoint  Int?              @default(0)
-  discPrice   Float?            @default(0)
-  discPoint   Int?              @default(0)
-  finalPrice  Float?            @default(0)
-  finalPoint  Int?              @default(0)
-  source      ENUM_ORDER_SOURCE @default(SYSTEM)
-  status      ENUM_ORDER_STATUS @default(PENDING)
+  totalPrice  Float?          @default(0)
+  totalPoint  Int?            @default(0)
+  discPrice   Float?          @default(0)
+  discPoint   Int?            @default(0)
+  finalPrice  Float?          @default(0)
+  finalPoint  Int?            @default(0)
+  source      EnumOrderSource @default(SYSTEM)
+  status      EnumOrderStatus @default(PENDING)
   note        String?
-  isBirth     Boolean?          @default(false)
-  issuedAt    DateTime?         @default(now())
-  createdAt   DateTime?         @default(now())
-  updatedAt   DateTime          @updatedAt
+  isBirth     Boolean?        @default(false)
+  issuedAt    DateTime?       @default(now())
+  createdAt   DateTime?       @default(now())
+  updatedAt   DateTime        @updatedAt
 
   member   Member                 @relation(fields: [memberId], references: [id])
   invoice  Invoice?
@@ -1095,26 +905,26 @@ model Shipment {
 }
 
 model Invoice {
-  id             Int                  @id @default(autoincrement())
-  code           String?              @unique
-  orderId        Int                  @unique
+  id             Int                @id @default(autoincrement())
+  code           String?            @unique
+  orderId        Int                @unique
   memberId       Int
   promotionId    Int?
-  invoiceRef     String?              @unique()
+  invoiceRef     String?            @unique()
   invoicePath    String?
-  paidPrice      Float?               @default(0)
-  paidPoint      Int?                 @default(0)
-  finalPrice     Float?               @default(0)
-  finalPoint     Int?                 @default(0)
+  paidPrice      Float?             @default(0)
+  paidPoint      Int?               @default(0)
+  finalPrice     Float?             @default(0)
+  finalPoint     Int?               @default(0)
   transactions   Json?
   transactionIds Json?
-  isBirth        Boolean?             @default(false)
-  isEarned       Boolean?             @default(false)
-  status         ENUM_INVOICE_STATUS? @default(PENDING)
+  isBirth        Boolean?           @default(false)
+  isEarned       Boolean?           @default(false)
+  status         EnumInvoiceStatus? @default(PENDING)
   dueDate        DateTime?
-  issuedAt       DateTime?            @default(now())
-  createdAt      DateTime?            @default(now())
-  updatedAt      DateTime             @updatedAt
+  issuedAt       DateTime?          @default(now())
+  createdAt      DateTime?          @default(now())
+  updatedAt      DateTime           @updatedAt
 
   member   Member               @relation(fields: [memberId], references: [id])
   order    Order                @relation(fields: [orderId], references: [id])
@@ -1128,14 +938,14 @@ model Invoice {
 }
 
 model InvoicePayment {
-  id        Int                  @id @default(autoincrement())
+  id        Int                @id @default(autoincrement())
   invoiceId Int
   amount    Float?
-  method    ENUM_PAYMENT_METHOD? @default(CASH)
-  status    ENUM_PAYMENT_STATUS? @default(PAID)
+  method    EnumPaymentMethod? @default(CASH)
+  status    EnumPaymentStatus? @default(PAID)
   issuedAt  DateTime?
-  createdAt DateTime?            @default(now())
-  updatedAt DateTime             @updatedAt
+  createdAt DateTime?          @default(now())
+  updatedAt DateTime           @updatedAt
 
   invoice Invoice @relation(fields: [invoiceId], references: [id])
 
@@ -1176,43 +986,43 @@ model Fact {
 }
 
 model Product {
-  id                Int                  @id @default(autoincrement())
+  id                Int                    @id @default(autoincrement())
   brandId           Int?
   categoryId        Int?
-  type              ENUM_PRODUCT_TYPE?   @default(SIMPLE)
+  type              EnumProductType?       @default(SIMPLE)
   sku               String?
   name              Json?
   thumbnail         String?
-  salePoint         Float?               @default(0)
-  salePrice         Float?               @default(0)
-  costPrice         Float?               @default(0)
-  stockQty          Int?                 @default(0)
-  unpaidQty         Int?                 @default(0)
-  paidQty           Int?                 @default(0)
-  sorting           Int?                 @default(0)
+  salePoint         Float?                 @default(0)
+  salePrice         Float?                 @default(0)
+  costPrice         Float?                 @default(0)
+  stockQty          Int?                   @default(0)
+  unpaidQty         Int?                   @default(0)
+  paidQty           Int?                   @default(0)
+  sorting           Int?                   @default(0)
   salePerPerson     Int?
-  duePaidDays       Int?                 @default(0)
-  expiryType        ENUM_PRODUCT_EXPIRY? @default(DYNAMIC)
-  dynamicExpiryDays Int?                 @default(0)
+  duePaidDays       Int?                   @default(0)
+  expiryType        EnumProductExpiryType? @default(DYNAMIC)
+  dynamicExpiryDays Int?                   @default(0)
   staticExpiryDate  DateTime?
-  hasShipment       Boolean?             @default(true)
-  hasInventory      Boolean?             @default(true)
-  hasExpiration     Boolean?             @default(true)
-  hasDuePayment     Boolean?             @default(true)
-  hasLimitPerson    Boolean?             @default(true)
-  isPopular         Boolean?             @default(false)
-  isBestSale        Boolean?             @default(false)
-  isFlashSale       Boolean?             @default(false)
-  isComingSoon      Boolean?             @default(false)
-  isNewArrival      Boolean?             @default(false)
-  isActive          Boolean?             @default(true)
-  isDeleted         Boolean              @default(false)
+  hasShipment       Boolean?               @default(true)
+  hasInventory      Boolean?               @default(true)
+  hasExpiration     Boolean?               @default(true)
+  hasDuePayment     Boolean?               @default(true)
+  hasLimitPerson    Boolean?               @default(true)
+  isPopular         Boolean?               @default(false)
+  isBestSale        Boolean?               @default(false)
+  isFlashSale       Boolean?               @default(false)
+  isComingSoon      Boolean?               @default(false)
+  isNewArrival      Boolean?               @default(false)
+  isActive          Boolean?               @default(true)
+  isDeleted         Boolean                @default(false)
   deletedBy         Int?
   createdBy         Int?
   updatedBy         Int?
   deletedAt         DateTime?
-  createdAt         DateTime?            @default(now())
-  updatedAt         DateTime?            @updatedAt
+  createdAt         DateTime?              @default(now())
+  updatedAt         DateTime?              @updatedAt
 
   createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
   updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
@@ -1314,11 +1124,11 @@ model Wishlist {
 }
 
 model SlipCounter {
-  id        Int            @id @default(autoincrement())
-  type      ENUM_SLIP_TYPE
+  id        Int          @id @default(autoincrement())
+  type      EnumSlipType
   key       String
   sequence  Int
-  createdAt DateTime?      @default(now())
+  createdAt DateTime?    @default(now())
 
   @@unique([type, key])
   @@map("slip_counters")
@@ -1352,4 +1162,198 @@ model AuditLogHttp {
   createdAt       DateTime @default(now())
 
   @@map("_audit_log_http")
+}
+
+enum EnumJobStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+enum EnumMediaType {
+  BANNER
+  SLIDER
+}
+
+enum EnumApiKeyType {
+  SYSTEM
+  CLIENT
+  DEFAULT
+}
+
+enum EnumAppVersionPlatform {
+  IOS
+  AOS
+  WEB
+}
+
+enum EnumVerificationChannel {
+  SMS
+  EMAIL
+}
+
+enum EnumVerificationMethod {
+  SIGN_UP
+  RESET_PASSWORD
+  FORGOT_PASSWORD
+  CHANGE_PASSWORD
+}
+
+enum EnumNotificationChannel {
+  SMS
+  EMAIL
+  WHATAPP
+}
+
+enum EnumNotificationMethod {
+  TEXT
+  REFERRENCE
+}
+
+enum EnumPushType {
+  INSTANT
+  DATETIME
+  DAILY
+  WEEKLY
+  MONTHLY
+  YEARLY
+}
+
+enum EnumPushStatus {
+  PENDING
+  PUSHING
+  COMPLETED
+  CANCELED
+}
+
+enum EnumMemberType {
+  STAFF
+  NORMAL
+  MASTER
+}
+
+enum EnumTierHistoryMethod {
+  INITIAL
+  UPGRADE
+  RENEWAL
+  DOWNGRADE
+}
+
+enum EnumRedemptionSource {
+  SYSTEM
+  ORDER
+  PROMOTION
+}
+
+enum EnumRedemptionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+  CANCELED
+  RESERVED
+  USED
+  FAILED
+}
+
+enum EnumPointHistoryType {
+  INITIAL
+  IMPORT
+  SYSTEM
+  EXPIRY
+  REFUND
+  UPGRADE
+  RENEWAL
+  SHARE
+  PURCHASE
+  REWARD
+  REFER
+  WELCOME
+  REGISTER
+}
+
+enum EnumProductType {
+  SIMPLE
+  VIRTUAL
+  GROUPED
+  BUNDLE
+  CONFIGURABLE
+  DOWNLOADABLE
+}
+
+enum EnumProductExpiryType {
+  STATIC
+  DYNAMIC
+}
+
+enum EnumPromotionRule {
+  GTE
+  GT
+  LT
+  LTE
+}
+
+enum EnumPromotionMethod {
+  PERCENT_OF_PROUDCT
+  FIXED_AMOUNT_FOR_PRODUCT
+  FIXED_AMOUNT_FOR_WHOLE_CART
+  BUY_X_FIXED_AMOUNT_Y
+  BUY_X_PERCENT_Y
+}
+
+enum EnumPointSchemaType {
+  BRAND
+  SHOP
+  PRODUCT
+  PAYMENT
+  INVOICE
+  MONTHLY
+  WEEKLY
+  TIMESLOT
+  BIRTH_MONTH
+}
+
+enum EnumPaymentStatus {
+  PAID
+  CANCELED
+}
+
+enum EnumPaymentMethod {
+  CASH
+  CREDIT
+  PAYPAL
+  DEBIT
+}
+
+enum EnumOrderSource {
+  SYSTEM
+  WEB
+  APP
+  POS
+}
+
+enum EnumOrderStatus {
+  PENDING
+  SHIPPED
+  DELIVERED
+  CANCELED
+}
+
+enum EnumInvoiceStatus {
+  PENDING
+  // SENT
+  // VIEWED
+  PARTIALLY_PAID
+  FULLY_PAID
+  OVERDUE
+  CANCELED
+  REFUNDED
+  FAILED
+  DISPUTED
+}
+
+enum EnumSlipType {
+  ORDER
+  INVOICE
 }

@@ -7,19 +7,24 @@ import {
   AuthSocialAppleProtected,
   AuthSocialGoogleProtected,
   AuthTokenResponseDto,
-  ENUM_AUTH_LOGIN_FROM,
-  ENUM_AUTH_LOGIN_TYPE,
-  ENUM_AUTH_LOGIN_WITH,
-  ENUM_AUTH_SCOPE_TYPE,
+  EnumAuthScopeType,
+  EnumAuthLoginFrom,
+  EnumAuthLoginType,
+  EnumAuthLoginWith,
 } from 'lib/nest-auth'
-import { ENUM_FILE_MIME_IMAGE, FILE_SIZE_IN_BYTES, IFile, IRequestApp } from 'lib/nest-core'
+import {
+  EnumFileExtensionImage,
+  FILE_SIZE_IN_BYTES,
+  FileExtensionPipe,
+  IFile,
+  IRequestApp,
+} from 'lib/nest-core'
 import {
   ApiRequestData,
   IResponseData,
   RequestApp,
   RequestBody,
-  RequestFileRequiredPipe,
-  RequestFileTypePipe,
+  RequestRequiredPipe,
   RequestUserAgent,
   RequestUserFrom,
   RequestUserIp,
@@ -39,12 +44,12 @@ import {
   UserVerifyPasswordRequestDto,
 } from '../dtos'
 import { UserIsSuperAdmin } from '../guards'
-import { UserAuthService } from '../services'
+import { AuthService } from '../services'
 
 @ApiTags(USER_DOC_AUTH_OPERATION)
 @Controller({ path: '/auth' })
 export class UserAuthController {
-  constructor(@Inject(ENUM_AUTH_SCOPE_TYPE.USER) protected readonly authService: UserAuthService) {}
+  constructor(@Inject(EnumAuthScopeType.USER) protected readonly authService: AuthService) {}
 
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
@@ -82,15 +87,15 @@ export class UserAuthController {
     @RequestUserIp() userIp: string,
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
-    @RequestUserFrom() userFrom: ENUM_AUTH_LOGIN_FROM,
+    @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
     @RequestBody() body: UserRequestSignInDto,
-  ): Promise<IResponseData<UserResponseLoginDto>> {
+  ): Promise<IResponseData> {
     const user = await this.authService.validateCredentials(body)
     const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
-      scopeType: ENUM_AUTH_SCOPE_TYPE.USER,
-      loginType: ENUM_AUTH_LOGIN_TYPE.CREDENTIAL,
-      loginWith: ENUM_AUTH_LOGIN_WITH.PHONE,
+      scopeType: EnumAuthScopeType.USER,
+      loginType: EnumAuthLoginType.CREDENTIAL,
+      loginWith: EnumAuthLoginWith.PHONE,
       loginFrom: userFrom,
       loginToken: userToken,
       loginRotate: body.rememberMe !== false,
@@ -117,15 +122,15 @@ export class UserAuthController {
     @RequestUserIp() userIp: string,
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
-    @RequestUserFrom() userFrom: ENUM_AUTH_LOGIN_FROM,
+    @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
     @AuthJwtPayload('user.email') email: string,
   ): Promise<IResponseData> {
     const user = await this.authService.validateOAuthEmail({ email })
     const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
-      scopeType: ENUM_AUTH_SCOPE_TYPE.USER,
-      loginType: ENUM_AUTH_LOGIN_TYPE.SOCIAL_GOOGLE,
-      loginWith: ENUM_AUTH_LOGIN_WITH.EMAIL,
+      scopeType: EnumAuthScopeType.USER,
+      loginType: EnumAuthLoginType.SOCIAL_GOOGLE,
+      loginWith: EnumAuthLoginWith.EMAIL,
       loginFrom: userFrom,
       loginToken: userToken,
     })
@@ -151,15 +156,15 @@ export class UserAuthController {
     @RequestUserIp() userIp: string,
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
-    @RequestUserFrom() userFrom: ENUM_AUTH_LOGIN_FROM,
+    @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
     @AuthJwtPayload('user.email') email: string,
   ): Promise<IResponseData> {
     const user = await this.authService.validateOAuthEmail({ email })
     const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
-      scopeType: ENUM_AUTH_SCOPE_TYPE.USER,
-      loginType: ENUM_AUTH_LOGIN_TYPE.SOCIAL_APPLE,
-      loginWith: ENUM_AUTH_LOGIN_WITH.EMAIL,
+      scopeType: EnumAuthScopeType.USER,
+      loginType: EnumAuthLoginType.SOCIAL_APPLE,
+      loginWith: EnumAuthLoginWith.EMAIL,
       loginFrom: userFrom,
       loginToken: userToken,
     })
@@ -171,7 +176,7 @@ export class UserAuthController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
@@ -197,7 +202,7 @@ export class UserAuthController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
@@ -250,7 +255,7 @@ export class UserAuthController {
     @AuthJwtToken() refreshToken: string,
     @AuthJwtPayload() refreshPayload: AuthJwtRefreshPayloadDto,
     @AuthJwtPayload('user.id') userId: number,
-  ): Promise<IResponseData<AuthTokenResponseDto>> {
+  ): Promise<IResponseData> {
     const user = await this.authService.getUserData(userId)
     const auth = await this.authService.refresh(user, refreshToken, refreshPayload)
 
@@ -262,7 +267,7 @@ export class UserAuthController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
@@ -299,7 +304,7 @@ export class UserAuthController {
       },
     },
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
@@ -319,8 +324,12 @@ export class UserAuthController {
     @RequestBody() _body: UserRequestChangeAvatarDto,
     @AuthJwtPayload('user.id') userId: number,
     @UploadedFile(
-      new RequestFileRequiredPipe('avatar'),
-      new RequestFileTypePipe(Object.values(ENUM_FILE_MIME_IMAGE)),
+      RequestRequiredPipe,
+      FileExtensionPipe([
+        EnumFileExtensionImage.JPEG,
+        EnumFileExtensionImage.JPG,
+        EnumFileExtensionImage.PNG,
+      ]),
     )
     file: IFile,
   ): Promise<IResponseData> {
@@ -336,7 +345,7 @@ export class UserAuthController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
@@ -364,7 +373,7 @@ export class UserAuthController {
     docExpansion: false,
     jwtAccessToken: {
       guards: [UserIsSuperAdmin],
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,

@@ -1,91 +1,87 @@
-import { ENUM_MESSAGE_LANGUAGE, LocaleUtil } from 'lib/nest-core'
-import {
-  ENUM_APP_ABILITY_ACTION,
-  ENUM_APP_ABILITY_CONTEXT,
-  ENUM_APP_ABILITY_SUBJECT,
-} from 'shared/enums'
+import { EnumMessageLanguage, LocaleUtil } from 'lib/nest-core'
+import { EnumAuthAbilityAction, EnumAuthAbilityContext, EnumAuthAbilitySubject } from 'shared/enums'
 
 // cspell:disable
 export class UserAbilityUtil {
   static getContexts() {
     return {
-      [ENUM_APP_ABILITY_CONTEXT.DASHBOARD]: {
+      [EnumAuthAbilityContext.DASHBOARD]: {
         title: {
-          [ENUM_MESSAGE_LANGUAGE.EN]: 'Dashboard',
-          [ENUM_MESSAGE_LANGUAGE.VI]: 'Bảng điều khiển',
+          [EnumMessageLanguage.EN]: 'Dashboard',
+          [EnumMessageLanguage.VI]: 'Bảng điều khiển',
         },
-        subjects: [ENUM_APP_ABILITY_SUBJECT.DASHBOARD],
+        subjects: [EnumAuthAbilitySubject.DASHBOARD],
       },
 
-      [ENUM_APP_ABILITY_CONTEXT.USER_MANAGEMENT]: {
+      [EnumAuthAbilityContext.USER_MANAGEMENT]: {
         title: {
-          [ENUM_MESSAGE_LANGUAGE.EN]: 'User Management',
-          [ENUM_MESSAGE_LANGUAGE.VI]: 'Quản lý người dùng',
+          [EnumMessageLanguage.EN]: 'User Management',
+          [EnumMessageLanguage.VI]: 'Quản lý người dùng',
         },
-        subjects: [ENUM_APP_ABILITY_SUBJECT.USER],
+        subjects: [EnumAuthAbilitySubject.USER],
       },
 
-      [ENUM_APP_ABILITY_CONTEXT.MEMBER_MANAGEMENT]: {
+      [EnumAuthAbilityContext.MEMBER_MANAGEMENT]: {
         title: {
-          [ENUM_MESSAGE_LANGUAGE.EN]: 'Membership',
-          [ENUM_MESSAGE_LANGUAGE.VI]: 'Thành viên',
+          [EnumMessageLanguage.EN]: 'Membership',
+          [EnumMessageLanguage.VI]: 'Thành viên',
         },
         subjects: [
-          ENUM_APP_ABILITY_SUBJECT.MEMBER,
-          ENUM_APP_ABILITY_SUBJECT.TIER_HISTORY,
-          ENUM_APP_ABILITY_SUBJECT.POINT_HISTORY,
-          ENUM_APP_ABILITY_SUBJECT.PRODUCT_HISTORY,
-          ENUM_APP_ABILITY_SUBJECT.NOTIFICATION_HISTORY,
+          EnumAuthAbilitySubject.MEMBER,
+          EnumAuthAbilitySubject.TIER_HISTORY,
+          EnumAuthAbilitySubject.POINT_HISTORY,
+          EnumAuthAbilitySubject.PRODUCT_HISTORY,
+          EnumAuthAbilitySubject.NOTIFICATION_HISTORY,
         ],
       },
 
-      [ENUM_APP_ABILITY_CONTEXT.INVENTORY_MANAGEMENT]: {
+      [EnumAuthAbilityContext.INVENTORY_MANAGEMENT]: {
         title: {
-          [ENUM_MESSAGE_LANGUAGE.EN]: 'Inventory',
-          [ENUM_MESSAGE_LANGUAGE.VI]: 'Kho hàng',
+          [EnumMessageLanguage.EN]: 'Inventory',
+          [EnumMessageLanguage.VI]: 'Kho hàng',
         },
         subjects: [
-          ENUM_APP_ABILITY_SUBJECT.PRODUCT,
-          ENUM_APP_ABILITY_SUBJECT.PRODUCT_BRAND,
-          ENUM_APP_ABILITY_SUBJECT.PRODUCT_CATEGORY,
-          ENUM_APP_ABILITY_SUBJECT.PRODUCT_REVIEW,
+          EnumAuthAbilitySubject.PRODUCT,
+          EnumAuthAbilitySubject.PRODUCT_BRAND,
+          EnumAuthAbilitySubject.PRODUCT_CATEGORY,
+          EnumAuthAbilitySubject.PRODUCT_REVIEW,
         ],
       },
 
-      [ENUM_APP_ABILITY_CONTEXT.SALE_MANAGEMENT]: {
+      [EnumAuthAbilityContext.SALE_MANAGEMENT]: {
         title: {
-          [ENUM_MESSAGE_LANGUAGE.EN]: 'Sales',
-          [ENUM_MESSAGE_LANGUAGE.VI]: 'Bán hàng',
+          [EnumMessageLanguage.EN]: 'Sales',
+          [EnumMessageLanguage.VI]: 'Bán hàng',
         },
-        subjects: [ENUM_APP_ABILITY_SUBJECT.ORDER, ENUM_APP_ABILITY_SUBJECT.INVOICE],
+        subjects: [EnumAuthAbilitySubject.ORDER, EnumAuthAbilitySubject.INVOICE],
       },
 
-      [ENUM_APP_ABILITY_CONTEXT.NOTIFICATION_MANAGEMENT]: {
+      [EnumAuthAbilityContext.NOTIFICATION_MANAGEMENT]: {
         title: {
-          [ENUM_MESSAGE_LANGUAGE.EN]: 'Notifications',
-          [ENUM_MESSAGE_LANGUAGE.VI]: 'Thông báo',
+          [EnumMessageLanguage.EN]: 'Notifications',
+          [EnumMessageLanguage.VI]: 'Thông báo',
         },
         subjects: [
-          ENUM_APP_ABILITY_SUBJECT.NOTIFICATION,
-          ENUM_APP_ABILITY_SUBJECT.PUSH,
-          ENUM_APP_ABILITY_SUBJECT.PUSH_GROUP,
+          EnumAuthAbilitySubject.NOTIFICATION,
+          EnumAuthAbilitySubject.PUSH,
+          EnumAuthAbilitySubject.PUSH_GROUP,
         ],
       },
 
-      [ENUM_APP_ABILITY_CONTEXT.SETTING_MANAGEMENT]: {
+      [EnumAuthAbilityContext.SETTING_MANAGEMENT]: {
         title: {
-          [ENUM_MESSAGE_LANGUAGE.EN]: 'Settings',
-          [ENUM_MESSAGE_LANGUAGE.VI]: 'Cài đặt',
+          [EnumMessageLanguage.EN]: 'Settings',
+          [EnumMessageLanguage.VI]: 'Cài đặt',
         },
         subjects: [
-          ENUM_APP_ABILITY_SUBJECT.ROLE,
-          ENUM_APP_ABILITY_SUBJECT.TIER,
-          ENUM_APP_ABILITY_SUBJECT.FACT,
-          ENUM_APP_ABILITY_SUBJECT.COUNTRY,
-          ENUM_APP_ABILITY_SUBJECT.DISTRICT,
-          ENUM_APP_ABILITY_SUBJECT.MEDIA,
-          ENUM_APP_ABILITY_SUBJECT.API_KEY,
-          ENUM_APP_ABILITY_SUBJECT.APP_VERSION,
+          EnumAuthAbilitySubject.ROLE,
+          EnumAuthAbilitySubject.TIER,
+          EnumAuthAbilitySubject.FACT,
+          EnumAuthAbilitySubject.COUNTRY,
+          EnumAuthAbilitySubject.DISTRICT,
+          EnumAuthAbilitySubject.MEDIA,
+          EnumAuthAbilitySubject.API_KEY,
+          EnumAuthAbilitySubject.APP_VERSION,
         ],
       },
     }
@@ -93,138 +89,138 @@ export class UserAbilityUtil {
 
   static getSubjectNames() {
     return {
-      [ENUM_APP_ABILITY_SUBJECT.DASHBOARD]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Dashboard',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Bảng điều khiển',
+      [EnumAuthAbilitySubject.DASHBOARD]: {
+        [EnumMessageLanguage.EN]: 'Dashboard',
+        [EnumMessageLanguage.VI]: 'Bảng điều khiển',
       },
-      [ENUM_APP_ABILITY_SUBJECT.SETTING]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Settings',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Cài đặt',
+      [EnumAuthAbilitySubject.SETTING]: {
+        [EnumMessageLanguage.EN]: 'Settings',
+        [EnumMessageLanguage.VI]: 'Cài đặt',
       },
-      [ENUM_APP_ABILITY_SUBJECT.MEDIA]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Media',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Hình Ảnh',
+      [EnumAuthAbilitySubject.MEDIA]: {
+        [EnumMessageLanguage.EN]: 'Media',
+        [EnumMessageLanguage.VI]: 'Hình Ảnh',
       },
-      [ENUM_APP_ABILITY_SUBJECT.API_KEY]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Api Keys',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Api Keys',
+      [EnumAuthAbilitySubject.API_KEY]: {
+        [EnumMessageLanguage.EN]: 'Api Keys',
+        [EnumMessageLanguage.VI]: 'Api Keys',
       },
-      [ENUM_APP_ABILITY_SUBJECT.APP_VERSION]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'App Versions',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Phiên bản',
+      [EnumAuthAbilitySubject.APP_VERSION]: {
+        [EnumMessageLanguage.EN]: 'App Versions',
+        [EnumMessageLanguage.VI]: 'Phiên bản',
       },
-      [ENUM_APP_ABILITY_SUBJECT.USER]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Users',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Người dùng',
+      [EnumAuthAbilitySubject.USER]: {
+        [EnumMessageLanguage.EN]: 'Users',
+        [EnumMessageLanguage.VI]: 'Người dùng',
       },
-      [ENUM_APP_ABILITY_SUBJECT.ROLE]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Roles',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Vai trò',
+      [EnumAuthAbilitySubject.ROLE]: {
+        [EnumMessageLanguage.EN]: 'Roles',
+        [EnumMessageLanguage.VI]: 'Vai trò',
       },
-      [ENUM_APP_ABILITY_SUBJECT.PERMISSION]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Permissions',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Quyền hạn',
+      [EnumAuthAbilitySubject.PERMISSION]: {
+        [EnumMessageLanguage.EN]: 'Permissions',
+        [EnumMessageLanguage.VI]: 'Quyền hạn',
       },
-      [ENUM_APP_ABILITY_SUBJECT.FACT]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Information & Policies',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Thông tin & Chính sách',
+      [EnumAuthAbilitySubject.FACT]: {
+        [EnumMessageLanguage.EN]: 'Information & Policies',
+        [EnumMessageLanguage.VI]: 'Thông tin & Chính sách',
       },
-      [ENUM_APP_ABILITY_SUBJECT.COUNTRY]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Countries',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Quốc gia',
+      [EnumAuthAbilitySubject.COUNTRY]: {
+        [EnumMessageLanguage.EN]: 'Countries',
+        [EnumMessageLanguage.VI]: 'Quốc gia',
       },
-      [ENUM_APP_ABILITY_SUBJECT.DISTRICT]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Districts',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Quận/Huyện',
+      [EnumAuthAbilitySubject.DISTRICT]: {
+        [EnumMessageLanguage.EN]: 'Districts',
+        [EnumMessageLanguage.VI]: 'Quận/Huyện',
       },
-      [ENUM_APP_ABILITY_SUBJECT.NOTIFICATION]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Notifications',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Thông báo',
+      [EnumAuthAbilitySubject.NOTIFICATION]: {
+        [EnumMessageLanguage.EN]: 'Notifications',
+        [EnumMessageLanguage.VI]: 'Thông báo',
       },
-      [ENUM_APP_ABILITY_SUBJECT.PUSH]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Pushes',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Gửi thông báo',
+      [EnumAuthAbilitySubject.PUSH]: {
+        [EnumMessageLanguage.EN]: 'Pushes',
+        [EnumMessageLanguage.VI]: 'Gửi thông báo',
       },
-      [ENUM_APP_ABILITY_SUBJECT.PUSH_GROUP]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Push Groups',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Nhóm thông báo',
+      [EnumAuthAbilitySubject.PUSH_GROUP]: {
+        [EnumMessageLanguage.EN]: 'Push Groups',
+        [EnumMessageLanguage.VI]: 'Nhóm thông báo',
       },
-      [ENUM_APP_ABILITY_SUBJECT.MEMBER]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Members',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Thành viên',
+      [EnumAuthAbilitySubject.MEMBER]: {
+        [EnumMessageLanguage.EN]: 'Members',
+        [EnumMessageLanguage.VI]: 'Thành viên',
       },
-      [ENUM_APP_ABILITY_SUBJECT.TIER_HISTORY]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Member Tiers',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Cấp độ thành viên',
+      [EnumAuthAbilitySubject.TIER_HISTORY]: {
+        [EnumMessageLanguage.EN]: 'Member Tiers',
+        [EnumMessageLanguage.VI]: 'Cấp độ thành viên',
       },
-      [ENUM_APP_ABILITY_SUBJECT.POINT_HISTORY]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Member Points',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Điểm thành viên',
+      [EnumAuthAbilitySubject.POINT_HISTORY]: {
+        [EnumMessageLanguage.EN]: 'Member Points',
+        [EnumMessageLanguage.VI]: 'Điểm thành viên',
       },
-      [ENUM_APP_ABILITY_SUBJECT.NOTIFICATION_HISTORY]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Member Notifications',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Thông báo thành viên',
+      [EnumAuthAbilitySubject.NOTIFICATION_HISTORY]: {
+        [EnumMessageLanguage.EN]: 'Member Notifications',
+        [EnumMessageLanguage.VI]: 'Thông báo thành viên',
       },
-      [ENUM_APP_ABILITY_SUBJECT.PRODUCT_HISTORY]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Member Redemptions',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Lịch sử đổi quà',
+      [EnumAuthAbilitySubject.PRODUCT_HISTORY]: {
+        [EnumMessageLanguage.EN]: 'Member Redemptions',
+        [EnumMessageLanguage.VI]: 'Lịch sử đổi quà',
       },
-      [ENUM_APP_ABILITY_SUBJECT.PRODUCT]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Products',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Sản phẩm',
+      [EnumAuthAbilitySubject.PRODUCT]: {
+        [EnumMessageLanguage.EN]: 'Products',
+        [EnumMessageLanguage.VI]: 'Sản phẩm',
       },
-      [ENUM_APP_ABILITY_SUBJECT.PRODUCT_BRAND]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Brands',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Thương hiệu',
+      [EnumAuthAbilitySubject.PRODUCT_BRAND]: {
+        [EnumMessageLanguage.EN]: 'Brands',
+        [EnumMessageLanguage.VI]: 'Thương hiệu',
       },
-      [ENUM_APP_ABILITY_SUBJECT.PRODUCT_CATEGORY]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Categories',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Danh mục',
+      [EnumAuthAbilitySubject.PRODUCT_CATEGORY]: {
+        [EnumMessageLanguage.EN]: 'Categories',
+        [EnumMessageLanguage.VI]: 'Danh mục',
       },
-      [ENUM_APP_ABILITY_SUBJECT.PRODUCT_REVIEW]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Reviews',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Đánh giá',
+      [EnumAuthAbilitySubject.PRODUCT_REVIEW]: {
+        [EnumMessageLanguage.EN]: 'Reviews',
+        [EnumMessageLanguage.VI]: 'Đánh giá',
       },
-      [ENUM_APP_ABILITY_SUBJECT.CART]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Carts',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Giỏ hàng',
+      [EnumAuthAbilitySubject.CART]: {
+        [EnumMessageLanguage.EN]: 'Carts',
+        [EnumMessageLanguage.VI]: 'Giỏ hàng',
       },
-      [ENUM_APP_ABILITY_SUBJECT.ORDER]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Orders',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Đơn hàng',
+      [EnumAuthAbilitySubject.ORDER]: {
+        [EnumMessageLanguage.EN]: 'Orders',
+        [EnumMessageLanguage.VI]: 'Đơn hàng',
       },
-      [ENUM_APP_ABILITY_SUBJECT.INVOICE]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Invoices',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Hóa đơn',
+      [EnumAuthAbilitySubject.INVOICE]: {
+        [EnumMessageLanguage.EN]: 'Invoices',
+        [EnumMessageLanguage.VI]: 'Hóa đơn',
       },
-      [ENUM_APP_ABILITY_SUBJECT.TIER]: {
-        [ENUM_MESSAGE_LANGUAGE.EN]: 'Tiers',
-        [ENUM_MESSAGE_LANGUAGE.VI]: 'Cấp bậc',
+      [EnumAuthAbilitySubject.TIER]: {
+        [EnumMessageLanguage.EN]: 'Tiers',
+        [EnumMessageLanguage.VI]: 'Cấp bậc',
       },
     }
   }
 
   static getSubjects(): string[] {
-    return Object.values(ENUM_APP_ABILITY_SUBJECT)
+    return Object.values(EnumAuthAbilitySubject)
   }
 
-  static getSubjectActions(subject: ENUM_APP_ABILITY_SUBJECT) {
+  static getSubjectActions(subject: EnumAuthAbilitySubject) {
     const subjectImports = this.getImportablePerms()
     const subjectExports = this.getExportablePerms()
     const subjectCRUDs = this.getCustomActionPerms()
 
     const actions = subjectCRUDs[subject] || [
-      ENUM_APP_ABILITY_ACTION.READ,
-      ENUM_APP_ABILITY_ACTION.CREATE,
-      ENUM_APP_ABILITY_ACTION.UPDATE,
-      ENUM_APP_ABILITY_ACTION.DELETE,
+      EnumAuthAbilityAction.READ,
+      EnumAuthAbilityAction.CREATE,
+      EnumAuthAbilityAction.UPDATE,
+      EnumAuthAbilityAction.DELETE,
     ]
 
     if (subjectImports.includes(subject)) {
-      actions.push(ENUM_APP_ABILITY_ACTION.IMPORT)
+      actions.push(EnumAuthAbilityAction.IMPORT)
     }
     if (subjectExports.includes(subject)) {
-      actions.push(ENUM_APP_ABILITY_ACTION.EXPORT)
+      actions.push(EnumAuthAbilityAction.EXPORT)
     }
 
     return actions
@@ -244,66 +240,55 @@ export class UserAbilityUtil {
 
   static getInvisiblePerms() {
     return [
-      ENUM_APP_ABILITY_SUBJECT.PERMISSION,
-      ENUM_APP_ABILITY_SUBJECT.SETTING,
-      ENUM_APP_ABILITY_SUBJECT.CART,
-      ENUM_APP_ABILITY_SUBJECT.COUNTRY,
-      ENUM_APP_ABILITY_SUBJECT.DISTRICT,
-      ENUM_APP_ABILITY_SUBJECT.PUSH,
+      EnumAuthAbilitySubject.PERMISSION,
+      EnumAuthAbilitySubject.SETTING,
+      EnumAuthAbilitySubject.CART,
+      EnumAuthAbilitySubject.COUNTRY,
+      EnumAuthAbilitySubject.DISTRICT,
+      EnumAuthAbilitySubject.PUSH,
     ]
   }
 
   static getCustomActionPerms() {
     return {
-      [ENUM_APP_ABILITY_SUBJECT.DASHBOARD]: [ENUM_APP_ABILITY_ACTION.READ],
-      [ENUM_APP_ABILITY_SUBJECT.FACT]: [
-        ENUM_APP_ABILITY_ACTION.READ,
-        ENUM_APP_ABILITY_ACTION.UPDATE,
+      [EnumAuthAbilitySubject.DASHBOARD]: [EnumAuthAbilityAction.READ],
+      [EnumAuthAbilitySubject.FACT]: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
+      [EnumAuthAbilitySubject.CART]: [EnumAuthAbilityAction.READ],
+      [EnumAuthAbilitySubject.API_KEY]: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
+      [EnumAuthAbilitySubject.APP_VERSION]: [
+        EnumAuthAbilityAction.READ,
+        EnumAuthAbilityAction.UPDATE,
       ],
-      [ENUM_APP_ABILITY_SUBJECT.CART]: [ENUM_APP_ABILITY_ACTION.READ],
-      [ENUM_APP_ABILITY_SUBJECT.API_KEY]: [
-        ENUM_APP_ABILITY_ACTION.READ,
-        ENUM_APP_ABILITY_ACTION.UPDATE,
+      [EnumAuthAbilitySubject.TIER]: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
+      [EnumAuthAbilitySubject.TIER_HISTORY]: [EnumAuthAbilityAction.READ],
+      [EnumAuthAbilitySubject.POINT_HISTORY]: [EnumAuthAbilityAction.READ],
+      [EnumAuthAbilitySubject.NOTIFICATION_HISTORY]: [EnumAuthAbilityAction.READ],
+      [EnumAuthAbilitySubject.ORDER]: [EnumAuthAbilityAction.READ],
+      [EnumAuthAbilitySubject.INVOICE]: [EnumAuthAbilityAction.READ],
+      [EnumAuthAbilitySubject.NOTIFICATION]: [
+        EnumAuthAbilityAction.READ,
+        EnumAuthAbilityAction.CREATE,
+        EnumAuthAbilityAction.UPDATE,
       ],
-      [ENUM_APP_ABILITY_SUBJECT.APP_VERSION]: [
-        ENUM_APP_ABILITY_ACTION.READ,
-        ENUM_APP_ABILITY_ACTION.UPDATE,
+      [EnumAuthAbilitySubject.PUSH]: [
+        EnumAuthAbilityAction.READ,
+        EnumAuthAbilityAction.CREATE,
+        EnumAuthAbilityAction.UPDATE,
       ],
-      [ENUM_APP_ABILITY_SUBJECT.TIER]: [
-        ENUM_APP_ABILITY_ACTION.READ,
-        ENUM_APP_ABILITY_ACTION.UPDATE,
-      ],
-      [ENUM_APP_ABILITY_SUBJECT.TIER_HISTORY]: [ENUM_APP_ABILITY_ACTION.READ],
-      [ENUM_APP_ABILITY_SUBJECT.POINT_HISTORY]: [ENUM_APP_ABILITY_ACTION.READ],
-      [ENUM_APP_ABILITY_SUBJECT.NOTIFICATION_HISTORY]: [ENUM_APP_ABILITY_ACTION.READ],
-      [ENUM_APP_ABILITY_SUBJECT.ORDER]: [ENUM_APP_ABILITY_ACTION.READ],
-      [ENUM_APP_ABILITY_SUBJECT.INVOICE]: [ENUM_APP_ABILITY_ACTION.READ],
-      [ENUM_APP_ABILITY_SUBJECT.NOTIFICATION]: [
-        ENUM_APP_ABILITY_ACTION.READ,
-        ENUM_APP_ABILITY_ACTION.CREATE,
-        ENUM_APP_ABILITY_ACTION.UPDATE,
-      ],
-      [ENUM_APP_ABILITY_SUBJECT.PUSH]: [
-        ENUM_APP_ABILITY_ACTION.READ,
-        ENUM_APP_ABILITY_ACTION.CREATE,
-        ENUM_APP_ABILITY_ACTION.UPDATE,
-      ],
-      [ENUM_APP_ABILITY_SUBJECT.PUSH_GROUP]: [
-        ENUM_APP_ABILITY_ACTION.READ,
-        ENUM_APP_ABILITY_ACTION.CREATE,
-        ENUM_APP_ABILITY_ACTION.UPDATE,
+      [EnumAuthAbilitySubject.PUSH_GROUP]: [
+        EnumAuthAbilityAction.READ,
+        EnumAuthAbilityAction.CREATE,
+        EnumAuthAbilityAction.UPDATE,
       ],
     }
   }
 
-  static toActions(bitwise: number = 0): ENUM_APP_ABILITY_ACTION[] {
-    return Object.values(ENUM_APP_ABILITY_ACTION).filter(
-      (_, index) => (bitwise & (1 << index)) !== 0,
-    )
+  static toActions(bitwise: number = 0): EnumAuthAbilityAction[] {
+    return Object.values(EnumAuthAbilityAction).filter((_, index) => (bitwise & (1 << index)) !== 0)
   }
 
-  static toBitwise(actions: ENUM_APP_ABILITY_ACTION[] = []): number {
-    const allActions = Object.values(ENUM_APP_ABILITY_ACTION)
+  static toBitwise(actions: EnumAuthAbilityAction[] = []): number {
+    const allActions = Object.values(EnumAuthAbilityAction)
 
     return actions.reduce((bitwise, action) => {
       const index = allActions.indexOf(action)
@@ -321,7 +306,7 @@ export class UserAbilityUtil {
     return LocaleUtil.parseValue(jsonTitle, language)
   }
 
-  static findContext(subject: ENUM_APP_ABILITY_SUBJECT): string {
+  static findContext(subject: EnumAuthAbilitySubject): string {
     const contexts = this.getContexts()
     for (const context in contexts) {
       const subjects = contexts[context].subjects
@@ -333,10 +318,10 @@ export class UserAbilityUtil {
   }
 
   static toPermission<T = any>(
-    subject: ENUM_APP_ABILITY_SUBJECT,
-    actions: ENUM_APP_ABILITY_ACTION[],
-    _disables: ENUM_APP_ABILITY_SUBJECT[] = [],
-    _invisibles: ENUM_APP_ABILITY_SUBJECT[] = [],
+    subject: EnumAuthAbilitySubject,
+    actions: EnumAuthAbilityAction[],
+    _disables: EnumAuthAbilitySubject[] = [],
+    _invisibles: EnumAuthAbilitySubject[] = [],
   ): T {
     return {
       subject: subject.toString(),

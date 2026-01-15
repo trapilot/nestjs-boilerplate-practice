@@ -14,22 +14,22 @@ export class AppVersionService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.AppVersionFindUniqueArgs): Promise<TAppVersion> {
-    return await this.prisma.client.appVersion.findUnique(kwargs)
+    return await this.prisma.appVersion.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.AppVersionFindFirstArgs = {}): Promise<TAppVersion> {
-    return await this.prisma.client.appVersion.findFirst(kwargs)
+    return await this.prisma.appVersion.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.AppVersionFindManyArgs = {}): Promise<TAppVersion[]> {
-    return await this.prisma.client.appVersion.findMany(kwargs)
+    return await this.prisma.appVersion.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.AppVersionFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TAppVersion> {
-    const appVersion = await this.prisma.client.appVersion
+    const appVersion = await this.prisma.appVersion
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -44,7 +44,7 @@ export class AppVersionService {
     where: Prisma.AppVersionWhereInput,
     kwargs: Omit<Prisma.AppVersionFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TAppVersion> {
-    const appVersion = await this.prisma.client.appVersion
+    const appVersion = await this.prisma.appVersion
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -74,7 +74,7 @@ export class AppVersionService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.appVersion.list(where, params, options)
+    return await this.prisma.appVersion.list(where, params, options)
   }
 
   async paginate(
@@ -82,11 +82,11 @@ export class AppVersionService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.appVersion.paginate(where, params, options)
+    return await this.prisma.appVersion.paginate(where, params, options)
   }
 
   async count(where?: Prisma.AppVersionWhereInput): Promise<number> {
-    return await this.prisma.client.appVersion.count({
+    return await this.prisma.appVersion.count({
       where,
     })
   }
@@ -95,14 +95,14 @@ export class AppVersionService {
     id: number,
     kwargs: Omit<Prisma.AppVersionFindUniqueArgs, 'where'> = {},
   ): Promise<TAppVersion> {
-    return await this.prisma.client.appVersion.findUnique({
+    return await this.prisma.appVersion.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.AppVersionUncheckedCreateInput): Promise<TAppVersion> {
-    const appVersion = await this.prisma.client.appVersion.create({
+    const appVersion = await this.prisma.appVersion.create({
       data,
     })
     return appVersion
@@ -111,7 +111,7 @@ export class AppVersionService {
   async update(id: number, data: Prisma.AppVersionUncheckedUpdateInput): Promise<TAppVersion> {
     const appVersion = await this.findOrFail(id)
 
-    return await this.prisma.client.appVersion.update({
+    return await this.prisma.appVersion.update({
       data,
       where: { id: appVersion.id },
     })
@@ -120,7 +120,7 @@ export class AppVersionService {
   async inactive(id: number): Promise<TAppVersion> {
     const apiKey = await this.findOrFail(id)
 
-    return await this.prisma.client.appVersion.update({
+    return await this.prisma.appVersion.update({
       data: { isActive: false },
       where: { id: apiKey.id },
     })
@@ -129,7 +129,7 @@ export class AppVersionService {
   async active(id: number): Promise<TAppVersion> {
     const apiKey = await this.findOrFail(id)
 
-    return await this.prisma.client.appVersion.update({
+    return await this.prisma.appVersion.update({
       data: { isActive: true },
       where: { id: apiKey.id },
     })
@@ -137,7 +137,7 @@ export class AppVersionService {
 
   async delete(appVersion: TAppVersion, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.client.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx) => {
         await tx.appVersion.delete({ where: { id: appVersion.id } })
       })
       return true

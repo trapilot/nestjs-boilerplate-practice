@@ -14,22 +14,22 @@ export class NotificationService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.NotificationFindUniqueArgs): Promise<TNotification> {
-    return await this.prisma.client.notification.findUnique(kwargs)
+    return await this.prisma.notification.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.NotificationFindFirstArgs = {}): Promise<TNotification> {
-    return await this.prisma.client.notification.findFirst(kwargs)
+    return await this.prisma.notification.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.NotificationFindManyArgs = {}): Promise<TNotification[]> {
-    return await this.prisma.client.notification.findMany(kwargs)
+    return await this.prisma.notification.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.NotificationFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TNotification> {
-    const notification = await this.prisma.client.notification
+    const notification = await this.prisma.notification
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -58,7 +58,7 @@ export class NotificationService {
     where: Prisma.NotificationWhereInput,
     kwargs: Omit<Prisma.NotificationFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TNotification> {
-    const notification = await this.prisma.client.notification
+    const notification = await this.prisma.notification
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -74,7 +74,7 @@ export class NotificationService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.notification.list(where, params, options)
+    return await this.prisma.notification.list(where, params, options)
   }
 
   async paginate(
@@ -82,11 +82,11 @@ export class NotificationService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.notification.paginate(where, params, options)
+    return await this.prisma.notification.paginate(where, params, options)
   }
 
   async count(where?: Prisma.NotificationWhereInput): Promise<number> {
-    return await this.prisma.client.notification.count({
+    return await this.prisma.notification.count({
       where,
     })
   }
@@ -95,14 +95,14 @@ export class NotificationService {
     id: number,
     kwargs: Omit<Prisma.NotificationFindUniqueArgs, 'where'> = {},
   ): Promise<TNotification> {
-    return await this.prisma.client.notification.findUnique({
+    return await this.prisma.notification.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.NotificationUncheckedCreateInput): Promise<TNotification> {
-    const notification = await this.prisma.client.notification.create({
+    const notification = await this.prisma.notification.create({
       data,
     })
     return notification
@@ -111,7 +111,7 @@ export class NotificationService {
   async update(id: number, data: Prisma.NotificationUncheckedUpdateInput): Promise<TNotification> {
     const notification = await this.findOrFail(id)
 
-    return await this.prisma.client.notification.update({
+    return await this.prisma.notification.update({
       data,
       where: { id: notification.id },
     })
@@ -119,7 +119,7 @@ export class NotificationService {
 
   async delete(notification: TNotification, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.client.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx) => {
         await tx.notification.delete({ where: { id: notification.id } })
       })
       return true
@@ -130,7 +130,7 @@ export class NotificationService {
 
   async inactive(id: number): Promise<TNotification> {
     const notification = await this.findOrFail(id)
-    return await this.prisma.client.notification.update({
+    return await this.prisma.notification.update({
       data: { isActive: false },
       where: { id: notification.id },
     })
@@ -138,7 +138,7 @@ export class NotificationService {
 
   async active(id: number): Promise<TNotification> {
     const notification = await this.findOrFail(id)
-    return await this.prisma.client.notification.update({
+    return await this.prisma.notification.update({
       data: { isActive: true },
       where: { id: notification.id },
     })

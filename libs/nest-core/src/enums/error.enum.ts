@@ -1,4 +1,0 @@
-export enum ENUM_ERROR_CODE {
-  UNKNOWN = 'E5040',
-  FORBIDDEN = 'E5041',
-}

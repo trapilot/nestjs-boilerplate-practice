@@ -1,6 +1,6 @@
 import { Controller, HttpStatus, Inject, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { ENUM_VERIFICATION_CHANNEL, ENUM_VERIFICATION_TYPE } from '@runtime/prisma-client'
+import { EnumVerificationChannel, EnumVerificationMethod } from '@runtime/prisma-client'
 import {
   AuthJwtPayload,
   AuthJwtRefreshPayloadDto,
@@ -8,10 +8,10 @@ import {
   AuthSocialAppleProtected,
   AuthSocialGoogleProtected,
   AuthTokenResponseDto,
-  ENUM_AUTH_LOGIN_FROM,
-  ENUM_AUTH_LOGIN_TYPE,
-  ENUM_AUTH_LOGIN_WITH,
-  ENUM_AUTH_SCOPE_TYPE,
+  EnumAuthLoginFrom,
+  EnumAuthLoginType,
+  EnumAuthLoginWith,
+  EnumAuthScopeType,
 } from 'lib/nest-auth'
 import { IRequestApp } from 'lib/nest-core'
 import {
@@ -37,14 +37,12 @@ import {
   MemberResponseLoginDto,
   MemberSignInRequestDto,
 } from '../dtos'
-import { MemberAuthService } from '../services'
+import { AuthService } from '../services'
 
 @ApiTags(MEMBER_DOC_AUTH_OPERATION)
 @Controller({ version: '1', path: '/auth' })
 export class MemberAuthController {
-  constructor(
-    @Inject(ENUM_AUTH_SCOPE_TYPE.MEMBER) protected readonly authService: MemberAuthService,
-  ) {}
+  constructor(@Inject(EnumAuthScopeType.MEMBER) protected readonly authService: AuthService) {}
 
   @ApiRequestData({
     summary: MEMBER_DOC_AUTH_OPERATION,
@@ -65,8 +63,8 @@ export class MemberAuthController {
     @RequestUserOTP() otp: string,
   ): Promise<IResponseData> {
     await this.authService.checkCode(otp, {
-      channel: ENUM_VERIFICATION_CHANNEL.SMS,
-      type: ENUM_VERIFICATION_TYPE.SIGN_UP,
+      channel: EnumVerificationChannel.SMS,
+      type: EnumVerificationMethod.SIGN_UP,
       phone: body.phone,
     })
 
@@ -94,15 +92,15 @@ export class MemberAuthController {
     @RequestUserIp() userIp: string,
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
-    @RequestUserFrom() userFrom: ENUM_AUTH_LOGIN_FROM,
+    @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
     @RequestBody() body: MemberSignInRequestDto,
-  ): Promise<IResponseData<MemberResponseLoginDto>> {
+  ): Promise<IResponseData> {
     const member = await this.authService.validateCredentials(body)
     const auth = await this.authService.login(member, userIp, userAgent, userRequest, {
-      scopeType: ENUM_AUTH_SCOPE_TYPE.MEMBER,
-      loginType: ENUM_AUTH_LOGIN_TYPE.CREDENTIAL,
-      loginWith: ENUM_AUTH_LOGIN_WITH.PHONE,
+      scopeType: EnumAuthScopeType.MEMBER,
+      loginType: EnumAuthLoginType.CREDENTIAL,
+      loginWith: EnumAuthLoginWith.PHONE,
       loginFrom: userFrom,
       loginToken: userToken,
       loginRotate: false,
@@ -129,15 +127,15 @@ export class MemberAuthController {
     @RequestUserIp() userIp: string,
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
-    @RequestUserFrom() userFrom: ENUM_AUTH_LOGIN_FROM,
+    @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
     @AuthJwtPayload<string>('user.email') email: string,
   ): Promise<IResponseData> {
     const member = await this.authService.validateOAuthEmail({ email })
     const auth = await this.authService.login(member, userIp, userAgent, userRequest, {
-      scopeType: ENUM_AUTH_SCOPE_TYPE.MEMBER,
-      loginType: ENUM_AUTH_LOGIN_TYPE.SOCIAL_GOOGLE,
-      loginWith: ENUM_AUTH_LOGIN_WITH.EMAIL,
+      scopeType: EnumAuthScopeType.MEMBER,
+      loginType: EnumAuthLoginType.SOCIAL_GOOGLE,
+      loginWith: EnumAuthLoginWith.EMAIL,
       loginFrom: userFrom,
       loginToken: userToken,
     })
@@ -163,15 +161,15 @@ export class MemberAuthController {
     @RequestUserIp() userIp: string,
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
-    @RequestUserFrom() userFrom: ENUM_AUTH_LOGIN_FROM,
+    @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
     @AuthJwtPayload('user.email') email: string,
   ): Promise<IResponseData> {
     const member = await this.authService.validateOAuthEmail({ email })
     const auth = await this.authService.login(member, userIp, userAgent, userRequest, {
-      scopeType: ENUM_AUTH_SCOPE_TYPE.MEMBER,
-      loginType: ENUM_AUTH_LOGIN_TYPE.SOCIAL_APPLE,
-      loginWith: ENUM_AUTH_LOGIN_WITH.EMAIL,
+      scopeType: EnumAuthScopeType.MEMBER,
+      loginType: EnumAuthLoginType.SOCIAL_APPLE,
+      loginWith: EnumAuthLoginWith.EMAIL,
       loginFrom: userFrom,
       loginToken: userToken,
     })
@@ -223,8 +221,8 @@ export class MemberAuthController {
     @RequestUserOTP() otp: string,
   ): Promise<IResponseData> {
     await this.authService.checkCode(otp, {
-      channel: ENUM_VERIFICATION_CHANNEL.SMS,
-      type: ENUM_VERIFICATION_TYPE.RESET_PASSWORD,
+      channel: EnumVerificationChannel.SMS,
+      type: EnumVerificationMethod.RESET_PASSWORD,
       phone: body.phone,
     })
 
@@ -244,7 +242,7 @@ export class MemberAuthController {
   @Post('/sign-up/request-otp')
   async requestSignUpOpt(@RequestBody() body: MemberRequestOTPDto): Promise<IResponseData> {
     const code = await this.authService.sendOPT(body.phone, {
-      type: ENUM_VERIFICATION_TYPE.SIGN_UP,
+      type: EnumVerificationMethod.SIGN_UP,
       subject: 'opt.subject.sign-up',
       template: 'otp.sign-up.html',
     })
@@ -267,7 +265,7 @@ export class MemberAuthController {
     @RequestUserOTP() otp: string,
   ): Promise<IResponseData> {
     const status = await this.authService.verifyOPT(otp, {
-      type: ENUM_VERIFICATION_TYPE.SIGN_UP,
+      type: EnumVerificationMethod.SIGN_UP,
       phone: body.phone,
     })
     return { data: { status } }
@@ -285,7 +283,7 @@ export class MemberAuthController {
   @Post('/sign-up/request-token')
   async requestSignUpToken(@RequestBody() body: MemberRequestTokenDto): Promise<IResponseData> {
     const code = await this.authService.sendToken(body.email, {
-      type: ENUM_VERIFICATION_TYPE.SIGN_UP,
+      type: EnumVerificationMethod.SIGN_UP,
       subject: 'email.subject.signUp',
       template: 'email.sign-up.html',
     })
@@ -308,7 +306,7 @@ export class MemberAuthController {
     @RequestUserOTT() token: string,
   ): Promise<IResponseData> {
     const status = await this.authService.verifyToken(token, {
-      type: ENUM_VERIFICATION_TYPE.SIGN_UP,
+      type: EnumVerificationMethod.SIGN_UP,
       email: body.email,
     })
     return { data: { status } }
@@ -327,7 +325,7 @@ export class MemberAuthController {
   async requestResetPasswordOtp(@RequestBody() body: MemberRequestOTPDto): Promise<IResponseData> {
     const member = await this.authService.checkMember({ phone: body.phone })
     const code = await this.authService.sendOPT(body.phone, {
-      type: ENUM_VERIFICATION_TYPE.RESET_PASSWORD,
+      type: EnumVerificationMethod.RESET_PASSWORD,
       subject: 'email.subject.resetPassword',
       template: 'email.reset-password.html',
       language: member.locale,
@@ -353,7 +351,7 @@ export class MemberAuthController {
   ): Promise<IResponseData> {
     await this.authService.checkMember({ phone: body.phone })
     const status = await this.authService.verifyOPT(otp, {
-      type: ENUM_VERIFICATION_TYPE.RESET_PASSWORD,
+      type: EnumVerificationMethod.RESET_PASSWORD,
       phone: body.phone,
     })
     return { data: { status } }

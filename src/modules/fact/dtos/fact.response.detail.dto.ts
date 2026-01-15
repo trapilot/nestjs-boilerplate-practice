@@ -1,9 +1,9 @@
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
-import { ENUM_AUTH_LOGIN_FROM } from 'lib/nest-auth'
+import { EnumAuthLoginFrom } from 'lib/nest-auth'
 import { ToUrl } from 'lib/nest-core'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
-import { ENUM_FACT_TYPE } from '../enums'
+import { EnumFactType } from '../enums'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: 1 })
@@ -20,23 +20,23 @@ class ResponseDataDetailDto {
   content: any
 
   @Type(() => String)
-  @Expose({ groups: [ENUM_AUTH_LOGIN_FROM.CMS] })
-  type: ENUM_FACT_TYPE | null
+  @Expose({ groups: [EnumAuthLoginFrom.CMS] })
+  type: EnumFactType | null
 
   @Type(() => Number)
-  @Expose({ groups: [ENUM_AUTH_LOGIN_FROM.CMS] })
+  @Expose({ groups: [EnumAuthLoginFrom.CMS] })
   sorting: number
 
   @Type(() => Boolean)
-  @Expose({ groups: [ENUM_AUTH_LOGIN_FROM.CMS] })
+  @Expose({ groups: [EnumAuthLoginFrom.CMS] })
   isActive: boolean
 
   @Type(() => Date)
-  @Expose({ groups: [ENUM_AUTH_LOGIN_FROM.CMS] })
+  @Expose({ groups: [EnumAuthLoginFrom.CMS] })
   createdAt: Date
 
   @Type(() => Date)
-  @Expose({ groups: [ENUM_AUTH_LOGIN_FROM.CMS] })
+  @Expose({ groups: [EnumAuthLoginFrom.CMS] })
   updatedAt: Date
 
   @ToUrl()

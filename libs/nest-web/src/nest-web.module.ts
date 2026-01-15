@@ -1,31 +1,38 @@
 import {
   DynamicModule,
+  Inject,
   MiddlewareConsumer,
   Module,
   NestModule,
-  Provider,
+  RequestMethod,
   Type,
   ValidationPipe,
   ValidationPipeOptions,
 } from '@nestjs/common'
-import { Controller, ForwardReference } from '@nestjs/common/interfaces'
 import { ConfigService } from '@nestjs/config'
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler'
-import { FileUtil } from 'lib/nest-core'
+import {
+  FileUtil,
+  IModuleController,
+  IModuleExport,
+  IModuleImport,
+  IModuleProvider,
+  LoggerFactory,
+} from 'lib/nest-core'
 import { collectDefaultMetrics, Registry } from 'prom-client'
-import { REQUEST_METRICS_CONFIG_TOKEN } from './constants'
+import { REQUEST_LOGGER_OPTIONS, REQUEST_METRICS_OPTIONS } from './constants'
 import { HealthController, MetricsController } from './controllers'
 import { HttpExceptionFilter } from './filters'
 import { RequestContextInterceptor } from './interceptors'
-import { IRequestMetricsConfig } from './interfaces'
+import { IRequestLoggerOptions, IRequestMetricsOptions } from './interfaces'
 import {
   RequestBodyParserMiddleware,
+  RequestContextMiddleware,
   RequestCorsMiddleware,
   RequestPerformanceMiddleware,
   RequestSecurityMiddleware,
-  RequestUserAgentMiddleware,
 } from './middlewares'
 import { MetricsService, ReporterService } from './services'
 import {
@@ -47,32 +54,51 @@ import {
   StartWithConstraint,
 } from './validations'
 
-type ModuleImport = Type<any> | DynamicModule | Promise<DynamicModule> | ForwardReference
-type ModuleExport = DynamicModule | Type<any> | string | symbol | ForwardReference
-type ModuleController = Type<Controller>
-
 @Module({})
 export class NestWebModule implements NestModule {
+  constructor(
+    @Inject(REQUEST_LOGGER_OPTIONS) private readonly loggerOptions: IRequestLoggerOptions,
+    private readonly loggerFactory: LoggerFactory,
+  ) {}
+
   private static middlewareConfig?: (consumer: MiddlewareConsumer) => void
 
   static forRoot(options: {
+    admin: boolean
+    logger: IRequestLoggerOptions
+    metrics: IRequestMetricsOptions
     validator: ValidationPipeOptions
-    metrics?: IRequestMetricsConfig
-    middleware?: { imports?: any[]; configure: (consumer: MiddlewareConsumer) => void }
+    middleware: { imports: any[]; configure?: (consumer: MiddlewareConsumer) => void }
   }): DynamicModule {
-    const providers: Provider[] = []
-    const imports: ModuleImport[] = []
-    const exports: ModuleExport[] = []
-    const controllers: ModuleController[] = [HealthController]
+    const imports: IModuleImport[] = []
+    const exports: IModuleExport[] = []
+    const providers: IModuleProvider[] = []
+    const controllers: IModuleController[] = [HealthController]
+
+    if (options.admin) {
+      imports.push(
+        ServeStaticModule.forRoot({
+          rootPath: FileUtil.joinRoot(['public', 'admin']),
+          serveRoot: '/admin',
+        }),
+      )
+    }
 
     if (options.middleware) {
-      NestWebModule.middlewareConfig = options.middleware.configure
+      NestWebModule.middlewareConfig = options.middleware?.configure
       if (options.middleware.imports) {
         imports.push(...options.middleware.imports)
       }
     }
 
-    if (options?.metrics?.defaultMetricsEnabled) {
+    if (options.logger) {
+      providers.push({
+        provide: REQUEST_LOGGER_OPTIONS,
+        useValue: options.logger,
+      })
+    }
+
+    if (options.metrics) {
       const registry: Registry = new Registry()
 
       if (options.metrics.defaultLabels) {
@@ -86,8 +112,14 @@ export class NestWebModule implements NestModule {
       controllers.push(MetricsController)
       exports.push(ReporterService)
       providers.push(
-        { provide: Registry, useValue: registry },
-        { provide: REQUEST_METRICS_CONFIG_TOKEN, useValue: options.metrics },
+        {
+          provide: Registry,
+          useValue: registry,
+        },
+        {
+          provide: REQUEST_METRICS_OPTIONS,
+          useValue: options.metrics,
+        },
         MetricsService,
         ReporterService,
       )
@@ -135,16 +167,12 @@ export class NestWebModule implements NestModule {
       ],
       imports: [
         ...imports,
-        ServeStaticModule.forRoot({
-          rootPath: FileUtil.joinRoot(['public', 'admin']),
-          serveRoot: '/admin',
-        }),
         ThrottlerModule.forRootAsync({
           inject: [ConfigService],
           useFactory: (config: ConfigService): ThrottlerModuleOptions => [
             {
-              ttl: config.get<number>('middleware.throttle.ttl'),
-              limit: config.get<number>('middleware.throttle.limit'),
+              ttl: config.get<number>('request.throttle.ttl'),
+              limit: config.get<number>('request.throttle.limit'),
             },
           ],
         }),
@@ -155,13 +183,32 @@ export class NestWebModule implements NestModule {
   }
 
   configure(consumer: MiddlewareConsumer): void {
+    // Middleware add context
+    consumer.apply(RequestContextMiddleware).forRoutes('*')
+
+    // Middleware add logger
+    if (this.loggerOptions.autoLogging) {
+      const excludeRoutes = this.loggerOptions.excludeRoutes
+      const applyRoutes = this.loggerOptions.applyRoutes
+      const allRoutes = [{ path: '*', method: RequestMethod.ALL }]
+
+      excludeRoutes
+        ? consumer
+            .apply(this.loggerFactory.createHttpPino())
+            .exclude(...excludeRoutes)
+            .forRoutes(...(applyRoutes || allRoutes))
+        : consumer
+            .apply(this.loggerFactory.createHttpPino())
+            .forRoutes(...(applyRoutes || allRoutes))
+    }
+
+    // Default middleware (core-defined)
     consumer
       .apply(
         RequestCorsMiddleware,
         RequestSecurityMiddleware,
         RequestPerformanceMiddleware,
         RequestBodyParserMiddleware,
-        RequestUserAgentMiddleware,
       )
       .forRoutes('*')
 

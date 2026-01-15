@@ -1,4 +1,4 @@
-import { ENUM_API_KEY_TYPE } from '@runtime/prisma-client'
+import { EnumApiKeyType } from '@runtime/prisma-client'
 
 export const API_KEY_DOC_OPERATION = 'Api Key'
 
@@ -11,7 +11,7 @@ export const API_KEY_DOC_ADMIN_QUERY_LIST = [
     allowEmptyValue: true,
     required: false,
     type: () => String,
-    enum: ENUM_API_KEY_TYPE,
+    enum: EnumApiKeyType,
   },
   {
     name: 'isActive',

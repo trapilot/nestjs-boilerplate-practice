@@ -1,11 +1,11 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { ENUM_PRODUCT_EXPIRY } from '@runtime/prisma-client'
+import { EnumProductExpiryType } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
-import { ENUM_DATE_FORMAT, ToDecimal, ToLocaleField, ToUrl } from 'lib/nest-core'
+import { EnumDateFormat, ToDecimal, ToLocaleField, ToUrl } from 'lib/nest-core'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
-import { ProductBrandResponseBelongDto } from 'modules/product-brand/dtos'
-import { ProductCategoryResponseBelongDto } from 'modules/product-category/dtos'
+import { ProductBrandResponseBelongDto } from 'modules/product-brand'
+import { ProductCategoryResponseBelongDto } from 'modules/product-category'
 import { ToDynamicExpiryDate, ToInWishList, ToStaticExpiryDate } from '../transforms'
 
 class ResponseDataDetailDto {
@@ -94,10 +94,10 @@ class ResponseDataDetailDto {
   @Expose()
   duePaidDays: number
 
-  @ApiProperty({ enum: ENUM_PRODUCT_EXPIRY, example: ENUM_PRODUCT_EXPIRY.STATIC })
+  @ApiProperty({ enum: EnumProductExpiryType, example: EnumProductExpiryType.STATIC })
   @Type(() => String)
   @Expose()
-  expiryType: ENUM_PRODUCT_EXPIRY
+  expiryType: EnumProductExpiryType
 
   @ApiProperty({ example: 0 })
   @Type(() => Number)
@@ -105,12 +105,12 @@ class ResponseDataDetailDto {
   dynamicExpiryDays: number
 
   @ApiProperty({ example: faker.date.future() })
-  @ToDynamicExpiryDate({ format: ENUM_DATE_FORMAT.DATE })
+  @ToDynamicExpiryDate({ format: EnumDateFormat.DATE })
   @Expose()
   dynamicExpiryDate: string
 
   @ApiProperty({ example: faker.date.future() })
-  @ToStaticExpiryDate({ format: ENUM_DATE_FORMAT.DATE })
+  @ToStaticExpiryDate({ format: EnumDateFormat.DATE })
   @Expose()
   staticExpiryDate: string
 

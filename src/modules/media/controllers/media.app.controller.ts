@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { ENUM_MEDIA_TYPE, Prisma } from '@runtime/prisma-client'
-import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
+import { EnumMediaType, Prisma } from '@runtime/prisma-client'
+import { EnumAuthScopeType } from 'lib/nest-auth'
 import { ApiRequestList, IResponseList, RequestListDto, RequestQueryList } from 'lib/nest-web'
 import { MEDIA_DOC_APP_QUERY_LIST, MEDIA_DOC_OPERATION } from '../constants'
 import { MediaResponseListDto } from '../dtos'
@@ -21,7 +21,7 @@ export class MediaAppController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: false,
         require: false,
@@ -41,7 +41,7 @@ export class MediaAppController {
   ): Promise<IResponseList> {
     const _where: Prisma.MediaWhereInput = {
       ..._search,
-      type: ENUM_MEDIA_TYPE.BANNER,
+      type: EnumMediaType.BANNER,
     }
 
     const listing = await this.mediaService.list(_where, _params)
@@ -57,7 +57,7 @@ export class MediaAppController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: false,
         require: false,
@@ -77,7 +77,7 @@ export class MediaAppController {
   ): Promise<IResponseList> {
     const _where: Prisma.MediaWhereInput = {
       ..._search,
-      type: ENUM_MEDIA_TYPE.SLIDER,
+      type: EnumMediaType.SLIDER,
     }
 
     const listing = await this.mediaService.list(_where, _params)

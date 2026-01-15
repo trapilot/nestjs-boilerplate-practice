@@ -1,11 +1,11 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { ENUM_MEMBER_TYPE } from '@runtime/prisma-client'
+import { EnumMemberType } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
-import { ENUM_AUTH_LOGIN_FROM } from 'lib/nest-auth'
-import { APP_LANGUAGE, ENUM_DATE_FORMAT, ToDate, ToDecimal, ToUrl } from 'lib/nest-core'
+import { EnumAuthLoginFrom } from 'lib/nest-auth'
+import { APP_LANGUAGE, EnumDateFormat, ToDate, ToDecimal, ToUrl } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { TierResponseBelongDto } from 'modules/tier/dtos'
+import { TierResponseBelongDto } from 'modules/tier'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: faker.number.int({ min: 1, max: 100 }) })
@@ -23,10 +23,10 @@ class ResponseDataDetailDto {
   @Expose()
   code: string
 
-  @ApiProperty({ enum: ENUM_MEMBER_TYPE, example: ENUM_MEMBER_TYPE.NORMAL })
+  @ApiProperty({ enum: EnumMemberType, example: EnumMemberType.NORMAL })
   @Type(() => String)
   @Expose()
-  type: ENUM_MEMBER_TYPE
+  type: EnumMemberType
 
   @ApiProperty({ example: '' })
   @Type(() => String)
@@ -68,10 +68,10 @@ class ResponseDataDetailDto {
   @Expose()
   avatar: string
 
-  // @ApiProperty({ enum: ENUM_USER_GENDER })
+  // @ApiProperty({ enum: EnumUserType })
   // @Type(() => String)
   // @Expose()
-  // gender: ENUM_USER_GENDER
+  // gender: EnumUserType
 
   @ApiProperty({ example: faker.location.streetAddress(false) })
   @Type(() => String)
@@ -84,12 +84,12 @@ class ResponseDataDetailDto {
   referralCode: string
 
   @ApiProperty({ example: null })
-  @ToDate({ format: ENUM_DATE_FORMAT.DATE })
+  @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   birthDate: Date
 
   @ApiProperty({ example: null })
-  @ToDate({ format: ENUM_DATE_FORMAT.DATE })
+  @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   expiryDate: Date
 
@@ -114,7 +114,7 @@ class ResponseDataDetailDto {
   referralSpending: number
 
   @Type(() => String)
-  @Expose({ groups: [ENUM_AUTH_LOGIN_FROM.CMS] })
+  @Expose({ groups: [EnumAuthLoginFrom.CMS] })
   deletedReason: string[]
 
   @Type(() => Boolean)
@@ -147,17 +147,17 @@ class ResponseDataDetailDto {
 
   @ApiProperty({ example: true })
   @Type(() => Boolean)
-  @Expose({ groups: [ENUM_AUTH_LOGIN_FROM.CMS] })
+  @Expose({ groups: [EnumAuthLoginFrom.CMS] })
   isActive: boolean
 
   @ApiProperty({ example: faker.date.recent() })
   @Type(() => Date)
-  @Expose({ groups: [ENUM_AUTH_LOGIN_FROM.CMS] })
+  @Expose({ groups: [EnumAuthLoginFrom.CMS] })
   createdAt: Date
 
   @ApiProperty({ example: faker.date.soon() })
   @Type(() => Date)
-  @Expose({ groups: [ENUM_AUTH_LOGIN_FROM.CMS] })
+  @Expose({ groups: [EnumAuthLoginFrom.CMS] })
   updatedAt: Date
 }
 

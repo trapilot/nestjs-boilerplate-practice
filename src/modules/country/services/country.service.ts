@@ -14,22 +14,22 @@ export class CountryService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs: Prisma.CountryFindUniqueArgs): Promise<TCountry> {
-    return await this.prisma.client.country.findUnique(kwargs)
+    return await this.prisma.country.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.CountryFindFirstArgs = {}): Promise<TCountry> {
-    return await this.prisma.client.country.findFirst(kwargs)
+    return await this.prisma.country.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.CountryFindManyArgs = {}): Promise<TCountry[]> {
-    return await this.prisma.client.country.findMany(kwargs)
+    return await this.prisma.country.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.CountryFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TCountry> {
-    const country = await this.prisma.client.country
+    const country = await this.prisma.country
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -58,7 +58,7 @@ export class CountryService {
     where: Prisma.CountryWhereInput,
     kwargs: Omit<Prisma.CountryFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TCountry> {
-    const country = await this.prisma.client.country
+    const country = await this.prisma.country
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -74,7 +74,7 @@ export class CountryService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.country.list(where, params, options)
+    return await this.prisma.country.list(where, params, options)
   }
 
   async paginate(
@@ -82,11 +82,11 @@ export class CountryService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.country.paginate(where, params, options)
+    return await this.prisma.country.paginate(where, params, options)
   }
 
   async count(where: Prisma.CountryWhereInput = {}): Promise<number> {
-    return await this.prisma.client.country.count({
+    return await this.prisma.country.count({
       where,
     })
   }
@@ -95,14 +95,14 @@ export class CountryService {
     id: number,
     kwargs: Omit<Prisma.CountryFindUniqueArgs, 'where'> = {},
   ): Promise<TCountry> {
-    return await this.prisma.client.country.findUnique({
+    return await this.prisma.country.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.CountryUncheckedCreateInput): Promise<TCountry> {
-    const country = await this.prisma.client.country.create({
+    const country = await this.prisma.country.create({
       data,
     })
     return country
@@ -111,7 +111,7 @@ export class CountryService {
   async update(id: number, data: Prisma.CountryUncheckedUpdateInput): Promise<TCountry> {
     const country = await this.findOrFail(id)
 
-    return await this.prisma.client.country.update({
+    return await this.prisma.country.update({
       data,
       where: { id: country.id },
     })
@@ -119,7 +119,7 @@ export class CountryService {
 
   async delete(country: TCountry, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.client.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx) => {
         await tx.country.delete({ where: { id: country.id } })
       })
       return true

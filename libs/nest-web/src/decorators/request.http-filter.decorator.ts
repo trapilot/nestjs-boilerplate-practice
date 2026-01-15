@@ -1,7 +1,6 @@
 import {
   applyDecorators,
   Body,
-  Ip,
   Param,
   PipeTransform,
   Query,
@@ -38,10 +37,6 @@ import {
   RequestFilterSearchPipe,
   RequestFilterSomePipe,
 } from '../pipes'
-
-export function RequestUserIp(): ParameterDecorator {
-  return Ip()
-}
 
 export function RequestParamGuard(...classValidation: ClassConstructor<any>[]): MethodDecorator {
   return applyDecorators(SetMetadata(REQUEST_PARAM_CLASS_DTO_METADATA, classValidation))

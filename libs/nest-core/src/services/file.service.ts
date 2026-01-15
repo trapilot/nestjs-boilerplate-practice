@@ -206,15 +206,6 @@ export class FileService {
     return path
   }
 
-  async checkLink(path: string): Promise<string> {
-    try {
-      if (fs.existsSync(path)) {
-        return path
-      }
-    } catch {}
-    return null
-  }
-
   async unlink(path: string): Promise<boolean> {
     if (path) {
       try {
@@ -226,11 +217,6 @@ export class FileService {
       }
     }
     return true
-  }
-
-  fullLink(path: string): string {
-    const fullPath = FileUtil.join([process.cwd(), path])
-    return fullPath
   }
 
   ensureLink(path: string): boolean {
@@ -324,7 +310,7 @@ export class FileService {
 
   async handleHEVC(filePath: string, outputPath?: string): Promise<boolean> {
     if (!outputPath) {
-      const fileExtension = FileUtil.parseExtension(filePath)
+      const fileExtension = FileUtil.extractExtensionFromFilename(filePath)
       outputPath = FileUtil.joinRoot(['public', 'temporary', `${uuidv7()}.${fileExtension}`])
     }
 

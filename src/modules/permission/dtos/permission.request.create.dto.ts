@@ -11,31 +11,27 @@ import {
 } from 'class-validator'
 import { ToArray, ToBoolean, ToNumber, ToObject, ToString } from 'lib/nest-core'
 import { RequestSentenceDto } from 'lib/nest-web'
-import {
-  ENUM_APP_ABILITY_ACTION,
-  ENUM_APP_ABILITY_CONTEXT,
-  ENUM_APP_ABILITY_SUBJECT,
-} from 'shared/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilityContext, EnumAuthAbilitySubject } from 'shared/enums'
 
 export class PermissionRequestCreateDto {
   @IsOptional()
-  @IsEnum(ENUM_APP_ABILITY_CONTEXT)
+  @IsEnum(EnumAuthAbilityContext)
   @ToString()
-  @ApiProperty({ required: false, enum: ENUM_APP_ABILITY_CONTEXT })
-  context: ENUM_APP_ABILITY_CONTEXT
+  @ApiProperty({ required: false, enum: EnumAuthAbilityContext })
+  context: EnumAuthAbilityContext
 
   @IsNotEmpty()
-  @IsEnum(ENUM_APP_ABILITY_SUBJECT)
+  @IsEnum(EnumAuthAbilitySubject)
   @ToString()
-  @ApiProperty({ required: true, enum: ENUM_APP_ABILITY_SUBJECT })
-  subject: ENUM_APP_ABILITY_SUBJECT
+  @ApiProperty({ required: true, enum: EnumAuthAbilitySubject })
+  subject: EnumAuthAbilitySubject
 
   @IsNotEmpty()
   @ArrayNotEmpty()
   @IsArray()
-  @ToArray({ type: ENUM_APP_ABILITY_ACTION })
-  @ApiProperty({ required: true, isArray: true, enum: ENUM_APP_ABILITY_ACTION })
-  actions: ENUM_APP_ABILITY_ACTION[]
+  @ToArray({ type: EnumAuthAbilityAction })
+  @ApiProperty({ required: true, isArray: true, enum: EnumAuthAbilityAction })
+  actions: EnumAuthAbilityAction[]
 
   @IsNotEmpty()
   @IsObject()

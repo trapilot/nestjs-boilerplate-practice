@@ -3,7 +3,8 @@ import { ENV } from '../config/env'
 import { getAccessToken, setAccessToken } from '../hooks/useAuthToken'
 import i18n from '../i18n'
 import { authenticationService } from '../services'
-import { getTimezone, nowISO } from '../utils/time'
+import { createCorrelationId, generateNonce } from '../utils/crypto'
+import { getTimezone, nowUnixTimesstamp } from '../utils/time'
 import { ApiError } from './apiError'
 import { setLastMetadata } from './responseMetadata'
 
@@ -56,39 +57,37 @@ type IResponseBody<T = any> = ISuccessResponse<T> | IErrorResponse
 // Common header injector
 function attachCommonHeaders(config: any) {
   config.headers = config.headers || {}
+
   let language: string | null = i18n.language || 'en'
   try {
     const storedLang = localStorage.getItem('language')
     language = storedLang
   } catch {}
 
+  config.headers['x-nonce'] = generateNonce()
   config.headers['x-language'] = language
-  config.headers['x-timestamp'] = nowISO()
+  config.headers['x-timestamp'] = nowUnixTimesstamp()
   config.headers['x-timezone'] = getTimezone()
   config.headers['x-version'] = ENV.version
+  if (!config.headers['x-correlation-id']) {
+    config.headers['x-correlation-id'] = createCorrelationId()
+  }
+  if (!ENV.tenantId) {
+    config.headers['x-tenant-id'] = ENV.tenantId
+  }
+
   return config
 }
 
-// Centralized response handler
-function handleResponse(response: AxiosResponse<IResponseBody>) {
-  const responseBody = response.data
-  if (responseBody.success) {
-    // Capture metadata globally for downstream usage (e.g., pagination)
-    try {
-      setLastMetadata(responseBody.metadata as any)
-    } catch {}
-    return responseBody.result
-  } else {
-    return Promise.reject(new ApiError({ ...responseBody.error, status: response.status }))
-  }
-}
-
+// --- Axios Instances ---
+const privateAxios = axios.create({
+  baseURL: ENV.apiBaseURL,
+  withCredentials: false,
+})
 const publicAxios = axios.create({
   baseURL: ENV.apiBaseURL,
   withCredentials: false,
 })
-publicAxios.interceptors.request.use(attachCommonHeaders)
-publicAxios.interceptors.response.use(handleResponse, (error: AxiosError) => Promise.reject(error))
 
 // --- Refresh Token Logic ---
 let isRefreshing = false
@@ -101,10 +100,9 @@ function processQueue(error: any, token: string | null = null) {
   failedQueue = []
 }
 
-const privateAxios = axios.create({
-  baseURL: ENV.apiBaseURL,
-  withCredentials: false,
-})
+publicAxios.interceptors.request.use(attachCommonHeaders)
+publicAxios.interceptors.response.use(handleResponse, (error: AxiosError) => Promise.reject(error))
+
 privateAxios.interceptors.request.use((config) => {
   config = attachCommonHeaders(config)
   const token = getAccessToken()
@@ -158,4 +156,23 @@ privateAxios.interceptors.response.use(
   },
 )
 
-export { publicAxios as _publicAxios, privateAxios as _privateAxios }
+// Centralized response handler
+function handleResponse(response: AxiosResponse<IResponseBody>) {
+  const responseBody = response.data
+  if (responseBody.success) {
+    // Capture metadata globally for downstream usage (e.g., pagination)
+    try {
+      setLastMetadata(responseBody.metadata as any)
+    } catch {}
+    return responseBody.result
+  } else {
+    return Promise.reject(new ApiError({ ...responseBody.error, status: response.status }))
+  }
+}
+
+export const setCorrelationId = (correlationId: string) => {
+  privateAxios.defaults.headers.common['x-correlation-id'] = correlationId
+  publicAxios.defaults.headers.common['x-correlation-id'] = correlationId
+}
+
+export { privateAxios as _privateAxios, publicAxios as _publicAxios }

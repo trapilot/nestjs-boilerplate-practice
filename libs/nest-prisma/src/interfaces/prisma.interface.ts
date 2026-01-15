@@ -1,46 +1,26 @@
-import { Prisma } from '@runtime/prisma-client'
-import { ENUM_FILE_BOOK_TYPE, IReturnIterator, IReturnList, IReturnPaging } from 'lib/nest-core'
-import { applyExtensions } from '../extensions'
-
-export type ClientWithExtends = ReturnType<typeof applyExtensions>
-
-export type ClientProvider = 'postgresql' | 'mysql'
-
-export interface IPrismaContext {
-  tenantId?: string
-  forcePrimary?: boolean
-}
+import {
+  EnumFileExtensionDocument,
+  IDatabaseProvider,
+  IReturnIterator,
+  IReturnList,
+  IReturnPaging,
+} from 'lib/nest-core'
 
 export interface IPrismaModuleOptions {
   replication: boolean
   multiTenant: boolean
 }
 
-export interface IPrismaClientConfigOptions {
-  key?: string
-  provider: ClientProvider
-  master: string
-  slaves?: string[]
-  replication?: boolean
-}
-
-export interface IPrismaLoggerHooks {
-  logLevels: Prisma.LogDefinition[]
-  onQuery?: (event: Prisma.QueryEvent, metadata?: { manager: string; tenantId?: string }) => void
-  onError?: (event: Prisma.LogEvent, metadata?: { manager: string; tenantId?: string }) => void
-  onWarn?: (event: Prisma.LogEvent, metadata?: { manager: string; tenantId?: string }) => void
-  onInfo?: (event: Prisma.LogEvent, metadata?: { manager: string; tenantId?: string }) => void
+export interface IPrismaClientOptions {
+  provider: IDatabaseProvider
+  writeUrl: string
+  readUrls: string[]
+  replication: boolean
+  debugMode: boolean
 }
 
 export interface IPrismaAdapterCreateOptions {
   url: string
-}
-
-export interface IPrismaClientCreateOptions {
-  writeUrl: string
-  readUrls: string[]
-  replication: boolean
-  loggerHooks: IPrismaLoggerHooks
 }
 
 export interface IPrismaLanguageBuildOptions<T> {
@@ -59,7 +39,7 @@ export interface IPrismaParams {
 export interface IPrismaOptions<T = any> {
   select?: T
   include?: T
-  bookType?: ENUM_FILE_BOOK_TYPE
+  document?: EnumFileExtensionDocument
 }
 
 export interface IPrismaIterator {

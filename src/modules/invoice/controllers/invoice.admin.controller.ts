@@ -1,8 +1,8 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { ENUM_FILE_BOOK_TYPE } from 'lib/nest-core'
+import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
+import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -16,7 +16,7 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { INVOICE_DOC_ADMIN_QUERY_LIST, INVOICE_DOC_OPERATION } from '../constants'
 import {
   InvoiceRequestCreateDto,
@@ -40,14 +40,14 @@ export class InvoiceAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.INVOICE,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.INVOICE,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -64,7 +64,7 @@ export class InvoiceAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: ENUM_FILE_BOOK_TYPE,
+    @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
     const _where: Prisma.InvoiceWhereInput = {
       ..._search,
@@ -75,7 +75,7 @@ export class InvoiceAdminController {
     }
 
     const pagination = await this.invoiceService.paginate(_where, _params, {
-      bookType,
+      document: bookType,
       include: _include,
     })
     return pagination
@@ -90,7 +90,7 @@ export class InvoiceAdminController {
     docExclude: true,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: false,
@@ -126,14 +126,14 @@ export class InvoiceAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.INVOICE,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.INVOICE,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -161,15 +161,15 @@ export class InvoiceAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.INVOICE,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.CREATE],
+            subject: EnumAuthAbilitySubject.INVOICE,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.CREATE],
           },
         ],
       },
@@ -192,15 +192,15 @@ export class InvoiceAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.INVOICE,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.INVOICE,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -226,15 +226,15 @@ export class InvoiceAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.INVOICE,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.DELETE],
+            subject: EnumAuthAbilitySubject.INVOICE,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.DELETE],
           },
         ],
       },

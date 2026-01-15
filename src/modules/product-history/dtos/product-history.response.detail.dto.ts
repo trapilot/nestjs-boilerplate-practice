@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { ENUM_REDEMPTION_SOURCE, ENUM_REDEMPTION_STATUS } from '@runtime/prisma-client'
+import { EnumRedemptionSource, EnumRedemptionStatus } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
-import { ENUM_DATE_FORMAT, ToDate, ToDecimal } from 'lib/nest-core'
+import { EnumDateFormat, ToDate, ToDecimal } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { MemberResponseBelongDto } from 'modules/member/dtos'
-import { OrderResponseBelongDto } from 'modules/order/dtos'
-import { ProductResponseBelongDto } from 'modules/product/dtos'
+import { MemberResponseBelongDto } from 'modules/member'
+import { OrderResponseBelongDto } from 'modules/order'
+import { ProductResponseBelongDto } from 'modules/product'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
@@ -44,12 +44,12 @@ class ResponseDataDetailDto {
   @Expose()
   redeemPoint: number
 
-  @ApiProperty({ example: ENUM_REDEMPTION_SOURCE.ORDER })
+  @ApiProperty({ example: EnumRedemptionSource.ORDER })
   @Type(() => String)
   @Expose()
   source: string
 
-  @ApiProperty({ example: ENUM_REDEMPTION_STATUS.APPROVED })
+  @ApiProperty({ example: EnumRedemptionStatus.APPROVED })
   @Type(() => String)
   @Expose()
   status: string
@@ -60,27 +60,27 @@ class ResponseDataDetailDto {
   isActive: boolean
 
   @ApiProperty({ example: faker.date.past() })
-  @ToDate({ format: ENUM_DATE_FORMAT.DATE })
+  @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   startDate: Date
 
   @ApiProperty({ example: faker.date.future() })
-  @ToDate({ format: ENUM_DATE_FORMAT.DATE })
+  @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   untilDate: Date
 
   @ApiProperty({ example: faker.date.future() })
-  @ToDate({ format: ENUM_DATE_FORMAT.DATE })
+  @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   expiryDate: Date
 
   @ApiProperty({ example: faker.date.past() })
-  @ToDate({ format: ENUM_DATE_FORMAT.DATE, ref: 'issuedAt' })
+  @ToDate({ format: EnumDateFormat.DATE, ref: 'issuedAt' })
   @Expose()
   issuedDate: Date
 
   @ApiProperty({ example: faker.date.past() })
-  @ToDate({ format: ENUM_DATE_FORMAT.DATE, ref: 'usedAt' })
+  @ToDate({ format: EnumDateFormat.DATE, ref: 'usedAt' })
   @Expose()
   usedDate: Date
 

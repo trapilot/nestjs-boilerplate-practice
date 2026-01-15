@@ -1,22 +1,25 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common'
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import {
-  AppContext,
+  AppUtil,
   HelperService,
   IMessageError,
   IMessageProperties,
   IRequestApp,
   IResponseApp,
+  LoggerService,
   MessageService,
   ResponseErrorDto,
   ResponseMetadataDto,
+  ScopeContext,
 } from 'lib/nest-core'
 import { IResponseException } from '../interfaces'
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   constructor(
-    private readonly messageService: MessageService,
+    private readonly logger: LoggerService,
+    private readonly message: MessageService,
     private readonly helperService: HelperService,
   ) {}
 
@@ -25,15 +28,18 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const req: IRequestApp = ctx.getRequest<IRequestApp>()
     const res: IResponseApp = ctx.getResponse<IResponseApp>()
 
+    // capture
+    this.captureException(exception)
+
     // metadata
-    const dateNow = this.helperService.dateCreate()
-    const ctxData = AppContext.current()
+    const nowDate = this.helperService.dateNow()
+    const ctxData = ScopeContext.getReqData()
     let metadata: ResponseMetadataDto = {
       path: req.path,
-      language: ctxData?.language ?? AppContext.language(),
-      timezone: ctxData?.timezone ?? AppContext.timezone(),
-      version: ctxData?.apiVersion ?? AppContext.apiVersion(),
-      timestamp: this.helperService.dateGetTimestamp(dateNow),
+      language: ctxData.language,
+      timezone: ctxData.timezone,
+      version: ctxData.version,
+      timestamp: this.helperService.dateGetTimestamp(nowDate),
     }
 
     if (req.__filters) {
@@ -57,27 +63,24 @@ export class HttpExceptionFilter implements ExceptionFilter {
     // restructure
     const responseException = exception.getResponse()
     if (this.isExceptionError(responseException)) {
-      const { metadata: _metadata } = responseException
-
       statusCode = responseException.statusCode
       messagePath = responseException.message
-      messageProperties = _metadata?.customProperty?.messageProperties
-      delete _metadata?.customProperty
+      messageProperties = responseException.messageProperties
 
       metadata = {
+        ...responseException.metadata,
         ...metadata,
-        ..._metadata,
       }
 
       // errors
       if (this.hasResponseErrors(responseException)) {
-        messageDetails = this.messageService.setValidationMessage(responseException.errors, {
+        messageDetails = this.message.setValidationMessage(responseException.errors, {
           customLanguage: metadata.language,
         })
       }
     }
 
-    const message = this.messageService.setMessage(messagePath, {
+    const message = this.message.setMessage(messagePath, {
       customLanguage: metadata.language,
       properties: messageProperties,
     })
@@ -108,5 +111,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   private hasResponseErrors(obj: IResponseException): boolean {
     return 'errors' in obj && obj.errors.length > 0
+  }
+
+  captureException(exception: unknown): void {
+    try {
+      this.logger.error(exception)
+      AppUtil.captureException(exception)
+    } catch (err: unknown) {
+      console.log({ err })
+    }
+
+    return
   }
 }

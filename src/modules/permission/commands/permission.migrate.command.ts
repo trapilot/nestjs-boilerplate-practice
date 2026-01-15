@@ -1,9 +1,8 @@
-import { Logger } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
-import { HelperService, NEST_CLI } from 'lib/nest-core'
+import { EnumScopeType, HelperService, LoggerService, ScopeAsync } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner } from 'nest-commander'
-import { ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { EnumAuthAbilitySubject } from 'shared/enums'
 import { UserAbilityUtil } from 'shared/helpers'
 
 @Command({
@@ -11,53 +10,59 @@ import { UserAbilityUtil } from 'shared/helpers'
   description: 'Migrate permissions',
 })
 export class PermissionMigrateCommand extends CommandRunner {
-  private readonly logger = new Logger(NEST_CLI)
-
   constructor(
     private readonly prisma: PrismaService,
+    private readonly logger: LoggerService,
     private readonly helperService: HelperService,
   ) {
     super()
   }
 
+  @ScopeAsync(EnumScopeType.COMMAND, { context: 'seed' })
   async run(): Promise<void> {
-    this.logger.warn(`${PermissionMigrateCommand.name} is running...`)
+    this.logger.log(`${PermissionMigrateCommand.name} is running...`)
 
     try {
-      const updatedAt = this.helperService.dateCreate()
-      const permissions = this.getAllPermissions()
-
-      await this.cleanAllPermissions()
-
-      for (const permission of permissions) {
-        const sorting = this.getSorting(permission)
-
-        await this.prisma.client.permission.upsert({
-          where: { subject: permission.subject },
-          update: { ...permission, sorting, updatedAt },
-          create: { ...permission, sorting, updatedAt },
-        })
-      }
-
-      await this.prisma.client.$transaction(async (tx) => {
-        const removes = await tx.permission.findMany({
-          where: { updatedAt: { lt: updatedAt } },
-        })
-        const permissionIds = removes.map((p) => p.id)
-        await tx.rolesPermissions.deleteMany({
-          where: { permissionId: { in: permissionIds } },
-        })
-        await tx.permission.deleteMany({
-          where: { id: { in: permissionIds } },
-        })
-      })
+      await this.migrate()
     } catch (err: any) {
-      throw err
+      this.logger.error(err)
+    } finally {
+      this.logger.log(`${PermissionMigrateCommand.name} stoped`)
     }
     return
   }
 
-  getSorting(permission: Prisma.PermissionUncheckedCreateInput): number {
+  async migrate() {
+    const updatedAt = this.helperService.dateNow()
+    const permissions = this.getAllPermissions()
+
+    await this.prisma.$executeRaw`UPDATE permissions SET title = NULL, context = NULL`
+
+    for (const permission of permissions) {
+      const sorting = this.getSorting(permission)
+
+      await this.prisma.permission.upsert({
+        where: { subject: permission.subject },
+        update: { ...permission, sorting, updatedAt },
+        create: { ...permission, sorting, updatedAt },
+      })
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      const removes = await tx.permission.findMany({
+        where: { updatedAt: { lt: updatedAt } },
+      })
+      const permissionIds = removes.map((p) => p.id)
+      await tx.rolesPermissions.deleteMany({
+        where: { permissionId: { in: permissionIds } },
+      })
+      await tx.permission.deleteMany({
+        where: { id: { in: permissionIds } },
+      })
+    })
+  }
+
+  private getSorting(permission: Prisma.PermissionUncheckedCreateInput): number {
     let sorting = 10
     const contexts = UserAbilityUtil.getContexts()
     for (const context in contexts) {
@@ -71,13 +76,13 @@ export class PermissionMigrateCommand extends CommandRunner {
     return sorting
   }
 
-  getAllPermissions() {
+  private getAllPermissions() {
     const _disables = UserAbilityUtil.getDisablePerms()
     const _invisibles = UserAbilityUtil.getInvisiblePerms()
 
     const permissions: Prisma.PermissionUncheckedCreateInput[] = []
 
-    Object.values(ENUM_APP_ABILITY_SUBJECT).forEach((subject) => {
+    Object.values(EnumAuthAbilitySubject).forEach((subject) => {
       const actions = UserAbilityUtil.getSubjectActions(subject)
       permissions.push({
         subject: subject.toString(),
@@ -89,9 +94,5 @@ export class PermissionMigrateCommand extends CommandRunner {
       })
     })
     return permissions
-  }
-
-  async cleanAllPermissions() {
-    await this.prisma.client.$executeRaw`UPDATE permissions SET title = NULL, context = NULL`
   }
 }

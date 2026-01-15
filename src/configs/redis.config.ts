@@ -1,45 +1,29 @@
 import { registerAs } from '@nestjs/config'
-import { StrUtil } from 'lib/nest-core'
+import { IConfigRedis } from 'lib/nest-core'
 
 export default registerAs(
   'redis',
-  (): Record<string, any> => ({
+  (): IConfigRedis => ({
     cache: {
-      host: process.env.REDIS_HOST,
-      port: StrUtil.numeric(process.env.REDIS_PORT),
-      password: process.env.REDIS_PASSWORD,
-      username: process.env.REDIS_USERNAME,
-      database: 0,
-      ttl: 5 * 1000, // 5 mins
-      max: 10,
+      url: process.env.CACHE_REDIS_URL,
+      namespace: 'Cache',
+      ttl: 5 * 60 * 1000,
     },
     queue: {
-      host: process.env.REDIS_HOST,
-      port: StrUtil.numeric(process.env.REDIS_PORT),
-      password: process.env.REDIS_PASSWORD,
-      username: process.env.REDIS_USERNAME,
-      database: 1,
+      url: process.env.QUEUE_REDIS_URL,
+      namespace: 'Queue',
     },
     pubsub: {
-      host: process.env.REDIS_HOST,
-      port: StrUtil.numeric(process.env.REDIS_PORT),
-      password: process.env.REDIS_PASSWORD,
-      username: process.env.REDIS_USERNAME,
-      database: 2,
+      url: process.env.PUBSUB_REDIS_URL,
+      namespace: 'Pubsub',
     },
     realtime: {
-      host: process.env.REDIS_HOST,
-      port: StrUtil.numeric(process.env.REDIS_PORT),
-      password: process.env.REDIS_PASSWORD,
-      username: process.env.REDIS_USERNAME,
-      database: 3,
+      url: process.env.REALTIME_REDIS_URL,
+      namespace: 'Realtime',
     },
     stream: {
-      host: process.env.REDIS_HOST,
-      port: StrUtil.numeric(process.env.REDIS_PORT),
-      password: process.env.REDIS_PASSWORD,
-      username: process.env.REDIS_USERNAME,
-      database: 4,
+      url: process.env.STREAM_REDIS_URL,
+      namespace: 'Stream',
     },
   }),
 )

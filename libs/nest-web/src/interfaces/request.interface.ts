@@ -1,4 +1,5 @@
 import { PipeTransform, Type } from '@nestjs/common'
+import { RouteInfo } from '@nestjs/common/interfaces'
 import {
   ApiBodyOptions,
   ApiHeaderOptions,
@@ -7,7 +8,7 @@ import {
   ApiQueryOptions,
 } from '@nestjs/swagger'
 import { ClassConstructor } from 'class-transformer'
-import { ENUM_AUTH_SCOPE_TYPE, IAuthAbility } from 'lib/nest-auth'
+import { EnumAuthScopeType, IAuthAbility } from 'lib/nest-auth'
 import {
   IFileUploadMultiple,
   IFileUploadMultipleField,
@@ -15,7 +16,7 @@ import {
   IFileUploadSingle,
   IStringParse,
 } from 'lib/nest-core'
-import { ENUM_REQUEST_BODY_TYPE } from '../enums'
+import { EnumRequestBodyType } from '../enums'
 import {
   IResponseDataOptions,
   IResponseFileOptions,
@@ -55,9 +56,9 @@ export interface IRequestFilterEnumOptions extends IRequestFilterOptions {
   defaultValue?: any
 }
 
-export interface IRequestMetricsConfig {
-  defaultLabels?: Record<string, string>
-  defaultMetricsEnabled?: boolean
+export interface IRequestMetricsOptions {
+  defaultLabels: Record<string, string>
+  defaultMetricsEnabled: boolean
   interceptors?: Type<any>[]
   pushgatewayUrl?: string
   pushgatewayOptions?: {
@@ -70,6 +71,12 @@ export interface IRequestMetricsConfig {
   }
 }
 
+export interface IRequestLoggerOptions {
+  autoLogging: boolean
+  applyRoutes?: RouteInfo[]
+  excludeRoutes?: RouteInfo[]
+}
+
 export interface IRequestAuthOptions {
   apiKey?: boolean
   google?: boolean
@@ -77,7 +84,7 @@ export interface IRequestAuthOptions {
   jwtRefreshToken?: boolean
   jwtAccessToken?: {
     guards?: ClassConstructor<any>[]
-    scope: ENUM_AUTH_SCOPE_TYPE
+    scope: EnumAuthScopeType
     user: {
       synchronize: boolean
       require: boolean
@@ -92,9 +99,9 @@ export interface IRequestAuthOptions {
 export interface IRequestGuardOptions {
   userOTP?: boolean
   userOTT?: boolean
+  userType?: boolean
   userAgent?: boolean
   userToken?: boolean
-  userGender?: boolean
   cartVersion?: boolean
   language?: boolean
   timezone?: boolean
@@ -115,7 +122,7 @@ export interface IRequestOptions
   headers?: ApiHeaderOptions[]
   params?: ApiParamOptions[]
   queries?: ApiQueryOptions[]
-  body?: { type?: ENUM_REQUEST_BODY_TYPE; dto?: ApiBodyOptions }
+  body?: { type?: EnumRequestBodyType; dto?: ApiBodyOptions }
   file?: {
     single?: IFileUploadSingle
     multiple?: IFileUploadMultiple

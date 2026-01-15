@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common'
-import { ENUM_INVOICE_STATUS } from '@runtime/prisma-client'
+import { EnumInvoiceStatus } from '@runtime/prisma-client'
 import { HelperService } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { TDashboard } from '../interfaces'
@@ -24,30 +24,30 @@ export class DashboardService implements OnModuleInit {
       totalPaidInvoices,
       totalCancelInvoices,
     ] = await Promise.all([
-      this.prisma.client.member.count({ where: { createdAt: { gte: startTime, lte: untilTime } } }),
-      this.prisma.client.invoice.count({
+      this.prisma.member.count({ where: { createdAt: { gte: startTime, lte: untilTime } } }),
+      this.prisma.invoice.count({
         where: {
           createdAt: { gte: startTime, lte: untilTime },
-          status: ENUM_INVOICE_STATUS.PENDING,
+          status: EnumInvoiceStatus.PENDING,
         },
       }),
-      this.prisma.client.invoice.count({
+      this.prisma.invoice.count({
         where: {
           createdAt: { gte: startTime, lte: untilTime },
-          status: ENUM_INVOICE_STATUS.PARTIALLY_PAID,
+          status: EnumInvoiceStatus.PARTIALLY_PAID,
         },
       }),
       ,
-      this.prisma.client.invoice.count({
+      this.prisma.invoice.count({
         where: {
           createdAt: { gte: startTime, lte: untilTime },
-          status: ENUM_INVOICE_STATUS.FULLY_PAID,
+          status: EnumInvoiceStatus.FULLY_PAID,
         },
       }),
-      this.prisma.client.invoice.count({
+      this.prisma.invoice.count({
         where: {
           createdAt: { gte: startTime, lte: untilTime },
-          status: ENUM_INVOICE_STATUS.CANCELED,
+          status: EnumInvoiceStatus.CANCELED,
         },
       }),
     ])

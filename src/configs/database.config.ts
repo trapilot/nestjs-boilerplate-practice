@@ -1,9 +1,9 @@
 import { registerAs } from '@nestjs/config'
-import { StrUtil } from 'lib/nest-core'
+import { IConfigDatabase, StrUtil } from 'lib/nest-core'
 
 export default registerAs(
   'database',
-  (): Record<string, any> => ({
+  (): IConfigDatabase => ({
     debug: StrUtil.isTrue(process.env.DATABASE_DEBUG),
     replication: {
       provider: 'mysql',
@@ -13,6 +13,5 @@ export default registerAs(
         allowEmpty: false,
       }),
     },
-    tenant: [],
   }),
 )

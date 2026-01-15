@@ -1,8 +1,13 @@
 import { Controller, Get, Post, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { AuthJwtPayload, AuthService, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { ENUM_FILE_BOOK_TYPE, IFile } from 'lib/nest-core'
+import { AuthJwtPayload, AuthUtil, EnumAuthScopeType } from 'lib/nest-auth'
+import {
+  EnumFileExtensionDocument,
+  EnumFileExtensionImage,
+  FileExtensionPipe,
+  IFile,
+} from 'lib/nest-core'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -12,20 +17,18 @@ import {
   IResponsePaging,
   RequestBody,
   RequestBookType,
-  RequestFileRequiredPipe,
-  RequestFileTypePipe,
   RequestFilterDto,
   RequestListDto,
   RequestParam,
   RequestQueryFilterContain,
   RequestQueryFilterInBoolean,
   RequestQueryList,
+  RequestRequiredPipe,
 } from 'lib/nest-web'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import {
   MEMBER_DOC_ADMIN_QUERY_LIST,
   MEMBER_DOC_OPERATION,
-  MEMBER_UPLOAD_AVATAR_MIME,
   MEMBER_UPLOAD_IMAGE_PATH,
 } from '../constants'
 import {
@@ -42,7 +45,7 @@ import { MemberService } from '../services'
 @Controller({ path: '/members' })
 export class MemberAdminController {
   constructor(
-    protected readonly authService: AuthService,
+    protected readonly authUtil: AuthUtil,
     protected readonly memberService: MemberService,
   ) {}
 
@@ -55,14 +58,14 @@ export class MemberAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.MEMBER,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.MEMBER,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -79,7 +82,7 @@ export class MemberAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: ENUM_FILE_BOOK_TYPE,
+    @RequestBookType() bookType: EnumFileExtensionDocument,
     @RequestQueryFilterContain('phone') _phone: RequestFilterDto,
     @RequestQueryFilterContain('email') _email: RequestFilterDto,
     @RequestQueryFilterContain('name') _name: RequestFilterDto,
@@ -100,7 +103,7 @@ export class MemberAdminController {
     }
 
     const pagination = await this.memberService.paginate(_where, _params, {
-      bookType,
+      document: bookType,
       include: _include,
     })
 
@@ -119,7 +122,7 @@ export class MemberAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: false,
@@ -159,14 +162,14 @@ export class MemberAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.MEMBER,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.MEMBER,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -202,15 +205,15 @@ export class MemberAdminController {
       },
     },
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.MEMBER,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.CREATE],
+            subject: EnumAuthAbilitySubject.MEMBER,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.CREATE],
           },
         ],
       },
@@ -223,9 +226,17 @@ export class MemberAdminController {
   async create(
     @RequestBody() body: MemberRequestCreateDto,
     @AuthJwtPayload('user.id') createdBy: number,
-    @UploadedFile(new RequestFileTypePipe(MEMBER_UPLOAD_AVATAR_MIME)) file: IFile,
+    @UploadedFile(
+      RequestRequiredPipe,
+      FileExtensionPipe([
+        EnumFileExtensionImage.JPEG,
+        EnumFileExtensionImage.JPG,
+        EnumFileExtensionImage.PNG,
+      ]),
+    )
+    file: IFile,
   ): Promise<IResponseData> {
-    const passwordHash = this.authService.createPassword(body.password)
+    const passwordHash = this.authUtil.createPassword(body.password)
     const member = await this.memberService.create(
       { ...body, avatar: file?.path ?? undefined, createdBy },
       passwordHash,
@@ -241,15 +252,15 @@ export class MemberAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.MEMBER,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.MEMBER,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -266,7 +277,7 @@ export class MemberAdminController {
   ): Promise<IResponseData> {
     let password = undefined
     if (body?.password) {
-      const authHash = this.authService.createPassword(body.password)
+      const authHash = this.authUtil.createPassword(body.password)
       password = authHash.passwordHash
     }
 
@@ -282,15 +293,15 @@ export class MemberAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.MEMBER,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.MEMBER,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -310,15 +321,15 @@ export class MemberAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.MEMBER,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.MEMBER,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -344,15 +355,15 @@ export class MemberAdminController {
       },
     },
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.MEMBER,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.MEMBER,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -367,8 +378,12 @@ export class MemberAdminController {
     @RequestParam('id') memberId: number,
     @AuthJwtPayload('user.id') updatedBy: number,
     @UploadedFile(
-      new RequestFileRequiredPipe('avatar'),
-      new RequestFileTypePipe(MEMBER_UPLOAD_AVATAR_MIME),
+      RequestRequiredPipe,
+      FileExtensionPipe([
+        EnumFileExtensionImage.JPEG,
+        EnumFileExtensionImage.JPG,
+        EnumFileExtensionImage.PNG,
+      ]),
     )
     file: IFile,
   ): Promise<IResponseData> {
@@ -388,15 +403,15 @@ export class MemberAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.MEMBER,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.MEMBER,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },

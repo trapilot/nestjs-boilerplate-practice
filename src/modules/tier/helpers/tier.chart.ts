@@ -1,6 +1,6 @@
-import { ENUM_TIER_CODE } from 'lib/nest-core'
-import { InvoiceData } from 'modules/invoice/helpers'
-import { MemberData } from 'modules/member/helpers'
+import { EnumTierCode } from 'lib/nest-core'
+import { InvoiceData } from 'modules/invoice'
+import { MemberData } from 'modules/member'
 import { TTier, TTierChart } from '../interfaces'
 import { TierData, TierValue } from './tier.data'
 
@@ -150,7 +150,7 @@ export class TierChart {
 
   getNormalTier(): TTier {
     for (const tierId in this.infos) {
-      if (this.infos[tierId].code === ENUM_TIER_CODE.NORMAL) {
+      if (this.infos[tierId].code === EnumTierCode.NORMAL) {
         return this.infos[tierId]
       }
     }
@@ -160,7 +160,7 @@ export class TierChart {
   getStaffTier(): TTier {
     /*
     for (const tierId in this.infos) {
-      if (this.infos[tierId].code === ENUM_TIER_CODE.BLUE) {
+      if (this.infos[tierId].code === EnumTierCode.BLUE) {
         return this.infos[tierId]
       }
     }

@@ -14,22 +14,22 @@ export class ProductBrandService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.ProductBrandFindUniqueArgs): Promise<TProductBrand> {
-    return await this.prisma.client.productBrand.findUnique(kwargs)
+    return await this.prisma.productBrand.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.ProductBrandFindFirstArgs = {}): Promise<TProductBrand> {
-    return await this.prisma.client.productBrand.findFirst(kwargs)
+    return await this.prisma.productBrand.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.ProductBrandFindManyArgs = {}): Promise<TProductBrand[]> {
-    return await this.prisma.client.productBrand.findMany(kwargs)
+    return await this.prisma.productBrand.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.ProductBrandFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TProductBrand> {
-    const productBrand = await this.prisma.client.productBrand
+    const productBrand = await this.prisma.productBrand
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -44,7 +44,7 @@ export class ProductBrandService {
     where: Prisma.ProductBrandWhereInput,
     kwargs: Omit<Prisma.ProductBrandFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TProductBrand> {
-    const productBrand = await this.prisma.client.productBrand
+    const productBrand = await this.prisma.productBrand
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -74,7 +74,7 @@ export class ProductBrandService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.productBrand.list(where, params, options)
+    return await this.prisma.productBrand.list(where, params, options)
   }
 
   async paginate(
@@ -82,11 +82,11 @@ export class ProductBrandService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.productBrand.paginate(where, params, options)
+    return await this.prisma.productBrand.paginate(where, params, options)
   }
 
   async count(where?: Prisma.ProductBrandWhereInput): Promise<number> {
-    return await this.prisma.client.productBrand.count({
+    return await this.prisma.productBrand.count({
       where,
     })
   }
@@ -95,14 +95,14 @@ export class ProductBrandService {
     id: number,
     kwargs: Omit<Prisma.ProductBrandFindUniqueArgs, 'where'> = {},
   ): Promise<TProductBrand> {
-    return await this.prisma.client.productBrand.findUnique({
+    return await this.prisma.productBrand.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.ProductBrandUncheckedCreateInput): Promise<TProductBrand> {
-    const productBrand = await this.prisma.client.productBrand.create({
+    const productBrand = await this.prisma.productBrand.create({
       data,
     })
     return productBrand
@@ -111,7 +111,7 @@ export class ProductBrandService {
   async update(id: number, data: Prisma.ProductBrandUncheckedUpdateInput): Promise<TProductBrand> {
     const productBrand = await this.findOrFail(id)
 
-    return await this.prisma.client.productBrand.update({
+    return await this.prisma.productBrand.update({
       data,
       where: { id: productBrand.id },
     })
@@ -119,7 +119,7 @@ export class ProductBrandService {
 
   async delete(productBrand: TProductBrand, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.client.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx) => {
         await tx.productBrand.delete({ where: { id: productBrand.id } })
       })
       return true

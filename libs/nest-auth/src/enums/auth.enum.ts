@@ -1,30 +1,33 @@
-export enum ENUM_AUTH_SIGN_UP_FROM {
-  SEED = 'SEED',
-  MIGRATE = 'MIGRATE',
-  CMS = 'CMS',
-  APP = 'APP',
-  WEB = 'WEB',
+export enum EnumAuthSignUpFrom {
+  CMD = 'cmd',
+  CMS = 'cms',
+  APP = 'app',
+  WEB = 'web',
 }
 
-export enum ENUM_AUTH_LOGIN_WITH {
-  EMAIL = 'EMAIL',
-  PHONE = 'PHONE',
+export enum EnumAuthLoginWith {
+  CARD = 'card',
+  EMAIL = 'email',
+  PHONE = 'phone',
 }
 
-export enum ENUM_AUTH_LOGIN_FROM {
-  CMS = 'CMS',
-  APP = 'APP',
-  WEB = 'WEB',
+export enum EnumAuthLoginFrom {
+  CLI = 'cli',
+  CMS = 'cms',
+  APP = 'app',
+  WEB = 'web',
 }
 
-export enum ENUM_AUTH_LOGIN_TYPE {
-  CREDENTIAL = 'CREDENTIAL',
-  SOCIAL_GOOGLE = 'SOCIAL_GOOGLE',
-  SOCIAL_APPLE = 'SOCIAL_APPLE',
-  WHATSAPP = 'WHATSAPP',
+export enum EnumAuthLoginType {
+  CREDENTIAL = 'credential',
+  WHATSAPP = 'whatapp',
+  SOCIAL_APPLE = 'apple',
+  SOCIAL_GOOGLE = 'google',
 }
 
-export enum ENUM_AUTH_SCOPE_TYPE {
-  USER = 'USER',
-  MEMBER = 'MEMBER',
+export enum EnumAuthScopeType {
+  USER = 'user',
+  MEMBER = 'member',
+  CLIENT = 'client',
+  CUSTOMER = 'customer',
 }

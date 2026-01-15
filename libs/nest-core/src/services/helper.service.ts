@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { DateObjectUnits, DateTime, Duration, DurationLikeObject } from 'luxon'
 import RandExp from 'randexp'
-import { ENUM_COUNTRY_CODE, ENUM_DATE_FORMAT } from '../enums'
-import { AppContext } from '../helpers'
+import { EnumCountryCode, EnumDateFormat } from '../enums'
+import { ScopeContext } from '../helpers'
 import {
   IDateCompareOptions,
   IDateCreateOptions,
@@ -84,7 +84,7 @@ export class HelperService {
   }
 
   calculateAge(dateOfBirth: Date, fromYear?: number): Duration {
-    const timeZone = AppContext.timezone()
+    const timeZone = ScopeContext.getReqZone()
     const dateTime = DateTime.now().setZone(timeZone).plus({ day: 1 }).set({
       hour: 0,
       minute: 0,
@@ -212,51 +212,54 @@ export class HelperService {
   }
 
   parsePhone(phone: string): { country: string; phone: string } {
-    const country = Object.values(ENUM_COUNTRY_CODE).find((code) => phone.startsWith(code)) || ''
+    const country = Object.values(EnumCountryCode).find((code) => phone.startsWith(code)) || ''
     return {
       country,
       phone: phone.slice(country.length).trim(),
     }
   }
 
-  dateCreate(date?: Date, options?: IDateCreateOptions): Date {
+  dateNow(): Date {
+    return DateUtil.current().toJSDate()
+  }
+
+  dateCreate(date: Date, options?: IDateCreateOptions): Date {
     return DateUtil.create(date, options).toJSDate()
   }
 
-  dateInstance(date?: Date, options?: IDateCreateOptions): DateTime {
+  dateInstance(date: Date, options?: IDateCreateOptions): DateTime {
     return DateUtil.create(date, options)
   }
 
   dateCreateFromIso(iso: string, options?: IDateCreateOptions): Date {
-    const timezone = options?.timezone ?? AppContext.timezone()
+    const timezone = options?.timezone ?? ScopeContext.getReqZone()
     let mDate = DateTime.fromISO(iso).setZone(timezone)
 
     if (options?.startOfDay) {
       mDate = mDate.startOf('day')
     } else if (options?.endOfDay) {
       mDate = mDate.endOf('day')
-    } else if (options?.duration) {
-      const [hours, minutes, seconds, millisecond] = options.duration.split(':').map(Number)
-      mDate = mDate.plus(Duration.fromObject({ hours, minutes, seconds, millisecond }))
+    } else if (options?.durationSet) {
+      mDate = mDate.set(options.durationSet)
     }
 
     return mDate.toJSDate()
   }
 
   dateGetZone(date: Date): string {
-    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).zone.name
+    return DateTime.fromJSDate(date).setZone(ScopeContext.getReqZone()).zone.name
   }
 
   dateGetZoneOffset(date: Date): string {
-    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).offsetNameShort
+    return DateTime.fromJSDate(date).setZone(ScopeContext.getReqZone()).offsetNameShort
   }
 
   dateGetTimestamp(date: Date): number {
-    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).toMillis()
+    return DateTime.fromJSDate(date).setZone(ScopeContext.getReqZone()).toMillis()
   }
 
-  dateFormat(date: Date, dateFormat: ENUM_DATE_FORMAT): string {
-    return DateUtil.create(date).toFormat(dateFormat)
+  dateFormat(date: Date, dateFormat: EnumDateFormat): string {
+    return DateUtil.format(date, { format: dateFormat })
   }
 
   dateRange(date: Date): IDateRange {
@@ -268,19 +271,19 @@ export class HelperService {
   }
 
   dateSet(date: Date, units: DateObjectUnits): Date {
-    return DateTime.fromJSDate(date).setZone(AppContext.timezone()).set(units).toJSDate()
+    return DateTime.fromJSDate(date).setZone(ScopeContext.getReqZone()).set(units).toJSDate()
   }
 
   dateForward(date: Date, duration: DurationLikeObject): Date {
     return DateTime.fromJSDate(date)
-      .setZone(AppContext.timezone())
+      .setZone(ScopeContext.getReqZone())
       .plus(Duration.fromObject(duration))
       .toJSDate()
   }
 
   dateBackward(date: Date, duration: DurationLikeObject): Date {
     return DateTime.fromJSDate(date)
-      .setZone(AppContext.timezone())
+      .setZone(ScopeContext.getReqZone())
       .minus(Duration.fromObject(duration))
       .toJSDate()
   }
@@ -316,11 +319,11 @@ export class HelperService {
   }
 
   dateCheckIso(date: string): boolean {
-    return DateTime.fromISO(date).setZone(AppContext.timezone()).isValid
+    return DateTime.fromISO(date).setZone(ScopeContext.getReqLang()).isValid
   }
 
   dateCheckTimestamp(timestamp: number): boolean {
-    return DateTime.fromMillis(timestamp).setZone(AppContext.timezone()).isValid
+    return DateTime.fromMillis(timestamp).setZone(ScopeContext.getReqLang()).isValid
   }
 
   dateCheckZone(timezone: string): boolean {

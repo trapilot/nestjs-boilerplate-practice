@@ -1,4 +1,4 @@
-import { ENUM_SETTING_GROUP } from '../enums'
+import { EnumSettingGroup } from '../enums'
 
 export const SETTING_DOC_OPERATION = 'Setting'
 
@@ -18,7 +18,7 @@ export const SETTING_DOC_REQUEST_LIST = [
     allowEmptyValue: true,
     required: false,
     type: 'string',
-    enum: ENUM_SETTING_GROUP,
+    enum: EnumSettingGroup,
     description: 'Group',
   },
 ]

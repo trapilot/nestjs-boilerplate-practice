@@ -1,9 +1,9 @@
 import { registerAs } from '@nestjs/config'
-import { MESSAGE_FALLBACK, MESSAGE_LANGUAGES } from 'lib/nest-core'
+import { IConfigHelper, MESSAGE_FALLBACK, MESSAGE_LANGUAGES } from 'lib/nest-core'
 
 export default registerAs(
   'helper',
-  (): Record<string, any> => ({
+  (): IConfigHelper => ({
     salt: {
       length: 8,
     },

@@ -9,7 +9,7 @@ import {
   IsString,
   MaxLength,
 } from 'class-validator'
-import { ENUM_APP_LANGUAGE, ToBoolean, ToString } from 'lib/nest-core'
+import { EnumAppLanguage, ToBoolean, ToString } from 'lib/nest-core'
 import { IsPassword, IsPhone } from 'lib/nest-web'
 
 export class MemberRequestCreateDto {
@@ -58,9 +58,9 @@ export class MemberRequestCreateDto {
   avatar: string
 
   @IsOptional()
-  @IsEnum(ENUM_APP_LANGUAGE)
+  @IsEnum(EnumAppLanguage)
   @ToString()
-  @ApiProperty({ required: false, enum: ENUM_APP_LANGUAGE, example: ENUM_APP_LANGUAGE.EN })
+  @ApiProperty({ required: false, enum: EnumAppLanguage, example: EnumAppLanguage.EN })
   locale: string
 
   @IsOptional()

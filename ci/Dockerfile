@@ -11,22 +11,22 @@ WORKDIR /app
 
 # Install node_modules, including dev dependencies
 FROM base AS build-deps
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --non-interactive
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile --non-interactive
 
 
 # Install node_modules, excluding dev dependencies
 FROM base AS production-deps
-COPY package.json yarn.lock ./
-RUN yarn install --production --frozen-lockfile --non-interactive
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --production --frozen-lockfile --non-interactive
 
 
 # Build the app
 FROM base AS build
 COPY --from=build-deps /app/node_modules /app/node_modules
 COPY . .
-RUN yarn build
-# RUN yarn bundle \
+RUN pnpm build
+# RUN pnpm bundle \
 #   && cp /app/node_modules/swagger-ui-dist/swagger-ui.css /app/dist \
 #   && cp /app/node_modules/swagger-ui-dist/swagger-ui-bundle.js /app/dist \
 #   && cp /app/node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js /app/dist \

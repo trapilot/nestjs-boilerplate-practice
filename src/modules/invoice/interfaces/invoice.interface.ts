@@ -1,4 +1,4 @@
-import { ENUM_PAYMENT_METHOD, Invoice } from '@runtime/prisma-client'
+import { EnumPaymentMethod, Invoice } from '@runtime/prisma-client'
 
 export interface TInvoice extends Invoice {}
 
@@ -8,6 +8,6 @@ export interface IInvoiceGroup {
 
 export interface IInvoiceAddPaymentOptions {
   amount: number
-  method: ENUM_PAYMENT_METHOD
+  method: EnumPaymentMethod
   issuedAt?: Date
 }

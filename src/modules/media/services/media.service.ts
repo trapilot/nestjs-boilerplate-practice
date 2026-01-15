@@ -14,22 +14,22 @@ export class MediaService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.MediaFindUniqueArgs): Promise<TMedia> {
-    return await this.prisma.client.media.findUnique(kwargs)
+    return await this.prisma.media.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.MediaFindFirstArgs = {}): Promise<TMedia> {
-    return await this.prisma.client.media.findFirst(kwargs)
+    return await this.prisma.media.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.MediaFindManyArgs = {}): Promise<TMedia[]> {
-    return await this.prisma.client.media.findMany(kwargs)
+    return await this.prisma.media.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.MediaFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TMedia> {
-    const media = await this.prisma.client.media
+    const media = await this.prisma.media
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -44,7 +44,7 @@ export class MediaService {
     where: Prisma.MediaWhereInput,
     kwargs: Omit<Prisma.MediaFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TMedia> {
-    const media = await this.prisma.client.media
+    const media = await this.prisma.media
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -74,7 +74,7 @@ export class MediaService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.media.list(where, params, options)
+    return await this.prisma.media.list(where, params, options)
   }
 
   async paginate(
@@ -82,24 +82,24 @@ export class MediaService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.media.paginate(where, params, options)
+    return await this.prisma.media.paginate(where, params, options)
   }
 
   async count(where?: Prisma.MediaWhereInput): Promise<number> {
-    return await this.prisma.client.media.count({
+    return await this.prisma.media.count({
       where,
     })
   }
 
   async find(id: number, kwargs: Omit<Prisma.MediaFindUniqueArgs, 'where'> = {}): Promise<TMedia> {
-    return await this.prisma.client.media.findUnique({
+    return await this.prisma.media.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.MediaUncheckedCreateInput): Promise<TMedia> {
-    const media = await this.prisma.client.media.create({
+    const media = await this.prisma.media.create({
       data,
     })
     return media
@@ -108,7 +108,7 @@ export class MediaService {
   async update(id: number, data: Prisma.MediaUncheckedUpdateInput): Promise<TMedia> {
     const media = await this.findOrFail(id)
 
-    return await this.prisma.client.media.update({
+    return await this.prisma.media.update({
       data,
       where: { id: media.id },
     })
@@ -116,7 +116,7 @@ export class MediaService {
 
   async delete(media: TMedia, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.client.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx) => {
         await tx.media.delete({ where: { id: media.id } })
       })
       return true

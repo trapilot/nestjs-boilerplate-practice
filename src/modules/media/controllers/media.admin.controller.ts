@@ -1,8 +1,13 @@
 import { Controller, Delete, Get, Post, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { ENUM_FILE_BOOK_TYPE, IFile } from 'lib/nest-core'
+import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
+import {
+  EnumFileExtensionDocument,
+  EnumFileExtensionImage,
+  FileExtensionPipe,
+  IFile,
+} from 'lib/nest-core'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -12,17 +17,15 @@ import {
   IResponsePaging,
   RequestBody,
   RequestBookType,
-  RequestFileRequiredPipe,
-  RequestFileTypePipe,
   RequestListDto,
   RequestParam,
   RequestQueryList,
+  RequestRequiredPipe,
 } from 'lib/nest-web'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import {
   MEDIA_DOC_ADMIN_QUERY_LIST,
   MEDIA_DOC_OPERATION,
-  MEDIA_UPLOAD_IMAGE_MIME,
   MEDIA_UPLOAD_IMAGE_PATH,
 } from '../constants'
 import {
@@ -47,14 +50,14 @@ export class MediaAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.MEDIA,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.MEDIA,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -71,14 +74,14 @@ export class MediaAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: ENUM_FILE_BOOK_TYPE,
+    @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
     const _where: Prisma.MediaWhereInput = {
       ..._search,
     }
 
     const pagination = await this.mediaService.paginate(_where, _params, {
-      bookType,
+      document: bookType,
     })
     return pagination
   }
@@ -92,7 +95,7 @@ export class MediaAdminController {
     docExclude: true,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: false,
@@ -128,14 +131,14 @@ export class MediaAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.MEDIA,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.MEDIA,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -164,15 +167,15 @@ export class MediaAdminController {
       },
     },
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.MEDIA,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.CREATE],
+            subject: EnumAuthAbilitySubject.MEDIA,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.CREATE],
           },
         ],
       },
@@ -184,7 +187,14 @@ export class MediaAdminController {
   @Post('/')
   async create(
     @RequestBody() body: MediaRequestCreateDto,
-    @UploadedFile(new RequestFileRequiredPipe(), new RequestFileTypePipe(MEDIA_UPLOAD_IMAGE_MIME))
+    @UploadedFile(
+      RequestRequiredPipe,
+      FileExtensionPipe([
+        EnumFileExtensionImage.JPEG,
+        EnumFileExtensionImage.JPG,
+        EnumFileExtensionImage.PNG,
+      ]),
+    )
     file: IFile,
   ): Promise<IResponseData> {
     const media = await this.mediaService.create({
@@ -203,15 +213,15 @@ export class MediaAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.MEDIA,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.MEDIA,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -237,15 +247,15 @@ export class MediaAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.MEDIA,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.DELETE],
+            subject: EnumAuthAbilitySubject.MEDIA,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.DELETE],
           },
         ],
       },

@@ -1,9 +1,9 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'app/enums'
-import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { ENUM_FILE_BOOK_TYPE } from 'lib/nest-core'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
+import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -36,14 +36,14 @@ export class <%= singular(classify(name)) %>AdminController {
     queries: <%= singular(uppercased(name)) %>_DOC_ADMIN_QUERY_LIST,
     sortable: true,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.<%= singular(uppercased(name)) %>,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.<%= singular(uppercased(name)) %>,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -60,14 +60,14 @@ export class <%= singular(classify(name)) %>AdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: ENUM_FILE_BOOK_TYPE,
+    @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
     const _where: Prisma.<%= singular(classify(name)) %>WhereInput = {
       ..._search,
     }
 
     const pagination = await this.<%= singular(lowercased(name)) %>Service.paginate(_where, _params, {
-      bookType,
+      document: bookType,
     })
     return pagination
   }
@@ -77,7 +77,7 @@ export class <%= singular(classify(name)) %>AdminController {
     queries: <%= singular(uppercased(name)) %>_DOC_ADMIN_QUERY_LIST,
     docExclude: true,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: false,
@@ -111,14 +111,14 @@ export class <%= singular(classify(name)) %>AdminController {
   @ApiRequestData({
     summary: <%= singular(uppercased(name)) %>_DOC_OPERATION,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.<%= singular(uppercased(name)) %>,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.<%= singular(uppercased(name)) %>,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -139,15 +139,15 @@ export class <%= singular(classify(name)) %>AdminController {
   @ApiRequestData({
     summary: <%= singular(uppercased(name)) %>_DOC_OPERATION,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.<%= singular(uppercased(name)) %>,
-            actions: [ENUM_APP_ABILITY_ACTION.CREATE],
+            subject: EnumAuthAbilitySubject.<%= singular(uppercased(name)) %>,
+            actions: [EnumAuthAbilityAction.CREATE],
           },
         ],
       },
@@ -168,15 +168,15 @@ export class <%= singular(classify(name)) %>AdminController {
   @ApiRequestData({
     summary: <%= singular(uppercased(name)) %>_DOC_OPERATION,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.<%= singular(uppercased(name)) %>,
-            actions: [ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.<%= singular(uppercased(name)) %>,
+            actions: [EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -200,15 +200,15 @@ export class <%= singular(classify(name)) %>AdminController {
   @ApiRequestData({
     summary: <%= singular(uppercased(name)) %>_DOC_OPERATION,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.<%= singular(uppercased(name)) %>,
-            actions: [ENUM_APP_ABILITY_ACTION.DELETE],
+            subject: EnumAuthAbilitySubject.<%= singular(uppercased(name)) %>,
+            actions: [EnumAuthAbilityAction.DELETE],
           },
         ],
       },

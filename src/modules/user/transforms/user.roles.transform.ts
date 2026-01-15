@@ -1,5 +1,5 @@
 import { plainToInstance, Transform } from 'class-transformer'
-import { RoleResponseBelongDto } from 'modules/role/dtos'
+import { RoleResponseBelongDto } from 'modules/role'
 import { IUserRoleTransformOptions, IUserTransformOptions } from '../interfaces'
 import { UserUtil } from '../utils'
 

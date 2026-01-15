@@ -1,7 +1,6 @@
 import { ArchiverOptions } from 'archiver'
 import { ClassConstructor } from 'class-transformer'
 import { ReadStream } from 'fs'
-import { ENUM_FILE_BOOK_TYPE } from '../enums'
 
 export interface IFileRows<T = any> {
   data: T[]
@@ -26,12 +25,6 @@ export interface IFileFormatOptions {
 
 export interface IFileReadOptions {
   password?: string
-}
-
-export interface IFileWriteExcelOptions {
-  password?: string
-  bookType?: ENUM_FILE_BOOK_TYPE
-  keepAlive?: boolean
 }
 
 export interface IFileWritePdfOptions {
@@ -67,9 +60,11 @@ export interface IFile extends Omit<Express.Multer.File, 'filename'> {
   password?: string
 }
 
+export type IFileInput = IFile | IFile[]
+
 export interface IFileUploadSingle {
   field: string
-  filePath?: string
+  filePath: string
   fileSize?: number
   fileUser?: boolean
 }

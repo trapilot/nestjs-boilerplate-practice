@@ -1,8 +1,8 @@
 import { Controller, Delete, Get, Post, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { AuthJwtPayload, ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
-import { ENUM_FILE_BOOK_TYPE, IFile } from 'lib/nest-core'
+import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
+import { EnumFileExtensionDocument, IFile } from 'lib/nest-core'
 import { PrismaUtil } from 'lib/nest-prisma'
 import {
   ApiRequestData,
@@ -13,15 +13,15 @@ import {
   IResponsePaging,
   RequestBody,
   RequestBookType,
-  RequestFileRequiredPipe,
   RequestFilterDto,
   RequestListDto,
   RequestParam,
   RequestQueryFilterBetween,
   RequestQueryFilterInBoolean,
   RequestQueryList,
+  RequestRequiredPipe,
 } from 'lib/nest-web'
-import { ENUM_APP_ABILITY_ACTION, ENUM_APP_ABILITY_SUBJECT } from 'shared/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import {
   PRODUCT_DOC_ADMIN_PARAM_GET,
   PRODUCT_DOC_ADMIN_QUERY_LIST,
@@ -50,14 +50,14 @@ export class ProductAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.PRODUCT,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.PRODUCT,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -74,7 +74,7 @@ export class ProductAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: ENUM_FILE_BOOK_TYPE,
+    @RequestBookType() bookType: EnumFileExtensionDocument,
     @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto,
     @RequestQueryFilterBetween('price', {
       parseAs: 'number',
@@ -94,7 +94,7 @@ export class ProductAdminController {
     }
 
     const pagination = await this.productService.paginate(_where, _params, {
-      bookType,
+      document: bookType,
       include: _include,
     })
     return pagination
@@ -108,7 +108,7 @@ export class ProductAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: false,
@@ -146,14 +146,14 @@ export class ProductAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: false,
         require: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.PRODUCT,
-            actions: [ENUM_APP_ABILITY_ACTION.READ],
+            subject: EnumAuthAbilitySubject.PRODUCT,
+            actions: [EnumAuthAbilityAction.READ],
           },
         ],
       },
@@ -188,15 +188,15 @@ export class ProductAdminController {
       },
     },
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.PRODUCT,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.UPDATE],
+            subject: EnumAuthAbilitySubject.PRODUCT,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
           },
         ],
       },
@@ -244,15 +244,15 @@ export class ProductAdminController {
       },
     },
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.PRODUCT,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.CREATE],
+            subject: EnumAuthAbilitySubject.PRODUCT,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.CREATE],
           },
         ],
       },
@@ -265,7 +265,7 @@ export class ProductAdminController {
   async create(
     @RequestBody() body: ProductRequestCreateDto,
     @AuthJwtPayload('user.id') createdBy: number,
-    @UploadedFile(new RequestFileRequiredPipe()) file: IFile,
+    @UploadedFile(RequestRequiredPipe) file: IFile,
   ): Promise<IResponseData> {
     const { content, termAndCond, ...dto } = body
     const jsonLanguage = { content, termAndCond }
@@ -290,15 +290,15 @@ export class ProductAdminController {
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.USER,
+      scope: EnumAuthScopeType.USER,
       user: {
         synchronize: true,
         require: true,
         active: true,
         abilities: [
           {
-            subject: ENUM_APP_ABILITY_SUBJECT.PRODUCT,
-            actions: [ENUM_APP_ABILITY_ACTION.READ, ENUM_APP_ABILITY_ACTION.DELETE],
+            subject: EnumAuthAbilitySubject.PRODUCT,
+            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.DELETE],
           },
         ],
       },

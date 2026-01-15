@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { ENUM_APP_VERSION_PLATFORM } from '@runtime/prisma-client'
+import { EnumAppVersionPlatform } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
 import { ToDate } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
@@ -11,7 +11,7 @@ class ResponseDataDetailDto {
   @Expose()
   id: number
 
-  @ApiProperty({ enum: ENUM_APP_VERSION_PLATFORM, example: ENUM_APP_VERSION_PLATFORM.IOS })
+  @ApiProperty({ enum: EnumAppVersionPlatform, example: EnumAppVersionPlatform.IOS })
   @Type(() => String)
   @Expose()
   type: string

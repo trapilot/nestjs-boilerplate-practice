@@ -4,12 +4,16 @@ import {
   IStringParseOptions,
   IStringSplitOptions,
 } from '../interfaces'
+import { TimeUtil } from './time.util'
 
 export class StrUtil {
   static format(value: string, options?: IStringFormatOptions): string {
-    if (options?.uppercase) return value.toUpperCase()
-    if (options?.lowercase) return value.toLowerCase()
-    if (options?.capitalize) return this.capitalize(value)
+    if (options?.spaceless) {
+      value = value.replace(/\s+/g, '')
+    }
+    if (options?.format === 'uppercase') return value.toUpperCase()
+    if (options?.format === 'lowercase') return value.toLowerCase()
+    if (options?.format === 'capitalize') return this.capitalize(value)
     return value
   }
 
@@ -36,6 +40,12 @@ export class StrUtil {
         break
       case 'datetime':
         finalValue = new Date(value)
+        break
+      case 'seconds':
+        finalValue = TimeUtil.seconds(value)
+        break
+      case 'miliseconds':
+        finalValue = TimeUtil.ms(value)
         break
     }
     return finalValue as T
@@ -72,8 +82,31 @@ export class StrUtil {
     })
   }
 
+  static ms(value: string, defaultValue?: string): number {
+    return this.parse<number>(value, {
+      parseAs: 'miliseconds',
+      errorAs: this.parse<number>(defaultValue, {
+        parseAs: 'miliseconds',
+      }),
+    })
+  }
+
+  static seconds(value: string, defaultValue?: string): number {
+    return this.parse<number>(value, {
+      parseAs: 'seconds',
+      errorAs: this.parse<number>(defaultValue, {
+        parseAs: 'seconds',
+      }),
+    })
+  }
+
   static isTrue(value: string, def: boolean = false): boolean {
     if (value === undefined) return def
     return value === 'true'
+  }
+
+  static isNotTrue(value: string, def: boolean = false): boolean {
+    if (value === undefined) return def
+    return value !== 'true'
   }
 }

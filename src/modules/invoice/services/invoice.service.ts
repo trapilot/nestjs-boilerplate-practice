@@ -1,14 +1,14 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
-  ENUM_INVOICE_STATUS,
-  ENUM_ORDER_SOURCE,
-  ENUM_ORDER_STATUS,
-  ENUM_PAYMENT_STATUS,
-  ENUM_REDEMPTION_STATUS,
+  EnumInvoiceStatus,
+  EnumOrderSource,
+  EnumOrderStatus,
+  EnumPaymentStatus,
+  EnumRedemptionStatus,
   Prisma,
 } from '@runtime/prisma-client'
-import { ENUM_DATE_FORMAT, HelperService } from 'lib/nest-core'
+import { EnumDateFormat, HelperService } from 'lib/nest-core'
 import {
   IPrismaOptions,
   IPrismaParams,
@@ -27,22 +27,22 @@ export class InvoiceService {
   ) {}
 
   async findOne(kwargs?: Prisma.InvoiceFindUniqueArgs): Promise<TInvoice> {
-    return await this.prisma.client.invoice.findUnique(kwargs)
+    return await this.prisma.invoice.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.InvoiceFindFirstArgs = {}): Promise<TInvoice> {
-    return await this.prisma.client.invoice.findFirst(kwargs)
+    return await this.prisma.invoice.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.InvoiceFindManyArgs = {}): Promise<TInvoice[]> {
-    return await this.prisma.client.invoice.findMany(kwargs)
+    return await this.prisma.invoice.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.InvoiceFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TInvoice> {
-    const invoice = await this.prisma.client.invoice
+    const invoice = await this.prisma.invoice
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -57,7 +57,7 @@ export class InvoiceService {
     where: Prisma.InvoiceWhereInput,
     kwargs: Omit<Prisma.InvoiceFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TInvoice> {
-    const invoice = await this.prisma.client.invoice
+    const invoice = await this.prisma.invoice
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -87,7 +87,7 @@ export class InvoiceService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.invoice.list(where, params, options)
+    return await this.prisma.invoice.list(where, params, options)
   }
 
   async paginate(
@@ -95,11 +95,11 @@ export class InvoiceService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.invoice.paginate(where, params, options)
+    return await this.prisma.invoice.paginate(where, params, options)
   }
 
   async count(where?: Prisma.InvoiceWhereInput): Promise<number> {
-    return await this.prisma.client.invoice.count({
+    return await this.prisma.invoice.count({
       where,
     })
   }
@@ -108,20 +108,20 @@ export class InvoiceService {
     id: number,
     kwargs: Omit<Prisma.InvoiceFindUniqueArgs, 'where'> = {},
   ): Promise<TInvoice> {
-    return await this.prisma.client.invoice.findUnique({
+    return await this.prisma.invoice.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.InvoiceUncheckedCreateInput): Promise<TInvoice> {
-    const dateNow = this.helperService.dateCreate()
-    const invoice = await this.prisma.client.invoice.create({
+    const nowDate = this.helperService.dateNow()
+    const invoice = await this.prisma.invoice.create({
       data: {
         ...data,
-        issuedAt: dateNow,
-        createdAt: dateNow,
-        updatedAt: dateNow,
+        issuedAt: nowDate,
+        createdAt: nowDate,
+        updatedAt: nowDate,
       },
     })
     return invoice
@@ -130,7 +130,7 @@ export class InvoiceService {
   async update(id: number, data: Prisma.InvoiceUncheckedUpdateInput): Promise<TInvoice> {
     const invoice = await this.findOrFail(id)
 
-    return await this.prisma.client.invoice.update({
+    return await this.prisma.invoice.update({
       data,
       where: { id: invoice.id },
     })
@@ -138,7 +138,7 @@ export class InvoiceService {
 
   async delete(invoice: TInvoice, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.client.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx) => {
         await tx.invoice.delete({ where: { id: invoice.id } })
       })
       return true
@@ -149,28 +149,28 @@ export class InvoiceService {
 
   async addPayment(invoice: TInvoice, options: IInvoiceAddPaymentOptions): Promise<TInvoice> {
     const isFullPaid = invoice.finalPrice - invoice.paidPrice <= options.amount
-    const issuedAt = options?.issuedAt || this.helperService.dateCreate()
+    const issuedAt = options?.issuedAt || this.helperService.dateNow()
 
-    return await this.prisma.client.invoice.update({
+    return await this.prisma.invoice.update({
       where: { id: invoice.id },
       data: {
         paidPrice: { increment: options.amount },
-        status: isFullPaid ? ENUM_INVOICE_STATUS.FULLY_PAID : ENUM_INVOICE_STATUS.PARTIALLY_PAID,
+        status: isFullPaid ? EnumInvoiceStatus.FULLY_PAID : EnumInvoiceStatus.PARTIALLY_PAID,
         issuedAt: isFullPaid ? issuedAt : undefined,
         updatedAt: issuedAt,
         order: {
           update: isFullPaid
             ? {
-                status: ENUM_ORDER_STATUS.DELIVERED,
+                status: EnumOrderStatus.DELIVERED,
                 redeems: {
                   updateMany: {
                     data: {
                       isActive: true,
-                      status: ENUM_REDEMPTION_STATUS.APPROVED,
+                      status: EnumRedemptionStatus.APPROVED,
                       issuedAt: issuedAt,
                       updatedAt: issuedAt,
                     },
-                    where: { status: ENUM_REDEMPTION_STATUS.PENDING },
+                    where: { status: EnumRedemptionStatus.PENDING },
                   },
                 },
               }
@@ -178,7 +178,7 @@ export class InvoiceService {
         },
         payments: {
           create: {
-            status: ENUM_PAYMENT_STATUS.PAID,
+            status: EnumPaymentStatus.PAID,
             method: options.method,
             amount: options.amount,
             issuedAt: issuedAt,
@@ -191,7 +191,7 @@ export class InvoiceService {
   }
 
   async getHighestInvoice(memberId: number, startDate: Date, untilDate: Date): Promise<TInvoice> {
-    return await this.prisma.client.invoice.findFirst({
+    return await this.prisma.invoice.findFirst({
       where: { memberId, issuedAt: { gte: startDate, lte: untilDate } },
       orderBy: [{ finalPrice: 'desc' }, { issuedAt: 'asc' }],
     })
@@ -199,7 +199,7 @@ export class InvoiceService {
 
   async getFirstInvoice(issuedAt: Date): Promise<TInvoice> {
     const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
-    return await this.prisma.client.invoice.findFirst({
+    return await this.prisma.invoice.findFirst({
       where: {
         isEarned: false,
         issuedAt: { lte: startOfDay },
@@ -214,11 +214,11 @@ export class InvoiceService {
     const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
     const cutOffDay = this.helperService.dateBackward(startOfDay, { days: firstTransactionDays })
 
-    const invoices = await this.prisma.client.invoice.findMany({
+    const invoices = await this.prisma.invoice.findMany({
       orderBy: [{ issuedAt: 'asc' }, { createdAt: 'asc' }],
       where: {
         isEarned: false,
-        status: ENUM_INVOICE_STATUS.FULLY_PAID,
+        status: EnumInvoiceStatus.FULLY_PAID,
         issuedAt: { lte: startOfDay },
         createdAt: { lte: startOfDay },
         member: {
@@ -230,7 +230,7 @@ export class InvoiceService {
                 some: {
                   order: {
                     source: {
-                      in: [ENUM_ORDER_SOURCE.SYSTEM, ENUM_ORDER_SOURCE.POS],
+                      in: [EnumOrderSource.SYSTEM, EnumOrderSource.POS],
                     },
                   },
                   issuedAt: { lte: startOfDay },
@@ -243,7 +243,7 @@ export class InvoiceService {
                 some: {
                   order: {
                     source: {
-                      in: [ENUM_ORDER_SOURCE.APP, ENUM_ORDER_SOURCE.WEB],
+                      in: [EnumOrderSource.APP, EnumOrderSource.WEB],
                     },
                   },
                   issuedAt: { lte: cutOffDay },
@@ -255,7 +255,7 @@ export class InvoiceService {
       },
     })
 
-    const formatDate = ENUM_DATE_FORMAT.DATE_REFERENCE
+    const formatDate = EnumDateFormat.DATE_REFERENCE
     const groupInvoices: IInvoiceGroup = {}
     for (const inv of invoices) {
       const _cDate = this.helperService.dateFormat(inv.createdAt, formatDate)
@@ -273,14 +273,16 @@ export class InvoiceService {
 
   async expireOverDue(issuedAt: Date): Promise<void> {
     const batchSize: number = 500
-    const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
+    const startOfDay = this.helperService.dateCreate(issuedAt, {
+      startOfDay: true,
+    })
 
     let loop: boolean = false
     do {
-      const invoices = await this.prisma.client.invoice.findMany({
+      const invoices = await this.prisma.invoice.findMany({
         where: {
           status: {
-            in: [ENUM_INVOICE_STATUS.PENDING, ENUM_INVOICE_STATUS.PARTIALLY_PAID],
+            in: [EnumInvoiceStatus.PENDING, EnumInvoiceStatus.PARTIALLY_PAID],
           },
           dueDate: { gte: startOfDay },
         },
@@ -288,10 +290,10 @@ export class InvoiceService {
       })
 
       for (const invoice of invoices) {
-        await this.prisma.client.invoice.update({
+        await this.prisma.invoice.update({
           where: { id: invoice.id },
           data: {
-            status: ENUM_INVOICE_STATUS.OVERDUE,
+            status: EnumInvoiceStatus.OVERDUE,
             issuedAt: startOfDay,
             updatedAt: startOfDay,
             order: {
@@ -299,12 +301,12 @@ export class InvoiceService {
                 redeems: {
                   updateMany: {
                     data: {
-                      status: ENUM_REDEMPTION_STATUS.REJECTED,
+                      status: EnumRedemptionStatus.REJECTED,
                       issuedAt: startOfDay,
                       updatedAt: startOfDay,
                     },
                     where: {
-                      status: ENUM_REDEMPTION_STATUS.PENDING,
+                      status: EnumRedemptionStatus.PENDING,
                     },
                   },
                 },

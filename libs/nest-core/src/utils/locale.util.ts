@@ -1,5 +1,5 @@
 import { MESSAGE_LANGUAGES } from '../constants'
-import { AppContext } from '../helpers'
+import { ScopeContext } from '../helpers'
 
 export class LocaleUtil {
   static buildFields(
@@ -16,7 +16,8 @@ export class LocaleUtil {
 
   static parseValue(jsonValue: any, language?: string): string {
     if (jsonValue) {
-      return jsonValue[language || AppContext.language()] ?? ''
+      const currLang = language || ScopeContext.getReqLang()
+      return jsonValue[currLang] ?? ''
     }
     return ''
   }

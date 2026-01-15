@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsEnum, IsNotEmpty, IsObject, IsOptional } from 'class-validator'
 import { ToObject, ToString } from 'lib/nest-core'
 import { RequestSentenceDto } from 'lib/nest-web'
-import { ENUM_FACT_TYPE } from '../enums'
+import { EnumFactType } from '../enums'
 
 export class FactRequestCreateDto {
   @IsNotEmpty()
@@ -18,10 +18,10 @@ export class FactRequestCreateDto {
   content: any
 
   @IsNotEmpty()
-  @IsEnum(ENUM_FACT_TYPE)
+  @IsEnum(EnumFactType)
   @ToString()
-  @ApiProperty({ required: true, enum: ENUM_FACT_TYPE })
-  type: ENUM_FACT_TYPE
+  @ApiProperty({ required: true, enum: EnumFactType })
+  type: EnumFactType
 
   @IsOptional()
   @ApiProperty({ required: false, type: 'string', format: 'binary' })

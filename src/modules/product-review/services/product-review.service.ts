@@ -14,22 +14,22 @@ export class ProductReviewService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findOne(kwargs?: Prisma.ProductReviewFindUniqueArgs): Promise<TProductReview> {
-    return await this.prisma.client.productReview.findUnique(kwargs)
+    return await this.prisma.productReview.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.ProductReviewFindFirstArgs = {}): Promise<TProductReview> {
-    return await this.prisma.client.productReview.findFirst(kwargs)
+    return await this.prisma.productReview.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.ProductReviewFindManyArgs = {}): Promise<TProductReview[]> {
-    return await this.prisma.client.productReview.findMany(kwargs)
+    return await this.prisma.productReview.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.ProductReviewFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TProductReview> {
-    const productReview = await this.prisma.client.productReview
+    const productReview = await this.prisma.productReview
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -44,7 +44,7 @@ export class ProductReviewService {
     where: Prisma.ProductReviewWhereInput,
     kwargs: Omit<Prisma.ProductReviewFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TProductReview> {
-    const productReview = await this.prisma.client.productReview
+    const productReview = await this.prisma.productReview
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -74,7 +74,7 @@ export class ProductReviewService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.productReview.list(where, params, options)
+    return await this.prisma.productReview.list(where, params, options)
   }
 
   async paginate(
@@ -82,11 +82,11 @@ export class ProductReviewService {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.productReview.paginate(where, params, options)
+    return await this.prisma.productReview.paginate(where, params, options)
   }
 
   async count(where?: Prisma.ProductReviewWhereInput): Promise<number> {
-    return await this.prisma.client.productReview.count({
+    return await this.prisma.productReview.count({
       where,
     })
   }
@@ -95,14 +95,14 @@ export class ProductReviewService {
     id: number,
     kwargs: Omit<Prisma.ProductReviewFindUniqueArgs, 'where'> = {},
   ): Promise<TProductReview> {
-    return await this.prisma.client.productReview.findUnique({
+    return await this.prisma.productReview.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.ProductReviewUncheckedCreateInput): Promise<TProductReview> {
-    const productReview = await this.prisma.client.productReview.create({
+    const productReview = await this.prisma.productReview.create({
       data,
     })
     return productReview
@@ -114,7 +114,7 @@ export class ProductReviewService {
   ): Promise<TProductReview> {
     const productReview = await this.findOrFail(id)
 
-    return await this.prisma.client.productReview.update({
+    return await this.prisma.productReview.update({
       data,
       where: { id: productReview.id },
     })
@@ -122,7 +122,7 @@ export class ProductReviewService {
 
   async delete(productReview: TProductReview, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.client.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx) => {
         await tx.productReview.delete({ where: { id: productReview.id } })
       })
       return true

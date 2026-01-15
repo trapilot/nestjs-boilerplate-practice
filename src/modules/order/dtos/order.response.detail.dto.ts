@@ -1,11 +1,11 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { ENUM_ORDER_SOURCE, ENUM_ORDER_STATUS } from '@runtime/prisma-client'
+import { EnumOrderSource, EnumOrderStatus } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
-import { ENUM_DATE_FORMAT, ToDate, ToDecimal, ToNumber } from 'lib/nest-core'
+import { EnumDateFormat, ToDate, ToDecimal, ToNumber } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { MemberResponseBelongDto } from 'modules/member/dtos'
-import { ProductResponseBelongDto } from 'modules/product/dtos'
+import { MemberResponseBelongDto } from 'modules/member'
+import { ProductResponseBelongDto } from 'modules/product'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
@@ -64,12 +64,12 @@ class ResponseDataDetailDto {
   @Expose()
   finalPoint: number
 
-  @ApiProperty({ example: ENUM_ORDER_SOURCE.SYSTEM })
+  @ApiProperty({ example: EnumOrderSource.SYSTEM })
   @Type(() => String)
   @Expose()
   source: string
 
-  @ApiProperty({ example: ENUM_ORDER_STATUS.DELIVERED })
+  @ApiProperty({ example: EnumOrderStatus.DELIVERED })
   @Type(() => String)
   @Expose()
   status: string
@@ -80,7 +80,7 @@ class ResponseDataDetailDto {
   isBirth: boolean
 
   @ApiProperty({ example: faker.date.past() })
-  @ToDate({ format: ENUM_DATE_FORMAT.DATE, ref: 'issuedAt' })
+  @ToDate({ format: EnumDateFormat.DATE, ref: 'issuedAt' })
   @Expose()
   issueDate: Date
 

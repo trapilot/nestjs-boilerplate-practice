@@ -22,8 +22,8 @@ logs/
 
 # Build img
 zip.sh
-dump.sh
 tunnel.sh
+restore.sh
 *.tar
 *.zip
 *.xlsx

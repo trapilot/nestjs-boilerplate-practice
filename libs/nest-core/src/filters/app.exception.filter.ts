@@ -1,16 +1,16 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus, Logger } from '@nestjs/common'
+import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common'
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import { ResponseErrorDto, ResponseMetadataDto } from '../dtos'
-import { AppContext } from '../helpers'
+import { ScopeContext } from '../helpers'
 import { IRequestApp, IResponseApp } from '../interfaces'
-import { HelperService, MessageService } from '../services'
+import { HelperService, LoggerService, MessageService } from '../services'
+import { AppUtil } from '../utils'
 
 @Catch()
 export class AppExceptionFilter implements ExceptionFilter {
-  private readonly logger = new Logger(AppExceptionFilter.name)
-
   constructor(
-    private readonly messageService: MessageService,
+    private readonly logger: LoggerService,
+    private readonly message: MessageService,
     private readonly helperService: HelperService,
   ) {}
 
@@ -23,14 +23,14 @@ export class AppExceptionFilter implements ExceptionFilter {
     this.captureException(exception)
 
     // metadata
-    const dateNow = this.helperService.dateCreate()
-    const ctxData = AppContext.current()
+    const nowDate = this.helperService.dateNow()
+    const ctxData = ScopeContext.getReqData()
     const metadata: ResponseMetadataDto = {
       path: req.path,
-      language: ctxData?.language ?? AppContext.language(),
-      timezone: ctxData?.timezone ?? AppContext.timezone(),
-      version: ctxData?.apiVersion ?? AppContext.apiVersion(),
-      timestamp: this.helperService.dateGetTimestamp(dateNow),
+      language: ctxData.language,
+      timezone: ctxData.timezone,
+      version: ctxData.version,
+      timestamp: this.helperService.dateGetTimestamp(nowDate),
     }
 
     if (req.__filters) {
@@ -48,7 +48,7 @@ export class AppExceptionFilter implements ExceptionFilter {
     const statusHttp: number = HttpStatus.INTERNAL_SERVER_ERROR
     const messagePath: string = `http.internalServerError`
 
-    const message = this.messageService.setMessage(messagePath, {
+    const message = this.message.setMessage(messagePath, {
       customLanguage: metadata.language,
     })
 
@@ -74,6 +74,7 @@ export class AppExceptionFilter implements ExceptionFilter {
   captureException(exception: unknown): void {
     try {
       this.logger.error(exception)
+      AppUtil.captureException(exception)
     } catch (err: unknown) {
       console.log({ err })
     }

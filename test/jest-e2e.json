@@ -18,13 +18,9 @@
     "lib/nest-auth/(.*)": "<rootDir>/../libs/nest-auth/src/$1",
     "lib/nest-core": "<rootDir>/../libs/nest-core/src",
     "lib/nest-core/(.*)": "<rootDir>/../libs/nest-core/src/$1",
-    "lib/nest-logger": "<rootDir>/../libs/nest-logger/src",
-    "lib/nest-logger/(.*)": "<rootDir>/../libs/nest-logger/src/$1",
-    "lib/nest-notifier": "<rootDir>/../libs/nest-notifier/src",
-    "lib/nest-notifier/(.*)": "<rootDir>/../libs/nest-notifier/src/$1",
-    "lib/nest-prisma": "<rootDir>/../libs/nest-prisma/src",
-    "lib/nest-prisma/(.*)": "<rootDir>/../libs/nest-prisma/src/$1",
     "lib/nest-web": "<rootDir>/../libs/nest-web/src",
-    "lib/nest-web/(.*)": "<rootDir>/../libs/nest-web/src/$1"
+    "lib/nest-web/(.*)": "<rootDir>/../libs/nest-web/src/$1",
+    "lib/nest-prisma": "<rootDir>/../libs/nest-prisma/src",
+    "lib/nest-prisma/(.*)": "<rootDir>/../libs/nest-prisma/src/$1"
   }
 }

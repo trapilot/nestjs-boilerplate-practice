@@ -3,43 +3,89 @@ import { ConfigService } from '@nestjs/config'
 import bodyParser from 'body-parser'
 import { INextFunction, IRequestApp, IResponseApp } from 'lib/nest-core'
 
-interface IBodyParseOptions {
-  json: bodyParser.OptionsJson
-  raw: bodyParser.Options
-  text: bodyParser.OptionsText
-  urlencoded: bodyParser.OptionsUrlencoded
-}
-
+/**
+ * Unified body parser middleware that handles multiple content types.
+ * Automatically detects content-type and applies appropriate body parser with configurable size limits.
+ *
+ * Supported Content Types:
+ * - application/json: JSON data with configurable size limit
+ * - application/x-www-form-urlencoded: URL-encoded form data
+ * - text/*: Plain text content
+ * - application/octet-stream: Binary data
+ *
+ * Note: Multipart form data (multipart/form-data) is intentionally skipped
+ * as it will be handled by Multer middleware for file uploads.
+ */
 @Injectable()
 export class RequestBodyParserMiddleware implements NestMiddleware {
-  private readonly options: IBodyParseOptions
+  private readonly jsonLimitInBytes: number
+  private readonly textLimitInBytes: number
+  private readonly urlencodedLimitInBytes: number
+  private readonly applicationOctetStreamLimitInBytes: number
 
   constructor(private readonly config: ConfigService) {
-    this.options = this.config.get<IBodyParseOptions>('middleware.body')
+    this.jsonLimitInBytes = this.config.get<number>('request.body.json.limitInBytes')
+    this.textLimitInBytes = this.config.get<number>('request.body.text.limitInBytes')
+    this.urlencodedLimitInBytes = this.config.get<number>('request.body.urlencoded.limitInBytes')
+    this.applicationOctetStreamLimitInBytes = this.config.get<number>(
+      'request.body.applicationOctetStream.limitInBytes',
+    )
   }
 
+  /**
+   * Processes HTTP request bodies based on content-type header.
+   *
+   * The middleware examines the Content-Type header and applies the appropriate
+   * body parser with the configured size limits:
+   *
+   * - JSON requests: Parsed with json parser
+   * - URL-encoded forms: Parsed with urlencoded parser (extended: false)
+   * - Text content: Parsed with text parser for any text/* type
+   * - Binary data: Parsed with raw parser for application/octet-stream
+   * - Multipart forms: Skipped (handled by Multer middleware)
+   * - Unknown/empty content-type: Skipped, passed to next middleware
+   *
+   * @param req - The Express request object containing the HTTP request data
+   * @param res - The Express response object for sending HTTP response
+   * @param next - The next middleware function in the chain
+   */
   use(req: IRequestApp, res: IResponseApp, next: INextFunction): void {
-    req.rawBody = req.body
+    const contentType = req.get('content-type') ?? ''
 
-    const isJson = req.is('application/json')
-    const isPlainText = req.is('text/plain')
-    const isFormData = req.is('multipart/form-data')
-    const isUrlencoded = req.is('application/x-www-form-urlencoded')
-
-    if (isFormData) {
-      /**
-       * Implement & debug later
-       * (multer().any())(req, res, next)
-       * */
-      next()
-    } else if (isJson) {
-      bodyParser.json(this.options.json)(req, res, next)
-    } else if (isPlainText) {
-      bodyParser.text(this.options.text)(req, res, next)
-    } else if (isUrlencoded) {
-      bodyParser.urlencoded(this.options.urlencoded)(req, res, next)
+    if (contentType.includes('application/json')) {
+      bodyParser.json({
+        limit: this.jsonLimitInBytes,
+        type: 'application/json',
+      })(req, res, next)
+    } else if (contentType.includes('application/x-www-form-urlencoded')) {
+      bodyParser.urlencoded({
+        extended: false,
+        limit: this.urlencodedLimitInBytes,
+        type: 'application/x-www-form-urlencoded',
+      })(req, res, next)
+    } else if (contentType.includes('text/')) {
+      bodyParser.text({
+        limit: this.textLimitInBytes,
+        type: 'text/*',
+      })(req, res, next)
+    } else if (contentType.includes('application/octet-stream')) {
+      bodyParser.raw({
+        limit: this.applicationOctetStreamLimitInBytes,
+        type: 'application/octet-stream',
+      })(req, res, next)
     } else {
-      bodyParser.raw(this.options.raw)(req, res, next)
+      /**
+       * For requests with no content-type, empty content-type, or unknown content-types
+       * (including multipart/form-data):
+       * Skip body parsing and continue to the next middleware.
+       *
+       * Multipart forms are intentionally not processed here as they will be
+       * handled by Multer middleware which is specifically designed for file uploads
+       * and multipart form processing.
+       *
+       * This allows other middleware or route handlers to handle the request appropriately.
+       */
+      next()
     }
   }
 }

@@ -23,6 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
+# dependences
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
+
 # Environment
 .env
 .env.development

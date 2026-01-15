@@ -2,6 +2,10 @@ export function nowISO() {
   return new Date().toISOString()
 }
 
+export function nowUnixTimesstamp() {
+  return Date.now()
+}
+
 export function getTimezone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone
 }

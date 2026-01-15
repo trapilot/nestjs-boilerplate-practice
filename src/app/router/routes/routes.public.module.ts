@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common'
-import { ENUM_APP_API_TYPE } from 'lib/nest-core'
-import { AuditModule } from 'modules/audit'
+import { AuditModule, AuditPublicController } from 'modules/audit'
 
 @Module({
-  controllers: [...AuditModule.controllers(ENUM_APP_API_TYPE.PUB)],
+  controllers: [AuditPublicController],
   imports: [AuditModule],
 })
 export class RoutesPublicModule {}

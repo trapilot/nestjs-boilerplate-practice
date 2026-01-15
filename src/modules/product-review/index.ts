@@ -1,1 +1,6 @@
+export * from './constants'
+export * from './controllers'
+export * from './dtos'
+export * from './interfaces'
 export * from './product-review.module'
+export * from './services'

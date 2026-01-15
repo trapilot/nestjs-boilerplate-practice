@@ -1,142 +1,152 @@
-import { Inject, Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable, OnModuleDestroy, OnModuleInit, Type } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Prisma } from '@runtime/prisma-client'
-import { ArrUtil } from 'lib/nest-core'
-import { ENUM_LOGGER_TYPE, LOGGER_MESSAGE_KEY, LoggerService } from 'lib/nest-logger'
-import { PrismaClusterManager, PrismaTenantManager } from '../bases'
-import { PRISMA_MODULE_OPTION_TOKEN, PRISMA_READ_OPERATIONS } from '../constants'
-import {
-  ClientProvider,
-  ClientWithExtends,
-  IPrismaClientConfigOptions,
-  IPrismaLoggerHooks,
-  IPrismaModuleOptions,
-} from '../interfaces'
+import { PrismaClientExtends } from '@prisma/client/extension'
+import { Prisma, PrismaClient } from '@runtime/prisma-client'
+import { IDatabaseProvider, LOGGER_MESSAGE_KEY, LoggerService } from 'lib/nest-core'
+import { PRISMA_OPTIONS } from '../constants'
+import { useReplicas, useUtilities } from '../extensions'
+import { IPrismaClientOptions, IPrismaModuleOptions } from '../interfaces'
 import { PrismaUtil } from '../utils'
 
+const PrismaExtensionService = class {
+  constructor(client: PrismaClientExtension) {
+    return client.withExtensions()
+  }
+} as Type<ReturnType<PrismaClientExtension['withExtensions']>>
+
 @Injectable()
-export class PrismaService implements OnModuleInit, OnModuleDestroy {
-  private readonly debugMode: boolean
-  private readonly clusterManager: PrismaClusterManager
-  private readonly tenantManager: PrismaTenantManager
+export class PrismaService extends PrismaExtensionService {
+  constructor(
+    @Inject(PRISMA_OPTIONS) private readonly options: IPrismaModuleOptions,
+    private readonly config: ConfigService,
+    private readonly logger: LoggerService,
+  ) {
+    const client = new PrismaClientExtension(
+      {
+        replication: options.replication,
+        provider: config.getOrThrow<IDatabaseProvider>('database.replication.provider'),
+        writeUrl: config.getOrThrow<string>('database.replication.master'),
+        readUrls: config.get<string[]>('database.replication.slaves', []),
+        debugMode: config.get<boolean>('database.debug', false),
+      },
+      logger,
+    )
+
+    super(client)
+  }
+}
+
+class PrismaClientExtension extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+  private readonly context: string
+  private readonly replicas: PrismaClientExtends[]
 
   constructor(
-    @Inject(PRISMA_MODULE_OPTION_TOKEN) private readonly options: IPrismaModuleOptions,
+    private readonly options: IPrismaClientOptions,
     private readonly logger: LoggerService,
-    private readonly config: ConfigService,
   ) {
-    this.debugMode = this.config.get<boolean>('database.debug')
-
-    this.logger.setContext(ENUM_LOGGER_TYPE.DATABASE)
-
-    if (this.options.multiTenant) {
-      this.tenantManager = new PrismaTenantManager(
-        this.config.getOrThrow<IPrismaClientConfigOptions[]>('database.tenant'),
-        this.setupLoggerHooks(),
-      )
-    } else {
-      const { writer, readers } = PrismaUtil.setupClient(
-        this.config.getOrThrow<ClientProvider>('database.replication.provider'),
-        {
-          writeUrl: this.config.getOrThrow<string>('database.replication.master'),
-          readUrls: this.config.getOrThrow<string[]>('database.replication.slaves'),
-          loggerHooks: this.setupLoggerHooks(),
-          replication: this.options.replication,
-        },
-      )
-      this.clusterManager = new PrismaClusterManager(writer, readers)
-    }
-  }
-
-  async onModuleInit() {
-    if (this.clusterManager) {
-      this.clusterManager.connect()
-    }
-  }
-
-  async onModuleDestroy() {
-    if (this.clusterManager) {
-      await this.clusterManager.disconnect()
-    }
-    if (this.tenantManager) {
-      await this.tenantManager.disconnect()
-    }
-  }
-
-  private async getClients(): Promise<{ writer: ClientWithExtends; reader: ClientWithExtends }> {
-    if (this.options.multiTenant) {
-      const cluster = await this.tenantManager.pick()
-      return cluster.pair()
-    }
-    return this.clusterManager.pair()
-  }
-
-  get client(): ClientWithExtends {
-    return new Proxy({} as ClientWithExtends, {
-      get: (_, modelName: string) => {
-        if (modelName === '$transaction') {
-          return async (arg: any, options?: any) => {
-            const { writer } = await this.getClients()
-            return writer.$transaction(async (tx) => {
-              return typeof arg === 'function' ? arg(tx) : arg
-            }, options)
-          }
-        }
-
-        return new Proxy({} as ClientWithExtends, {
-          get: (__, method: string) => {
-            return async (...args: any[]) => {
-              const { writer, reader } = await this.getClients()
-              const isRead = ArrUtil.has(PRISMA_READ_OPERATIONS, method)
-              const target = isRead ? reader : writer
-              return target[modelName][method](...args)
-            }
-          },
-        })
-      },
+    super({
+      log: [
+        { emit: 'event', level: 'query' },
+        { emit: 'event', level: 'error' },
+        { emit: 'event', level: 'warn' },
+        { emit: 'event', level: 'info' },
+      ],
+      errorFormat: 'pretty',
+      adapter: PrismaUtil.createAdapter(options.provider, {
+        url: options.writeUrl,
+      }),
     })
+
+    this.context = options.provider
+    this.replicas = options.replication
+      ? options.readUrls.map((readUrl: string) => {
+          const replica = new PrismaClient({
+            log: [
+              { emit: 'event', level: 'query' },
+              { emit: 'event', level: 'error' },
+              { emit: 'event', level: 'warn' },
+              { emit: 'event', level: 'info' },
+            ],
+            errorFormat: 'pretty',
+            adapter: PrismaUtil.createAdapter(options.provider, { url: readUrl }),
+          })
+          this.setupLogging(replica as PrismaClientExtension)
+          return replica.$extends(useUtilities) as PrismaClientExtends
+        })
+      : []
+
+    this.setupLogging(this)
   }
 
-  private setupLoggerHooks(): IPrismaLoggerHooks {
-    return this.debugMode
-      ? {
-          logLevels: [
-            { emit: 'event', level: 'query' },
-            { emit: 'event', level: 'error' },
-            { emit: 'event', level: 'warn' },
-            { emit: 'event', level: 'info' },
-          ],
-          onQuery: this.logQuery.bind(this),
-          onError: this.logError.bind(this),
-          onWarn: this.logWarn.bind(this),
-          onInfo: this.logInfo.bind(this),
-        }
-      : {
-          logLevels: [{ emit: 'event', level: 'error' }],
-          onError: this.logError.bind(this),
-        }
+  async onModuleInit(): Promise<void> {
+    try {
+      await this.connect()
+    } catch (error: unknown) {
+      this.logger.error(error, 'Prisma failed to initialize database service', this.context)
+      throw error
+    }
+  }
+
+  async onModuleDestroy(): Promise<void> {
+    await this.disconnect()
+  }
+
+  private async connect(): Promise<void> {
+    try {
+      await this.$connect()
+      this.logger.log('Prisma connected to the database', this.context)
+    } catch (error: unknown) {
+      this.logger.error(error, 'Prisma failed to connect to the database', this.context)
+      throw error
+    }
+  }
+
+  private async disconnect(): Promise<void> {
+    try {
+      await this.$disconnect()
+      this.logger.log('Prisma disconnected from the database', this.context)
+    } catch (error: unknown) {
+      this.logger.error(error, 'Prisma failed to disconnect from the database', this.context)
+      throw error
+    }
+  }
+
+  private setupLogging(client: PrismaClientExtension): void {
+    if (this.options.debugMode) {
+      client.$on('query', this.logQuery.bind(this))
+      client.$on('error', this.logError.bind(this))
+      client.$on('warn', this.logWarn.bind(this))
+      client.$on('info', this.logInfo.bind(this))
+    }
   }
 
   private logQuery(event: Prisma.QueryEvent): void {
     const { query, duration, params, ...other } = event
 
-    this.logger.debug({
-      ...other,
-      duration,
-      slowQuery: duration > 1000,
-      [LOGGER_MESSAGE_KEY]: PrismaUtil.buildQuery(query, { params }),
-    })
+    this.logger.debug(
+      {
+        ...other,
+        duration,
+        slowQuery: duration > 1000,
+        [LOGGER_MESSAGE_KEY]: PrismaUtil.buildQuery(query, { params }),
+      },
+      this.context,
+    )
   }
 
   private logError(event: Prisma.LogEvent): void {
-    this.logger.error(event)
+    this.logger.error(event, this.context)
   }
 
   private logWarn(event: Prisma.LogEvent): void {
-    this.logger.warn(event)
+    this.logger.warn(event, this.context)
   }
 
   private logInfo(event: Prisma.LogEvent): void {
-    this.logger.log(event)
+    this.logger.log(event, this.context)
+  }
+
+  withExtensions() {
+    return this.$extends(useUtilities).$extends(useReplicas(this.replicas))
   }
 }

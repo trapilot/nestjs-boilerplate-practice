@@ -1,6 +1,6 @@
 import { ApiProperty, IntersectionType } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
-import { ENUM_DATE_FORMAT, ToDate } from 'lib/nest-core'
+import { EnumDateFormat, ToDate } from 'lib/nest-core'
 import { UserResponseBelongDto } from './user.response.detail.dto'
 
 class ResponseUserLoginHistoryDto {
@@ -9,11 +9,11 @@ class ResponseUserLoginHistoryDto {
   @Expose()
   id: number
 
-  @ToDate({ format: ENUM_DATE_FORMAT.DATE, ref: 'loginDate' })
+  @ToDate({ format: EnumDateFormat.DATE, ref: 'loginDate' })
   @Expose()
   date: Date | null
 
-  @ToDate({ format: ENUM_DATE_FORMAT.DURATION_SHORT, ref: 'loginDate' })
+  @ToDate({ format: EnumDateFormat.DURATION_SHORT, ref: 'loginDate' })
   @Expose()
   time: Date | null
 }

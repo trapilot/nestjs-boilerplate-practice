@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-duplicate-enum-values */
-export enum ENUM_COUNTRY_CODE {
+export enum EnumCountryCode {
   AF = '93',
   AX = '358',
   AL = '355',

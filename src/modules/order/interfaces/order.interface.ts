@@ -1,9 +1,9 @@
-import { ENUM_ORDER_SOURCE, Order } from '@runtime/prisma-client'
+import { EnumOrderSource, Order } from '@runtime/prisma-client'
 
 export interface TOrder extends Order {}
 
 export interface IOrderPlaceOptions {
-  source: ENUM_ORDER_SOURCE
+  source: EnumOrderSource
   issuedAt: Date
   shipment: {
     address: string

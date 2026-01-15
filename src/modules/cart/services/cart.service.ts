@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 import { Prisma, Product } from '@runtime/prisma-client'
-import { EnvUtil, HelperService } from 'lib/nest-core'
+import { AppUtil, HelperService } from 'lib/nest-core'
 import {
   IPrismaOptions,
   IPrismaParams,
@@ -16,9 +16,9 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { MemberService } from 'modules/member/services'
-import { OrderService } from 'modules/order/services'
-import { ProductService } from 'modules/product/services'
+import { MemberService } from 'modules/member'
+import { OrderService } from 'modules/order'
+import { ProductService } from 'modules/product'
 import { CartManager } from '../helpers'
 import { ICartCheckoutOptions, ICartItemAddOptions, TCart, TCartItem } from '../interfaces'
 import { CartItemForMemberRule, CartItemInStockRule, CartItemIsActiveRule } from '../rules'
@@ -34,7 +34,7 @@ export class CartService implements OnModuleInit {
     },
   }
   private readonly cartUpVersion: Prisma.IntFieldUpdateOperationsInput = {
-    increment: EnvUtil.isDevelopment() ? 0 : 1,
+    increment: AppUtil.isLocal() ? 0 : 1,
   }
 
   private memberService: MemberService
@@ -54,22 +54,22 @@ export class CartService implements OnModuleInit {
   }
 
   async findOne(kwargs?: Prisma.CartFindUniqueArgs): Promise<TCart> {
-    return await this.prisma.client.cart.findUnique(kwargs)
+    return await this.prisma.cart.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.CartFindFirstArgs = {}): Promise<TCart> {
-    return await this.prisma.client.cart.findFirst(kwargs)
+    return await this.prisma.cart.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.CartFindManyArgs = {}): Promise<TCart[]> {
-    return await this.prisma.client.cart.findMany(kwargs)
+    return await this.prisma.cart.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.CartFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TCart> {
-    const cart = await this.prisma.client.cart
+    const cart = await this.prisma.cart
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -84,7 +84,7 @@ export class CartService implements OnModuleInit {
     where: Prisma.CartWhereInput,
     kwargs: Omit<Prisma.CartFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TCart> {
-    const cart = await this.prisma.client.cart
+    const cart = await this.prisma.cart
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -114,7 +114,7 @@ export class CartService implements OnModuleInit {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.cart.list(where, params, options)
+    return await this.prisma.cart.list(where, params, options)
   }
 
   async paginate(
@@ -122,24 +122,24 @@ export class CartService implements OnModuleInit {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.cart.paginate(where, params, options)
+    return await this.prisma.cart.paginate(where, params, options)
   }
 
   async count(where?: Prisma.CartWhereInput): Promise<number> {
-    return await this.prisma.client.cart.count({
+    return await this.prisma.cart.count({
       where,
     })
   }
 
   async find(id: number, kwargs: Omit<Prisma.CartFindUniqueArgs, 'where'> = {}): Promise<TCart> {
-    return await this.prisma.client.cart.findUnique({
+    return await this.prisma.cart.findUnique({
       ...kwargs,
       where: { id },
     })
   }
 
   async create(data: Prisma.CartUncheckedCreateInput): Promise<TCart> {
-    const cart = await this.prisma.client.cart.create({
+    const cart = await this.prisma.cart.create({
       data,
       include: this.cartRelation,
     })
@@ -149,7 +149,7 @@ export class CartService implements OnModuleInit {
   async update(id: number, data: Prisma.CartUncheckedUpdateInput): Promise<TCart> {
     const cart = await this.findOrFail(id)
 
-    return await this.prisma.client.cart.update({
+    return await this.prisma.cart.update({
       data,
       include: this.cartRelation,
       where: { id: cart.id },
@@ -158,7 +158,7 @@ export class CartService implements OnModuleInit {
 
   async delete(cart: TCart, _deletedBy?: number): Promise<boolean> {
     try {
-      await this.prisma.client.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (tx) => {
         await tx.cart.delete({ where: { id: cart.id } })
       })
       return true
@@ -168,8 +168,8 @@ export class CartService implements OnModuleInit {
   }
 
   async checkout(id: number, options: ICartCheckoutOptions): Promise<TCart> {
-    const dateNow = this.helperService.dateCreate()
-    const issuedAt = options?.dateDebug || dateNow
+    const nowDate = this.helperService.dateNow()
+    const issuedAt = options?.dateDebug || nowDate
 
     const cart = await this.findOrFail(id, {
       include: {
@@ -218,7 +218,7 @@ export class CartService implements OnModuleInit {
   async reset(memberId: number): Promise<TCart> {
     const exists = await this.count({ memberId })
     if (exists > 0) {
-      return await this.prisma.client.cart.update({
+      return await this.prisma.cart.update({
         where: { memberId },
         data: { version: 1 },
         include: this.cartRelation,
@@ -235,7 +235,7 @@ export class CartService implements OnModuleInit {
   }
 
   async getCartItem(kwargs: Prisma.CartItemFindUniqueOrThrowArgs): Promise<TCartItem> {
-    const cartItem = await this.prisma.client.cartItem
+    const cartItem = await this.prisma.cartItem
       .findUniqueOrThrow({ ...kwargs })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -255,7 +255,7 @@ export class CartService implements OnModuleInit {
   }
 
   async validate(memberId: number, version: number): Promise<TCart> {
-    const exists = await this.prisma.client.cart.count({ where: { memberId, version } })
+    const exists = await this.prisma.cart.count({ where: { memberId, version } })
     if (exists === 0) {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
@@ -267,7 +267,7 @@ export class CartService implements OnModuleInit {
 
   async addItem(cart: TCart, item: ICartItemAddOptions): Promise<TCart> {
     const product = await this.productService.findOrFail(item.productId)
-    const cartItem = await this.prisma.client.cartItem.findUnique({
+    const cartItem = await this.prisma.cartItem.findUnique({
       where: {
         cartId_productId: {
           cartId: cart.id,
@@ -280,7 +280,7 @@ export class CartService implements OnModuleInit {
       return await this.adjustItem(cart, cartItem, cartItem.quantity + item.quantity)
     }
 
-    return await this.prisma.client.cart.update({
+    return await this.prisma.cart.update({
       where: { id: cart.id },
       include: this.cartRelation,
       data: {
@@ -305,11 +305,11 @@ export class CartService implements OnModuleInit {
   }
 
   async removeItem(cart: TCart, cartItem: TCartItem): Promise<TCart> {
-    const [_, cartItems] = await this.prisma.client.$transaction([
-      this.prisma.client.cartItem.delete({
+    const [_, cartItems] = await this.prisma.$transaction([
+      this.prisma.cartItem.delete({
         where: { cartId: cart.id, id: cartItem.id },
       }),
-      this.prisma.client.cart.update({
+      this.prisma.cart.update({
         where: { id: cart.id },
         include: this.cartRelation,
         data: { version: this.cartUpVersion },
@@ -320,7 +320,7 @@ export class CartService implements OnModuleInit {
 
   async adjustItem(cart: TCart, cartItem: TCartItem, quantity: number): Promise<TCart> {
     const { id: _id, cartId: _cartId, ...data } = CartUtil.recalculate(cartItem, quantity)
-    return await this.prisma.client.cart.update({
+    return await this.prisma.cart.update({
       where: { id: cart.id },
       include: this.cartRelation,
       data: {

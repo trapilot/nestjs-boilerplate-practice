@@ -119,8 +119,8 @@ export function CircuitBreaker(
 }
 
 /**
- * Decorator para registrar eventos no circuito.
- * Os eventos são armazenados e usados pelo `CircuitBreaker` quando ele for instanciado.
+ * Decorator for recording events in the circuit.
+ * Events are stored and used by `CircuitBreaker` when it is instantiated.
  */
 export function onEvent({ eventName, circuitGroup = 'default' }: OnEventInput) {
   return function (target: object, propertyKey: string | symbol): void {

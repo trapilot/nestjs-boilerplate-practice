@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { ENUM_AUTH_SCOPE_TYPE } from 'lib/nest-auth'
+import { EnumAuthScopeType } from 'lib/nest-auth'
 import { ApiRequestList, IResponseList, RequestListDto, RequestQueryList } from 'lib/nest-web'
 import { APP_VERSION_DOC_APP_QUERY_LIST, APP_VERSION_DOC_OPERATION } from '../constants'
 import { AppVersionResponseListDto } from '../dtos'
@@ -21,7 +21,7 @@ export class AppVersionAppController {
     docExclude: true,
     docExpansion: false,
     jwtAccessToken: {
-      scope: ENUM_AUTH_SCOPE_TYPE.MEMBER,
+      scope: EnumAuthScopeType.MEMBER,
       user: {
         synchronize: false,
         require: false,

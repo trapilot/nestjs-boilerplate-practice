@@ -8,22 +8,22 @@ import {
 import { ConfigService } from '@nestjs/config'
 import { ModuleRef } from '@nestjs/core'
 import {
-  ENUM_MEMBER_TIER_ACTION,
-  ENUM_MEMBER_TYPE,
-  ENUM_POINT_TYPE,
-  ENUM_SLIP_TYPE,
+  EnumMemberType,
+  EnumPointHistoryType,
+  EnumSlipType,
+  EnumTierHistoryMethod,
   Member,
   Prisma,
 } from '@runtime/prisma-client'
-import { ENUM_AUTH_SCOPE_TYPE, IAuthPassword } from 'lib/nest-auth'
+import { EnumAuthScopeType, IAuthPassword } from 'lib/nest-auth'
 import {
   APP_LANGUAGE,
-  AppContext,
   CryptoService,
-  ENUM_DATE_FORMAT,
+  EnumDateFormat,
   HelperService,
   MessageService,
   NumberUtil,
+  ScopeContext,
 } from 'lib/nest-core'
 import {
   IPrismaOptions,
@@ -32,14 +32,12 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { InvoiceService } from 'modules/invoice/services'
-import { InvoiceUtil } from 'modules/invoice/utils'
-import { TierService } from 'modules/tier/services'
-import { TierUtil } from 'modules/tier/utils'
+import { InvoiceService, InvoiceUtil } from 'modules/invoice'
+import { TierService, TierUtil } from 'modules/tier'
 import { MemberChangePasswordRequestDto } from '../dtos'
 import { MemberData } from '../helpers'
 import { ISlipCounterOptions, TMember, TMemberMetadata } from '../interfaces'
-import { MemberAuthService } from '../services'
+import { AuthService } from './auth.service'
 
 @Injectable()
 export class MemberService implements OnModuleInit {
@@ -50,8 +48,8 @@ export class MemberService implements OnModuleInit {
     private readonly ref: ModuleRef,
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly cryptoService: CryptoService,
-    private readonly messageService: MessageService,
+    private readonly crypto: CryptoService,
+    private readonly message: MessageService,
     private readonly helperService: HelperService,
   ) {}
 
@@ -61,22 +59,22 @@ export class MemberService implements OnModuleInit {
   }
 
   async findOne(kwargs?: Prisma.MemberFindUniqueArgs): Promise<TMember> {
-    return await this.prisma.client.member.findUnique(kwargs)
+    return await this.prisma.member.findUnique(kwargs)
   }
 
   async findFirst(kwargs: Prisma.MemberFindFirstArgs = {}): Promise<TMember> {
-    return await this.prisma.client.member.findFirst(kwargs)
+    return await this.prisma.member.findFirst(kwargs)
   }
 
   async findAll(kwargs: Prisma.MemberFindManyArgs = {}): Promise<TMember[]> {
-    return await this.prisma.client.member.findMany(kwargs)
+    return await this.prisma.member.findMany(kwargs)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.MemberFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TMember> {
-    return await this.prisma.client.member
+    return await this.prisma.member
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -104,7 +102,7 @@ export class MemberService implements OnModuleInit {
     where: Prisma.MemberWhereInput,
     kwargs: Omit<Prisma.MemberFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TMember> {
-    const member = await this.prisma.client.member
+    const member = await this.prisma.member
       .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -120,7 +118,7 @@ export class MemberService implements OnModuleInit {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.client.member.list(where, params, options)
+    return await this.prisma.member.list(where, params, options)
   }
 
   async paginate(
@@ -128,11 +126,11 @@ export class MemberService implements OnModuleInit {
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.client.member.paginate(where, params, options)
+    return await this.prisma.member.paginate(where, params, options)
   }
 
   async count(where: Prisma.MemberWhereInput = {}): Promise<number> {
-    return await this.prisma.client.member.count({
+    return await this.prisma.member.count({
       where,
     })
   }
@@ -141,7 +139,7 @@ export class MemberService implements OnModuleInit {
     id: number,
     kwargs: Omit<Prisma.MemberFindUniqueArgs, 'where'> = {},
   ): Promise<TMember> {
-    return await this.prisma.client.member.findUnique({
+    return await this.prisma.member.findUnique({
       ...kwargs,
       where: { id },
     })
@@ -163,28 +161,28 @@ export class MemberService implements OnModuleInit {
       data.birthYear = extractDate.year
     }
 
-    const dateNow = this.helperService.dateCreate()
-    const dateRange = this.helperService.dateRange(dateNow)
+    const nowDate = this.helperService.dateNow()
+    const dateRange = this.helperService.dateRange(nowDate)
     const { country, phone } = this.helperService.parsePhone(data.phone)
 
     const normalTier = this.tierService.getChart().getNormalTier()
 
-    return await this.prisma.client.member.create({
+    return await this.prisma.member.create({
       data: {
         ...data,
         tierId: normalTier.id,
         minTierId: normalTier.id,
-        type: ENUM_MEMBER_TYPE.NORMAL,
+        type: EnumMemberType.NORMAL,
         expiryDate: dateRange.endOfYear,
         locale: APP_LANGUAGE,
         phoneCountry: country,
         phoneNumber: phone,
-        startedAt: data?.startedAt ?? dateNow,
+        startedAt: data?.startedAt ?? nowDate,
         isEmailVerified: false,
         isPhoneVerified: false,
         password: passwordHash,
-        createdAt: dateNow,
-        updatedAt: dateNow,
+        createdAt: nowDate,
+        updatedAt: nowDate,
         tierHistories: {
           createMany: {
             data: [
@@ -192,10 +190,10 @@ export class MemberService implements OnModuleInit {
                 prevTierId: normalTier.id,
                 currTierId: normalTier.id,
                 isActive: true,
-                type: ENUM_MEMBER_TIER_ACTION.INITIAL,
+                type: EnumTierHistoryMethod.INITIAL,
                 expiryDate: dateRange.endOfYear,
-                createdAt: dateNow,
-                updatedAt: dateNow,
+                createdAt: nowDate,
+                updatedAt: nowDate,
               },
             ],
             skipDuplicates: true,
@@ -215,7 +213,7 @@ export class MemberService implements OnModuleInit {
 
     const { country, phone } = this.helperService.parsePhone(`${data?.phone}`)
 
-    return await this.prisma.client.member.update({
+    return await this.prisma.member.update({
       data: {
         ...data,
         phoneCountry: country,
@@ -227,7 +225,7 @@ export class MemberService implements OnModuleInit {
 
   async inactive(id: number): Promise<TMember> {
     const member = await this.findOrFail(id)
-    return await this.prisma.client.member.update({
+    return await this.prisma.member.update({
       data: { isActive: false },
       where: { id: member.id },
     })
@@ -235,7 +233,7 @@ export class MemberService implements OnModuleInit {
 
   async active(id: number): Promise<TMember> {
     const member = await this.findOrFail(id)
-    return await this.prisma.client.member.update({
+    return await this.prisma.member.update({
       data: { isActive: true },
       where: { id: member.id },
     })
@@ -243,7 +241,7 @@ export class MemberService implements OnModuleInit {
 
   async turnOffNotify(id: number): Promise<TMember> {
     const member = await this.findOrFail(id)
-    return await this.prisma.client.member.update({
+    return await this.prisma.member.update({
       data: { isNotifiable: false },
       where: { id: member.id },
     })
@@ -251,44 +249,42 @@ export class MemberService implements OnModuleInit {
 
   async turnOnNotify(id: number): Promise<TMember> {
     const member = await this.findOrFail(id)
-    return await this.prisma.client.member.update({
+    return await this.prisma.member.update({
       data: { isNotifiable: true },
       where: { id: member.id },
     })
   }
 
   async changeAvatar(member: TMember, data: Prisma.MemberUncheckedUpdateInput): Promise<TMember> {
-    return await this.prisma.client.member.update({
+    return await this.prisma.member.update({
       data,
       where: { id: member.id },
     })
   }
 
   async changePassword(member: TMember, dto: MemberChangePasswordRequestDto): Promise<TMember> {
-    const authService = this.ref.get<MemberAuthService>(ENUM_AUTH_SCOPE_TYPE.MEMBER, {
-      strict: false,
-    })
+    const authService = this.ref.get<AuthService>(EnumAuthScopeType.MEMBER, { strict: false })
     return await authService.changePassword(member, dto)
   }
 
   async addPoint(id: number, data: { point: number; createdBy: number }): Promise<Member> {
     const member = await this.findOrFail(id)
 
-    const dateNow = this.helperService.dateCreate()
+    const nowDate = this.helperService.dateNow()
 
-    return await this.prisma.client.member.update({
+    return await this.prisma.member.update({
       where: { id },
       data: {
         pointBalance: { increment: data.point },
-        updatedAt: dateNow,
+        updatedAt: nowDate,
         pointHistories: {
           create: {
             point: data.point,
             createdBy: data.createdBy,
             tierId: member.tierId,
-            type: ENUM_POINT_TYPE.SYSTEM,
-            createdAt: dateNow,
-            updatedAt: dateNow,
+            type: EnumPointHistoryType.SYSTEM,
+            createdAt: nowDate,
+            updatedAt: nowDate,
           },
         },
       },
@@ -299,9 +295,9 @@ export class MemberService implements OnModuleInit {
     const member = await this.find(id)
     if (member && member?.isActive) {
       // clear all personal information and associated data
-      const dateNow = this.helperService.dateCreate()
-      const timestamp = this.helperService.dateGetTimestamp(dateNow)
-      await this.prisma.client.member.update({
+      const nowDate = this.helperService.dateNow()
+      const timestamp = this.helperService.dateGetTimestamp(nowDate)
+      await this.prisma.member.update({
         data: {
           isActive: false,
           email: this.helperService.dirtyString(member.email, timestamp),
@@ -311,7 +307,7 @@ export class MemberService implements OnModuleInit {
               data: reasons.map((reason: string) => {
                 return {
                   title: reason,
-                  createdAt: dateNow,
+                  createdAt: nowDate,
                 }
               }),
               skipDuplicates: true,
@@ -329,7 +325,7 @@ export class MemberService implements OnModuleInit {
     dto: Prisma.MemberUncheckedUpdateInput,
   ): Promise<TMember & TMemberMetadata> {
     const member = await this.findOrFail(id)
-    const updated = await this.prisma.client.member.update({
+    const updated = await this.prisma.member.update({
       where: { id: member.id },
       data: dto,
     })
@@ -341,7 +337,7 @@ export class MemberService implements OnModuleInit {
     const memberCode = this.getMembershipCode(member)
     const expiryDate = this.getTierExpirationDate(member.createdAt)
 
-    return await this.prisma.client.member.update({
+    return await this.prisma.member.update({
       where: { id: member.id },
       data: {
         code: memberCode,
@@ -353,7 +349,7 @@ export class MemberService implements OnModuleInit {
             currTierId: member.tierId,
             minTierId: member.minTierId,
             isActive: true,
-            type: ENUM_MEMBER_TIER_ACTION.INITIAL,
+            type: EnumTierHistoryMethod.INITIAL,
             expiryDate: expiryDate,
             createdAt: member.createdAt,
             updatedAt: member.updatedAt,
@@ -368,23 +364,23 @@ export class MemberService implements OnModuleInit {
 
     if (member.expiryDate) {
       messages.push(
-        this.messageService.setMessage('module.member.memberTierExpiresIn', {
-          customLanguage: AppContext.language(),
+        this.message.setMessage('module.member.memberTierExpiresIn', {
+          customLanguage: ScopeContext.getReqLang(),
           properties: {
             tierExpireDate: this.helperService.dateFormat(
               member.expiryDate,
-              ENUM_DATE_FORMAT.HUMAN_DATE,
+              EnumDateFormat.HUMAN_DATE,
             ),
           },
         }),
       )
     }
 
-    const dateNow = this.helperService.dateCreate()
-    const recentPoints = await this.getPointRecent(member.id, dateNow)
+    const nowDate = this.helperService.dateNow()
+    const recentPoints = await this.getPointRecent(member.id, nowDate)
     if (recentPoints.length) {
       const recentExpiryDate = recentPoints[0].date
-      const totalExpiredPoints = await this.prisma.client.memberPointHistory.aggregate({
+      const totalExpiredPoints = await this.prisma.memberPointHistory.aggregate({
         _sum: { point: true },
         where: {
           memberId: member.id,
@@ -397,15 +393,15 @@ export class MemberService implements OnModuleInit {
 
       if (totalExpiredPoints._sum.point) {
         messages.push(
-          this.messageService.setMessage('module.member.memberPointExpiresIn', {
-            customLanguage: AppContext.language(),
+          this.message.setMessage('module.member.memberPointExpiresIn', {
+            customLanguage: ScopeContext.getReqLang(),
             properties: {
               pointExpireValue: NumberUtil.decimal(totalExpiredPoints._sum.point, {
                 useGrouping: true,
               }),
               pointExpireDate: this.helperService.dateFormat(
                 recentExpiryDate,
-                ENUM_DATE_FORMAT.HUMAN_DATE,
+                EnumDateFormat.HUMAN_DATE,
               ),
             },
           }),
@@ -432,12 +428,12 @@ export class MemberService implements OnModuleInit {
     pointRequire: number,
   ): Promise<{ date: Date; point: number }[]> {
     const results = []
-    const dateNow = this.helperService.dateCreate()
+    const nowDate = this.helperService.dateNow()
 
     let len = 0
     while (pointRequire > 0) {
       len += 2
-      const recents = await this.getPointRecent(id, dateNow, len)
+      const recents = await this.getPointRecent(id, nowDate, len)
       if (len > 2 && recents.length < len) {
         break
       }
@@ -458,7 +454,7 @@ export class MemberService implements OnModuleInit {
 
         pointRequire -= pointReduce
       }
-      // const recentPoint = await this.prisma.client.memberPointHistory.findFirst({
+      // const recentPoint = await this.prisma.memberPointHistory.findFirst({
       //   where: { memberId: id, isActive: true, isPending: false, point: { gt: 0 } },
       //   orderBy: { expiryDate: 'asc' },
       //   select: { expiryDate: true, point: true },
@@ -481,7 +477,7 @@ export class MemberService implements OnModuleInit {
     issuedAt: Date,
     take: number = 1,
   ): Promise<{ date: Date; point: number }[]> {
-    const pointGroups = await this.prisma.client.memberPointHistory.groupBy({
+    const pointGroups = await this.prisma.memberPointHistory.groupBy({
       by: ['memberId', 'expiryDate'],
       _sum: { point: true },
       having: { point: { _sum: { gt: 0 } } },
@@ -503,7 +499,7 @@ export class MemberService implements OnModuleInit {
   }
 
   async getPointBalance(id: number, issuedAt: Date): Promise<number> {
-    const pointBalance = await this.prisma.client.memberPointHistory.aggregate({
+    const pointBalance = await this.prisma.memberPointHistory.aggregate({
       _sum: { point: true },
       where: {
         memberId: id,
@@ -542,13 +538,13 @@ export class MemberService implements OnModuleInit {
 
   async getOrderNumber(issuedAt: Date): Promise<string> {
     return await this.getSlipCounter(issuedAt, {
-      type: ENUM_SLIP_TYPE.ORDER,
+      type: EnumSlipType.ORDER,
     })
   }
 
   async getSlipCounter(issuedAt: Date, options: ISlipCounterOptions): Promise<string> {
-    const key = this.helperService.dateFormat(issuedAt, ENUM_DATE_FORMAT.DATE_REFERENCE)
-    const slip = await this.prisma.client.slipCounter.upsert({
+    const key = this.helperService.dateFormat(issuedAt, EnumDateFormat.DATE_REFERENCE)
+    const slip = await this.prisma.slipCounter.upsert({
       where: { type_key: { key, type: options.type } },
       create: { type: options.type, key, sequence: 1 },
       update: { sequence: { increment: 1 } },
@@ -557,34 +553,34 @@ export class MemberService implements OnModuleInit {
     const numb = Number(`${slip.sequence}${key}`)
 
     if (options.prefix) {
-      const sequence = this.cryptoService.base62Encrypt(numb, { uppercase: true })
+      const sequence = this.crypto.base62Encrypt(numb, { uppercase: true })
       return `${options.prefix}-${sequence}`
     }
 
-    const code = this.cryptoService.base62Encrypt(numb, { uppercase: true })
+    const code = this.crypto.base62Encrypt(numb, { uppercase: true })
     const sequence = this.helperService.padZero(slip.sequence, 4)
     return `${code}${sequence}`
   }
 
   async getInvoiceNumber(issuedAt: Date): Promise<string> {
-    // const key = this.helperService.dateFormat(issuedAt, ENUM_DATE_FORMAT.DATE_REFERENCE)
-    // const slip = await this.prisma.client.slipCounter.upsert({
-    //   where: { type_key: { key, type: ENUM_SLIP_TYPE.INVOICE } },
-    //   create: { type: ENUM_SLIP_TYPE.INVOICE, key, sequence: 1 },
+    // const key = this.helperService.dateFormat(issuedAt, EnumDateFormat.DATE_REFERENCE)
+    // const slip = await this.prisma.slipCounter.upsert({
+    //   where: { type_key: { key, type: EnumSlipType.INVOICE } },
+    //   create: { type: EnumSlipType.INVOICE, key, sequence: 1 },
     //   update: { sequence: { increment: 1 } },
     // })
     // const sequence = this.helperService.padZero(slip.sequence, 4)
     // return `INV-${key}${sequence}`
 
     return await this.getSlipCounter(issuedAt, {
-      type: ENUM_SLIP_TYPE.INVOICE,
+      type: EnumSlipType.INVOICE,
     })
   }
 
   async resetBirthPurchased(issuedAt: Date): Promise<boolean> {
     const dateRange = this.helperService.dateRange(issuedAt)
 
-    await this.prisma.client.member.updateMany({
+    await this.prisma.member.updateMany({
       data: { hasBirthPurchased: false, hasBirthPurchasedAt: null },
       where: {
         hasBirthPurchased: true,
@@ -596,13 +592,13 @@ export class MemberService implements OnModuleInit {
     return true
   }
 
-  async releaseMemberPoint(issuedAt: Date) {
+  async releaseMemberPoints(issuedAt: Date) {
     const batchSize: number = 500
     const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
 
     let loop: boolean = false
     do {
-      const releasePoints = await this.prisma.client.memberPointHistory.findMany({
+      const releasePoints = await this.prisma.memberPointHistory.findMany({
         where: {
           isPending: true,
           isDeleted: false,
@@ -615,12 +611,12 @@ export class MemberService implements OnModuleInit {
 
       for (const pointHistory of releasePoints) {
         const { id: _id, memberId, ...data } = pointHistory
-        const aggregate = await this.prisma.client.memberPointHistory.aggregate({
+        const aggregate = await this.prisma.memberPointHistory.aggregate({
           _sum: { point: true },
           where: { memberId, isActive: true, isDeleted: false },
         })
 
-        await this.prisma.client.member.update({
+        await this.prisma.member.update({
           where: { id: memberId },
           data: {
             pointBalance: { increment: pointHistory.point },
@@ -646,7 +642,7 @@ export class MemberService implements OnModuleInit {
     return true
   }
 
-  async resetMemberPoint(issuedAt: Date) {
+  async resetMemberPoints(issuedAt: Date) {
     const batchSize: number = 500
     const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
     const where: Prisma.MemberPointHistoryWhereInput = {
@@ -657,7 +653,7 @@ export class MemberService implements OnModuleInit {
 
     let loop: boolean = false
     do {
-      const distinctMembers = await this.prisma.client.memberPointHistory.findMany({
+      const distinctMembers = await this.prisma.memberPointHistory.findMany({
         where,
         take: batchSize,
         select: { memberId: true },
@@ -667,21 +663,23 @@ export class MemberService implements OnModuleInit {
       for (const point of distinctMembers) {
         const member = await this.findOrFail(point.memberId)
         if (member.isActive) {
-          const aggregate = await this.prisma.client.memberPointHistory.aggregate({
+          const aggregate = await this.prisma.memberPointHistory.aggregate({
             _sum: { point: true },
             where: { ...where, memberId: member.id },
           })
 
-          await this.prisma.client.member.update({
+          const pointBalance = aggregate._sum.point || 0
+
+          await this.prisma.member.update({
             where: { id: member.id },
             data: {
-              pointBalance: { decrement: aggregate._sum.point },
+              pointBalance: { decrement: pointBalance },
               updatedAt: startOfDay,
               pointHistories: {
                 create: {
-                  type: ENUM_POINT_TYPE.EXPIRY,
+                  type: EnumPointHistoryType.EXPIRY,
                   tierId: member.tierId,
-                  point: aggregate._sum.point * -1,
+                  point: pointBalance * -1,
                   pointBalance: 0,
                   expiryDate: startOfDay,
                   createdAt: startOfDay,
@@ -702,7 +700,7 @@ export class MemberService implements OnModuleInit {
     return true
   }
 
-  async resetMemberTier(issuedAt: Date) {
+  async resetMemberTiers(issuedAt: Date) {
     const dateRange = this.helperService.dateRange(issuedAt)
     const batchSize: number = 500
 
@@ -710,7 +708,7 @@ export class MemberService implements OnModuleInit {
 
     let loop: boolean = false
     do {
-      const tierHistories = await this.prisma.client.memberTierHistory.findMany({
+      const tierHistories = await this.prisma.memberTierHistory.findMany({
         take: batchSize,
         where: {
           isActive: true,
@@ -740,14 +738,14 @@ export class MemberService implements OnModuleInit {
           referralSpending: 0,
           renewalSpending: tierData.curr.limitSpending,
           upgradeSpending: tierData.next.limitSpending,
-          type: isRenewal ? ENUM_MEMBER_TIER_ACTION.RENEWAL : ENUM_MEMBER_TIER_ACTION.DOWNGRADE,
+          type: isRenewal ? EnumTierHistoryMethod.RENEWAL : EnumTierHistoryMethod.DOWNGRADE,
           expiryDate: isRenewal ? dateRange.endOfYear : extendDate,
           isActive: true,
           createdAt: dateRange.startOfDay,
           updatedAt: dateRange.startOfDay,
         }
 
-        await this.prisma.client.member.update({
+        await this.prisma.member.update({
           where: { id: tierHistory.memberId },
           data: {
             tierId: newTierData.currTierId,
@@ -792,7 +790,7 @@ export class MemberService implements OnModuleInit {
   }
 
   private async getRecentData(member: TMember): Promise<MemberData> {
-    const tierRecent = await this.prisma.client.memberTierHistory.findFirst({
+    const tierRecent = await this.prisma.memberTierHistory.findFirst({
       where: { memberId: member.id, isActive: true },
       orderBy: [{ id: 'desc' }],
     })
@@ -803,7 +801,7 @@ export class MemberService implements OnModuleInit {
 
     const tierChart = this.tierService.getChart()
     const tierData = tierChart.getStats(member.tierId)
-    const newTierHistory = await this.prisma.client.memberTierHistory.create({
+    const newTierHistory = await this.prisma.memberTierHistory.create({
       data: {
         memberId: member.id,
         prevTierId: member.tierId,
@@ -827,7 +825,7 @@ export class MemberService implements OnModuleInit {
     const dateRange = this.helperService.dateRange(issuedAt)
     const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
 
-    const members = await this.prisma.client.member.findMany({
+    const members = await this.prisma.member.findMany({
       where: {
         isActive: true,
         hasBirthPurchased: false,
@@ -836,7 +834,7 @@ export class MemberService implements OnModuleInit {
     })
 
     for (const member of members) {
-      const birthPoint = await this.prisma.client.memberPointHistory.findFirst({
+      const birthPoint = await this.prisma.memberPointHistory.findFirst({
         where: {
           memberId: member.id,
           isBirth: true,
@@ -854,7 +852,7 @@ export class MemberService implements OnModuleInit {
         const memberTier = tierChart.getInfo(member.tierId)
         const newPoint = TierUtil.round(birthPoint.point * (memberTier.birthdayRatio - 1))
 
-        await this.prisma.client.member.update({
+        await this.prisma.member.update({
           where: { id: member.id },
           data: {
             hasBirthPurchased: true,
@@ -865,7 +863,7 @@ export class MemberService implements OnModuleInit {
                 data: {
                   invoiceId: birthPoint.invoiceId,
                   invoiceAmount: birthPoint.invoiceAmount,
-                  type: ENUM_POINT_TYPE.REWARD,
+                  type: EnumPointHistoryType.REWARD,
                   isBirth: true,
                   tierId: memberTier.id,
                   multipleRatio: memberTier.birthdayRatio,
@@ -929,7 +927,7 @@ export class MemberService implements OnModuleInit {
                 personalSpending: tierValue.usageAmount,
               })
               .addTierHistory({
-                type: ENUM_MEMBER_TIER_ACTION.UPGRADE,
+                type: EnumTierHistoryMethod.UPGRADE,
                 prevTierId: tierData.info.id,
                 currTierId: tierData.curr.id,
                 invoiceId: invoiceIds[invoiceIds.length - 1],
@@ -942,7 +940,7 @@ export class MemberService implements OnModuleInit {
                 updatedAt: sinceDate,
               })
               .addPointHistory({
-                type: ENUM_POINT_TYPE.REWARD,
+                type: EnumPointHistoryType.REWARD,
                 tierId: memberData.orgTierId,
                 invoiceId: invoiceIds[invoiceIds.length - 1],
                 invoiceAmount: tierValue.usageAmount,
@@ -955,7 +953,7 @@ export class MemberService implements OnModuleInit {
                 updatedAt: sinceDate,
               })
               .addPointHistory({
-                type: ENUM_POINT_TYPE.REWARD,
+                type: EnumPointHistoryType.REWARD,
                 tierId: tierData.curr.id,
                 invoiceId: invoiceIds[invoiceIds.length - 1],
                 invoiceAmount: tierValue.currAmount,
@@ -974,7 +972,7 @@ export class MemberService implements OnModuleInit {
                 personalSpending: tierValue.usageAmount,
               })
               .addPointHistory({
-                type: ENUM_POINT_TYPE.REWARD,
+                type: EnumPointHistoryType.REWARD,
                 tierId: tierData.curr.id,
                 invoiceId: invoiceIds[invoiceIds.length - 1],
                 invoiceAmount: tierValue.usageAmount,
@@ -995,7 +993,7 @@ export class MemberService implements OnModuleInit {
 
               if (tierData.isUpgrade()) {
                 referrerData.addTierHistory({
-                  type: ENUM_MEMBER_TIER_ACTION.UPGRADE,
+                  type: EnumTierHistoryMethod.UPGRADE,
                   prevTierId: tierData.info.id,
                   currTierId: tierData.curr.id,
                   invoiceId: invoiceIds[invoiceIds.length - 1],
@@ -1016,7 +1014,7 @@ export class MemberService implements OnModuleInit {
 
                 if (tierData.curr.referralRate && referrerData.hasDiamondAchieved) {
                   referrerData.addPointHistory({
-                    type: ENUM_POINT_TYPE.REFER,
+                    type: EnumPointHistoryType.REFER,
                     refereeId: memberData.id,
                     tierId: referrerData.tierId,
                     invoiceId: invoiceIds[invoiceIds.length - 1],
@@ -1042,7 +1040,7 @@ export class MemberService implements OnModuleInit {
             .setBirthPurchased(isBirthMonth)
             .setDiamondAchieved(tierData.isUpgrade())
 
-          await this.prisma.client.$transaction(async (tx) => {
+          await this.prisma.$transaction(async (tx) => {
             await tx.member.update({
               where: { id: member.id },
               data: {

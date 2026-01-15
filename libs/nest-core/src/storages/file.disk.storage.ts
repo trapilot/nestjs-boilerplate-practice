@@ -7,9 +7,9 @@ import convert from 'heic-convert'
 import imageSize from 'image-size'
 import { Jimp } from 'jimp'
 import { DiskStorageOptions, StorageEngine } from 'multer'
-import { ENUM_FILE_MIME } from '../enums'
+import { EnumFileExtensionImage, EnumFileExtensionVideo } from '../enums'
 import { IFile } from '../interfaces'
-import { FileUtil, UrlUtil } from '../utils'
+import { FileUtil } from '../utils'
 
 // Set the path to the ffmpeg binary
 ffmpeg.setFfmpegPath(ffmpegPath)
@@ -27,14 +27,14 @@ export class DiskStorage implements StorageEngine {
   private readonly transcoding: { heic: boolean; hevc: boolean }
 
   constructor(
+    directory: string,
     opts: {
-      directory?: string
       userPath?: boolean
       transcoding?: { heic: boolean; hevc: boolean }
     } & DiskStorageOptions,
   ) {
     // Set default path
-    this.directory = opts?.directory || 'uploads'
+    this.directory = directory || 'uploads'
     this.userPath = opts?.userPath ?? false
     this.transcoding = opts?.transcoding || { heic: true, hevc: true }
 
@@ -141,10 +141,14 @@ export class DiskStorage implements StorageEngine {
       })
       const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.length)
 
-      const outputType: { format: 'JPEG' | 'PNG'; extension: string; mimetype: ENUM_FILE_MIME } = {
+      const outputType: {
+        format: 'JPEG' | 'PNG'
+        extension: string
+        mimetype: EnumFileExtensionImage
+      } = {
         format: 'JPEG',
         extension: '.jpeg',
-        mimetype: ENUM_FILE_MIME.JPEG,
+        mimetype: EnumFileExtensionImage.JPEG,
       }
       const outputBuffer = await convert({
         buffer: arrayBuffer,
@@ -168,8 +172,8 @@ export class DiskStorage implements StorageEngine {
       return {
         originalname: outputName,
         filename: FileUtil.basename(outputPath),
-        destination: UrlUtil.normalize(destination),
-        path: UrlUtil.normalize(outputPath),
+        destination: FileUtil.normalize(destination),
+        path: FileUtil.normalize(outputPath),
         mimetype: outputType.mimetype,
         width: dimension?.width ?? undefined,
         height: dimension?.height ?? undefined,
@@ -198,9 +202,9 @@ export class DiskStorage implements StorageEngine {
       console.log(`\x1b[33mConverting H.265 video to H.264. Please wait...\x1b[0m`)
       const finalPath = FileUtil.join([destination, filename])
 
-      const outputType: { extension: string; mimetype: ENUM_FILE_MIME } = {
+      const outputType: { extension: string; mimetype: EnumFileExtensionVideo } = {
         extension: '.mp4',
-        mimetype: ENUM_FILE_MIME.MP4,
+        mimetype: EnumFileExtensionVideo.MP4,
       }
 
       const outputName = this.createFileName(file.originalname).replace(
@@ -230,8 +234,8 @@ export class DiskStorage implements StorageEngine {
       return {
         originalname: outputName,
         filename: FileUtil.basename(outputPath),
-        destination: UrlUtil.normalize(destination),
-        path: UrlUtil.normalize(outputPath),
+        destination: FileUtil.normalize(destination),
+        path: FileUtil.normalize(outputPath),
         mimetype: outputType.mimetype,
         size: fileStat.size,
         width: undefined,
@@ -267,9 +271,9 @@ export class DiskStorage implements StorageEngine {
     return {
       originalname: file.originalname,
       filename: filename,
-      destination: UrlUtil.normalize(destination),
-      path: UrlUtil.normalize(finalPath),
-      mimetype: FileUtil.parseMimetype(file.originalname, file.mimetype),
+      destination: FileUtil.normalize(destination),
+      path: FileUtil.normalize(finalPath),
+      mimetype: FileUtil.extractMimeFromFilename(file.originalname),
       width: imgWidth,
       height: imgHeight,
       size: fileStat.size,
@@ -298,14 +302,14 @@ export class DiskStorage implements StorageEngine {
           file,
           destination,
           filename,
-          FileUtil.parseExtension(file.originalname),
+          FileUtil.extractExtensionFromFilename(file.originalname),
         )
       } else if (isVideo) {
         info = await this.handleFileVideo(
           file,
           destination,
           filename,
-          FileUtil.parseExtension(file.originalname),
+          FileUtil.extractExtensionFromFilename(file.originalname),
         )
       } else {
         info = await this.handleFileNormal(file, destination, filename)

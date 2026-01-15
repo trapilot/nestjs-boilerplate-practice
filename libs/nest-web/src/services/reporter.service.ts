@@ -1,20 +1,25 @@
-import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common'
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common'
+import { LoggerService } from 'lib/nest-core'
 import { MetricsService } from './metrics.service'
 
 @Injectable()
 export class ReporterService implements OnApplicationBootstrap {
-  private static readonly logger = new Logger(ReporterService.name)
-  private static metricsService: MetricsService
+  private static logger: LoggerService
+  private static metrics: MetricsService
 
-  constructor(private readonly metrics: MetricsService) {}
+  constructor(
+    private readonly logger: LoggerService,
+    private readonly metrics: MetricsService,
+  ) {}
 
   onApplicationBootstrap() {
-    ReporterService.metricsService = this.metrics
+    ReporterService.logger = this.logger
+    ReporterService.metrics = this.metrics
   }
 
   static counter(key: string, labels?: Record<string, string | number>, value: number = 1): void {
     try {
-      this.metricsService.incCounter(key, labels, value)
+      this.metrics.incCounter(key, labels, value)
     } catch (error) {
       this.logError('increment counter', key, labels, error)
     }
@@ -22,7 +27,7 @@ export class ReporterService implements OnApplicationBootstrap {
 
   static gauge(key: string, value: number, labels?: Record<string, string | number>): void {
     try {
-      this.metricsService.setGauge(key, value, labels)
+      this.metrics.setGauge(key, value, labels)
     } catch (error) {
       this.logError('set gauge', key, labels, error)
     }
@@ -35,7 +40,7 @@ export class ReporterService implements OnApplicationBootstrap {
     buckets?: number[],
   ): void {
     try {
-      this.metricsService.observeHistogram(key, value, labels, buckets)
+      this.metrics.observeHistogram(key, value, labels, buckets)
     } catch (error) {
       this.logError('observe histogram', key, labels, error)
     }
@@ -48,7 +53,7 @@ export class ReporterService implements OnApplicationBootstrap {
     percentiles?: number[],
   ): void {
     try {
-      this.metricsService.observeSummary(key, value, labels, percentiles)
+      this.metrics.observeSummary(key, value, labels, percentiles)
     } catch (error) {
       this.logError('observe summary', key, labels, error)
     }
@@ -56,7 +61,7 @@ export class ReporterService implements OnApplicationBootstrap {
 
   static async pushMetrics(jobName: string): Promise<void> {
     try {
-      await this.metricsService.pushMetrics(jobName)
+      await this.metrics.pushMetrics(jobName)
     } catch (e) {
       this.logger.error(`Error pushing metrics: ${e}`)
     }

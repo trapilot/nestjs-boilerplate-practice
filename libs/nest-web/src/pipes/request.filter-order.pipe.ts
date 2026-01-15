@@ -2,7 +2,7 @@ import { Inject, Injectable, mixin, Type } from '@nestjs/common'
 import { ArgumentMetadata, PipeTransform, Scope } from '@nestjs/common/interfaces'
 import { REQUEST } from '@nestjs/core'
 import { IRequestApp } from 'lib/nest-core'
-import { ENUM_REQUEST_ORDER_DIRECTION_TYPE } from '../enums'
+import { EnumRequestSortDirection } from '../enums'
 
 export function RequestFilterOrderPipe(
   defaultOrderBy: string,
@@ -42,10 +42,10 @@ export function RequestFilterOrderPipe(
         })
         .map((v: string) => {
           const [sortKey, sortDir] = v.split(':')
-          if (sortDir && sortDir.toLowerCase() === ENUM_REQUEST_ORDER_DIRECTION_TYPE.DESC) {
-            return `${sortKey}:${ENUM_REQUEST_ORDER_DIRECTION_TYPE.DESC}`
+          if (sortDir && sortDir.toLowerCase() === EnumRequestSortDirection.DESC) {
+            return `${sortKey}:${EnumRequestSortDirection.DESC}`
           }
-          return `${sortKey}:${ENUM_REQUEST_ORDER_DIRECTION_TYPE.ASC}`
+          return `${sortKey}:${EnumRequestSortDirection.ASC}`
         })
     }
 

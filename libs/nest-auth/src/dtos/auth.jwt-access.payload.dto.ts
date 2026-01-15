@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty } from '@nestjs/swagger'
 import {
-  ENUM_AUTH_LOGIN_FROM,
-  ENUM_AUTH_LOGIN_TYPE,
-  ENUM_AUTH_LOGIN_WITH,
-  ENUM_AUTH_SCOPE_TYPE,
+  EnumAuthLoginFrom,
+  EnumAuthLoginType,
+  EnumAuthLoginWith,
+  EnumAuthScopeType,
 } from '../enums'
 
 export class AuthJwtAccessPayloadDto<T = Record<string, any>> {
@@ -17,30 +17,30 @@ export class AuthJwtAccessPayloadDto<T = Record<string, any>> {
   @ApiProperty({
     required: true,
     nullable: false,
-    enum: ENUM_AUTH_SCOPE_TYPE,
+    enum: EnumAuthScopeType,
   })
-  scopeType: ENUM_AUTH_SCOPE_TYPE
+  scopeType: EnumAuthScopeType
 
   @ApiProperty({
     required: true,
     nullable: false,
-    enum: ENUM_AUTH_LOGIN_TYPE,
+    enum: EnumAuthLoginType,
   })
-  loginType: ENUM_AUTH_LOGIN_TYPE
+  loginType: EnumAuthLoginType
 
   @ApiProperty({
     required: true,
     nullable: false,
-    enum: ENUM_AUTH_LOGIN_FROM,
+    enum: EnumAuthLoginFrom,
   })
-  loginFrom: ENUM_AUTH_LOGIN_FROM
+  loginFrom: EnumAuthLoginFrom
 
   @ApiProperty({
     required: true,
     nullable: false,
-    enum: ENUM_AUTH_LOGIN_WITH,
+    enum: EnumAuthLoginWith,
   })
-  loginWith: ENUM_AUTH_LOGIN_WITH
+  loginWith: EnumAuthLoginWith
 
   @ApiProperty({
     required: true,

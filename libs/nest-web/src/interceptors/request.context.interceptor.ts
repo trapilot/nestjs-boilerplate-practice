@@ -9,20 +9,20 @@ import {
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
 import { ConfigService } from '@nestjs/config'
 import { Reflector } from '@nestjs/core'
-import { APP_LANGUAGE, IRequestApp, IResponseApp } from 'lib/nest-core'
+import { IRequestApp, IResponseApp } from 'lib/nest-core'
 import { Observable, TimeoutError, throwError } from 'rxjs'
 import { catchError, timeout } from 'rxjs/operators'
 import { REQUEST_TIMEOUT_METADATA } from '../constants'
 
 @Injectable()
 export class RequestContextInterceptor<T> implements NestInterceptor<T> {
-  private readonly maxTimeout: number
+  private readonly timeoutInMs: number
 
   constructor(
     private readonly config: ConfigService,
     private readonly reflector: Reflector,
   ) {
-    this.maxTimeout = this.config.get<number>('middleware.timeout')
+    this.timeoutInMs = this.config.get<number>('request.timeoutInMs')
   }
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<void> {
@@ -40,14 +40,14 @@ export class RequestContextInterceptor<T> implements NestInterceptor<T> {
   }
 
   private applyHeaders(req: IRequestApp, res: IResponseApp) {
-    res.setHeader('x-language', req.__language || APP_LANGUAGE)
+    res.setHeader('x-language', req.__language)
     res.setHeader('x-timezone', req.__timezone)
     res.setHeader('x-version', req.__version)
   }
 
   private resolveTimeout(context: ExecutionContext): number {
     const ctxTimeout = this.reflector.get<number>(REQUEST_TIMEOUT_METADATA, context.getHandler())
-    return ctxTimeout ?? this.maxTimeout
+    return ctxTimeout ?? this.timeoutInMs
   }
 
   private handleTimeout(err: any) {

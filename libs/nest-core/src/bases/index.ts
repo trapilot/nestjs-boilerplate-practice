@@ -1,2 +1,1 @@
-export * from './gateway.base'
-export * from './module.base'
+export * from './queue.processor.base'

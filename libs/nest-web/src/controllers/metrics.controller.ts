@@ -1,8 +1,9 @@
 import { Controller, Get } from '@nestjs/common'
 import { Registry } from 'prom-client'
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiOkResponse, ApiOperation, ApiTags, ApiExcludeController } from '@nestjs/swagger'
 
 @ApiTags('Metrics')
+@ApiExcludeController()
 @Controller('/metrics')
 export class MetricsController {
   constructor(private readonly registry: Registry) {}

@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker'
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { ENUM_MEMBER_TIER_ACTION } from '@runtime/prisma-client'
+import { EnumTierHistoryMethod } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
-import { ENUM_DATE_FORMAT, ToDate, ToDecimal } from 'lib/nest-core'
+import { EnumDateFormat, ToDate, ToDecimal } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { InvoiceResponseBelongDto } from 'modules/invoice/dtos'
-import { MemberResponseBelongDto } from 'modules/member/dtos'
-import { TierResponseBelongDto } from 'modules/tier/dtos'
+import { InvoiceResponseBelongDto } from 'modules/invoice'
+import { MemberResponseBelongDto } from 'modules/member'
+import { TierResponseBelongDto } from 'modules/tier'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: faker.number.int({ min: 1, max: 10 }) })
@@ -39,7 +39,7 @@ class ResponseDataDetailDto {
   @Expose()
   minTierId: number
 
-  @ApiProperty({ example: ENUM_MEMBER_TIER_ACTION.SYSTEM })
+  @ApiProperty({ example: EnumTierHistoryMethod.INITIAL })
   @Type(() => String)
   @Expose()
   type: string
@@ -75,7 +75,7 @@ class ResponseDataDetailDto {
   upgradeSpending: number
 
   @ApiProperty({ example: faker.date.past() })
-  @ToDate({ format: ENUM_DATE_FORMAT.DATE })
+  @ToDate({ format: EnumDateFormat.DATE })
   @Expose()
   expiryDate: Date
 

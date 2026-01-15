@@ -1,3 +1,0 @@
-export enum ENUM_NOTIFICATION_REF_TYPE {
-  TEXT = 'TEXT',
-}

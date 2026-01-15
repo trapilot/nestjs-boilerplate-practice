@@ -8,7 +8,7 @@ import {
 import { ConfigService } from '@nestjs/config'
 import { IRequestApp } from 'lib/nest-core'
 import { AuthSocialApplePayloadDto } from '../../dtos'
-import { AuthService } from '../../services'
+import { AuthUtil } from '../../services'
 
 @Injectable()
 export class AuthSocialAppleGuard implements CanActivate {
@@ -16,11 +16,11 @@ export class AuthSocialAppleGuard implements CanActivate {
   private readonly prefix: string
 
   constructor(
-    private readonly configService: ConfigService,
-    private readonly authService: AuthService,
+    private readonly config: ConfigService,
+    private readonly authUtil: AuthUtil,
   ) {
-    this.header = this.configService.get<string>('auth.apple.header')
-    this.prefix = this.configService.get<string>('auth.apple.prefix')
+    this.header = this.config.get<string>('auth.apple.header')
+    this.prefix = this.config.get<string>('auth.apple.prefix')
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -39,7 +39,7 @@ export class AuthSocialAppleGuard implements CanActivate {
     const accessToken: string = requestHeader[1]
 
     try {
-      const payload = await this.authService.appleGetTokenInfo(accessToken)
+      const payload = await this.authUtil.appleGetTokenInfo(accessToken)
 
       request.user = payload
 

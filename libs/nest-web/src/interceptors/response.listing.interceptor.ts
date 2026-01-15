@@ -4,8 +4,7 @@ import { Reflector } from '@nestjs/core'
 import { ClassConstructor, ClassTransformOptions, plainToInstance } from 'class-transformer'
 import { stream, Workbook, Worksheet } from 'exceljs'
 import {
-  AppContext,
-  ENUM_FILE_BOOK_TYPE,
+  EnumFileExtensionDocument,
   FileUtil,
   HelperService,
   IExportableMetadata,
@@ -14,9 +13,10 @@ import {
   IReturnIterator,
   IReturnList,
   MessageService,
-  PropertyStorage,
+  PropertyDecoratorStorage,
   ResponseListMetadataDto,
   ResponseSuccessDto,
+  ScopeContext,
   StrUtil,
 } from 'lib/nest-core'
 import { Observable, throwError } from 'rxjs'
@@ -24,17 +24,18 @@ import { catchError, mergeMap } from 'rxjs/operators'
 import {
   REQUEST_DEFAULT_EXPORT_PER_SHEET,
   RESPONSE_DTO_CONSTRUCTOR_METADATA,
-  RESPONSE_DTO_OPTIONS_METADATA,
+  RESPONSE_DTO_TRANSFORM_METADATA,
   RESPONSE_FILE_EXPORT_METADATA,
 } from '../constants'
 import { ResponseUserBelongDto } from '../dtos'
 import { IResponseList } from '../interfaces'
+import { ResponseUtil } from '../utils'
 
 @Injectable()
 export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IResponseList<R>> {
   constructor(
+    private readonly message: MessageService,
     private readonly reflector: Reflector,
-    private readonly messageService: MessageService,
     private readonly helperService: HelperService,
   ) {}
 
@@ -44,7 +45,7 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
     }
 
     const { query } = context.switchToHttp().getRequest()
-    const exportType = query?.exportType
+    const bookType = query?.bookType
     const exportFlag = this.reflector.get<boolean>(
       RESPONSE_FILE_EXPORT_METADATA,
       context.getHandler(),
@@ -52,8 +53,8 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
 
     return next.handle().pipe(
       mergeMap(async (res: IResponseList<R>) => {
-        if (exportFlag && Boolean(exportType) && ['xlsx', 'csv'].includes(exportType)) {
-          return await this.export(context, res as IReturnIterator<R>, exportType)
+        if (exportFlag && Boolean(bookType) && ['xlsx', 'csv'].includes(bookType)) {
+          return await this.export(context, res as IReturnIterator<R>, bookType)
         }
         return await this.send(context, res as IReturnList<R>)
       }),
@@ -74,20 +75,22 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
       context.getHandler(),
     )
 
-    const dtoOptions = this.reflector.get<ClassTransformOptions>(
-      RESPONSE_DTO_OPTIONS_METADATA,
+    const dtoTransform = this.reflector.get<ClassTransformOptions>(
+      RESPONSE_DTO_TRANSFORM_METADATA,
       context.getHandler(),
     )
 
+    const dtoGroups = [req?.user?.loginFrom, req?.user?.scopeType]
+
     // metadata
-    const dateNow = this.helperService.dateCreate()
-    const ctxData = AppContext.current()
+    const nowDate = this.helperService.dateNow()
+    const ctxData = ScopeContext.getReqData()
     let metadata: ResponseListMetadataDto = {
       path: req.path,
-      language: ctxData?.language ?? AppContext.language(),
-      timezone: ctxData?.timezone ?? AppContext.timezone(),
-      version: ctxData?.apiVersion ?? AppContext.apiVersion(),
-      timestamp: this.helperService.dateGetTimestamp(dateNow),
+      language: ctxData.language,
+      timezone: ctxData.timezone,
+      version: ctxData.version,
+      timestamp: this.helperService.dateGetTimestamp(nowDate),
       availableSearch: req.__filters?.availableSearch ?? [],
       availableOrderBy: req.__filters?.availableOrderBy ?? [],
     }
@@ -95,26 +98,17 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
     const statusHttp = res.statusCode
     let result = response.data
 
-    const { _metadata } = response
-    const customProperty = _metadata?.customProperty
-
     if (dtoClass) {
-      if (customProperty?.serializeProperties) {
-        result.forEach((i) => ({ __metadata: customProperty.serializeProperties, ...i }))
-      }
-
-      result = plainToInstance(dtoClass, result, {
-        excludeExtraneousValues: true,
-        groups: [req?.user?.loginFrom, req?.user?.scopeType],
-        ...dtoOptions,
+      result = ResponseUtil.mapToInstances(result, {
+        type: dtoClass,
+        transform: { ...dtoGroups, ...dtoTransform },
+        mappingProperties: response?.metadata?.mappingProperties,
       })
     }
 
-    delete _metadata?.customProperty
-
     metadata = {
+      ...response.metadata,
       ...metadata,
-      ..._metadata,
     }
 
     res
@@ -130,11 +124,7 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
     }
   }
 
-  private async export(
-    context: ExecutionContext,
-    response: IReturnIterator<R>,
-    exportType: string,
-  ) {
+  private async export(context: ExecutionContext, response: IReturnIterator<R>, bookType: string) {
     const ctx: HttpArgumentsHost = context.switchToHttp()
     const req: IRequestApp = ctx.getRequest<IRequestApp>()
     const res: IResponseApp = ctx.getResponse<IResponseApp>()
@@ -144,37 +134,39 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
       context.getHandler(),
     )
 
-    const dtoOptions = this.reflector.get<ClassTransformOptions>(
-      RESPONSE_DTO_OPTIONS_METADATA,
+    const dtoTransform = this.reflector.get<ClassTransformOptions>(
+      RESPONSE_DTO_TRANSFORM_METADATA,
       context.getHandler(),
     )
 
-    const fileExcel = exportType === ENUM_FILE_BOOK_TYPE.XLSX
+    const dtoGroups = [req?.user?.loginFrom, req?.user?.scopeType]
+
+    const fileXlsx = bookType === EnumFileExtensionDocument.XLSX
     const fileOutput = response?.filePrefix ?? 'export'
 
     const filename = FileUtil.format(fileOutput, {
       timestamp: response?.fileTimestamp,
-      extension: exportType,
+      extension: bookType,
     })
 
     // set headers
     res
-      .setHeader('Content-Type', FileUtil.parseMimetype(filename))
+      .setHeader('Content-Type', FileUtil.extractMimeFromFilename(filename))
       .setHeader('Content-Disposition', `attachment; filename=${filename}`)
 
-    const workbook = fileExcel
+    const workbook = fileXlsx
       ? new stream.xlsx.WorkbookWriter({ stream: res, useStyles: false, useSharedStrings: true })
       : new Workbook()
 
-    const dtoSerializeOptions = {
+    const serializeOptions = {
       excludeExtraneousValues: true,
-      groups: [req?.user?.loginFrom, req?.user?.scopeType],
-      ...dtoOptions,
+      groups: dtoGroups,
+      ...dtoTransform,
     }
 
-    const userKeys = Object.keys(plainToInstance(ResponseUserBelongDto, {}, dtoSerializeOptions))
-    const exportProperties = PropertyStorage.get<IExportableMetadata>(dtoClass)
-    const serializeMetadata = response?._metadata?.customProperty?.serializeProperties ?? {}
+    const userProperties = Object.keys(plainToInstance(ResponseUserBelongDto, {}, serializeOptions))
+    const exportProperties = PropertyDecoratorStorage.get<IExportableMetadata>(dtoClass)
+    const mappingProperties = response?.metadata?.mappingProperties
 
     let rowIndex = 0
     let sheetIndex = 1
@@ -191,20 +183,26 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
         if (rowIndex > 0 && sheetHeaders.length === 0) break
 
         if (dtoClass) {
-          const dtoSerializeData = { ...serializeMetadata, ...data }
-          data = plainToInstance(dtoClass, dtoSerializeData, dtoSerializeOptions)
+          data = ResponseUtil.mapToInstance(data, {
+            type: dtoClass,
+            transform: serializeOptions,
+            mappingProperties: mappingProperties,
+          })
         }
 
         if (sheetFields.length === 0) {
-          sheetFields = Object.keys(plainToInstance(dtoClass, {}, dtoSerializeOptions))
-            .filter((field) => data[field] !== undefined)
-            .filter((field) => exportProperties.has(field) || userKeys.includes(field))
+          sheetFields = ResponseUtil.mapToProperties(data, {
+            type: dtoClass,
+            transform: serializeOptions,
+            allowProperties: exportProperties,
+            ignoreProperties: userProperties,
+          })
 
           if (sheetHeaders.length === 0) {
             sheetHeaders = sheetFields.map((field) => {
               const { header } = exportProperties.get(field)
               if (header) {
-                return this.messageService.setMessage(header)
+                return this.message.setMessage(header)
               }
               return StrUtil.capitalize(field, { splitWords: true })
             })
@@ -228,7 +226,7 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
         if (sheetFields.length) {
           const sheetRow = []
           for (const field of sheetFields) {
-            if (userKeys.includes(field)) {
+            if (userProperties.includes(field)) {
               const userData = data[field]?.name ?? data[field]
               sheetRow.push(userData || undefined)
             } else {
@@ -243,7 +241,7 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
     }
 
     // save workbook
-    if (fileExcel) {
+    if (fileXlsx) {
       await (workbook as stream.xlsx.WorkbookWriter).commit()
     } else {
       await workbook.csv.write(res)
