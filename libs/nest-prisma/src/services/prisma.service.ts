@@ -51,7 +51,7 @@ class PrismaClientExtension extends PrismaClient implements OnModuleInit, OnModu
         { emit: 'event', level: 'warn' },
         { emit: 'event', level: 'info' },
       ],
-      errorFormat: 'pretty',
+      // errorFormat: 'pretty',
       adapter: PrismaUtil.createAdapter(options.provider, {
         url: options.writeUrl,
       }),
@@ -67,7 +67,7 @@ class PrismaClientExtension extends PrismaClient implements OnModuleInit, OnModu
               { emit: 'event', level: 'warn' },
               { emit: 'event', level: 'info' },
             ],
-            errorFormat: 'pretty',
+            // errorFormat: 'pretty',
             adapter: PrismaUtil.createAdapter(options.provider, { url: readUrl }),
           })
           this.setupLogging(replica as PrismaClientExtension)

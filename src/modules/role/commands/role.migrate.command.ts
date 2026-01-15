@@ -1,4 +1,4 @@
-import { EnumScopeType, HelperService, LoggerService, ScopeAsync } from 'lib/nest-core'
+import { EnumScopeType, HelperService, LoggerService, OnScope } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner, Option } from 'nest-commander'
 
@@ -23,7 +23,7 @@ export class RoleMigrateCommand extends CommandRunner {
     return (val ?? '').split(',').map(s => Number(s))
   }
 
-  @ScopeAsync(EnumScopeType.COMMAND, { context: 'seed' })
+  @OnScope(EnumScopeType.COMMAND, { context: 'seed', async: true })
   async run(_passedParam: string[], _options?: Record<string, string | number>): Promise<void> {
     this.logger.log(`${RoleMigrateCommand.name} is running...`)
 

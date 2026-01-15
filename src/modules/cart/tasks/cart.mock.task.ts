@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { EnumOrderSource, EnumPointHistoryType, Prisma } from '@runtime/prisma-client'
-import { EnumScopeType, HelperService, LoggerService, ScopeAsync, StrUtil } from 'lib/nest-core'
+import { EnumScopeType, HelperService, LoggerService, OnScope, StrUtil } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { MemberService } from 'modules/member/services'
 import { CartService } from '../services'
@@ -19,14 +19,15 @@ export class CartMockTask {
   @Cron(CronExpression.EVERY_MINUTE, {
     disabled: StrUtil.isNotTrue(process.env.AUTO_GEN_MODE),
   })
-  @ScopeAsync(EnumScopeType.CRON, {
+  @OnScope(EnumScopeType.CRON, {
     context: 'cron.cart_mockup_items',
+    async: true,
   })
   async mockup(): Promise<void> {
     this.logger.log(`${CartMockTask.name} is running`)
     const canRun = await this.canRun()
     if (!canRun) {
-      this.logger.warn(`${CartMockTask.name} stopped`)
+      this.logger.log(`${CartMockTask.name} stopped`)
       return
     }
 
@@ -117,7 +118,7 @@ export class CartMockTask {
     } catch (err: unknown) {
       this.logger.error(err)
     } finally {
-      this.logger.warn(`${CartMockTask.name} done`)
+      this.logger.log(`${CartMockTask.name} done`)
     }
 
     return

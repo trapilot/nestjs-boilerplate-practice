@@ -6,7 +6,7 @@ import {
   EnumScopeType,
   HelperService,
   LoggerService,
-  ScopeAsync,
+  OnScope,
 } from 'lib/nest-core'
 import { PushService } from '../services'
 
@@ -22,8 +22,9 @@ export class PushTask {
     timeZone: APP_TIMEZONE,
     disabled: AppUtil.isLocal(),
   })
-  @ScopeAsync(EnumScopeType.CRON, {
+  @OnScope(EnumScopeType.CRON, {
     context: 'cron.push_send_notification',
+    async: true,
   })
   async execute(): Promise<void> {
     const waiting = await this.waitForNextPush()

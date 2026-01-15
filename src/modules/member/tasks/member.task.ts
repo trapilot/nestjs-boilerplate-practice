@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common'
 import { Cron, CronExpression } from '@nestjs/schedule'
-import { APP_TIMEZONE, EnumScopeType, HelperService, ScopeAsync } from 'lib/nest-core'
+import { APP_TIMEZONE, EnumScopeType, HelperService, OnScope } from 'lib/nest-core'
 import { MEMBER_AUTH_TOKEN } from '../constants'
 import { AuthService, MemberService, VerifyService } from '../services'
 
@@ -14,19 +14,22 @@ export class MemberTask {
   ) {}
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
-  @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_clean_up_refresh_tokens' })
+  @OnScope(EnumScopeType.CRON, { context: 'cron.member_clean_refresh_tokens', async: true })
   async cleanUpRefreshTokens(): Promise<void> {
     await this.authService.cleanUpRefreshTokens()
   }
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
-  @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_clean_up_verify_tokens' })
+  @OnScope(EnumScopeType.CRON, { context: 'cron.member_clean_verify_tokens', async: true })
   async cleanUpVerifyTokens(): Promise<void> {
     await this.verifyService.cleanUpVerifyTokens()
   }
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
-  @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_earn_highest_purchase_in_birth' })
+  @OnScope(EnumScopeType.CRON, {
+    context: 'cron.member_earn_highest_purchase_in_birth',
+    async: true,
+  })
   async handleEarnHighestPurchaseInBirth(): Promise<void> {
     const chkDate = this.helperService.dateNow()
 
@@ -34,7 +37,7 @@ export class MemberTask {
   }
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
-  @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_earn_point_from_purchases' })
+  @OnScope(EnumScopeType.CRON, { context: 'cron.member_earn_point_from_purchases', async: true })
   async handleEarnPointFromPurchase(): Promise<void> {
     const chkDate = this.helperService.dateNow()
 
@@ -42,7 +45,7 @@ export class MemberTask {
   }
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
-  @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_release_points' })
+  @OnScope(EnumScopeType.CRON, { context: 'cron.member_release_points', async: true })
   async handleReleaseMemberPoints(): Promise<void> {
     const chkDate = this.helperService.dateNow()
 
@@ -50,7 +53,7 @@ export class MemberTask {
   }
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
-  @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_reset_points' })
+  @OnScope(EnumScopeType.CRON, { context: 'cron.member_reset_points', async: true })
   async handleResetPoints(): Promise<void> {
     const chkDate = this.helperService.dateNow()
 
@@ -58,7 +61,7 @@ export class MemberTask {
   }
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
-  @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_reset_tiers' })
+  @OnScope(EnumScopeType.CRON, { context: 'cron.member_reset_tiers', async: true })
   async handleResetTiers(): Promise<void> {
     const chkDate = this.helperService.dateNow()
 
@@ -66,7 +69,7 @@ export class MemberTask {
   }
 
   @Cron(CronExpression.EVERY_MINUTE, { timeZone: APP_TIMEZONE })
-  @ScopeAsync(EnumScopeType.CRON, { context: 'cron.member_reset_birthpurchase_every_year' })
+  @OnScope(EnumScopeType.CRON, { context: 'cron.member_reset_birth_purchase', async: true })
   async handleResetBirthPurchseEveryYear(): Promise<void> {
     const chkDate = this.helperService.dateNow()
 

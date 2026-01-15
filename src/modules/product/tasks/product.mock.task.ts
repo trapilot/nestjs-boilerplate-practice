@@ -7,7 +7,7 @@ import {
   EnumScopeType,
   HelperService,
   LoggerService,
-  ScopeAsync,
+  OnScope,
   StrUtil,
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
@@ -31,15 +31,16 @@ export class ProductMockTask {
   @Cron(CronExpression.EVERY_MINUTE, {
     disabled: StrUtil.isNotTrue(process.env.AUTO_GEN_MODE),
   })
-  @ScopeAsync(EnumScopeType.CRON, {
+  @OnScope(EnumScopeType.CRON, {
     context: 'cron.product_mockup',
+    async: true,
   })
   async mockup(): Promise<void> {
     this.logger.log(`${ProductMockTask.name} is running`)
 
     const remainNumbers = await this.runWithNumbers()
     if (remainNumbers <= 0) {
-      this.logger.warn(`${ProductMockTask.name} stopped`)
+      this.logger.log(`${ProductMockTask.name} stopped`)
       return
     }
 
@@ -140,7 +141,7 @@ export class ProductMockTask {
     } catch (err: unknown) {
       this.logger.error(err)
     } finally {
-      this.logger.warn(`${ProductMockTask.name} done`)
+      this.logger.log(`${ProductMockTask.name} done`)
     }
 
     return

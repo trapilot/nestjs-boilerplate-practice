@@ -9,7 +9,7 @@ export function AppEnvProtected(...envs: EnumAppEnvironment[]): MethodDecorator 
   return applyDecorators(UseGuards(AppEnvGuard), SetMetadata(APP_ENV_META_KEY, envs))
 }
 
-export function ScopeAsync(scope: EnumScopeType, options: { context: string }) {
+export function OnScope(scope: EnumScopeType, options: { async?: boolean; context: string }) {
   return function (_target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value
     const ctxData: IScopeContextData = {
@@ -20,8 +20,14 @@ export function ScopeAsync(scope: EnumScopeType, options: { context: string }) {
     }
 
     descriptor.value = function (...args: any[]) {
-      // If the cron job is an async function, preserve the context using createAsync
-      return ScopeContext.createAsync(ctxData, () => {
+      if (options.async === true) {
+        // If scope run in an async function, preserve the context using createAsync
+        return ScopeContext.createAsync(ctxData, () => {
+          return originalMethod.apply(this, args)
+        })
+      }
+
+      return ScopeContext.create(ctxData, () => {
         return originalMethod.apply(this, args)
       })
     }

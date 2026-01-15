@@ -1,4 +1,4 @@
-import { EnumScopeType, LoggerService, ScopeAsync } from 'lib/nest-core'
+import { EnumScopeType, LoggerService, OnScope } from 'lib/nest-core'
 import { Command, CommandRunner } from 'nest-commander'
 import { EnumSettingGroup, EnumSettingType } from '../enums'
 import { SettingService } from '../services'
@@ -15,7 +15,7 @@ export class SettingSeedCommand extends CommandRunner {
     super()
   }
 
-  @ScopeAsync(EnumScopeType.COMMAND, { context: 'seed' })
+  @OnScope(EnumScopeType.COMMAND, { context: 'seed', async: true })
   async run(_passedParam: string[], _options?: Record<string, string | number>): Promise<void> {
     this.logger.log(`${SettingSeedCommand.name} is running...`)
 

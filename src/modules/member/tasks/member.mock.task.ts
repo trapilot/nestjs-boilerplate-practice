@@ -9,7 +9,7 @@ import {
   EnumUserType,
   HelperService,
   LoggerService,
-  ScopeAsync,
+  OnScope,
   StrUtil,
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
@@ -36,23 +36,25 @@ export class MemberMockTask {
   @Cron(CronExpression.EVERY_MINUTE, {
     disabled: StrUtil.isNotTrue(process.env.AUTO_GEN_MODE),
   })
-  @ScopeAsync(EnumScopeType.CRON, {
+  @OnScope(EnumScopeType.CRON, {
     context: 'cron.member_mockup',
+    async: true,
   })
   async mockup(): Promise<void> {
     this.logger.log(`${MemberMockTask.name} is running`)
     const remainNumbers = await this.runWithNumbers()
     if (remainNumbers <= 0) {
-      this.logger.warn(`${MemberMockTask.name} stopped`)
+      this.logger.log(`${MemberMockTask.name} stopped`)
       return
     }
 
     const mockupNumbers = Math.min(this.mockupNumbers, remainNumbers)
     const lastMember = await this.prisma.member.findFirst({
-      orderBy: [{ createdAt: 'desc' }],
-      select: { createdAt: true },
+      orderBy: [{ id: 'desc' }],
+      select: { id: true, createdAt: true },
     })
 
+    this.logger.log(lastMember)
     const dateCheck = lastMember ? lastMember.createdAt : this.startDate
 
     const dateExecute = this.helperService.dateForward(dateCheck, {
@@ -67,21 +69,26 @@ export class MemberMockTask {
 
     try {
       const referralCodes = []
+      const startNumber = lastMember?.id ?? 0
       for (let i = 0; i < mockupNumbers; i++) {
+        const nextNumber = startNumber + i
         const staffNumber = this.helperService.randomNumberInRange(0, 5)
         const isStaff = staffNumber === 0
         const isFemale = !this.helperService.randomNumberInRange(0, 1)
         const memberTier = isStaff ? tierChart.getStaffTier() : tierChart.getNormalTier()
         const tierData = tierChart.getStats(memberTier.id)
 
-        const fullPhone = this.helperService.padZero(i + 1, 8, 'CODE#')
+        const fullPhone = this.helperService.padZero(nextNumber, 10)
         const { country, phone } = this.helperService.parsePhone(fullPhone)
 
-        const code = this.helperService.padZero(i + 1, codeDigits, 'T')
+        const code = this.helperService.padZero(nextNumber, codeDigits, 'T')
         const invitedCode = referralCodes[Math.floor(Math.random() * referralCodes.length)]
         const hasReferrer = !this.helperService.randomNumberInRange(0, 1)
 
-        const referralCode = fullPhone
+        let referralCode = this.helperService.padZero(nextNumber, 8, 'CODE#')
+        while (referralCodes.includes(referralCode)) {
+          referralCode = this.helperService.padZero(nextNumber, 8, 'CODE#')
+        }
         referralCodes.push(referralCode)
 
         const memberDate = isStaff
@@ -100,13 +107,13 @@ export class MemberMockTask {
             referralCode,
             invitedCode: hasReferrer ? invitedCode : undefined,
             type: isStaff ? EnumMemberType.STAFF : EnumMemberType.NORMAL,
-            email: `payx${i + 1}@email.cc.co`,
-            name: `Pay X${i + 1}`,
+            email: `payx${nextNumber}@email.cc.co`,
+            name: `Pay X${nextNumber}`,
             phone: i === 0 ? process.env.MOCK_MEMBER_PHONE : fullPhone,
             password: hashedPassword,
             phoneCountry: country,
             phoneNumber: phone,
-            address: `home #0${i + 1}`,
+            address: `home #0${nextNumber}`,
             locale: EnumAppLanguage.EN,
             gender: isFemale ? EnumUserType.FEMALE : EnumUserType.MALE,
             birthDate,
@@ -148,7 +155,7 @@ export class MemberMockTask {
     } catch (err: unknown) {
       this.logger.error(err)
     } finally {
-      this.logger.warn(`${MemberMockTask.name} done`)
+      this.logger.log(`${MemberMockTask.name} done`)
     }
 
     return

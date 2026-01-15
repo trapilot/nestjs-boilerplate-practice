@@ -1,6 +1,6 @@
 import { ConfigService } from '@nestjs/config'
 import { EnumAuthSignUpFrom } from 'lib/nest-auth'
-import { CryptoService, EnumScopeType, LoggerService, ScopeAsync } from 'lib/nest-core'
+import { CryptoService, EnumScopeType, LoggerService, OnScope } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner } from 'nest-commander'
 
@@ -18,7 +18,7 @@ export class RoleSeedCommand extends CommandRunner {
     super()
   }
 
-  @ScopeAsync(EnumScopeType.COMMAND, { context: 'seed' })
+  @OnScope(EnumScopeType.COMMAND, { context: 'seed', async: true })
   async run(_passedParam: string[], _options?: Record<string, string | number>): Promise<void> {
     this.logger.log(`${RoleSeedCommand.name} is running...`)
 

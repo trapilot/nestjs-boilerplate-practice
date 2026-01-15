@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { Cron, CronExpression } from '@nestjs/schedule'
-import { APP_TIMEZONE, EnumScopeType, HelperService, ScopeAsync } from 'lib/nest-core'
+import { APP_TIMEZONE, EnumScopeType, HelperService, OnScope } from 'lib/nest-core'
 import { InvoiceService } from '../services'
 
 @Injectable()
@@ -13,8 +13,9 @@ export class InvoiceTask {
   @Cron(CronExpression.EVERY_MINUTE, {
     timeZone: APP_TIMEZONE,
   })
-  @ScopeAsync(EnumScopeType.CRON, {
+  @OnScope(EnumScopeType.CRON, {
     context: 'cron.invoice_handle_expire_over_due',
+    async: true,
   })
   async handleOverDueInvoice(): Promise<void> {
     const nowDate = this.helperService.dateNow()

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { EnumInvoiceStatus, EnumPaymentMethod } from '@runtime/prisma-client'
-import { EnumScopeType, HelperService, LoggerService, ScopeAsync, StrUtil } from 'lib/nest-core'
+import { EnumScopeType, HelperService, LoggerService, OnScope, StrUtil } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { InvoiceService } from '../services'
 
@@ -21,14 +21,15 @@ export class InvoiceMockTask {
   @Cron(CronExpression.EVERY_MINUTE, {
     disabled: StrUtil.isNotTrue(process.env.AUTO_GEN_MODE),
   })
-  @ScopeAsync(EnumScopeType.CRON, {
+  @OnScope(EnumScopeType.CRON, {
     context: 'cron.invoice_mockup_random_paid',
+    async: true,
   })
   async mockup(): Promise<void> {
     this.logger.log(`${InvoiceMockTask.name} is running`)
     const canRun = await this.canRun()
     if (!canRun) {
-      this.logger.warn(`${InvoiceMockTask.name} stopped`)
+      this.logger.log(`${InvoiceMockTask.name} stopped`)
       return
     }
 
@@ -51,7 +52,7 @@ export class InvoiceMockTask {
     } catch (err: unknown) {
       this.logger.error(err)
     } finally {
-      this.logger.warn(`${InvoiceMockTask.name} done`)
+      this.logger.log(`${InvoiceMockTask.name} done`)
     }
   }
 

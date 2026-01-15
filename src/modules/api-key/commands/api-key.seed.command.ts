@@ -1,5 +1,5 @@
 import { EnumApiKeyType } from '@runtime/prisma-client'
-import { EnumScopeType, LoggerService, ScopeAsync } from 'lib/nest-core'
+import { EnumScopeType, LoggerService, OnScope } from 'lib/nest-core'
 import { Command, CommandRunner } from 'nest-commander'
 import { ApiKeyService } from '../services'
 
@@ -15,7 +15,7 @@ export class ApiKeySeedCommand extends CommandRunner {
     super()
   }
 
-  @ScopeAsync(EnumScopeType.COMMAND, { context: 'seed' })
+  @OnScope(EnumScopeType.COMMAND, { context: 'seed', async: true })
   async run(_passedParam: string[], _options?: Record<string, string | number>): Promise<void> {
     this.logger.log(`${ApiKeySeedCommand.name} is running...`)
 

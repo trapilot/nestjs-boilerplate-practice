@@ -5,7 +5,7 @@ import {
   EnumTierCode,
   HelperService,
   LoggerService,
-  ScopeAsync,
+  OnScope,
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command, CommandRunner } from 'nest-commander'
@@ -23,7 +23,7 @@ export class TierSeedCommand extends CommandRunner {
     super()
   }
 
-  @ScopeAsync(EnumScopeType.COMMAND, { context: 'seed' })
+  @OnScope(EnumScopeType.COMMAND, { context: 'seed', async: true })
   async run(_passedParam: string[], _options?: Record<string, string | number>): Promise<void> {
     this.logger.log(`${TierSeedCommand.name} is running...`)
 
