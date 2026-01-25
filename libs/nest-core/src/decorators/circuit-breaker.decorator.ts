@@ -3,15 +3,25 @@ import OpossumCircuitBreaker, { Options } from 'opossum'
 const events = new Map<string, Map<string, Map<string, string>>>()
 const breakerInstances = new Map<string, OpossumCircuitBreaker>()
 
-const ERROR_THRESHOLD_PERCENTAGE = 20 // O circuito abre quando 20% das requisições falham
-const VOLUME_THRESHOLD = 5 // Exige pelo menos 5 requisições para abrir o circuito
-const ROLLING_COUNT_TIMEOUT = 5000 // Contagem das falhas durante 5 segundos
-const RESET_TIMEOUT = 2500 // Tempo de reset do circuito (2.5 segundos)
-const ALLOW_WARM_UP = true // Permite falhas sem abrir o circuito durante o aquecimento
+const ERROR_THRESHOLD_PERCENTAGE = 20 // The circuit opens when 20% of requests fail.
+const VOLUME_THRESHOLD = 5 // It requires at least 5 requests to open the circuit.
+const ROLLING_COUNT_TIMEOUT = 5000 // Counting the failures for 5 seconds
+const RESET_TIMEOUT = 2500 // Circuit reset time (2.5 seconds)
+const ALLOW_WARM_UP = true // Allows for faults without opening the circuit during warm-up.
 
 export type CircuitBreakerInput = {
-  options?: Options
+  /**
+   * Static namespace
+   * example: smtp | http | db | payment
+   */
   circuitGroup?: string
+
+  /**
+   * Dynamic key resolver
+   */
+  resolveKey?: (args: unknown[], context: any) => string
+
+  options?: Options
 }
 
 export type OnEventInput = {
@@ -59,51 +69,49 @@ type EventType =
   | 'fallback'
   | 'failure'
 
-export function CircuitBreaker(
-  input: CircuitBreakerInput = { options: {}, circuitGroup: 'default' }
-) {
+export function CircuitBreaker(input: CircuitBreakerInput = {}) {
   return function (
     target: object,
-    _propertyKey: string | symbol,
-    descriptor: PropertyDescriptor
+    propertyKey: string | symbol,
+    descriptor: PropertyDescriptor,
   ): void {
-    const opts = input?.options ?? {}
-    const opt: Options = {
-      ...opts,
-      errorThresholdPercentage: opts?.errorThresholdPercentage ?? ERROR_THRESHOLD_PERCENTAGE,
-      volumeThreshold: opts?.volumeThreshold ?? VOLUME_THRESHOLD,
-      rollingCountTimeout: opts?.rollingCountTimeout ?? ROLLING_COUNT_TIMEOUT,
-      resetTimeout: opts?.resetTimeout ?? RESET_TIMEOUT,
-      allowWarmUp: opts?.allowWarmUp ?? ALLOW_WARM_UP,
-      group: input?.circuitGroup ?? 'default',
-    }
-
     const originalMethod = descriptor.value
 
     descriptor.value = async function (...args: unknown[]) {
+      const group = input.circuitGroup ?? 'default'
+      const circuitKey = input.resolveKey ? `${group}:${input.resolveKey(args, this)}` : group
+
+      const opts: Options = {
+        errorThresholdPercentage:
+          input.options?.errorThresholdPercentage ?? ERROR_THRESHOLD_PERCENTAGE,
+        volumeThreshold: input.options?.volumeThreshold ?? VOLUME_THRESHOLD,
+        rollingCountTimeout: input.options?.rollingCountTimeout ?? ROLLING_COUNT_TIMEOUT,
+        resetTimeout: input.options?.resetTimeout ?? RESET_TIMEOUT,
+        allowWarmUp: input.options?.allowWarmUp ?? ALLOW_WARM_UP,
+        timeout: input.options?.timeout,
+        group: circuitKey,
+      }
+
       const className = target.constructor.name
-      const instanceKey = `${className}:${opt.group}`
+      const instanceKey = `${className}:${String(propertyKey)}:${opts.group}`
 
       if (!breakerInstances.has(instanceKey)) {
-        const breaker = new OpossumCircuitBreaker(originalMethod.bind(this), opt)
+        const breaker = new OpossumCircuitBreaker(originalMethod.bind(this), opts)
         breakerInstances.set(instanceKey, breaker)
 
+        // bind events
         const classEvents = events.get(className) || new Map()
-        const circuitEvents = classEvents.get(opt.group) || new Map()
+        const circuitEvents = classEvents.get(opts.group) || new Map()
 
         for (const [eventName, methodName] of circuitEvents) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           if (eventName !== 'fallback' && typeof (this as any)[`${methodName}`] === 'function') {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             breaker.on(eventName as any, (this as any)[`${methodName}`].bind(this))
           }
         }
 
         const fallbackMethod = circuitEvents.get('fallback')
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if (fallbackMethod && typeof (this as any)[`${fallbackMethod}`] === 'function') {
           breaker.fallback(async (args: unknown, error: Error) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return await (this as any)[`${fallbackMethod}`]({ input: args, err: error })
           })
         }
@@ -122,7 +130,7 @@ export function CircuitBreaker(
  * Decorator for recording events in the circuit.
  * Events are stored and used by `CircuitBreaker` when it is instantiated.
  */
-export function onEvent({ eventName, circuitGroup = 'default' }: OnEventInput) {
+export function CircuitCatch({ eventName, circuitGroup = 'default' }: OnEventInput) {
   return function (target: object, propertyKey: string | symbol): void {
     const className = target.constructor.name
 

@@ -1,10 +1,9 @@
 import { SubscribeMessage, WebSocketGateway } from '@nestjs/websockets'
-import { CacheService } from 'lib/nest-core'
-import { GateWayBase } from 'shared/bases'
+import { CacheService, SocketGateWayBase } from 'lib/nest-core'
 import { Socket } from 'socket.io'
 
 @WebSocketGateway({ cors: { origin: '*' } })
-export class MemberGateway extends GateWayBase {
+export class MemberGateway extends SocketGateWayBase {
   constructor(private readonly cache: CacheService) {
     super()
   }

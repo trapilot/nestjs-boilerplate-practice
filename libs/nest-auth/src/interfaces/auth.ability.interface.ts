@@ -20,3 +20,24 @@ export type IAuthAbilitySubject = InferSubjects<string> | 'all'
 export type IAuthAbilityRule = PureAbility<[string, IAuthAbilitySubject]>
 
 export type IAuthAbilityHandlerCallback = (ability: IAuthAbilityRule) => boolean
+
+export interface IAuthAbilityDataTitle {
+  [langauge: string]: string
+}
+
+export interface IAuthAbilityDataSubject {
+  title: IAuthAbilityDataTitle
+}
+
+export interface IAuthAbilityDataContext {
+  title: IAuthAbilityDataTitle
+  subjects: string[]
+}
+
+export interface IAuthAbilityDataContext2 {
+  title: IAuthAbilityDataTitle
+  subjects: {
+    name: string
+    title: IAuthAbilityDataTitle
+  }[]
+}

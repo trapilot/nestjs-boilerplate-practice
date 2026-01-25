@@ -8,7 +8,7 @@ export class EnumUtil {
 
   static relative<T = EnumValue>(
     value: T,
-    options: { enumRoot: EnumLike<T>; enumRelative: EnumLike<T> }
+    options: { enumRoot: EnumLike<T>; enumRelative: EnumLike<T> },
   ): T {
     const enumKey = this.findKey<any>(value, { enum: options.enumRoot })
     return options.enumRelative[enumKey] as T

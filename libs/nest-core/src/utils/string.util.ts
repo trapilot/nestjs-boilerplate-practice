@@ -1,16 +1,40 @@
+import ms from 'ms'
 import {
   IStringCapitalizeOptions,
   IStringFormatOptions,
   IStringParseOptions,
   IStringSplitOptions,
 } from '../interfaces'
-import { TimeUtil } from './time.util'
+import { AppUtil } from './app.util'
 
 export class StrUtil {
   static format(value: string, options?: IStringFormatOptions): string {
     if (options?.spaceless) {
       value = value.replace(/\s+/g, '')
     }
+
+    if (options?.length) {
+      value = value.slice(0, options.length)
+    }
+
+    if (options?.slices) {
+      let cursor = 0
+      const parts: string[] = []
+
+      for (const len of options.slices.parts) {
+        if (cursor >= value.length) break
+        parts.push(value.slice(cursor, cursor + len))
+        cursor += len
+      }
+
+      // the rest (if any)
+      if (cursor < value.length) {
+        parts.push(value.slice(cursor))
+      }
+
+      value = parts.join(options.slices.delimiter)
+    }
+
     if (options?.format === 'uppercase') return value.toUpperCase()
     if (options?.format === 'lowercase') return value.toLowerCase()
     if (options?.format === 'capitalize') return this.capitalize(value)
@@ -42,10 +66,10 @@ export class StrUtil {
         finalValue = new Date(value)
         break
       case 'seconds':
-        finalValue = TimeUtil.seconds(value)
+        finalValue = AppUtil.seconds(value as ms.StringValue)
         break
       case 'miliseconds':
-        finalValue = TimeUtil.ms(value)
+        finalValue = AppUtil.ms(value as ms.StringValue)
         break
     }
     return finalValue as T
@@ -98,6 +122,27 @@ export class StrUtil {
         parseAs: 'seconds',
       }),
     })
+  }
+
+  static isNumber(value: string): boolean {
+    const regex = /^-?\d+$/
+    return regex.test(value)
+  }
+
+  static isJson(value: string): boolean {
+    try {
+      const parsed = JSON.parse(value)
+      return typeof parsed === 'object' && parsed !== null
+    } catch {}
+    return false
+  }
+
+  static isArray(value: string): boolean {
+    try {
+      const parsed = JSON.parse(value)
+      return Array.isArray(parsed)
+    } catch {}
+    return false
   }
 
   static isTrue(value: string, def: boolean = false): boolean {

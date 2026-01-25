@@ -1,7 +1,8 @@
 import { BadRequestException } from '@nestjs/common'
-import { ICartRule, TCartItem } from '../interfaces'
+import { IAppRule } from 'lib/nest-core'
+import { TCartItem } from '../interfaces'
 
-export class CartItemIsActiveRule implements ICartRule {
+export class CartItemIsActiveRule implements IAppRule<TCartItem> {
   async validate({ product }: TCartItem): Promise<void> {
     if (!product.isActive) {
       throw new BadRequestException(`${product.sku} is no longer to sale`)

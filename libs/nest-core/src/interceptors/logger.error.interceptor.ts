@@ -6,7 +6,7 @@ import { LOGGER_ERROR_KEY } from '../constants'
 export class LoggerErrorInterceptor implements NestInterceptor {
   intercept(
     context: ExecutionContext,
-    next: CallHandler
+    next: CallHandler,
   ): Observable<any> | Promise<Observable<any>> {
     return next.handle().pipe(
       catchError(error => {
@@ -17,7 +17,7 @@ export class LoggerErrorInterceptor implements NestInterceptor {
 
           return error
         })
-      })
+      }),
     )
   }
 }

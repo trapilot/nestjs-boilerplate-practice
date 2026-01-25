@@ -27,5 +27,5 @@ class ResponseUserPayloadRelationDto {
 
 export class UserResponsePayloadDto extends IntersectionType(
   ResponseUserPayloadDto,
-  ResponseUserPayloadRelationDto
+  ResponseUserPayloadRelationDto,
 ) {}

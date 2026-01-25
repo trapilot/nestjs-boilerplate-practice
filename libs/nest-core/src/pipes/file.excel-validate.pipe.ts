@@ -35,7 +35,7 @@ export class FileExcelValidatePipe<T, N = Record<string, any>> implements PipeTr
 
   async validateParse(
     value: IFileRows<N>[],
-    classDto: ClassConstructor<T>
+    classDto: ClassConstructor<T>,
   ): Promise<IFileRows<T>[]> {
     const errors: ValidationError[] = []
     const dtos: IFileRows<T>[] = []

@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { EnumAuthAbilityAction, EnumAuthAbilityContext, EnumAuthAbilitySubject } from 'app/enums'
 import {
   ArrayNotEmpty,
   IsArray,
@@ -11,7 +12,6 @@ import {
 } from 'class-validator'
 import { ToArray, ToBoolean, ToNumber, ToObject, ToString } from 'lib/nest-core'
 import { RequestSentenceDto } from 'lib/nest-web'
-import { EnumAuthAbilityAction, EnumAuthAbilityContext, EnumAuthAbilitySubject } from 'shared/enums'
 
 export class PermissionRequestCreateDto {
   @IsOptional()

@@ -44,12 +44,12 @@ import {
   UserVerifyPasswordRequestDto,
 } from '../dtos'
 import { UserIsSuperAdmin } from '../guards'
-import { AuthService } from '../services'
+import { UserAuth } from '../helpers'
 
 @ApiTags(USER_DOC_AUTH_OPERATION)
 @Controller({ path: '/auth' })
 export class UserAuthController {
-  constructor(@Inject(EnumAuthScopeType.USER) protected readonly authService: AuthService) {}
+  constructor(@Inject(EnumAuthScopeType.USER) protected readonly userAuth: UserAuth) {}
 
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
@@ -65,7 +65,7 @@ export class UserAuthController {
   })
   @Post('/sign-up')
   async signUp(@RequestBody() body: UserRequestSignUpDto): Promise<IResponseData> {
-    const user = await this.authService.signUp(body)
+    const user = await this.userAuth.signUp(body)
     return { data: user }
   }
 
@@ -89,10 +89,10 @@ export class UserAuthController {
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
-    @RequestBody() body: UserRequestSignInDto
+    @RequestBody() body: UserRequestSignInDto,
   ): Promise<IResponseData> {
-    const user = await this.authService.validateCredentials(body)
-    const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
+    const user = await this.userAuth.validateCredentials(body)
+    const auth = await this.userAuth.login(user, userIp, userAgent, userRequest, {
       scopeType: EnumAuthScopeType.USER,
       loginType: EnumAuthLoginType.CREDENTIAL,
       loginWith: EnumAuthLoginWith.PHONE,
@@ -124,10 +124,10 @@ export class UserAuthController {
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
-    @AuthJwtPayload('user.email') email: string
+    @AuthJwtPayload('user.email') email: string,
   ): Promise<IResponseData> {
-    const user = await this.authService.validateOAuthEmail({ email })
-    const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
+    const user = await this.userAuth.validateOAuthEmail({ email })
+    const auth = await this.userAuth.login(user, userIp, userAgent, userRequest, {
       scopeType: EnumAuthScopeType.USER,
       loginType: EnumAuthLoginType.SOCIAL_GOOGLE,
       loginWith: EnumAuthLoginWith.EMAIL,
@@ -158,10 +158,10 @@ export class UserAuthController {
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: EnumAuthLoginFrom,
     @RequestApp() userRequest: IRequestApp,
-    @AuthJwtPayload('user.email') email: string
+    @AuthJwtPayload('user.email') email: string,
   ): Promise<IResponseData> {
-    const user = await this.authService.validateOAuthEmail({ email })
-    const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
+    const user = await this.userAuth.validateOAuthEmail({ email })
+    const auth = await this.userAuth.login(user, userIp, userAgent, userRequest, {
       scopeType: EnumAuthScopeType.USER,
       loginType: EnumAuthLoginType.SOCIAL_APPLE,
       loginWith: EnumAuthLoginWith.EMAIL,
@@ -193,7 +193,7 @@ export class UserAuthController {
   })
   @Get('/_me')
   async me(@AuthJwtPayload('user.id') userId: number): Promise<IResponseData> {
-    const user = await this.authService.getUserData(userId)
+    const user = await this.userAuth.getUserData(userId)
     return { data: user }
   }
 
@@ -216,10 +216,10 @@ export class UserAuthController {
   @Put('/edit-profile')
   async editProfile(
     @RequestBody() body: UserEditProfileRequestDto,
-    @AuthJwtPayload('user.id') userId: number
+    @AuthJwtPayload('user.id') userId: number,
   ): Promise<IResponseData> {
     const { roleId, ...data } = body
-    const profile = await this.authService.editProfile(userId, {
+    const profile = await this.userAuth.editProfile(userId, {
       ...data,
       pivotRoles: {
         deleteMany: {
@@ -254,10 +254,10 @@ export class UserAuthController {
   async refresh(
     @AuthJwtToken() refreshToken: string,
     @AuthJwtPayload() refreshPayload: AuthJwtRefreshPayloadDto,
-    @AuthJwtPayload('user.id') userId: number
+    @AuthJwtPayload('user.id') userId: number,
   ): Promise<IResponseData> {
-    const user = await this.authService.getUserData(userId)
-    const auth = await this.authService.refresh(user, refreshToken, refreshPayload)
+    const user = await this.userAuth.getUserData(userId)
+    const auth = await this.userAuth.refresh(user, refreshToken, refreshPayload)
 
     return { data: auth }
   }
@@ -285,10 +285,10 @@ export class UserAuthController {
   @Put('/change-password')
   async changePassword(
     @RequestBody() body: UserRequestChangePasswordDto,
-    @AuthJwtPayload('user.id') userId: number
+    @AuthJwtPayload('user.id') userId: number,
   ): Promise<IResponseData> {
-    const user = await this.authService.findOrFail(userId)
-    const updated = await this.authService.changePassword(user, body)
+    const user = await this.userAuth.findOrFail(userId)
+    const updated = await this.userAuth.changePassword(user, body)
     return { data: updated }
   }
 
@@ -329,12 +329,12 @@ export class UserAuthController {
         EnumFileExtensionImage.JPEG,
         EnumFileExtensionImage.JPG,
         EnumFileExtensionImage.PNG,
-      ])
+      ]),
     )
-    file: IFile
+    file: IFile,
   ): Promise<IResponseData> {
-    const user = await this.authService.findOrFail(userId)
-    const updated = await this.authService.changeAvatar(user, {
+    const user = await this.userAuth.findOrFail(userId)
+    const updated = await this.userAuth.changeAvatar(user, {
       avatar: file.path,
     })
     return { data: updated }
@@ -360,10 +360,10 @@ export class UserAuthController {
   @Post('/confirm-password')
   async confirmPassword(
     @RequestBody() { password }: UserVerifyPasswordRequestDto,
-    @AuthJwtPayload('user.id') userId: number
+    @AuthJwtPayload('user.id') userId: number,
   ): Promise<IResponseData> {
-    const user = await this.authService.getUserData(userId)
-    const token = await this.authService.verifyConfirmPassword(user, password)
+    const user = await this.userAuth.getUserData(userId)
+    const token = await this.userAuth.verifyConfirmPassword(user, password)
     return { data: { success: true, token } }
   }
 
@@ -384,9 +384,9 @@ export class UserAuthController {
   })
   @Post('/change-confirm-password')
   async changeConfirmPassword(
-    @RequestBody() body: UserRequestChangeConfirmPasswordDto
+    @RequestBody() body: UserRequestChangeConfirmPasswordDto,
   ): Promise<IResponseData> {
-    await this.authService.changeConfirmPassword(body.password)
+    await this.userAuth.changeConfirmPassword(body.password)
 
     return {
       data: { success: true },

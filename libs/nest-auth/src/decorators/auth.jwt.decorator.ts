@@ -45,7 +45,7 @@ export const AuthJwtPayload = createParamDecorator(
     })
 
     return payload as T
-  }
+  },
 )
 
 export const AuthJwtType = createParamDecorator(
@@ -55,7 +55,7 @@ export const AuthJwtType = createParamDecorator(
     const authorizations: string[] = authorization.split(' ')
 
     return authorizations.length >= 2 ? authorizations[0] : undefined
-  }
+  },
 )
 
 export const AuthJwtToken = createParamDecorator(
@@ -65,7 +65,7 @@ export const AuthJwtToken = createParamDecorator(
     const authorizations: string[] = authorization.split(' ')
 
     return authorizations.length >= 2 ? authorizations[1] : undefined
-  }
+  },
 )
 
 export function AuthJwtAccessProtected(options?: IAuthJwtProtectedOptions): MethodDecorator {
@@ -87,7 +87,7 @@ export function AuthJwtRefreshProtected(): MethodDecorator {
 export function AuthUserAbilityProtected(...handlers: IAuthAbility[]): MethodDecorator {
   return applyDecorators(
     UseGuards(AuthUserAbilityGuard),
-    SetMetadata(AUTH_ABILITY_META_KEY, handlers)
+    SetMetadata(AUTH_ABILITY_META_KEY, handlers),
   )
 }
 

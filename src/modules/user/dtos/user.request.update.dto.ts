@@ -8,7 +8,7 @@ export class UserRequestUpdateDto extends OmitType(UserRequestCreateDto, ['avata
   @IsOptional()
   @IsPassword()
   @ToString()
-  @ApiProperty({ required: false, example: process.env.MOCK_USER_PASS })
+  @ApiProperty({ required: false, example: process.env.MOCK_ADMIN_PASS })
   password: string
 
   @IsOptional()

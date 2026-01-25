@@ -6,6 +6,18 @@ import { IDatabaseProvider, MESSAGE_LANGUAGES } from 'lib/nest-core'
 import { IPrismaAdapterCreateOptions, IPrismaLanguageBuildOptions } from '../interfaces'
 
 export class PrismaUtil {
+  static isUniqueError(error: unknown): boolean {
+    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002'
+  }
+
+  static isTimeoutError(error: unknown): boolean {
+    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2034'
+  }
+
+  static isDeadlockError(error: unknown): boolean {
+    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2034'
+  }
+
   static buildQuery(rawQuery: string, options: { params: string }): string {
     let index = 0
     let query = rawQuery
@@ -28,7 +40,7 @@ export class PrismaUtil {
         Object.keys(datas[0])
           .filter(key => key !== pk)
           .map(key => `${key} = VALUES(${key})`)
-          .join(',')
+          .join(','),
       )}`
     }
     return Prisma.sql`SELECT 1`
@@ -36,7 +48,7 @@ export class PrismaUtil {
 
   static buildLanguages<WhereInput = any>(
     jsonObject: Record<string, any>,
-    options?: IPrismaLanguageBuildOptions<WhereInput>
+    options?: IPrismaLanguageBuildOptions<WhereInput>,
   ): any {
     const langField = options?.langField || 'language'
     const data = MESSAGE_LANGUAGES.map(language => {
@@ -55,7 +67,7 @@ export class PrismaUtil {
 
   static createAdapter(
     provider: IDatabaseProvider,
-    options: IPrismaAdapterCreateOptions
+    options: IPrismaAdapterCreateOptions,
   ): runtime.SqlDriverAdapterFactory {
     if (provider === 'postgres') {
       return new PrismaPg(options.url)

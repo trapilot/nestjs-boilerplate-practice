@@ -37,7 +37,7 @@ export class ProductBrandAppController {
       defaultOrderBy: 'sorting:desc',
       availableOrderBy: ['sorting'],
     })
-    { _search, _params }: RequestListDto
+    { _search, _params }: RequestListDto,
   ): Promise<IResponseList> {
     const _where: Prisma.ProductBrandWhereInput = {
       ..._search,

@@ -46,8 +46,6 @@ Full structure of module
 ```
 .
 └── moduleA
-    ├── bases
-    ├── commands            // custom migrate/seed command
     ├── constants           // constant like static value, status code, etc
     ├── controllers         // business logic for rest api
     ├── decorators          // wrapper decorator, custom decorator, etc
@@ -58,7 +56,8 @@ Full structure of module
     ├── exceptions          // custom exception
     ├── filters             // custom filter
     ├── guards              // guard validate
-    ├── helpers             // custom factory, manager, context
+    ├── handlers            // queue handlers
+    ├── helpers             // custom factory, manager, context, utilities class
     ├── indicators          // custom health check indicator
     ├── interceptors        // custom interceptors
     ├── interfaces
@@ -67,12 +66,10 @@ Full structure of module
     ├── pipes
     ├── processors          // queue processors
     ├── rules
+    ├── schedulers          // crons, lightweight tasks, enqueue heavy tasks
     ├── services
-    ├── tasks
     ├── transforms
-    ├── utils               // utilities class
     ├── validators
-    └── moduleA.auth.module.ts
     └── moduleA.module.ts
 ```
 

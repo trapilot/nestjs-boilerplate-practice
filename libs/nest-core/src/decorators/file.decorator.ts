@@ -6,25 +6,25 @@ import {
   NoFilesInterceptor,
 } from '@nestjs/platform-express'
 import { FILE_MAX_MULTIPLE, FILE_SIZE_IN_BYTES } from '../constants'
+import { UploadDiskDriver } from '../drivers'
 import {
   IFileUploadMultiple,
   IFileUploadMultipleField,
   IFileUploadMultipleFieldOptions,
   IFileUploadSingle,
 } from '../interfaces'
-import { DiskStorage } from '../storages'
 
 export function FileUploadSingle(options: IFileUploadSingle): MethodDecorator {
   return applyDecorators(
     UseInterceptors(
       FileInterceptor(options?.field ?? 'file', {
-        storage: new DiskStorage(options.filePath, { userPath: options?.fileUser }),
+        storage: new UploadDiskDriver(options.filePath, { userPath: options?.fileUser }),
         limits: {
           fileSize: options?.fileSize ?? FILE_SIZE_IN_BYTES,
           files: 1,
         },
-      })
-    )
+      }),
+    ),
   )
 }
 
@@ -32,18 +32,18 @@ export function FileUploadMultiple(options: IFileUploadMultiple): MethodDecorato
   return applyDecorators(
     UseInterceptors(
       FilesInterceptor(options?.field ?? 'files', options?.maxFiles ?? FILE_MAX_MULTIPLE, {
-        storage: new DiskStorage(options.filePath, { userPath: options?.fileUser }),
+        storage: new UploadDiskDriver(options.filePath, { userPath: options?.fileUser }),
         limits: {
           fileSize: options?.fileSize ?? FILE_SIZE_IN_BYTES,
         },
-      })
-    )
+      }),
+    ),
   )
 }
 
 export function FileUploadMultipleFields(
   fields: IFileUploadMultipleField[],
-  options?: IFileUploadMultipleFieldOptions
+  options?: IFileUploadMultipleFieldOptions,
 ): MethodDecorator {
   return applyDecorators(
     UseInterceptors(
@@ -53,13 +53,13 @@ export function FileUploadMultipleFields(
           maxCount: e.maxFiles || FILE_MAX_MULTIPLE,
         })),
         {
-          storage: new DiskStorage(options.filePath, { userPath: options?.fileUser }),
+          storage: new UploadDiskDriver(options.filePath, { userPath: options?.fileUser }),
           limits: {
             fileSize: options?.fileSize ?? FILE_SIZE_IN_BYTES,
           },
-        }
-      )
-    )
+        },
+      ),
+    ),
   )
 }
 

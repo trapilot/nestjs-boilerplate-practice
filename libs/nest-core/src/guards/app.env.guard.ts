@@ -16,7 +16,7 @@ export class AppEnvGuard implements CanActivate {
 
   constructor(
     private readonly reflector: Reflector,
-    private readonly config: ConfigService
+    private readonly config: ConfigService,
   ) {
     this.env = this.config.get<EnumAppEnvironment>('app.env')
   }
@@ -24,7 +24,7 @@ export class AppEnvGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const required: EnumAppEnvironment[] = this.reflector.getAllAndOverride<EnumAppEnvironment[]>(
       APP_ENV_META_KEY,
-      [context.getHandler(), context.getClass()]
+      [context.getHandler(), context.getClass()],
     )
 
     if (!required) {

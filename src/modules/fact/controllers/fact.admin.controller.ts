@@ -1,6 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -16,7 +17,6 @@ import {
   RequestQueryFilterEqual,
   RequestQueryList,
 } from 'lib/nest-web'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { FACT_DOC_ADMIN_QUERY_LIST, FACT_DOC_OPERATION } from '../constants'
 import {
   FactRequestCreateDto,
@@ -65,7 +65,7 @@ export class FactAdminController {
     })
     { _search, _params }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
-    @RequestQueryFilterEqual('type') _type: RequestFilterDto
+    @RequestQueryFilterEqual('type') _type: RequestFilterDto,
   ): Promise<IResponsePaging> {
     const _where: Prisma.FactWhereInput = {
       ..._search,
@@ -142,7 +142,7 @@ export class FactAdminController {
   @Post('/')
   async create(
     @RequestBody() body: FactRequestCreateDto,
-    @AuthJwtPayload('user.id') createdBy: number
+    @AuthJwtPayload('user.id') createdBy: number,
   ): Promise<IResponseData> {
     const created = await this.factService.create({
       ...body,
@@ -177,7 +177,7 @@ export class FactAdminController {
   async update(
     @RequestBody() body: FactRequestUpdateDto,
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') updatedBy: number
+    @AuthJwtPayload('user.id') updatedBy: number,
   ): Promise<IResponseData> {
     const updated = await this.factService.update(id, {
       ...body,
@@ -238,7 +238,7 @@ export class FactAdminController {
   @Put('/:id/active')
   async active(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') updatedBy: number
+    @AuthJwtPayload('user.id') updatedBy: number,
   ): Promise<IResponseData> {
     const updated = await this.factService.change(id, {
       isActive: true,
@@ -273,7 +273,7 @@ export class FactAdminController {
   @Put('/:id/inactive')
   async inactive(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') updatedBy: number
+    @AuthJwtPayload('user.id') updatedBy: number,
   ): Promise<IResponseData> {
     const updated = await this.factService.change(id, {
       isActive: false,

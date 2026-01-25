@@ -22,7 +22,7 @@ import { IRequestApp } from 'lib/nest-core'
 export class AuthUserAbilityGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
-    @Inject(AUTH_ABILITY_FACTORY_TOKEN) private readonly abilityFactory: AuthFactory
+    @Inject(AUTH_ABILITY_FACTORY_TOKEN) private readonly abilityFactory: AuthFactory,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -45,7 +45,7 @@ export class AuthUserAbilityGuard implements CanActivate {
     if (isAuthenticated) {
       const abilities = this.reflector.get<IAuthAbility[]>(
         AUTH_ABILITY_META_KEY,
-        context.getHandler()
+        context.getHandler(),
       )
 
       if (abilities.length === 0) {

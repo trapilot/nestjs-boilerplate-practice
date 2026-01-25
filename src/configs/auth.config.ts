@@ -1,6 +1,6 @@
 import { registerAs } from '@nestjs/config'
 import { IConfigAuth } from 'lib/nest-auth'
-import { StrUtil, TimeUtil } from 'lib/nest-core'
+import { StrUtil } from 'lib/nest-core'
 
 export default registerAs(
   'auth',
@@ -13,7 +13,7 @@ export default registerAs(
 
       refreshToken: {
         secretKey: process.env.AUTH_JWT_REFRESH_TOKEN_SECRET_KEY ?? `${process.env.APP_NAME}_rs_k`,
-        expirationTime: TimeUtil.seconds(process.env.AUTH_JWT_REFRESH_TOKEN_EXPIRED || '2h'),
+        expirationTime: StrUtil.seconds(process.env.AUTH_JWT_REFRESH_TOKEN_EXPIRED || '2h'),
       },
 
       audience: process.env.AUTH_JWT_AUDIENCE ?? process.env.APP_NAME,
@@ -26,9 +26,9 @@ export default registerAs(
       attempt: true,
       maxAttempt: 5,
       saltLength: 8,
-      expiredIn: TimeUtil.seconds('182d'), // 0.5 years
-      expiredInTemporary: TimeUtil.seconds('3d'), // 3 days
-      period: TimeUtil.seconds('90d'), // 3 months
+      expiredIn: StrUtil.seconds('182d'), // 0.5 years
+      expiredInTemporary: StrUtil.seconds('3d'), // 3 days
+      period: StrUtil.seconds('90d'), // 3 months
     },
 
     apple: {
@@ -52,13 +52,13 @@ export default registerAs(
     otp: {
       length: 6,
       maxAttempts: 5,
-      ttl: TimeUtil.seconds('5m'),
+      ttl: StrUtil.seconds('5m'),
     },
 
     token: {
       length: 32,
       maxAttempts: 3,
-      ttl: TimeUtil.seconds('1d'),
+      ttl: StrUtil.seconds('1d'),
     },
-  })
+  }),
 )

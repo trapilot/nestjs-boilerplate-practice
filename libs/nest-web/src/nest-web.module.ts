@@ -1,16 +1,28 @@
 import {
+  BeforeApplicationShutdown,
   DynamicModule,
   Inject,
+  Logger,
   MiddlewareConsumer,
   Module,
   NestModule,
+  OnApplicationBootstrap,
+  Optional,
   RequestMethod,
   Type,
   ValidationPipe,
   ValidationPipeOptions,
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core'
+import {
+  APP_FILTER,
+  APP_GUARD,
+  APP_INTERCEPTOR,
+  APP_PIPE,
+  ModuleRef,
+  RouterModule,
+  Routes,
+} from '@nestjs/core'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler'
 import {
@@ -19,7 +31,14 @@ import {
   IModuleExport,
   IModuleImport,
   IModuleProvider,
+  IQueueConsumer,
+  IQueueHandler,
+  IQueueProducer,
+  IQueueScanner,
   LoggerFactory,
+  QueueConsumer,
+  QueueProducer,
+  QueueScanner,
 } from 'lib/nest-core'
 import { collectDefaultMetrics, Registry } from 'prom-client'
 import { REQUEST_LOGGER_OPTIONS, REQUEST_METRICS_OPTIONS } from './constants'
@@ -55,83 +74,136 @@ import {
 } from './validations'
 
 @Module({})
-export class NestWebModule implements NestModule {
+export class NestWebModule
+  implements NestModule, OnApplicationBootstrap, BeforeApplicationShutdown
+{
+  private readonly logger = new Logger('NestApplication')
+
   constructor(
-    @Inject(REQUEST_LOGGER_OPTIONS) private readonly loggerOptions: IRequestLoggerOptions,
-    private readonly loggerFactory: LoggerFactory
+    private readonly moduleRef: ModuleRef,
+    private readonly loggerFactory: LoggerFactory,
+    @Optional()
+    @Inject(REQUEST_LOGGER_OPTIONS)
+    private readonly loggerOptions?: IRequestLoggerOptions,
+    @Optional() private readonly consumer?: QueueConsumer,
   ) {}
 
-  private static middlewareConfig?: (consumer: MiddlewareConsumer) => void
+  private static routerMiddleware: (consumer: MiddlewareConsumer) => void
+  private static workerHandlers: Type<IQueueHandler>[] = []
 
   static forRoot(options: {
-    admin: boolean
-    logger: IRequestLoggerOptions
     metrics: IRequestMetricsOptions
-    validator: ValidationPipeOptions
-    middleware: { imports: any[]; configure?: (consumer: MiddlewareConsumer) => void }
+    router?: {
+      admin: boolean
+      logger: IRequestLoggerOptions
+      validator: ValidationPipeOptions
+      middleware: (consumer: MiddlewareConsumer) => void
+      routes: Routes
+    }
+    worker?: {
+      producer?: Type<IQueueProducer>
+      consumer?: Type<IQueueConsumer>
+      scanner?: Type<IQueueScanner>
+      schedulers: IModuleProvider[]
+      handlers: Type<IQueueHandler>[]
+    }
+    imports: Type<any>[]
   }): DynamicModule {
-    const imports: IModuleImport[] = []
+    const imports: IModuleImport[] = options.imports
     const exports: IModuleExport[] = []
     const providers: IModuleProvider[] = []
     const controllers: IModuleController[] = [HealthController]
 
-    if (options.admin) {
-      imports.push(
-        ServeStaticModule.forRoot({
-          rootPath: FileUtil.joinRoot(['public', 'admin']),
-          serveRoot: '/admin',
-        })
-      )
-    }
-
-    if (options.middleware) {
-      NestWebModule.middlewareConfig = options.middleware?.configure
-      if (options.middleware.imports) {
-        imports.push(...options.middleware.imports)
-      }
-    }
-
-    if (options.logger) {
-      providers.push({
-        provide: REQUEST_LOGGER_OPTIONS,
-        useValue: options.logger,
-      })
-    }
-
     if (options.metrics) {
-      const registry: Registry = new Registry()
-
-      if (options.metrics.defaultLabels) {
-        registry.setDefaultLabels(options.metrics.defaultLabels)
-      }
+      providers.push({
+        provide: REQUEST_METRICS_OPTIONS,
+        useValue: options.metrics,
+      })
 
       if (options.metrics.defaultMetricsEnabled) {
+        const registry: Registry = new Registry()
+
+        if (options.metrics.defaultLabels) {
+          registry.setDefaultLabels(options.metrics.defaultLabels)
+        }
+
+        if (options.metrics.interceptors) {
+          providers.push(
+            ...options.metrics.interceptors.map(interceptor => ({
+              provide: APP_INTERCEPTOR,
+              useClass: interceptor as Type<any>,
+            })),
+          )
+        }
+
+        exports.push(ReporterService)
+        controllers.push(MetricsController)
+        providers.push(
+          {
+            provide: Registry,
+            useValue: registry,
+          },
+          MetricsService,
+          ReporterService,
+        )
+
         collectDefaultMetrics({ register: registry })
       }
+    }
 
-      controllers.push(MetricsController)
-      exports.push(ReporterService)
+    if (options.router) {
+      NestWebModule.routerMiddleware = options.router.middleware
       providers.push(
         {
-          provide: Registry,
-          useValue: registry,
+          provide: APP_PIPE,
+          useFactory: () => new ValidationPipe(options.router.validator),
         },
         {
-          provide: REQUEST_METRICS_OPTIONS,
-          useValue: options.metrics,
+          provide: REQUEST_LOGGER_OPTIONS,
+          useValue: options.router.logger,
         },
-        MetricsService,
-        ReporterService
+      )
+      imports.push(
+        ...options.router.routes.map(route => route.module),
+        RouterModule.register(options.router.routes),
       )
 
-      if (options.metrics.interceptors) {
-        providers.push(
-          ...options.metrics.interceptors.map(interceptor => ({
-            provide: APP_INTERCEPTOR,
-            useClass: interceptor as Type<any>,
-          }))
+      if (options.router.admin) {
+        imports.push(
+          ServeStaticModule.forRoot({
+            rootPath: FileUtil.joinRoot(['public', 'admin']),
+            serveRoot: '/admin',
+          }),
         )
       }
+    }
+
+    if (options.worker) {
+      if (options.worker?.producer) {
+        providers.push({
+          provide: QueueProducer,
+          useClass: options.worker.producer,
+        })
+        exports.push(QueueProducer)
+      }
+      if (options.worker?.consumer) {
+        providers.push({
+          provide: QueueConsumer,
+          useClass: options.worker.consumer,
+        })
+        exports.push(QueueConsumer)
+      }
+      if (options.worker?.scanner) {
+        providers.push({
+          provide: QueueScanner,
+          useClass: options.worker.scanner,
+        })
+        exports.push(QueueScanner)
+      }
+
+      this.workerHandlers = options.worker.handlers
+      providers.push(...options.worker.handlers)
+      providers.push(...options.worker.schedulers)
     }
 
     return {
@@ -142,10 +214,6 @@ export class NestWebModule implements NestModule {
         { provide: APP_FILTER, useClass: HttpExceptionFilter },
         { provide: APP_INTERCEPTOR, useClass: RequestContextInterceptor },
         { provide: APP_GUARD, useClass: ThrottlerGuard },
-        {
-          provide: APP_PIPE,
-          useFactory: () => new ValidationPipe(options.validator),
-        },
 
         // constraints
         IsDurationConstraint,
@@ -183,11 +251,10 @@ export class NestWebModule implements NestModule {
   }
 
   configure(consumer: MiddlewareConsumer): void {
-    // Middleware add context
     consumer.apply(RequestContextMiddleware).forRoutes('*')
 
     // Middleware add logger
-    if (this.loggerOptions.autoLogging) {
+    if (this.loggerOptions?.autoLogging) {
       const excludeRoutes = this.loggerOptions.excludeRoutes
       const applyRoutes = this.loggerOptions.applyRoutes
       const allRoutes = [{ path: '*', method: RequestMethod.ALL }]
@@ -208,13 +275,38 @@ export class NestWebModule implements NestModule {
         RequestCorsMiddleware,
         RequestSecurityMiddleware,
         RequestPerformanceMiddleware,
-        RequestBodyParserMiddleware
+        RequestBodyParserMiddleware,
       )
       .forRoutes('*')
 
     // Custom middleware (user-defined)
-    if (NestWebModule.middlewareConfig) {
-      NestWebModule.middlewareConfig(consumer)
+    if (NestWebModule.routerMiddleware) {
+      NestWebModule.routerMiddleware(consumer)
+    }
+  }
+
+  // This hook runs after all modules have been initialized and all providers are ready
+  async onApplicationBootstrap() {
+    if (!this.consumer || NestWebModule.workerHandlers.length === 0) {
+      return
+    }
+
+    for (const handler of NestWebModule.workerHandlers) {
+      const instance = this.moduleRef.get(handler, {
+        strict: false,
+      })
+
+      this.consumer.register(instance)
+
+      this.logger.log(`Nest application registered topic: ${instance.topic} -> ${handler.name}`)
+    }
+
+    await this.consumer.start()
+  }
+
+  async beforeApplicationShutdown(_signal: string) {
+    if (this.consumer) {
+      await this.consumer.stop()
     }
   }
 }

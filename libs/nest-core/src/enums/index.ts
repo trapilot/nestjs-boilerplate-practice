@@ -1,5 +1,6 @@
 export * from './app.enum'
 export * from './date.enum'
+export * from './driver.enum'
 export * from './file.enum'
 export * from './message.enum'
 export * from './place.enum'

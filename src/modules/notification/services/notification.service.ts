@@ -7,11 +7,15 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TNotification } from '../interfaces'
+import { TNotification, TPush } from '../interfaces'
+import { NotificationUtil } from '../helpers'
 
 @Injectable()
 export class NotificationService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationUtil: NotificationUtil,
+  ) {}
 
   async findOne(kwargs?: Prisma.NotificationFindUniqueArgs): Promise<TNotification> {
     return await this.prisma.notification.findUnique(kwargs)
@@ -27,7 +31,7 @@ export class NotificationService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.NotificationFindUniqueOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.NotificationFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TNotification> {
     const notification = await this.prisma.notification
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -42,7 +46,7 @@ export class NotificationService {
 
   async differOrFail(
     where: Prisma.NotificationWhereInput,
-    options?: { limit?: number; message?: string }
+    options?: { limit?: number; message?: string },
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -56,7 +60,7 @@ export class NotificationService {
 
   async matchOrFail(
     where: Prisma.NotificationWhereInput,
-    kwargs: Omit<Prisma.NotificationFindFirstOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.NotificationFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TNotification> {
     const notification = await this.prisma.notification
       .findFirstOrThrow({ ...kwargs, where })
@@ -72,7 +76,7 @@ export class NotificationService {
   async list(
     where?: Prisma.NotificationWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
     return await this.prisma.notification.list(where, params, options)
   }
@@ -80,7 +84,7 @@ export class NotificationService {
   async paginate(
     where?: Prisma.NotificationWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.notification.paginate(where, params, options)
   }
@@ -93,7 +97,7 @@ export class NotificationService {
 
   async find(
     id: number,
-    kwargs: Omit<Prisma.NotificationFindUniqueArgs, 'where'> = {}
+    kwargs: Omit<Prisma.NotificationFindUniqueArgs, 'where'> = {},
   ): Promise<TNotification> {
     return await this.prisma.notification.findUnique({
       ...kwargs,
@@ -142,5 +146,9 @@ export class NotificationService {
       data: { isActive: true },
       where: { id: notification.id },
     })
+  }
+
+  async getPendingPushes(): Promise<TPush[]> {
+    return await this.notificationUtil.getPendingPushes()
   }
 }

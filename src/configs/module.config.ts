@@ -13,5 +13,5 @@ export default registerAs(
       codeDigits: 8, // chars
       firstTransaction: 30, // days
     },
-  })
+  }),
 )

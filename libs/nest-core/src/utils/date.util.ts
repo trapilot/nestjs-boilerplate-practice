@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { ScopeContext } from '../helpers'
+import { ScopeContext } from '../contexts'
 import { IDateCreateOptions, IDateExtractData, IDateFormatOptions, IDateRange } from '../interfaces'
 
 export class DateUtil {

@@ -33,7 +33,7 @@ export class ProductHistoryService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.MemberProductHistoryFindUniqueOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.MemberProductHistoryFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TProductHistory> {
     const productHistory = await this.prisma.memberProductHistory
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -48,7 +48,7 @@ export class ProductHistoryService {
 
   async matchOrFail(
     where: Prisma.MemberProductHistoryWhereInput,
-    kwargs: Omit<Prisma.MemberProductHistoryFindFirstOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.MemberProductHistoryFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TProductHistory> {
     const productHistory = await this.prisma.memberProductHistory
       .findFirstOrThrow({ ...kwargs, where })
@@ -63,7 +63,7 @@ export class ProductHistoryService {
 
   async differOrFail(
     where: Prisma.MemberProductHistoryWhereInput,
-    options?: { limit?: number; message?: string }
+    options?: { limit?: number; message?: string },
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -78,7 +78,7 @@ export class ProductHistoryService {
   async list(
     where?: Prisma.MemberProductHistoryWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
     return await this.prisma.memberProductHistory.list(where, params, options)
   }
@@ -86,7 +86,7 @@ export class ProductHistoryService {
   async paginate(
     where?: Prisma.MemberProductHistoryWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.memberProductHistory.paginate(where, params, options)
   }
@@ -99,7 +99,7 @@ export class ProductHistoryService {
 
   async find(
     id: number,
-    kwargs: Omit<Prisma.MemberProductHistoryFindUniqueArgs, 'where'> = {}
+    kwargs: Omit<Prisma.MemberProductHistoryFindUniqueArgs, 'where'> = {},
   ): Promise<TProductHistory> {
     return await this.prisma.memberProductHistory.findUnique({
       ...kwargs,
@@ -116,7 +116,7 @@ export class ProductHistoryService {
 
   async update(
     id: number,
-    data: Prisma.MemberProductHistoryUncheckedUpdateInput
+    data: Prisma.MemberProductHistoryUncheckedUpdateInput,
   ): Promise<TProductHistory> {
     const productHistory = await this.findOrFail(id)
 

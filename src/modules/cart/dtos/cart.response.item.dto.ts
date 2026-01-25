@@ -93,7 +93,7 @@ class ResponseDataDetailDto {
 }
 
 class ResponseDataRelationDto extends ResponseUserBelongDto {
-  @ApiProperty({ type: ProductResponseBelongDto })
+  @ApiProperty({ type: () => ProductResponseBelongDto })
   @Type(() => ProductResponseBelongDto)
   @Expose()
   product: ProductResponseBelongDto
@@ -101,5 +101,5 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class CartItemResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}

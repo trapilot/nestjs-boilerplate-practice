@@ -2,18 +2,32 @@
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
-  "compilerOptions": {
-    "deleteOutDir": true,
-    "webpack": true,
-    "plugins": ["@nestjs/swagger"],
-    "assets": [
-      {
-        "include": "resources/**/*",
-        "outDir": "dist"
-      }
-    ]
-  },
   "projects": {
+    "api": {
+      "type": "application",
+      "entryFile": "main",
+      "sourceRoot": "src",
+      "compilerOptions": {
+        "deleteOutDir": true,
+        "webpack": true,
+        "plugins": ["@nestjs/swagger"],
+        "assets": [
+          {
+            "include": "resources/**/*",
+            "outDir": "dist"
+          }
+        ]
+      }
+    },
+    "cli": {
+      "type": "application",
+      "entryFile": "cli",
+      "sourceRoot": "src",
+      "compilerOptions": {
+        "deleteOutDir": false,
+        "webpack": true
+      }
+    },
     "nest-auth": {
       "type": "library",
       "root": "libs/nest-auth",

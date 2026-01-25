@@ -6,6 +6,6 @@ export class UserVerifyPasswordRequestDto {
   @IsNotEmpty()
   @IsString()
   @ToString()
-  @ApiProperty({ required: true, example: process.env.MOCK_USER_PASS })
+  @ApiProperty({ required: true, example: process.env.MOCK_ADMIN_PASS })
   password: string
 }

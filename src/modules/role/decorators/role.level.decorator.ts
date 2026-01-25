@@ -7,5 +7,5 @@ export const RequestRoleLevel = createParamDecorator(
     const payload = user || undefined
     const userLevel = payload?.user?.level ?? Number.MAX_SAFE_INTEGER
     return { level: { gte: userLevel } } as T
-  }
+  },
 )

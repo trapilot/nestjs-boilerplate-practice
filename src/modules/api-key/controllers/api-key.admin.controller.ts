@@ -1,6 +1,7 @@
 import { Controller, Delete, Get, Patch, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { EnumApiKeyType, Prisma } from '@runtime/prisma-client'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -19,7 +20,6 @@ import {
   RequestQueryFilterInEnum,
   RequestQueryList,
 } from 'lib/nest-web'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { API_KEY_DOC_ADMIN_QUERY_LIST, API_KEY_DOC_OPERATION } from '../constants'
 import {
   ApiKeyRequestCreateDto,
@@ -70,7 +70,7 @@ export class ApiKeyAdminController {
     { _search, _params }: RequestListDto,
     @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto,
     @RequestQueryFilterInEnum('type', EnumApiKeyType) _type: RequestFilterDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument
+    @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
     const _where: Prisma.ApiKeyWhereInput = {
       ..._search,
@@ -109,7 +109,7 @@ export class ApiKeyAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto
+    { _search, _params }: RequestListDto,
   ): Promise<IResponseList> {
     const _where: Prisma.ApiKeyWhereInput = {
       ..._search,
@@ -178,12 +178,7 @@ export class ApiKeyAdminController {
   })
   @Post('/')
   async create(@RequestBody() body: ApiKeyRequestCreateDto): Promise<IResponseData> {
-    const { key, hash } = await this.apiKeyService.createHashApiKey()
-    const apiKey = await this.apiKeyService.create({
-      ...body,
-      key,
-      hash,
-    })
+    const apiKey = await this.apiKeyService.create(body)
 
     return {
       data: apiKey,
@@ -215,7 +210,7 @@ export class ApiKeyAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: ApiKeyRequestUpdateDto,
-    @RequestParam('id') id: number
+    @RequestParam('id') id: number,
   ): Promise<IResponseData> {
     const apiKey = await this.apiKeyService.update(id, body)
 
@@ -248,7 +243,7 @@ export class ApiKeyAdminController {
   })
   @Patch('/:id/reset')
   async reset(@RequestParam('id') id: number): Promise<IResponseData> {
-    const apiKey = await this.apiKeyService.resetHashApiKey(id)
+    const apiKey = await this.apiKeyService.reset(id)
 
     return {
       data: apiKey,
@@ -280,16 +275,16 @@ export class ApiKeyAdminController {
   @Patch('/:id/renew')
   async renew(
     @RequestBody() body: ApiKeyRequestRenewDto,
-    @RequestParam('id') id: number
+    @RequestParam('id') id: number,
   ): Promise<IResponseData> {
-    const apiKey = await this.apiKeyService.findOrFail(id)
-    const renewApiKey = await this.apiKeyService.renew(apiKey, {
-      startDate: body?.startDate || apiKey.startDate,
+    const _apiKey = await this.apiKeyService.findOrFail(id)
+    const apiKey = await this.apiKeyService.renew(_apiKey, {
+      startDate: body?.startDate || _apiKey.startDate,
       untilDate: body.untilDate,
     })
 
     return {
-      data: renewApiKey,
+      data: apiKey,
     }
   }
 
@@ -377,7 +372,7 @@ export class ApiKeyAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number
+    @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
     const apiKey = await this.apiKeyService.find(id)
     if (apiKey) {

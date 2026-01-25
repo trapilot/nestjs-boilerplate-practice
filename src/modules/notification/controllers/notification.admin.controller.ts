@@ -1,6 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -16,8 +17,6 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { PushUtil } from 'modules/push'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { NOTIFICATION_DOC_ADMIN_QUERY_LIST, NOTIFICATION_DOC_OPERATION } from '../constants'
 import {
   NotificationRequestCreateDto,
@@ -25,6 +24,7 @@ import {
   NotificationResponseDetailDto,
   NotificationResponseListDto,
 } from '../dtos'
+import { NotificationUtil } from '../helpers'
 import { NotificationService } from '../services'
 
 @ApiTags(NOTIFICATION_DOC_OPERATION)
@@ -65,17 +65,17 @@ export class NotificationAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument
+    @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
     const _where: Prisma.NotificationWhereInput = {
       ..._search,
     }
     const _include: Prisma.NotificationInclude = {
-      pivotGroups: {
-        include: {
-          group: true,
-        },
-      },
+      // pivotGroups: {
+      //   include: {
+      //     group: true,
+      //   },
+      // },
       pushes: true,
     }
 
@@ -111,7 +111,7 @@ export class NotificationAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto
+    { _search, _params }: RequestListDto,
   ): Promise<IResponseList> {
     const _where: Prisma.NotificationWhereInput = {
       ..._search,
@@ -152,11 +152,11 @@ export class NotificationAdminController {
   async get(@RequestParam('id') id: number): Promise<IResponseData> {
     const notification = await this.notificationService.findOrFail(id, {
       include: {
-        pivotGroups: {
-          include: {
-            group: true,
-          },
-        },
+        // pivotGroups: {
+        //   include: {
+        //     group: true,
+        //   },
+        // },
         pushes: true,
       },
     })
@@ -249,15 +249,15 @@ export class NotificationAdminController {
     const { pushes, groupIds, ...data } = body
     const notification = await this.notificationService.create({
       ...data,
-      pivotGroups: {
-        createMany: {
-          data: groupIds.map(groupId => ({ groupId })),
-          skipDuplicates: true,
-        },
-      },
+      // pivotGroups: {
+      //   createMany: {
+      //     data: groupIds.map(groupId => ({ groupId })),
+      //     skipDuplicates: true,
+      //   },
+      // },
       pushes: {
         createMany: {
-          data: PushUtil.makeDtos(pushes),
+          data: NotificationUtil.makeDtos(pushes),
         },
       },
     })
@@ -292,20 +292,20 @@ export class NotificationAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: NotificationRequestUpdateDto,
-    @RequestParam('id') id: number
+    @RequestParam('id') id: number,
   ): Promise<IResponseData> {
     const { pushes, groupIds, ...data } = body
     const notification = await this.notificationService.update(id, {
       ...data,
-      pivotGroups: {
-        createMany: {
-          data: groupIds.map(groupId => ({ groupId })),
-          skipDuplicates: true,
-        },
-      },
+      // pivotGroups: {
+      //   createMany: {
+      //     data: groupIds.map(groupId => ({ groupId })),
+      //     skipDuplicates: true,
+      //   },
+      // },
       pushes: {
         createMany: {
-          data: PushUtil.makeDtos(pushes),
+          data: NotificationUtil.makeDtos(pushes),
         },
       },
     })
@@ -337,7 +337,7 @@ export class NotificationAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number
+    @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
     const notification = await this.notificationService.find(id)
     if (notification) {

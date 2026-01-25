@@ -1,5 +1,5 @@
 import { repl } from '@nestjs/core'
-import { AppModule } from './app/app.module'
+import { AppModule } from 'app/app.module'
 
 async function bootstrap(): Promise<void> {
   const replServer = await repl(AppModule)

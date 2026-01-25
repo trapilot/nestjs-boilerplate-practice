@@ -27,7 +27,7 @@ export class ProductBrandService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.ProductBrandFindUniqueOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.ProductBrandFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TProductBrand> {
     const productBrand = await this.prisma.productBrand
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -42,7 +42,7 @@ export class ProductBrandService {
 
   async matchOrFail(
     where: Prisma.ProductBrandWhereInput,
-    kwargs: Omit<Prisma.ProductBrandFindFirstOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.ProductBrandFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TProductBrand> {
     const productBrand = await this.prisma.productBrand
       .findFirstOrThrow({ ...kwargs, where })
@@ -57,7 +57,7 @@ export class ProductBrandService {
 
   async differOrFail(
     where: Prisma.ProductBrandWhereInput,
-    options?: { limit?: number; message?: string }
+    options?: { limit?: number; message?: string },
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -72,7 +72,7 @@ export class ProductBrandService {
   async list(
     where?: Prisma.ProductBrandWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
     return await this.prisma.productBrand.list(where, params, options)
   }
@@ -80,7 +80,7 @@ export class ProductBrandService {
   async paginate(
     where?: Prisma.ProductBrandWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.productBrand.paginate(where, params, options)
   }
@@ -93,7 +93,7 @@ export class ProductBrandService {
 
   async find(
     id: number,
-    kwargs: Omit<Prisma.ProductBrandFindUniqueArgs, 'where'> = {}
+    kwargs: Omit<Prisma.ProductBrandFindUniqueArgs, 'where'> = {},
   ): Promise<TProductBrand> {
     return await this.prisma.productBrand.findUnique({
       ...kwargs,

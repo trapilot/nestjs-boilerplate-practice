@@ -1,0 +1,76 @@
+import { Injectable } from '@nestjs/common'
+import { QueueCursor } from '@runtime/prisma-client'
+import {
+  EnumQueuePriority,
+  EnumScopeType,
+  HelperService,
+  IQueueHandler,
+  LoggerService,
+  OnScope,
+  QueueProducer,
+  QueueScanner,
+} from 'lib/nest-core'
+import { PrismaService } from 'lib/nest-prisma'
+import { EnumMemberQueue } from '../enums'
+import { MemberService } from '../services'
+
+@Injectable()
+export class MemberReleaseExpiryPointHandler implements IQueueHandler {
+  topic: string = EnumMemberQueue.RELEASE_EXPIRY_POINTS
+  version: number = 1
+
+  constructor(
+    private readonly logger: LoggerService,
+    private readonly prisma: PrismaService,
+    private readonly scanner: QueueScanner,
+    private readonly producer: QueueProducer,
+    private readonly helperService: HelperService,
+    private readonly memberService: MemberService,
+  ) {}
+
+  @OnScope(EnumScopeType.QUEUE, { context: EnumMemberQueue.RELEASE_EXPIRY_POINTS, async: true })
+  async handle(): Promise<void> {
+    this.logger.log(`${this.topic}:v${this.version} is handling...`)
+
+    const state = await this.scanner.scan<QueueCursor>(this.topic, this.version)
+    const nowDate = this.helperService.dateNow()
+
+    const memberPoints = await this.prisma.memberPointHistory.findMany({
+      where: {
+        isPending: true,
+        isDeleted: false,
+        releaseDate: { lte: nowDate, not: null },
+        member: { isActive: true },
+      },
+      cursor: state.lastId ? { id: state.lastId } : undefined,
+      orderBy: [{ releaseDate: 'asc' }],
+      select: { id: true },
+      take: 50,
+    })
+
+    const mpIds = memberPoints.map(i => i.id)
+    if (!mpIds.length) {
+      // reset cursor to start over next time.
+      this.logger.log(`${this.topic}:v${this.version} completed`)
+      await this.scanner.reset(this.topic, this.version)
+      return
+    }
+
+    // handle job
+    await this.memberService.releaseMemberPoints(mpIds)
+
+    // update cursor
+    await this.scanner.commit(this.topic, {
+      version: this.version,
+      batchId: state.batchId + 1,
+      lastId: mpIds[mpIds.length - 1],
+    })
+
+    // republish queue job
+    this.logger.log(`${this.topic}:v${this.version}:${state.batchId} republish`)
+    await this.producer.republish(this.topic, {
+      version: this.version,
+      priority: EnumQueuePriority.HIGH,
+    })
+  }
+}

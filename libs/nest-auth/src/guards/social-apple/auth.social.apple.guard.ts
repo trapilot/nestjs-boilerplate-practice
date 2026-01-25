@@ -17,7 +17,7 @@ export class AuthSocialAppleGuard implements CanActivate {
 
   constructor(
     private readonly config: ConfigService,
-    private readonly authUtil: AuthUtil
+    private readonly authUtil: AuthUtil,
   ) {
     this.header = this.config.get<string>('auth.apple.header')
     this.prefix = this.config.get<string>('auth.apple.prefix')

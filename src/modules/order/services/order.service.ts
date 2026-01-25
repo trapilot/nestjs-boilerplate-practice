@@ -24,24 +24,26 @@ import {
   PrismaService,
 } from 'lib/nest-prisma'
 import { TCart } from 'modules/cart'
-import { InvoiceService } from 'modules/invoice'
-import { MemberService } from 'modules/member'
+import { InvoiceUtil } from 'modules/invoice'
+import { MemberUtil } from 'modules/member'
+import { OrderUtil } from '../helpers'
 import { IOrderPlaceOptions, TOrder } from '../interfaces'
 
 @Injectable()
 export class OrderService implements OnModuleInit {
-  private memberService: MemberService
-  private invoiceService: InvoiceService
+  private invoiceUtil!: InvoiceUtil
+  private memberUtil!: MemberUtil
 
   constructor(
     private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
+    private readonly orderUtil: OrderUtil,
   ) {}
 
   onModuleInit(): void {
-    this.memberService = this.ref.get(MemberService, { strict: false })
-    this.invoiceService = this.ref.get(InvoiceService, { strict: false })
+    this.invoiceUtil = this.ref.get(InvoiceUtil, { strict: false })
+    this.memberUtil = this.ref.get(MemberUtil, { strict: false })
   }
 
   async findOne(kwargs?: Prisma.OrderFindUniqueArgs): Promise<TOrder> {
@@ -58,7 +60,7 @@ export class OrderService implements OnModuleInit {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.OrderFindUniqueOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.OrderFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TOrder> {
     const order = await this.prisma.order
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -73,7 +75,7 @@ export class OrderService implements OnModuleInit {
 
   async matchOrFail(
     where: Prisma.OrderWhereInput,
-    kwargs: Omit<Prisma.OrderFindFirstOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.OrderFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TOrder> {
     const order = await this.prisma.order
       .findFirstOrThrow({ ...kwargs, where })
@@ -88,7 +90,7 @@ export class OrderService implements OnModuleInit {
 
   async differOrFail(
     where: Prisma.OrderWhereInput,
-    options?: { limit?: number; message?: string }
+    options?: { limit?: number; message?: string },
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -103,7 +105,7 @@ export class OrderService implements OnModuleInit {
   async list(
     where?: Prisma.OrderWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
     return await this.prisma.order.list(where, params, options)
   }
@@ -111,7 +113,7 @@ export class OrderService implements OnModuleInit {
   async paginate(
     where?: Prisma.OrderWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.order.paginate(where, params, options)
   }
@@ -164,7 +166,7 @@ export class OrderService implements OnModuleInit {
       finalPoint += item.product.salePoint * item.quantity
     }
 
-    let pointBalance = await this.memberService.getPointBalance(cart.memberId, options.issuedAt)
+    let pointBalance = await this.memberUtil.getPointBalance(cart.memberId, options.issuedAt)
     if (finalPoint > pointBalance) {
       throw new BadRequestException({
         statusCode: HttpStatus.CONFLICT,
@@ -173,9 +175,9 @@ export class OrderService implements OnModuleInit {
     }
 
     const endOfDay = this.helperService.dateCreate(options.issuedAt, { endOfDay: true })
-    const orderNumber = await this.memberService.getOrderNumber(options.issuedAt)
-    const invoiceNumber = await this.memberService.getInvoiceNumber(options.issuedAt)
-    const recentPoints = await this.memberService.getPointRecents(cart.memberId, finalPoint)
+    const orderNumber = await this.orderUtil.getOrderNumber(options.issuedAt)
+    const invoiceNumber = await this.invoiceUtil.getInvoiceNumber(options.issuedAt)
+    const recentPoints = await this.memberUtil.getPointRecents(cart.memberId, finalPoint)
 
     const hasShipment = !!cart.items.find(item => item.product.hasShipment)
     const duePaidDays = cart.items
@@ -268,7 +270,7 @@ export class OrderService implements OnModuleInit {
                   issuedAt: options.issuedAt,
                   createdAt: options.issuedAt,
                   updatedAt: options.issuedAt,
-                }))
+                })),
               ),
               skipDuplicates: true,
             },
@@ -296,7 +298,7 @@ export class OrderService implements OnModuleInit {
         this.prisma.product.update({
           where: { id: item.productId },
           data: { unpaidQty: { increment: item.quantity } },
-        })
+        }),
       ),
     ])
     return order

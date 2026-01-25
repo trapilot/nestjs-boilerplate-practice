@@ -109,12 +109,12 @@ class ResponseDataDetailDto {
 }
 
 class ResponseDataRelationDto extends ResponseUserBelongDto {
-  @ApiProperty({ type: OrderResponseDetailDto })
+  @ApiProperty({ type: () => OrderResponseDetailDto })
   @Type(() => OrderResponseDetailDto)
   @Expose()
   order: OrderResponseDetailDto
 
-  @ApiProperty({ type: MemberResponseBelongDto })
+  @ApiProperty({ type: () => MemberResponseBelongDto })
   @Type(() => MemberResponseBelongDto)
   @Expose()
   member: MemberResponseBelongDto
@@ -122,12 +122,12 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class InvoiceResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class InvoiceResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class InvoiceResponseBelongDto extends IntersectionType(
@@ -139,5 +139,5 @@ export class InvoiceResponseBelongDto extends IntersectionType(
     'finalPrice',
     'finalPoint',
   ] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}

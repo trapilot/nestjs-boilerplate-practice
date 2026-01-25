@@ -1,7 +1,7 @@
 import { ApiProperty, IntersectionType, OmitType } from '@nestjs/swagger'
+import { EnumAuthAbilityAction, EnumAuthAbilityContext, EnumAuthAbilitySubject } from 'app/enums'
 import { Expose, Type } from 'class-transformer'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
-import { EnumAuthAbilityAction, EnumAuthAbilityContext, EnumAuthAbilitySubject } from 'shared/enums'
 import { ToPermissionActions } from '../transforms'
 
 class ResponseDataDetailDto {
@@ -45,10 +45,10 @@ class ResponseDataDetailDto {
 
 export class PermissionResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseUserBelongDto
+  ResponseUserBelongDto,
 ) {}
 
 export class PermissionResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseUserBelongDto
+  ResponseUserBelongDto,
 ) {}

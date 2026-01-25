@@ -1,3 +1,9 @@
-import { Notification } from '@runtime/prisma-client'
+import { Notification, Push } from '@runtime/prisma-client'
 
-export type TNotification = Notification
+export type TPush = Push & {
+  notification?: Notification
+}
+
+export type TNotification = Notification & {
+  pushes?: TPush[]
+}

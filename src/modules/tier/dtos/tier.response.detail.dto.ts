@@ -108,7 +108,7 @@ class ResponseDataChartDto {
 }
 
 class ResponseDataRelationDto extends ResponseUserBelongDto {
-  @ApiProperty({ type: [ResponseDataChartDto] })
+  @ApiProperty({ type: () => ResponseDataChartDto })
   @Type(() => ResponseDataChartDto)
   @Expose()
   charts: ResponseDataChartDto[]
@@ -116,7 +116,7 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class TierResponseDetailDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class TierResponseListDto extends IntersectionType(
@@ -127,10 +127,10 @@ export class TierResponseListDto extends IntersectionType(
     'createdAt',
     'updatedAt',
   ] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class TierResponseBelongDto extends IntersectionType(
   PickType(ResponseDataDetailDto, ['id', 'code', 'name'] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}

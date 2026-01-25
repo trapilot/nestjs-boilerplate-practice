@@ -70,15 +70,15 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {}
 
 export class MediaResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class MediaResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class MediaResponseBelongDto extends IntersectionType(
   PickType(ResponseDataDetailDto, ['id'] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}

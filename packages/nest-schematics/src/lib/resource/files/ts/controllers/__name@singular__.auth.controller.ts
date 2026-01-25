@@ -31,12 +31,12 @@ import {
   <%= singular(classify(name)) %>RequestSignUpDto,
   <%= singular(classify(name)) %>ResponseProfileDto,
 } from '../dtos'
-import { <%= singular(classify(name)) %>AuthService } from '../services'
+import { <%= singular(classify(name)) %>Auth } from '../helpers'
 
 @ApiTags(<%= singular(uppercased(name)) %>_DOC_AUTH_OPERATION)
 @Controller({ version: '1', path: '/auth' })
 export class <%= singular(classify(name)) %>AuthController {
-  constructor(@Inject(EnumAuthScopeType.<%= authType %>) protected readonly authService: <%= singular(classify(name)) %>AuthService) {}
+  constructor(@Inject(EnumAuthScopeType.<%= authType %>) protected readonly auth: <%= singular(classify(name)) %>Auth) {}
 
   @ApiRequestData({
     summary: <%= singular(uppercased(name)) %>_DOC_AUTH_OPERATION,
@@ -46,7 +46,7 @@ export class <%= singular(classify(name)) %>AuthController {
   })
   @Post('/sign-up')
   async signUp(@RequestBody() body: <%= singular(classify(name)) %>RequestSignUpDto): Promise<IResponseData> {
-    const user = await this.authService.signUp(body)
+    const user = await this.auth.signUp(body)
     return { data: user }
   }
 
@@ -70,8 +70,8 @@ export class <%= singular(classify(name)) %>AuthController {
     @RequestApp() userRequest: IRequestApp,
     @RequestBody() body: <%= singular(classify(name)) %>RequestSignInDto,
   ): Promise<IResponseData> {
-    const user = await this.authService.credential(body)
-    const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
+    const user = await this.auth.credential(body)
+    const auth = await this.auth.login(user, userIp, userAgent, userRequest, {
       scopeType: EnumAuthScopeType.<%= authType %>,
       loginType: EnumAuthLoginType.CREDENTIAL,
       loginWith: EnumAuthLoginWith.PHONE,
@@ -104,8 +104,8 @@ export class <%= singular(classify(name)) %>AuthController {
     @RequestApp() userRequest: IRequestApp,
     @AuthJwtPayload('user.email') email: string,
   ): Promise<IResponseData> {
-    const user = await this.authService.certificate({ email })
-    const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
+    const user = await this.auth.certificate({ email })
+    const auth = await this.auth.login(user, userIp, userAgent, userRequest, {
       scopeType: EnumAuthScopeType.<%= authType %>,
       loginType: EnumAuthLoginType.SOCIAL_GOOGLE,
       loginWith: EnumAuthLoginWith.EMAIL,
@@ -137,8 +137,8 @@ export class <%= singular(classify(name)) %>AuthController {
     @RequestApp() userRequest: IRequestApp,
     @AuthJwtPayload('user.email') email: string,
   ): Promise<IResponseData> {
-    const user = await this.authService.certificate({ email })
-    const auth = await this.authService.login(user, userIp, userAgent, userRequest, {
+    const user = await this.auth.certificate({ email })
+    const auth = await this.auth.login(user, userIp, userAgent, userRequest, {
       scopeType: EnumAuthScopeType.<%= authType %>,
       loginType: EnumAuthLoginType.SOCIAL_APPLE,
       loginWith: EnumAuthLoginWith.EMAIL,
@@ -168,7 +168,7 @@ export class <%= singular(classify(name)) %>AuthController {
   })
   @Get('/_me')
   async me(@AuthJwtPayload('user.id') userId: number): Promise<IResponseData> {
-    const user = await this.authService.getUserData(userId)
+    const user = await this.auth.getUserData(userId)
     return { data: user }
   }
 
@@ -190,8 +190,8 @@ export class <%= singular(classify(name)) %>AuthController {
     @AuthJwtPayload() refreshPayload: AuthJwtRefreshPayloadDto,
     @AuthJwtPayload('user.id') userId: number,
   ): Promise<IResponseData> {
-    const user = await this.authService.getUserData(userId)
-    const auth = await this.authService.refresh(user, refreshToken, refreshPayload)
+    const user = await this.auth.getUserData(userId)
+    const auth = await this.auth.refresh(user, refreshToken, refreshPayload)
 
     return { data: auth }
   }
@@ -212,8 +212,8 @@ export class <%= singular(classify(name)) %>AuthController {
     @RequestBody() body: <%= singular(classify(name)) %>RequestChangePasswordDto,
     @AuthJwtPayload('user.id') userId: number,
   ): Promise<IResponseData> {
-    const user = await this.authService.getUserData(userId)
-    const status = await this.authService.changePassword(user, body)
+    const user = await this.auth.getUserData(userId)
+    const status = await this.auth.changePassword(user, body)
 
     return {
       data: { status },

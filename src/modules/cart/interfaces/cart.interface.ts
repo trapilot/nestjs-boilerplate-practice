@@ -9,10 +9,6 @@ export type TCart = Cart & {
   items?: TCartItem[]
 }
 
-export interface ICartRule {
-  validate(cartItem: TCartItem): Promise<void>
-}
-
 export interface ICartItemAddOptions {
   productId: number
   quantity: number

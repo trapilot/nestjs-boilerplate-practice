@@ -51,7 +51,7 @@ export class ProductAppController {
     @RequestQuery('brandId', { parseAs: 'id' }) brandId: number,
     @RequestQuery('categoryId', { parseAs: 'id' }) categoryId: number,
     @RequestQuery('isWishlist', { parseAs: 'boolean' }) isWishlist: boolean,
-    @AuthJwtPayload(['user.id', { parseAs: 'id' }]) memberId: number
+    @AuthJwtPayload(['user.id', { parseAs: 'id' }]) memberId: number,
   ): Promise<IResponsePaging> {
     const _where: Prisma.ProductWhereInput = {
       ..._search,
@@ -94,7 +94,7 @@ export class ProductAppController {
   @Get('/:id')
   async get(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') memberId: number
+    @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
     const product = await this.productService.findOrFail(id, {
       include: {
@@ -131,7 +131,7 @@ export class ProductAppController {
   @Put('/:id/add-wishlist')
   async addWishList(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') memberId: number
+    @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
     const status = await this.productService.addWishlist(id, memberId)
     return { data: { status } }

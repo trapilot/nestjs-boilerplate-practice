@@ -4,9 +4,10 @@ import DatabaseConfig from './database.config'
 import HelperConfig from './helper.config'
 import LoggerConfig from './logger.config'
 import ModuleConfig from './module.config'
-import NotificationConfig from './notification.config'
+import Pushconfig from './push.config'
 import RedisConfig from './redis.config'
 import RequestConfig from './request.config'
+import SmsConfig from './sms.config'
 
 export default [
   AppConfig,
@@ -15,7 +16,8 @@ export default [
   HelperConfig,
   LoggerConfig,
   ModuleConfig,
-  NotificationConfig,
+  Pushconfig,
   RedisConfig,
   RequestConfig,
+  SmsConfig,
 ]

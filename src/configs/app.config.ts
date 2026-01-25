@@ -27,5 +27,5 @@ export default registerAs(
 
     wssEnable: StrUtil.isTrue(process.env.WSS_ENABLE),
     jobEnable: StrUtil.isTrue(process.env.JOB_ENABLE),
-  })
+  }),
 )

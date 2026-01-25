@@ -1,6 +1,6 @@
 import { ClassConstructor, plainToInstance, Transform } from 'class-transformer'
+import { ScopeContext } from '../contexts'
 import { EnumRouteType } from '../enums'
-import { ScopeContext } from '../helpers'
 import { IDateFormatOptions, INumberReturnOptions } from '../interfaces'
 import { AppUtil, DateUtil, LocaleUtil, NumberUtil } from '../utils'
 
@@ -11,7 +11,7 @@ export function ToUrl(host?: string): (target: any, key: string) => void {
 }
 
 export function ToDate(
-  transform?: { ref?: string } & IDateFormatOptions
+  transform?: { ref?: string } & IDateFormatOptions,
 ): (target: any, key: string) => void {
   return Transform(({ value, obj }: any) => {
     const { ref, ...options } = transform ?? {}
@@ -49,7 +49,7 @@ export function ToDuration(transform?: {
 
 export function ToEnum(
   enums: any,
-  transform?: { path?: string; default?: any; locale?: boolean }
+  transform?: { path?: string; default?: any; locale?: boolean },
 ): (target: any, key: string) => void {
   return Transform(({ value, obj }: any) => {
     if (transform?.path) {

@@ -6,7 +6,7 @@ import {
   IMessageProperties,
   IReturnBuffer,
   IReturnData,
-  IReturnIterator,
+  IReturnGenerator,
   IReturnList,
   IReturnMetadata,
   IReturnPaging,
@@ -64,6 +64,6 @@ export interface IResponseException {
 }
 
 export type IResponseData<T = Record<string, any>> = IReturnData<T>
-export type IResponseList<T = Record<string, any>> = IReturnIterator<T> | IReturnList<T>
-export type IResponsePaging<T = Record<string, any>> = IReturnIterator | IReturnPaging<T>
+export type IResponseList<T = Record<string, any>> = IReturnGenerator<T> | IReturnList<T>
+export type IResponsePaging<T = Record<string, any>> = IReturnGenerator | IReturnPaging<T>
 export type IResponseFile = IReturnBuffer | IReturnPath

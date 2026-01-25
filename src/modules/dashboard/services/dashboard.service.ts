@@ -8,7 +8,7 @@ import { TDashboard } from '../interfaces'
 export class DashboardService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
   ) {}
 
   async getSummary(startDate: Date, untilDate: Date): Promise<TDashboard> {

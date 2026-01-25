@@ -27,6 +27,7 @@
       "app/*": ["src/app/*"],
       "configs/*": ["src/configs/*"],
       "modules/*": ["src/modules/*"],
+      "tools/*": ["src/tools/*"],
       "shared/*": ["src/shared/*"],
       "lib/nest-auth": ["libs/nest-auth/src"],
       "lib/nest-auth/*": ["libs/nest-auth/src/*"],

@@ -1,6 +1,7 @@
 export * from './constants'
 export * from './extensions'
 export * from './filters'
+export * from './helpers'
 export * from './interfaces'
 export * from './nest-prisma.module'
 export * from './services'

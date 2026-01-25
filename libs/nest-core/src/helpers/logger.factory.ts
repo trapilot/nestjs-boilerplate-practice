@@ -40,13 +40,13 @@ export class LoggerFactory {
     this.sensitiveFields = new Set(LOGGER_SENSITIVE_FIELDS.map(field => field.toLowerCase()))
     this.sensitivePaths = LOGGER_SENSITIVE_PATHS.map(path =>
       LOGGER_SENSITIVE_FIELDS.map(field =>
-        field.includes('-') ? `${path}["${field}"]` : `${path}.${field}`
-      )
+        field.includes('-') ? `${path}["${field}"]` : `${path}.${field}`,
+      ),
     ).flat()
   }
 
-  createHttpPino(name?: string): HttpLogger {
-    const pinoOptions = this.createPinoOptions(name)
+  createHttpPino(): HttpLogger {
+    const pinoOptions = this.createPinoOptions('http')
     return pinoHttp({
       ...pinoOptions,
       wrapSerializers: false,
@@ -56,9 +56,14 @@ export class LoggerFactory {
     })
   }
 
-  createPino(name?: string): Logger {
-    const pinoOptions = this.createPinoOptions(name)
+  createStreamPino(): Logger {
+    const pinoOptions = this.createPinoOptions('stream')
     return pino(pinoOptions, this.createStream())
+  }
+
+  createPino(name: string): Logger {
+    const pinoOptions = this.createPinoOptions(name)
+    return pino(pinoOptions)
   }
 
   private createPinoOptions(name?: string): pino.LoggerOptions {

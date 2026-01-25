@@ -1,14 +1,12 @@
 export enum EnumSettingGroup {
-  SYSTEM = 'SYSTEM',
-  APP_VERSION = 'APP_VERSION',
+  SYSTEM = 'system',
+  APP_VERSION = 'app_version',
 }
 
 export enum EnumSettingType {
-  BOOLEAN = 'BOOLEAN',
-  YESNO = 'YESNO',
-  ONOFF = 'ONOFF',
-  STRING = 'STRING',
-  NUMBER = 'NUMBER',
-  ARRAY_OF_STRING = 'ARRAY_OF_STRING',
-  ARRAY_OF_NUMBER = 'ARRAY_OF_NUMBER',
+  BOOLEAN = 'boolean',
+  NUMBER = 'number',
+  STRING = 'string',
+  ARRAY = 'array',
+  JSON = 'json',
 }

@@ -1,8 +1,9 @@
 import { BadRequestException, Controller, Get, HttpStatus, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma, Setting } from '@runtime/prisma-client'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
 import { EnumAuthScopeType } from 'lib/nest-auth'
-import { CryptoService, FILE_SIZE_IN_BYTES, MessageService } from 'lib/nest-core'
+import { FILE_SIZE_IN_BYTES, HelperService, MessageService } from 'lib/nest-core'
 import {
   ApiRequestData,
   ApiRequestList,
@@ -15,7 +16,6 @@ import {
   RequestUserAgent,
   RequestUserIp,
 } from 'lib/nest-web'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { IResult } from 'ua-parser-js'
 import {
   SETTING_DOC_OPERATION,
@@ -39,9 +39,9 @@ import { SettingService } from '../services'
 @Controller({ path: '/settings' })
 export class SettingAdminController {
   constructor(
-    protected readonly crypto: CryptoService,
     protected readonly message: MessageService,
-    protected readonly settingService: SettingService
+    protected readonly helperService: HelperService,
+    protected readonly settingService: SettingService,
   ) {}
 
   @ApiRequestData({
@@ -55,12 +55,12 @@ export class SettingAdminController {
   @Get('core')
   async getUserMaxCertificate(
     @RequestUserIp() userIp: string,
-    @RequestUserAgent() userAgent: IResult
+    @RequestUserAgent() userAgent: IResult,
   ): Promise<IResponseData> {
     const languages: string[] = this.message.getAvailableLanguages()
 
-    const tz: string = await this.settingService.getTimezone()
-    const timezoneOffset: string = await this.settingService.getTimezoneOffset()
+    const tz: string = this.settingService.getTimezone()
+    const timezoneOffset: string = this.settingService.getTimezoneOffset()
 
     const timezone: SettingTimezoneResponseDto = {
       timezone: tz,
@@ -76,7 +76,7 @@ export class SettingAdminController {
         languages,
         file,
         timezone,
-        token: this.crypto.createUserToken(userIp, userAgent, true),
+        token: this.helperService.createUserToken(userIp, userAgent, true),
       },
     }
   }
@@ -87,8 +87,8 @@ export class SettingAdminController {
     docExpansion: false,
   })
   @Get('clean')
-  async clean(): Promise<boolean> {
-    return await this.settingService.clearCache()
+  async cleanCache(): Promise<boolean> {
+    return await this.settingService.clearAllCache()
   }
 
   @ApiRequestList({
@@ -118,7 +118,7 @@ export class SettingAdminController {
   })
   @Get('/')
   async list(
-    @RequestQueryFilterInEnum('group', EnumSettingGroup) _group: RequestFilterDto
+    @RequestQueryFilterInEnum('group', EnumSettingGroup) _group: RequestFilterDto,
   ): Promise<IResponseList> {
     const where: Prisma.SettingWhereInput = {
       ..._group,
@@ -185,7 +185,7 @@ export class SettingAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: SettingRequestUpdateDto,
-    @GetSetting() setting: Setting
+    @GetSetting() setting: Setting,
   ): Promise<IResponseData> {
     const check = this.settingService.checkValue(body.value, setting.type)
     if (!check) {

@@ -47,7 +47,7 @@ export class PointHistoryAppController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @AuthJwtPayload(['user.id', { parseAs: 'id' }]) memberId: number
+    @AuthJwtPayload(['user.id', { parseAs: 'id' }]) memberId: number,
   ): Promise<IResponsePaging> {
     const _where: Prisma.MemberPointHistoryWhereInput = {
       ..._search,

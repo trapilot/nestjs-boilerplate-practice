@@ -240,7 +240,7 @@ export class LoggerFileDriver extends Writable {
 
             // Calculate file age in days
             const fileAgeInDays = Math.floor(
-              (limitDate.getTime() - fileDate.getTime()) / (1000 * 3600 * 24)
+              (limitDate.getTime() - fileDate.getTime()) / (1000 * 3600 * 24),
             )
 
             // Delete if expired

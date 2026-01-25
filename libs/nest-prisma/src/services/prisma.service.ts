@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnModuleDestroy, OnModuleInit, Type } from '@nestjs/common'
+import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit, Type } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PrismaClientExtends } from '@prisma/client/extension'
 import { Prisma, PrismaClient } from '@runtime/prisma-client'
@@ -19,17 +19,17 @@ export class PrismaService extends PrismaExtensionService {
   constructor(
     @Inject(PRISMA_OPTIONS) private readonly options: IPrismaModuleOptions,
     private readonly config: ConfigService,
-    private readonly logger: LoggerService
+    private readonly logger: LoggerService,
   ) {
     const client = new PrismaClientExtension(
       {
+        debugMode: options.debug,
         replication: options.replication,
         provider: config.getOrThrow<IDatabaseProvider>('database.replication.provider'),
         writeUrl: config.getOrThrow<string>('database.replication.master'),
         readUrls: config.get<string[]>('database.replication.slaves', []),
-        debugMode: config.get<boolean>('database.debug', false),
       },
-      logger
+      logger,
     )
 
     super(client)
@@ -37,12 +37,13 @@ export class PrismaService extends PrismaExtensionService {
 }
 
 class PrismaClientExtension extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+  private readonly _logger = new Logger('PrismaService')
   private readonly context: string
   private readonly replicas: PrismaClientExtends[]
 
   constructor(
     private readonly options: IPrismaClientOptions,
-    private readonly logger: LoggerService
+    private readonly logger: LoggerService,
   ) {
     super({
       log: [
@@ -82,7 +83,7 @@ class PrismaClientExtension extends PrismaClient implements OnModuleInit, OnModu
     try {
       await this.connect()
     } catch (error: unknown) {
-      this.logger.error(error, 'Prisma failed to initialize database service', this.context)
+      this._logger.error(error, 'Failed to initialize database service')
       throw error
     }
   }
@@ -94,9 +95,9 @@ class PrismaClientExtension extends PrismaClient implements OnModuleInit, OnModu
   private async connect(): Promise<void> {
     try {
       await this.$connect()
-      this.logger.log('Prisma connected to the database', this.context)
+      this._logger.log('Connected to the database')
     } catch (error: unknown) {
-      this.logger.error(error, 'Prisma failed to connect to the database', this.context)
+      this._logger.error(error, 'Failed to connect to the database')
       throw error
     }
   }
@@ -104,9 +105,9 @@ class PrismaClientExtension extends PrismaClient implements OnModuleInit, OnModu
   private async disconnect(): Promise<void> {
     try {
       await this.$disconnect()
-      this.logger.log('Prisma disconnected from the database', this.context)
+      this._logger.log('Disconnected from the database')
     } catch (error: unknown) {
-      this.logger.error(error, 'Prisma failed to disconnect from the database', this.context)
+      this._logger.error(error, 'Failed to disconnect from the database')
       throw error
     }
   }
@@ -130,7 +131,7 @@ class PrismaClientExtension extends PrismaClient implements OnModuleInit, OnModu
         slowQuery: duration > 1000,
         [LOGGER_MESSAGE_KEY]: PrismaUtil.buildQuery(query, { params }),
       },
-      this.context
+      this.context,
     )
   }
 

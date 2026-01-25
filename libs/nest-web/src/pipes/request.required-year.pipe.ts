@@ -1,6 +1,6 @@
 import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common'
 import { HelperService } from 'lib/nest-core'
-import { EntityValidateException } from '../exceptions'
+import { ValidateException } from '../exceptions'
 
 @Injectable()
 export class RequestRequiredYearPipe implements PipeTransform {
@@ -8,7 +8,7 @@ export class RequestRequiredYearPipe implements PipeTransform {
 
   async transform(value: number, metadata: ArgumentMetadata): Promise<number> {
     if (!this.helperService.dateCheckIso(`${value}-01-01`)) {
-      throw EntityValidateException.builder()
+      throw ValidateException.builder()
         .addError({ property: metadata.data, value: `request.isYear|${value}` })
         .build()
     }

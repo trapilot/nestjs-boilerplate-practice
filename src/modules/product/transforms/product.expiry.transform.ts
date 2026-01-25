@@ -16,7 +16,7 @@ export function ToDynamicExpiryDays(): (target: object, key: string) => void {
 }
 
 export function ToStaticExpiryDate(
-  options?: IDateFormatOptions
+  options?: IDateFormatOptions,
 ): (target: object, key: string) => void {
   return Transform(({ obj, value }: { obj: TProduct; value: Date }) => {
     if (obj.expiryType === EnumProductExpiryType.STATIC) {
@@ -27,7 +27,7 @@ export function ToStaticExpiryDate(
 }
 
 export function ToDynamicExpiryDate(
-  options?: IDateFormatOptions
+  options?: IDateFormatOptions,
 ): (target: object, key: string) => void {
   return Transform(({ obj }: { obj: TProduct }) => {
     if (obj.expiryType === EnumProductExpiryType.DYNAMIC && obj?.dynamicExpiryDays) {

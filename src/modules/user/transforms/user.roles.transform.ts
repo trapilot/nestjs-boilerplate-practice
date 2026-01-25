@@ -1,10 +1,10 @@
 import { Transform, plainToInstance } from 'class-transformer'
 import { RoleResponseBelongDto } from 'modules/role'
+import { UserUtil } from '../helpers'
 import { IUserRoleTransformOptions, IUserTransformOptions } from '../interfaces'
-import { UserUtil } from '../utils'
 
 export function ToUserRoles(
-  options?: IUserRoleTransformOptions
+  options?: IUserRoleTransformOptions,
 ): (target: object, key: string) => void {
   return Transform(({ obj: user }: IUserTransformOptions) => {
     // console.log({ ToUserRoles: user })

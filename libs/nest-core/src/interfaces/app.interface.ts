@@ -4,8 +4,16 @@ import { EnumScopeType } from '../enums'
 
 export type EnumValue = string | number
 export type EnumLike<T = EnumValue> = Record<string, T>
+export type TypeLeastOne<T, U = { [K in keyof T]: Pick<T, K> }> = Partial<T> & U[keyof U]
+
 export type IModuleImport = Type<any> | DynamicModule | Promise<DynamicModule> | ForwardReference
-export type IModuleExport = DynamicModule | Type<any> | string | symbol | ForwardReference
+export type IModuleExport =
+  | DynamicModule
+  | Type<any>
+  | string
+  | symbol
+  | Function
+  | ForwardReference
 export type IModuleController = Type<Controller>
 export type IModuleProvider = Provider
 export type IModuleRouterOptions = { http?: boolean; cli?: boolean }
@@ -23,4 +31,8 @@ export interface IScopeContextData {
   readonly logger?: {
     readonly context: string
   }
+}
+
+export interface IAppRule<T> {
+  validate(data: T): Promise<void>
 }

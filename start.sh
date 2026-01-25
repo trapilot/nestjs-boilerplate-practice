@@ -11,4 +11,4 @@
 if [ "$DATABASE_MIGRATE" = "true" ]; then
   pnpm db:deploy;
 fi
-pnpm start:prod;
+pnpm start:prod:app;

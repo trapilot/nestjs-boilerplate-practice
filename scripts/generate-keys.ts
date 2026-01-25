@@ -79,7 +79,7 @@ class JwtKeysGenerator {
       y?: string
       crv?: string
     },
-    kid: string,
+    kid: string
   ): {
     kty: string
     crv?: string
@@ -148,7 +148,7 @@ class JwtKeysGenerator {
 
       console.log('JWT keys generated successfully!')
     } catch (err: unknown) {
-      console.error(`Failed to generate JWT keys: ${err.message}`)
+      console.error(`Failed to generate JWT keys: ${err}`)
       process.exit(1)
     }
   }
@@ -177,7 +177,7 @@ class JwtKeysGenerator {
 
       console.log('JWT keys removed successfully!')
     } catch (err: unknown) {
-      console.error(`Failed to remove JWT keys: ${err.message}`)
+      console.error(`Failed to remove JWT keys: ${err}`)
       process.exit(1)
     }
   }

@@ -60,7 +60,7 @@ export class MemberAppController {
   @Put('/edit-profile')
   async editProfile(
     @RequestBody() body: MemberEditProfileRequestDto,
-    @AuthJwtPayload('user.id') memberId: number
+    @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
     const profile = await this.memberService.editProfile(memberId, body)
 
@@ -84,7 +84,7 @@ export class MemberAppController {
   @Delete('/close')
   async closeProfile(
     @RequestBody() body: MemberCloseProfileRequestDto,
-    @AuthJwtPayload('user.id') memberId: number
+    @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
     await this.memberService.closeProfile(memberId, body.reasons)
 
@@ -123,9 +123,9 @@ export class MemberAppController {
         EnumFileExtensionImage.JPEG,
         EnumFileExtensionImage.JPG,
         EnumFileExtensionImage.PNG,
-      ])
+      ]),
     )
-    file: IFile
+    file: IFile,
   ): Promise<IResponseData> {
     await this.memberService.update(memberId, {
       avatar: file?.path,
@@ -158,7 +158,7 @@ export class MemberAppController {
   @Put('/change-password')
   async changePassword(
     @RequestBody() body: MemberChangePasswordRequestDto,
-    @AuthJwtPayload('user.id') memberId: number
+    @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
     const member = await this.memberService.findOrFail(memberId)
     const updated = await this.memberService.changePassword(member, body)

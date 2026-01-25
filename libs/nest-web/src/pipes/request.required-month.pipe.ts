@@ -1,6 +1,6 @@
 import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common'
 import { HelperService } from 'lib/nest-core'
-import { EntityValidateException } from '../exceptions'
+import { ValidateException } from '../exceptions'
 
 @Injectable()
 export class RequestRequiredMonthPipe implements PipeTransform {
@@ -10,7 +10,7 @@ export class RequestRequiredMonthPipe implements PipeTransform {
     const month = (value || '').toString().padStart(2, '0')
 
     if (!this.helperService.dateCheckIso(`1000-${month}-01`)) {
-      throw EntityValidateException.builder()
+      throw ValidateException.builder()
         .addError({ property: metadata.data, value: `request.isMonth|${value}` })
         .build()
     }

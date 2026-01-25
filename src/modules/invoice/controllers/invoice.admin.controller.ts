@@ -1,6 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -16,7 +17,6 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { INVOICE_DOC_ADMIN_QUERY_LIST, INVOICE_DOC_OPERATION } from '../constants'
 import {
   InvoiceRequestCreateDto,
@@ -64,7 +64,7 @@ export class InvoiceAdminController {
       availableOrderBy: ['id'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument
+    @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
     const _where: Prisma.InvoiceWhereInput = {
       ..._search,
@@ -106,7 +106,7 @@ export class InvoiceAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto
+    { _search, _params }: RequestListDto,
   ): Promise<IResponseList> {
     const _where: Prisma.InvoiceWhereInput = {
       ..._search,
@@ -212,7 +212,7 @@ export class InvoiceAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: InvoiceRequestUpdateDto,
-    @RequestParam('id') id: number
+    @RequestParam('id') id: number,
   ): Promise<IResponseData> {
     const invoice = await this.invoiceService.update(id, body)
 
@@ -243,7 +243,7 @@ export class InvoiceAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number
+    @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
     const invoice = await this.invoiceService.find(id)
     if (invoice) {

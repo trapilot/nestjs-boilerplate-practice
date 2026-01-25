@@ -1,6 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -18,7 +19,6 @@ import {
   RequestQueryFilterContain,
   RequestQueryList,
 } from 'lib/nest-web'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { POINT_HISTORY_DOC_ADMIN_QUERY_LIST, POINT_HISTORY_DOC_OPERATION } from '../constants'
 import {
   PointHistoryRequestCreateDto,
@@ -71,7 +71,7 @@ export class PointHistoryAdminController {
       raw: true,
     })
     rawCode: RequestFilterDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument
+    @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
     const _where: Prisma.MemberPointHistoryWhereInput = {
       ..._search,
@@ -117,7 +117,7 @@ export class PointHistoryAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto
+    { _search, _params }: RequestListDto,
   ): Promise<IResponseList> {
     const _where: Prisma.MemberPointHistoryWhereInput = {
       ..._search,
@@ -226,7 +226,7 @@ export class PointHistoryAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: PointHistoryRequestUpdateDto,
-    @RequestParam('id') id: number
+    @RequestParam('id') id: number,
   ): Promise<IResponseData> {
     const pointHistory = await this.pointHistoryService.update(id, body)
 
@@ -257,7 +257,7 @@ export class PointHistoryAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number
+    @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
     const pointHistory = await this.pointHistoryService.find(id)
     if (pointHistory) {

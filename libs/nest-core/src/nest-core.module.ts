@@ -9,16 +9,17 @@ import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ScheduleModule } from '@nestjs/schedule'
 import { HeaderResolver, I18nJsonLoader, I18nModule } from 'nestjs-i18n'
 import { QUEUE_CONFIG_KEY, QUEUE_PROCESSOR_CONFIG_KEY } from './constants'
+import { PushDispatcher, SmsDispatcher } from './dispatchers'
 import { EnumAppEnvironment, EnumFileExtensionTemplate, EnumMessageLanguage } from './enums'
 import { AppExceptionFilter } from './filters'
-import { LoggerFactory } from './helpers'
+import { LoggerFactory, PushFactory, SmsFactory, TransportFactory } from './helpers'
 import {
   CacheService,
-  CryptoService,
-  FileService,
   HelperService,
   LoggerService,
+  MailerService,
   MessageService,
+  RunnerService,
 } from './services'
 import { FileUtil } from './utils'
 
@@ -33,31 +34,38 @@ export class NestCoreModule {
       global: true,
       module: NestCoreModule,
       exports: [
-        CacheService,
-        FileService,
-        CryptoService,
         MessageService,
         LoggerService,
+        MailerService,
+        RunnerService,
         HelperService,
+        CacheService,
         LoggerFactory,
+        SmsFactory,
+        PushFactory,
       ],
       providers: [
-        FileService,
-        CryptoService,
         MessageService,
         LoggerService,
+        MailerService,
+        RunnerService,
         HelperService,
         LoggerFactory,
+        SmsFactory,
+        PushFactory,
+        TransportFactory,
+        SmsDispatcher,
+        PushDispatcher,
         {
           provide: CacheService,
           useExisting: CACHE_MANAGER,
         },
         {
           provide: APP_FILTER,
+          inject: [LoggerService, MessageService, HelperService],
           useFactory: (logger: LoggerService, message: MessageService, helper: HelperService) => {
-            return new AppExceptionFilter(logger, message, helper)
+            return new AppExceptionFilter(logger, message, helper) // NOTE: must inject correct order
           },
-          inject: [MessageService, HelperService],
         },
       ],
       imports: [
@@ -93,8 +101,8 @@ export class NestCoreModule {
             skipAsyncHook: true,
             throwOnMissingKey: false,
             viewEngine: config.get<EnumFileExtensionTemplate>(
-              'app.view',
-              EnumFileExtensionTemplate.HBS
+              'helper.message.viewEngine',
+              EnumFileExtensionTemplate.HBS,
             ),
           }),
         }),
@@ -113,7 +121,7 @@ export class NestCoreModule {
                     namespace: config.get<string>('redis.cache.namespace'),
                     useUnlink: true,
                     keyPrefixSeparator: ':',
-                  }
+                  },
                 ),
               ],
             }
@@ -126,7 +134,7 @@ export class NestCoreModule {
             connection: {
               url: config.get<string>('redis.queue.url'),
               connectionName: `${config.get<string>(
-                'app.name'
+                'app.name',
               )}-${config.get<EnumAppEnvironment>('app.env')}:queue`,
             },
             prefix: config.get<string>('redis.queue.namespace'),
@@ -148,7 +156,7 @@ export class NestCoreModule {
             connection: {
               url: config.get<string>('redis.queue.url'),
               connectionName: `${config.get<string>(
-                'app.name'
+                'app.name',
               )}-${config.get<EnumAppEnvironment>('app.env')}:processor`,
             },
             prefix: config.get<string>('redis.queue.namespace'),

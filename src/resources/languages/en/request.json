@@ -69,6 +69,7 @@
   },
 
   "error": {
+    "paramRequired": "Required parameter is missing",
     "userAgentInvalid": "Request user agent not acceptable",
     "userAgentOsInvalid": "Request user agent OS not acceptable",
     "userAgentBrowserInvalid": "Request user agent Browser not acceptable",

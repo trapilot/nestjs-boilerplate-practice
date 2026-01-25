@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { OAuth2Client, TokenInfo } from 'google-auth-library'
-import { CryptoService, HelperService, IStringRandomOptions } from 'lib/nest-core'
+import { HelperService, IStringRandomOptions } from 'lib/nest-core'
 import { IResult } from 'ua-parser-js'
 import verifyAppleToken from 'verify-apple-id-token'
 import {
@@ -48,19 +48,18 @@ export class AuthUtil {
 
   constructor(
     private readonly config: ConfigService,
-    private readonly crypto: CryptoService,
     private readonly jwtService: JwtService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
   ) {
     // jwt
     this.jwtAccessTokenSecretKey = this.config.get<string>('auth.jwt.accessToken.secretKey')
     this.jwtAccessTokenExpirationTime = this.config.get<number>(
-      'auth.jwt.accessToken.expirationTime'
+      'auth.jwt.accessToken.expirationTime',
     )
 
     this.jwtRefreshTokenSecretKey = this.config.get<string>('auth.jwt.refreshToken.secretKey')
     this.jwtRefreshTokenExpirationTime = this.config.get<number>(
-      'auth.jwt.refreshToken.expirationTime'
+      'auth.jwt.refreshToken.expirationTime',
     )
 
     this.jwtPrefix = this.config.get<string>('auth.jwt.prefix')
@@ -82,14 +81,18 @@ export class AuthUtil {
     // google
     this.googleClient = new OAuth2Client(
       this.config.get<string>('auth.google.clientId'),
-      this.config.get<string>('auth.google.clientSecret')
+      this.config.get<string>('auth.google.clientSecret'),
     )
+  }
+
+  protected async handleLoggedIn(_user: any, _options: IAuthRefetchOptions): Promise<boolean> {
+    return true
   }
 
   createAccessToken(
     subject: string | number,
     payload: AuthJwtAccessPayloadDto,
-    expiredIn: number
+    expiredIn: number,
   ): string {
     return this.jwtService.sign(payload, {
       secret: this.jwtAccessTokenSecretKey,
@@ -123,7 +126,7 @@ export class AuthUtil {
   createRefreshToken(
     subject: string | number,
     payload: AuthJwtRefreshPayloadDto,
-    expiredIn: number
+    expiredIn: number,
   ): string {
     return this.jwtService.sign(payload, {
       secret: this.jwtRefreshTokenSecretKey,
@@ -154,16 +157,12 @@ export class AuthUtil {
   }
 
   async verify(passwordString: string, passwordHash: string): Promise<boolean> {
-    return this.crypto.bcryptCompare(passwordString, passwordHash)
-  }
-
-  async handleLogin(_user: any, _options: IAuthRefetchOptions): Promise<boolean> {
-    return false
+    return this.helperService.bcryptCompare(passwordString, passwordHash)
   }
 
   createPayloadAccessToken<UserData = Record<string, any>>(
     data: UserData,
-    options: IAuthPayloadOptions
+    options: IAuthPayloadOptions,
   ): AuthJwtAccessPayloadDto<UserData> {
     return {
       user: data,
@@ -191,12 +190,12 @@ export class AuthUtil {
   }
 
   createSalt(length: number): string {
-    return this.crypto.randomSalt(length)
+    return this.helperService.randomSalt(length)
   }
 
   createPassword(password: string, options?: IAuthPasswordOptions): IAuthPassword {
     const salt = this.createSalt(this.passwordSaltLength)
-    const passwordHash = this.crypto.bcrypt(password, salt)
+    const passwordHash = this.helperService.bcryptCreate(password, salt)
 
     const sinceDate = this.helperService.dateNow()
     const untilDate = this.helperService.dateForward(sinceDate, {
@@ -215,8 +214,8 @@ export class AuthUtil {
     return this.helperService.randomString(length, options)
   }
 
-  createToken(userIp: string, userAgent: IResult): string {
-    return this.crypto.createUserToken(userIp, userAgent)
+  createUserToken(userIp: string, userAgent: IResult): string {
+    return this.helperService.createUserToken(userIp, userAgent)
   }
 
   checkPasswordExpired(passwordExpired: Date): boolean {

@@ -1,11 +1,11 @@
 import { MESSAGE_LANGUAGES } from '../constants'
-import { ScopeContext } from '../helpers'
+import { ScopeContext } from '../contexts'
 
 export class LocaleUtil {
   static buildFields(
     jsonFields: Record<string, any>[],
     fieldName: string,
-    fieldLang: string = 'language'
+    fieldLang: string = 'language',
   ): any {
     return MESSAGE_LANGUAGES.reduce((fields, language) => {
       const jsonField = jsonFields.find(jsonField => jsonField[fieldLang] === language)

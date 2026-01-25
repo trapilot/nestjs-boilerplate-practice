@@ -8,7 +8,7 @@ export class UserRequestChangeConfirmPasswordDto {
   @ApiProperty({
     required: true,
     description: 'new confirm password',
-    example: process.env.MOCK_USER_PASS,
+    example: process.env.MOCK_ADMIN_PASS,
   })
   password: string
 }

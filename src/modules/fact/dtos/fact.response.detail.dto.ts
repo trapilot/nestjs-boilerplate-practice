@@ -46,15 +46,15 @@ class ResponseDataDetailDto {
 
 export class FactResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseUserBelongDto
+  ResponseUserBelongDto,
 ) {}
 
 export class FactResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, ['content', 'thumbnail'] as const),
-  ResponseUserBelongDto
+  ResponseUserBelongDto,
 ) {}
 
 export class FactResponseBelongDto extends IntersectionType(
   PickType(ResponseDataDetailDto, ['id', 'title', 'isActive'] as const),
-  ResponseUserBelongDto
+  ResponseUserBelongDto,
 ) {}

@@ -61,5 +61,5 @@ class ResponseUserProfileRelationDto {
 
 export class UserProfileResponseDto extends IntersectionType(
   ResponseUserProfileDto,
-  ResponseUserProfileRelationDto
+  ResponseUserProfileRelationDto,
 ) {}

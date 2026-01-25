@@ -1,5 +1,5 @@
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
 import { Expose, Type } from 'class-transformer'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 
 export class RolePermissionResponseDto {
   @Type(() => Number)

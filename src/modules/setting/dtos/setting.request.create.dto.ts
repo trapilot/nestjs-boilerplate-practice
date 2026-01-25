@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator'
 import { ToString } from 'lib/nest-core'
 import { SafeString } from 'lib/nest-web'
-import { EnumSettingType } from '../enums'
+import { EnumSettingGroup, EnumSettingType } from '../enums'
 
 export class SettingRequestCreateDto {
   @IsNotEmpty()
@@ -13,11 +13,14 @@ export class SettingRequestCreateDto {
   name: string
 
   @IsOptional()
-  @IsString()
+  @IsEnum(EnumSettingGroup)
   @ToString()
-  @SafeString()
-  @ApiProperty({ required: true, example: '' })
-  group: string
+  @ApiProperty({
+    required: true,
+    example: EnumSettingGroup.SYSTEM,
+    enum: EnumSettingGroup,
+  })
+  group: EnumSettingGroup
 
   @IsOptional()
   @IsString()
@@ -31,7 +34,11 @@ export class SettingRequestCreateDto {
   @IsNotEmpty()
   @IsEnum(EnumSettingType)
   @ToString()
-  @ApiProperty({ required: true, example: 'BOOLEAN', enum: EnumSettingType })
+  @ApiProperty({
+    required: true,
+    example: EnumSettingType.BOOLEAN,
+    enum: EnumSettingType,
+  })
   type: EnumSettingType
 
   @IsNotEmpty()

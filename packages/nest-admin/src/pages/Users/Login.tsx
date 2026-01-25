@@ -10,7 +10,7 @@ export function Login() {
   const [password, setPassword] = useState(import.meta.env.VITE_APP_USERPASS || '')
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLoggedIn = async (e: React.FormEvent) => {
     e.preventDefault()
     setFieldErrors({})
     try {
@@ -55,7 +55,7 @@ export function Login() {
   }
 
   return (
-    <form onSubmit={handleLogin} style={formStyle}>
+    <form onSubmit={handleLoggedIn} style={formStyle}>
       <h2>Login</h2>
       <input
         type="email"

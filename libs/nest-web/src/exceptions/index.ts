@@ -1,1 +1,1 @@
-export * from './entity.validate.exception'
+export * from './validate.exception'

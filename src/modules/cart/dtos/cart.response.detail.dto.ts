@@ -49,12 +49,12 @@ class ResponseDataDetailDto {
 }
 
 class ResponseDataRelationDto extends ResponseUserBelongDto {
-  @ApiProperty({ type: MemberResponseBelongDto })
+  @ApiProperty({ type: () => MemberResponseBelongDto })
   @Type(() => MemberResponseBelongDto)
   @Expose()
   member: MemberResponseBelongDto
 
-  @ApiProperty({ type: [CartItemResponseDetailDto] })
+  @ApiProperty({ type: () => CartItemResponseDetailDto })
   @Type(() => CartItemResponseDetailDto)
   @Expose()
   items: CartItemResponseDetailDto[]
@@ -62,15 +62,15 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class CartResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class CartResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class CartResponseBelongDto extends IntersectionType(
   PickType(ResponseDataDetailDto, ['id'] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}

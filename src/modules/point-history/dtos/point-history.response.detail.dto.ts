@@ -106,22 +106,22 @@ class ResponseDataDetailDto {
 }
 
 class ResponseDataRelationDto extends ResponseUserBelongDto {
-  @ApiProperty({ type: TierResponseBelongDto })
+  @ApiProperty({ type: () => TierResponseBelongDto })
   @Type(() => TierResponseBelongDto)
   @Expose()
   tier: TierResponseBelongDto
 
-  @ApiProperty({ type: MemberResponseBelongDto })
+  @ApiProperty({ type: () => MemberResponseBelongDto })
   @Type(() => MemberResponseBelongDto)
   @Expose()
   member: MemberResponseBelongDto
 
-  @ApiProperty({ type: MemberResponseBelongDto })
+  @ApiProperty({ type: () => MemberResponseBelongDto })
   @Type(() => MemberResponseBelongDto)
   @Expose()
   referee: MemberResponseBelongDto
 
-  @ApiProperty({ type: InvoiceResponseBelongDto })
+  @ApiProperty({ type: () => InvoiceResponseBelongDto })
   @Type(() => InvoiceResponseBelongDto)
   @Expose()
   invoice: InvoiceResponseBelongDto
@@ -129,15 +129,15 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class PointHistoryResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class PointHistoryResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class PointHistoryResponseBelongDto extends IntersectionType(
   PickType(ResponseDataDetailDto, ['id'] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}

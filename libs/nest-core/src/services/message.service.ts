@@ -14,7 +14,7 @@ export class MessageService {
 
   constructor(
     private readonly i18n: I18nService,
-    private readonly config: ConfigService
+    private readonly config: ConfigService,
   ) {
     this.appEnv = this.config.get<EnumAppEnvironment>('app.env')
     this.defaultLanguage = this.config.get<string>('helper.message.fallback')
@@ -70,7 +70,7 @@ export class MessageService {
 
   setValidationMessage(
     requestErrors: ValidationError[],
-    options?: IMessageErrorOptions
+    options?: IMessageErrorOptions,
   ): IMessageError[] {
     const messages: Array<IMessageError[]> = []
     const metadataStorage = getMetadataStorage()
@@ -101,7 +101,7 @@ export class MessageService {
                 target.constructor,
                 target.constructor.name,
                 true,
-                false
+                false,
               )
               .filter(meta => meta.target === target.constructor)
           }

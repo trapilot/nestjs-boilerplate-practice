@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { NestApplication, NestFactory } from '@nestjs/core'
 import { IoAdapter } from '@nestjs/platform-socket.io'
 import { AppModule } from 'app/app.module'
-import { CliModule } from 'app/cli.module'
+import { AppEnvDto } from 'app/dtos'
 import { useContainer } from 'class-validator'
 import compression from 'compression'
 import {
@@ -14,9 +14,7 @@ import {
   IResponseApp,
   MessageService,
 } from 'lib/nest-core'
-import { CommandFactory } from 'nest-commander'
-import { AppEnvDto } from 'shared/dtos'
-import docSetup from 'src/swagger'
+import docSetup from 'tools/swagger'
 
 async function bootstrap(): Promise<void> {
   const app: NestApplication = await NestFactory.create(AppModule, {
@@ -75,7 +73,7 @@ async function bootstrap(): Promise<void> {
   }
 
   // Validate Env
-  const errors = await AppUtil.valiateDto(AppEnvDto, process.env, {
+  const errors = await AppUtil.validateDto(AppEnvDto, process.env, {
     skipMissingProperties: false,
     skipNullProperties: false,
     skipUndefinedProperties: false,
@@ -130,17 +128,10 @@ async function bootstrap(): Promise<void> {
 
   logger.log(`==========================================================`)
 
-  logger.log(`App is running on ${appEnv.toUpperCase()} mode`)
+  logger.log(`App is running on ${appEnv}`)
   logger.log(`Http Server running on ${await app.getUrl()}`)
 
   logger.log(`==========================================================`)
 }
 
-const isCli = process.argv.length >= 3
-if (isCli) {
-  CommandFactory.run(CliModule, ['warn', 'debug', 'error', 'fatal'])
-    .then(() => process.exit(0))
-    .catch((_err: unknown) => process.exit(1))
-} else {
-  bootstrap()
-}
+bootstrap()

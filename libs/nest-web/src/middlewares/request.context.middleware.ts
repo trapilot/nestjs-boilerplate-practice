@@ -17,7 +17,7 @@ import {
 export class RequestContextMiddleware implements NestMiddleware {
   constructor(
     private readonly config: ConfigService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
   ) {}
 
   async use(req: IRequestApp, _res: IResponseApp, next: INextFunction): Promise<void> {
@@ -31,7 +31,7 @@ export class RequestContextMiddleware implements NestMiddleware {
         tenantId: this.parseReqTenant(req),
       },
       logger: {
-        context: 'http',
+        context: `http.${this.parseReqRoute(req)}`,
       },
     }
 
@@ -74,7 +74,7 @@ export class RequestContextMiddleware implements NestMiddleware {
         const availableLanguages = this.config.get<string[]>('helper.message.availableList')
         const languages: string[] = this.helperService.arrayIntersection(
           [reqLanguage],
-          availableLanguages
+          availableLanguages,
         )
 
         if (languages.length > 0) {

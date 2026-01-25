@@ -14,7 +14,7 @@ import { PrismaService } from 'lib/nest-prisma'
 export class RoleLimitedLevelPipe implements PipeTransform {
   constructor(
     @Inject(REQUEST) protected readonly request: IRequestApp,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
   ) {}
 
   async transform(roleId: number): Promise<number> {

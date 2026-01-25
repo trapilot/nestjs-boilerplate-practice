@@ -11,7 +11,7 @@ model Setting {
   id          Int       @id @default(autoincrement())
   type        String
   name        String?
-  code        String
+  code        String    @unique()
   description String?
   group       String    @default("SYSTEM")
   value       String
@@ -28,21 +28,40 @@ model Setting {
   @@map("settings")
 }
 
-model Job {
-  id         Int           @id @default(autoincrement())
-  jobName    String
-  runDate    DateTime
-  status     EnumJobStatus @default(PENDING)
-  retryCount Int           @default(0)
-  priority   Int           @default(0)
-  lastError  String?
-  lockedAt   DateTime?
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+model QueueCursor {
+  name      String
+  version   Int      @default(1)
+  lastId    Int?
+  batchId   Int?
+  updatedAt DateTime @updatedAt
 
-  @@unique([jobName, runDate])
+  @@id([name, version])
+  @@map("queue_cursors")
+}
+
+model QueueJob {
+  id          Int           @id @default(autoincrement())
+  jobName     String
+  jobHash     String?
+  version     Int           @default(1)
+  payload     Json?
+  status      EnumJobStatus @default(PENDING)
+  startAt     DateTime
+  thresholdAt DateTime
+  retryCount  Int           @default(0)
+  maxRetries  Int           @default(3)
+  priority    Int           @default(5)
+  autoDelete  Boolean       @default(true)
+  lastError   String?
+  lockedAt    DateTime?
+  finishedAt  DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@unique([jobHash])
+  @@index([priority, jobName, startAt])
   @@index([status, retryCount])
-  @@map("jobs")
+  @@map("queue_jobs")
 }
 
 model Media {
@@ -91,6 +110,7 @@ model AppVersion {
   createdAt DateTime?              @default(now())
   updatedAt DateTime?              @updatedAt
 
+  @@unique([type, version])
   @@map("app_versions")
 }
 
@@ -143,8 +163,8 @@ model Notification {
   createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
   updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
 
-  pushes      Push[]
-  pivotGroups PushGroupNotificationMixins[]
+  pushes                Push[]
+  memberNotifyHistories MemberNotifyHistory[]
 
   @@map("notifications")
 }
@@ -156,18 +176,20 @@ model Push {
   status         EnumPushStatus? @default(PENDING)
   executeTime    String?
   executeDate    String?
-  hours          Int?
-  minutes        Int?
-  seconds        Int?
+  hour           Int?
+  minute         Int?
+  second         Int?
   weekday        Int?
   day            Int?
   month          Int?
   startDate      DateTime?
   untilDate      DateTime?
-  retries        Int?            @default(0)
+  retryCount     Int?            @default(0)
+  maxRetries     Int             @default(3)
+  lastError      String?
   isActive       Boolean?        @default(true)
+  startAt        DateTime?
   expiresAt      DateTime?
-  scheduledAt    DateTime?
   createdAt      DateTime?       @default(now())
   updatedAt      DateTime?       @updatedAt
   createdBy      Int?
@@ -176,48 +198,12 @@ model Push {
   createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
   updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
 
-  notification Notification  @relation(fields: [notificationId], references: [id])
-  histories    PushHistory[]
+  notification          Notification          @relation(fields: [notificationId], references: [id])
+  memberPushHistories   MemberPushHistory[]
+  memberNotifyHistories MemberNotifyHistory[]
 
+  @@index([status, retryCount])
   @@map("pushes")
-}
-
-model PushGroup {
-  id            Int       @id @default(autoincrement())
-  title         String?
-  tierIds       Json?
-  emails        Json?
-  phones        Json?
-  joinSinceDate DateTime?
-  joinUntilDate DateTime?
-
-  notifications PushGroupNotificationMixins[]
-
-  @@map("push_groups")
-}
-
-model PushGroupNotificationMixins {
-  groupId        Int
-  notificationId Int
-
-  group        PushGroup    @relation(fields: [groupId], references: [id])
-  notification Notification @relation(fields: [notificationId], references: [id])
-
-  @@id([groupId, notificationId])
-  @@map("_push_group_notification_mixins")
-}
-
-model PushHistory {
-  id             Int       @id @default(autoincrement())
-  pushId         Int
-  notificationId Int
-  totalDevice    Int?
-  createdAt      DateTime? @default(now())
-
-  push          Push                  @relation(fields: [pushId], references: [id])
-  notifications MemberNotifyHistory[]
-
-  @@map("push_histories")
 }
 
 model Role {
@@ -507,6 +493,7 @@ model Member {
   deviceHistories  MemberDeviceHistory[]
   verifyHistories  MemberVerifyHistory[]
   notifyHistories  MemberNotifyHistory[]
+  pushHistories    MemberPushHistory[]
   tierHistories    MemberTierHistory[]
   productHistories MemberProductHistory[]
   pointHistories   MemberPointHistory[]   @relation(name: "member")
@@ -515,6 +502,7 @@ model Member {
   invoices         Invoice[]
   wishlist         Wishlist[]
 
+  @@index([isActive, isPhoneVerified, id])
   @@map("members")
 }
 
@@ -564,7 +552,7 @@ model MemberTokenHistory {
   createdAt      DateTime? @default(now())
   updatedAt      DateTime? @updatedAt
 
-  @@index([memberId, memberToken])
+  @@index([memberId])
   @@map("member_token_histories")
 }
 
@@ -582,6 +570,7 @@ model MemberDeviceHistory {
   member Member? @relation(fields: [memberId], references: [id])
 
   @@unique([memberId, token])
+  @@index([memberId])
   @@map("member_device_histories")
 }
 
@@ -604,27 +593,50 @@ model MemberVerifyHistory {
 
   member Member? @relation(fields: [memberId], references: [id])
 
+  @@index([memberId])
   @@map("member_verify_histories")
 }
 
+model MemberPushHistory {
+  id          Int            @id @default(autoincrement())
+  memberId    Int
+  pushId      Int
+  deviceToken String
+  status      EnumPushResult
+  errorCode   String?
+
+  pushedAt  DateTime
+  createdAt DateTime? @default(now())
+
+  member Member @relation(fields: [memberId], references: [id])
+  push   Push   @relation(fields: [pushId], references: [id])
+
+  @@index([memberId, createdAt])
+  @@index([memberId, pushId])
+  @@map("member_push_histories")
+}
+
 model MemberNotifyHistory {
-  id            Int       @id @default(autoincrement())
-  memberId      Int
-  pushHistoryId Int
-  title         String?
-  description   String?
-  content       String?
-  refId         Int?
-  refType       String?
-  isActive      Boolean?  @default(true)
-  pushedAt      DateTime?
-  readAt        DateTime?
-  deletedAt     DateTime?
-  createdAt     DateTime? @default(now())
+  id             Int       @id @default(autoincrement())
+  memberId       Int
+  notificationId Int?
+  pushId         Int?
+  title          String?
+  body           String
+  data           Json?
+  refId          Int?
+  refType        String?
+  pushedAt       DateTime?
+  seenAt         DateTime?
+  readAt         DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime? @default(now())
 
-  member      Member      @relation(fields: [memberId], references: [id])
-  pushHistory PushHistory @relation(fields: [pushHistoryId], references: [id])
+  member       Member        @relation(fields: [memberId], references: [id])
+  notification Notification? @relation(fields: [notificationId], references: [id])
+  push         Push?         @relation(fields: [pushId], references: [id])
 
+  @@index([memberId, pushedAt])
   @@map("member_notify_histories")
 }
 
@@ -654,6 +666,7 @@ model MemberTierHistory {
   member   Member   @relation(fields: [memberId], references: [id])
   invoice  Invoice? @relation(fields: [invoiceId], references: [id])
 
+  @@index([memberId])
   @@map("member_tier_histories")
 }
 
@@ -691,6 +704,7 @@ model MemberPointHistory {
   tier    Tier?    @relation(fields: [tierId], references: [id])
   invoice Invoice? @relation(fields: [invoiceId], references: [id])
 
+  @@index([memberId])
   @@map("member_point_histories")
 }
 
@@ -867,6 +881,7 @@ model Order {
   items    OrderItem[]
   redeems  MemberProductHistory[]
 
+  @@index([memberId])
   @@map("orders")
 }
 
@@ -887,6 +902,7 @@ model OrderItem {
   order   Order   @relation(fields: [orderId], references: [id])
   product Product @relation(fields: [productId], references: [id])
 
+  @@index([orderId])
   @@map("order_items")
 }
 
@@ -901,6 +917,7 @@ model Shipment {
 
   order Order @relation(fields: [orderId], references: [id])
 
+  @@index([orderId])
   @@map("shipments")
 }
 
@@ -924,7 +941,7 @@ model Invoice {
   dueDate        DateTime?
   issuedAt       DateTime?          @default(now())
   createdAt      DateTime?          @default(now())
-  updatedAt      DateTime           @updatedAt
+  updatedAt      DateTime?          @updatedAt
 
   member   Member               @relation(fields: [memberId], references: [id])
   order    Order                @relation(fields: [orderId], references: [id])
@@ -1225,6 +1242,12 @@ enum EnumPushStatus {
   PUSHING
   COMPLETED
   CANCELED
+}
+
+enum EnumPushResult {
+  SENT
+  FAILED
+  INVALID
 }
 
 enum EnumMemberType {

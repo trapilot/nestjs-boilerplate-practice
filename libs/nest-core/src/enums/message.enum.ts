@@ -10,4 +10,6 @@ export enum EnumMessageLanguage {
 
 export enum EnumMessageRefType {
   TEXT = 'text',
+  HTML = 'html',
+  DATA = 'data', // db record
 }

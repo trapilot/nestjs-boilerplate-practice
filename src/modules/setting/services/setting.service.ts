@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Prisma, Setting } from '@runtime/prisma-client'
-import { CacheService, HelperService } from 'lib/nest-core'
+import { HelperService } from 'lib/nest-core'
 import {
   IPrismaOptions,
   IPrismaParams,
@@ -10,37 +10,23 @@ import {
   PrismaService,
 } from 'lib/nest-prisma'
 import { EnumSettingType } from '../enums'
+import { SettingUtil } from '../helpers'
 
 @Injectable()
 export class SettingService {
-  #prefix = '__cache_setting'
   private readonly timezone: string
   private readonly timezoneOffset: string
 
   constructor(
-    private readonly cache: CacheService,
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
+    private readonly settingUtil: SettingUtil,
   ) {
     const nowDate = this.helperService.dateNow()
 
     this.timezone = this.config.get<string>('app.timezone')
     this.timezoneOffset = this.helperService.dateGetZoneOffset(nowDate)
-  }
-
-  async clearCache(): Promise<boolean> {
-    try {
-      const cacheSettings = await this.prisma.setting.findMany({
-        select: { code: true },
-      })
-
-      for (const setting of cacheSettings) {
-        const key = this.createKey(setting.code)
-        await this.cache.del(key)
-      }
-    } catch {}
-    return true
   }
 
   async findOne(where: Prisma.SettingWhereUniqueInput): Promise<Setting> {
@@ -69,7 +55,7 @@ export class SettingService {
   async list(
     where?: Prisma.SettingWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
     return await this.prisma.setting.list(where, params, options)
   }
@@ -77,7 +63,7 @@ export class SettingService {
   async paginate(
     where?: Prisma.SettingWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.setting.paginate(where, params, options)
   }
@@ -98,153 +84,84 @@ export class SettingService {
   }
 
   async deleteMany(where?: Prisma.SettingWhereInput): Promise<boolean> {
-    await this.prisma.setting.deleteMany({ where })
+    const settings = await this.prisma.setting.findMany({
+      where,
+      select: { id: true, code: true },
+    })
+
+    for (const setting of settings) {
+      try {
+        await this.prisma.setting.delete({ where: { id: setting.id } })
+        await this.settingUtil.removeCache(setting.code)
+      } catch {}
+    }
+
     return true
   }
 
   async update(id: number, data: Prisma.SettingUncheckedUpdateInput): Promise<Setting> {
     const setting = await this.findOrFail(id)
     if (setting) {
-      return await this.prisma.$transaction(async tx => {
-        await this.removeCache(setting.code)
-        return await tx.setting.update({
-          data,
-          where: { id: setting.id },
-        })
+      const updated = await this.prisma.setting.update({
+        data,
+        where: { id: setting.id },
       })
+
+      await this.settingUtil.removeCache(setting.code)
+
+      return updated
     }
     return setting
   }
 
-  private isArray(type: EnumSettingType): boolean {
-    return [EnumSettingType.ARRAY_OF_NUMBER, EnumSettingType.ARRAY_OF_STRING].includes(type)
-  }
+  async clearAllCache(): Promise<boolean> {
+    const settings = await this.prisma.setting.findMany({
+      select: { id: true, code: true },
+    })
 
-  private isBoolean(type: EnumSettingType): boolean {
-    return [EnumSettingType.BOOLEAN, EnumSettingType.YESNO].includes(type)
-  }
+    settings.forEach(setting => this.settingUtil.removeCache(setting.code))
 
-  private isNumber(type: EnumSettingType): boolean {
-    return EnumSettingType.NUMBER === type
-  }
-
-  private getValueBoolean(value: string): boolean {
-    return ['1', 'y', 'yes', 'ok', 'true'].includes(value.toLowerCase())
-  }
-
-  private getValueArray<T>(value: string): T[] {
-    const values = value.split(',')
-    const numbers = values.filter(i => this.helperService.checkNumberString(i))
-    if (numbers.length === values.length) {
-      return values.map(i => parseInt(i)) as T[]
-    }
-    return values as T[]
-  }
-
-  getValue<T>(setting: Setting): T {
-    const type = setting.type as EnumSettingType
-    if (this.isBoolean(type)) {
-      return this.getValueBoolean(setting.value) as T
-    }
-    if (this.isNumber(type)) {
-      return Number(setting.value) as T
-    }
-    if (this.isArray(type)) {
-      return this.getValueArray(setting.value) as T
-    }
-    return setting.value as T
-  }
-
-  private createKey(code: string): string {
-    return `${this.#prefix}_${code}`
-  }
-
-  private async getInstance<T>(data: Prisma.SettingUncheckedCreateInput): Promise<T> {
-    const cacheKey = this.createKey(data.code)
-    let cacheValue = await this.cache.get<string>(cacheKey)
-
-    if (cacheValue === undefined) {
-      const setting =
-        (await this.prisma.setting.findFirst({ where: { code: data.code } })) ||
-        (await this.prisma.setting.create({ data }))
-
-      cacheValue = JSON.stringify(setting)
-
-      await this.cache.set(cacheKey, cacheValue, 86400)
-    }
-    return JSON.parse(cacheValue) as T
-  }
-
-  private async getFromCache<T>(data: Prisma.SettingUncheckedCreateInput): Promise<T> {
-    const cacheKey = this.createKey(data.code)
-    let cacheValue = await this.cache.get(cacheKey)
-
-    if (cacheValue === undefined) {
-      const setting =
-        (await this.prisma.setting.findFirst({ where: { code: data.code } })) ||
-        (await this.prisma.setting.create({ data }))
-
-      cacheValue = this.getValue(setting)
-
-      await this.cache.set(cacheKey, cacheValue, 86400)
-    }
-    return cacheValue as T
-  }
-
-  checkValue(value: string, type: string): boolean {
-    if (type === EnumSettingType.BOOLEAN) {
-      return ['true', 'false'].includes(value)
-    }
-    if (type === EnumSettingType.YESNO) {
-      return ['yes', 'no'].includes(value)
-    }
-    if (type === EnumSettingType.ONOFF) {
-      return ['on', 'off'].includes(value)
-    }
-    if (type === EnumSettingType.NUMBER) {
-      return this.helperService.checkNumberString(value)
-    }
-    if (type === EnumSettingType.STRING) {
-      return true
-    }
-
-    return false
-  }
-
-  private async removeCache(code: string): Promise<boolean> {
-    try {
-      await this.cache.del(this.createKey(code))
-    } catch (_err: unknown) {}
     return true
   }
 
+  async checkValue(value: string, type: string): Promise<boolean> {
+    return SettingUtil.checkDataType(value, type)
+  }
+
   async getMaintenance(): Promise<boolean> {
-    return await this.getFromCache<boolean>({
-      name: 'Maintenance Mode',
-      code: 'maintenance',
-      description: 'Maintenance Mode',
-      type: EnumSettingType.BOOLEAN,
-      value: 'false',
-      isVisible: false,
+    const code = 'maintenance'
+
+    const cached = await this.settingUtil.getCache(code)
+    if (cached) {
+      return this.settingUtil.parseCache<boolean>(cached)
+    }
+
+    const exists = await this.prisma.setting.exists({ code })
+    const maintenance = exists
+      ? await this.prisma.setting.findFirst({ where: { code } })
+      : await this.prisma.setting.create({
+          data: {
+            code,
+            name: 'Maintenance Mode',
+            description: 'Maintenance Mode',
+            type: EnumSettingType.BOOLEAN,
+            value: 'false',
+            isVisible: false,
+          },
+        })
+
+    const storedCache = await this.settingUtil.storeCache(maintenance.code, {
+      data: { value: maintenance.value, type: maintenance.type },
+      ttl: 86400,
     })
+    return this.settingUtil.parseCache(storedCache)
   }
 
-  async getVersion(os: string): Promise<Setting> {
-    return await this.getInstance({
-      name: os,
-      code: os,
-      description: `${os} Version`,
-      type: EnumSettingType.STRING,
-      value: '0.0.1',
-      isVisible: true,
-    })
-  }
-
-  async getTimezone(): Promise<string> {
+  getTimezone(): string {
     return this.timezone
   }
 
-  async getTimezoneOffset(): Promise<string> {
+  getTimezoneOffset(): string {
     return this.timezoneOffset
   }
 }

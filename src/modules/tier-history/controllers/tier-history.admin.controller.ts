@@ -1,6 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -16,7 +17,6 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { TIER_HISTORY_DOC_ADMIN_QUERY_LIST, TIER_HISTORY_DOC_OPERATION } from '../constants'
 import {
   TierHistoryRequestCreateDto,
@@ -64,7 +64,7 @@ export class TierHistoryAdminController {
       availableOrderBy: ['id', 'isActive'],
     })
     { _search, _params }: RequestListDto,
-    @RequestBookType() bookType: EnumFileExtensionDocument
+    @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
     const _where: Prisma.MemberTierHistoryWhereInput = {
       ..._search,
@@ -110,7 +110,7 @@ export class TierHistoryAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto
+    { _search, _params }: RequestListDto,
   ): Promise<IResponseList> {
     const _where: Prisma.MemberTierHistoryWhereInput = {
       ..._search,
@@ -219,7 +219,7 @@ export class TierHistoryAdminController {
   @Put('/:id')
   async update(
     @RequestBody() body: TierHistoryRequestUpdateDto,
-    @RequestParam('id') id: number
+    @RequestParam('id') id: number,
   ): Promise<IResponseData> {
     const tierHistory = await this.tierHistoryService.update(id, body)
 
@@ -250,7 +250,7 @@ export class TierHistoryAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number
+    @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
     const tierHistory = await this.tierHistoryService.find(id)
     if (tierHistory) {

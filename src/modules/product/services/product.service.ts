@@ -14,7 +14,7 @@ import { TProduct } from '../interfaces'
 export class ProductService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
   ) {}
 
   async findOne(kwargs?: Prisma.ProductFindUniqueArgs): Promise<TProduct> {
@@ -31,7 +31,7 @@ export class ProductService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.ProductFindUniqueOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.ProductFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TProduct> {
     return await this.prisma.product
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -45,7 +45,7 @@ export class ProductService {
 
   async differOrFail(
     where: Prisma.ProductWhereInput,
-    options?: { limit?: number; message?: string }
+    options?: { limit?: number; message?: string },
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -60,7 +60,7 @@ export class ProductService {
   async list(
     where?: Prisma.ProductWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
     return await this.prisma.product.list(where, params, options)
   }
@@ -68,7 +68,7 @@ export class ProductService {
   async paginate(
     where?: Prisma.ProductWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.product.paginate(where, params, options)
   }
@@ -81,7 +81,7 @@ export class ProductService {
 
   async create(
     data: Prisma.ProductUncheckedCreateInput,
-    kwargs: Omit<Prisma.ProductFindUniqueOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.ProductFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TProduct> {
     const created = await this.prisma.product.create({ ...kwargs, data })
     return created
@@ -90,7 +90,7 @@ export class ProductService {
   async update(
     id: number,
     data: Prisma.ProductUncheckedUpdateInput,
-    kwargs: Omit<Prisma.ProductFindUniqueOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.ProductFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TProduct> {
     const product = await this.findOrFail(id)
 

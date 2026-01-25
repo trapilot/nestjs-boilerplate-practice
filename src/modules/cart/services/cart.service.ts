@@ -16,13 +16,12 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { MemberService } from 'modules/member'
+import { MemberUtil } from 'modules/member'
 import { OrderService } from 'modules/order'
 import { ProductService } from 'modules/product'
-import { CartManager } from '../helpers'
+import { CartUtil } from '../helpers'
 import { ICartCheckoutOptions, ICartItemAddOptions, TCart, TCartItem } from '../interfaces'
 import { CartItemForMemberRule, CartItemInStockRule, CartItemIsActiveRule } from '../rules'
-import { CartUtil } from '../utils'
 
 @Injectable()
 export class CartService implements OnModuleInit {
@@ -37,18 +36,18 @@ export class CartService implements OnModuleInit {
     increment: AppUtil.isLocal() ? 0 : 1,
   }
 
-  private memberService: MemberService
-  private orderService: OrderService
-  private productService: ProductService
+  private memberUtil!: MemberUtil
+  private orderService!: OrderService
+  private productService!: ProductService
 
   constructor(
     private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
   ) {}
 
   onModuleInit(): void {
-    this.memberService = this.ref.get(MemberService, { strict: false })
+    this.memberUtil = this.ref.get(MemberUtil, { strict: false })
     this.orderService = this.ref.get(OrderService, { strict: false })
     this.productService = this.ref.get(ProductService, { strict: false })
   }
@@ -67,7 +66,7 @@ export class CartService implements OnModuleInit {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.CartFindUniqueOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.CartFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TCart> {
     const cart = await this.prisma.cart
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -82,7 +81,7 @@ export class CartService implements OnModuleInit {
 
   async matchOrFail(
     where: Prisma.CartWhereInput,
-    kwargs: Omit<Prisma.CartFindFirstOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.CartFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TCart> {
     const cart = await this.prisma.cart
       .findFirstOrThrow({ ...kwargs, where })
@@ -97,7 +96,7 @@ export class CartService implements OnModuleInit {
 
   async differOrFail(
     where: Prisma.CartWhereInput,
-    options?: { limit?: number; message?: string }
+    options?: { limit?: number; message?: string },
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -112,7 +111,7 @@ export class CartService implements OnModuleInit {
   async list(
     where?: Prisma.CartWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
     return await this.prisma.cart.list(where, params, options)
   }
@@ -120,7 +119,7 @@ export class CartService implements OnModuleInit {
   async paginate(
     where?: Prisma.CartWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.cart.paginate(where, params, options)
   }
@@ -187,14 +186,14 @@ export class CartService implements OnModuleInit {
       })
     }
 
-    const cartManager = new CartManager([
+    const ruler = AppUtil.initializeRuler<TCartItem>([
       new CartItemIsActiveRule(),
       new CartItemInStockRule(),
       new CartItemForMemberRule(this, cart.memberId, issuedAt),
     ])
 
     for (const item of cart.items) {
-      await cartManager.validate(item)
+      await ruler.validate(item)
     }
 
     await this.orderService.createOrder(cart, {
@@ -338,9 +337,9 @@ export class CartService implements OnModuleInit {
   async checkPointRequire(
     memberId: number,
     pointRequire: number,
-    issuedAt: Date
+    issuedAt: Date,
   ): Promise<boolean> {
-    const pointBalance = await this.memberService.getPointBalance(memberId, issuedAt)
+    const pointBalance = await this.memberUtil.getPointBalance(memberId, issuedAt)
     return pointRequire <= pointBalance
   }
 

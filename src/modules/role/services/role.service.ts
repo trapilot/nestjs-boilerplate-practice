@@ -1,5 +1,6 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
+import { UserAbilityUtil } from 'app/helpers'
 import {
   IPrismaOptions,
   IPrismaParams,
@@ -8,16 +9,13 @@ import {
   PrismaService,
 } from 'lib/nest-prisma'
 import { PermissionService, TPermission } from 'modules/permission'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
-import { UserAbilityUtil } from 'shared/helpers'
-import { PermissionObject } from 'shared/interfaces'
 import { IRoleCreateOptions, IRoleUpdateOptions, TRole } from '../interfaces'
 
 @Injectable()
 export class RoleService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly permissionService: PermissionService
+    private readonly permissionService: PermissionService,
   ) {}
 
   async findOne(kwargs?: Prisma.RoleFindUniqueArgs): Promise<TRole> {
@@ -34,7 +32,7 @@ export class RoleService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.RoleFindUniqueOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.RoleFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TRole> {
     return await this.prisma.role
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -48,7 +46,7 @@ export class RoleService {
 
   async differOrFail(
     where: Prisma.RoleWhereInput,
-    options?: { limit?: number; message?: string }
+    options?: { limit?: number; message?: string },
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -62,7 +60,7 @@ export class RoleService {
 
   async matchOrFail(
     where: Prisma.RoleWhereInput,
-    kwargs: Omit<Prisma.RoleFindFirstOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.RoleFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TRole> {
     const role = await this.prisma.role
       .findFirstOrThrow({ ...kwargs, where })
@@ -78,7 +76,7 @@ export class RoleService {
   async list(
     where?: Prisma.RoleWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
     return await this.prisma.role.list(where, params, options)
   }
@@ -86,7 +84,7 @@ export class RoleService {
   async paginate(
     where?: Prisma.RoleWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.role.paginate(where, params, options)
   }
@@ -99,13 +97,13 @@ export class RoleService {
 
   async create(
     data: Prisma.RoleUncheckedCreateInput,
-    options?: IRoleCreateOptions
+    options?: IRoleCreateOptions,
   ): Promise<TRole> {
     const permissions = options?.permissions ?? []
     const rolePermissions = []
     for (const p of permissions) {
-      const { subject, bitwise: roleBit } = UserAbilityUtil.toPermission(p.subject, p.actions)
-      const perm = await this.prisma.permission.findUnique({ where: { subject } })
+      const roleBit = UserAbilityUtil.map2Bitwise(p.actions)
+      const perm = await this.prisma.permission.findUnique({ where: { subject: p.subject } })
       if (perm) {
         rolePermissions.push({ permissionId: perm.id, bitwise: roleBit })
       }
@@ -128,7 +126,7 @@ export class RoleService {
   async update(
     id: number,
     data: Prisma.RoleUncheckedUpdateInput,
-    options?: IRoleUpdateOptions
+    options?: IRoleUpdateOptions,
   ): Promise<TRole> {
     const role = await this.findOrFail(id, {
       include: {
@@ -139,8 +137,8 @@ export class RoleService {
     const newPermissions = options?.permissions ?? []
     const rolePermissions = []
     for (const p of newPermissions) {
-      const { subject, bitwise: roleBit } = UserAbilityUtil.toPermission(p.subject, p.actions)
-      const perm = await this.prisma.permission.findUnique({ where: { subject } })
+      const roleBit = UserAbilityUtil.map2Bitwise(p.actions)
+      const perm = await this.prisma.permission.findUnique({ where: { subject: p.subject } })
       if (perm) {
         rolePermissions.push({ permissionId: perm.id, bitwise: roleBit })
       }
@@ -184,13 +182,6 @@ export class RoleService {
       data,
       where: { id: role.id },
     })
-  }
-
-  async generate(
-    subject: EnumAuthAbilitySubject,
-    actions: EnumAuthAbilityAction[]
-  ): Promise<PermissionObject> {
-    return UserAbilityUtil.toPermission(subject, actions)
   }
 
   async deleteAll(): Promise<boolean> {

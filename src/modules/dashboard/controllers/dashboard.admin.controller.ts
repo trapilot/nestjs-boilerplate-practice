@@ -1,9 +1,9 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
 import { EnumAuthScopeType } from 'lib/nest-auth'
 import { HelperService } from 'lib/nest-core'
 import { ApiRequestData, IResponseData } from 'lib/nest-web'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { DASHBOARD_DOC_OPERATION } from '../constants'
 import { DashboardDataResponseDto, DashboardSummaryResponseDto } from '../dtos'
 import { IDashboardDateRange } from '../interfaces'
@@ -14,7 +14,7 @@ import { DashboardService } from '../services'
 export class DashboardAdminController {
   constructor(
     protected readonly dashboardService: DashboardService,
-    protected readonly helperService: HelperService
+    protected readonly helperService: HelperService,
   ) {}
 
   private getDates(): IDashboardDateRange {

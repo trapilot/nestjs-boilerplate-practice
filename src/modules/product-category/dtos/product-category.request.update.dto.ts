@@ -3,5 +3,5 @@ import { ProductCategoryRequestCreateDto } from './product-category.request.crea
 
 export class ProductCategoryRequestUpdateDto extends OmitType(
   ProductCategoryRequestCreateDto,
-  []
+  [],
 ) {}

@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose, Transform, Type } from 'class-transformer'
 import { EnumSettingType } from '../enums'
+import { SettingUtil } from '../helpers'
 
 export class SettingResponseDetailDto {
   @ApiProperty({ example: 1 })
@@ -34,42 +35,8 @@ export class SettingResponseDetailDto {
 
   @ApiProperty({
     description: 'Value of string, can be type string/boolean/number',
-    oneOf: [
-      { type: EnumSettingType.STRING, readOnly: true, examples: ['on', 'off'] },
-      { type: EnumSettingType.NUMBER, readOnly: true, examples: [100, 200] },
-      { type: EnumSettingType.BOOLEAN, readOnly: true, examples: [true, false] },
-    ],
   })
-  @Transform(({ value, obj }) => {
-    const regex = /^-?\d+$/
-    const checkNum = regex.test(value)
-
-    if (obj.type === EnumSettingType.BOOLEAN && (value === 'true' || value === 'false')) {
-      return value === 'true' ? true : false
-    }
-
-    if (obj.type === EnumSettingType.YESNO && (value === 'yes' || value === 'no')) {
-      return value === 'yes' ? true : false
-    }
-
-    if (obj.type === EnumSettingType.ONOFF && (value === 'on' || value === 'off')) {
-      return value === 'on' ? true : false
-    }
-
-    if (obj.type === EnumSettingType.NUMBER && checkNum) {
-      return Number(value)
-    }
-
-    if (obj.type === EnumSettingType.ARRAY_OF_STRING) {
-      return value.split(',')
-    }
-
-    if (obj.type === EnumSettingType.ARRAY_OF_NUMBER) {
-      return value.split(',').map((v: string) => Number(v))
-    }
-
-    return value
-  })
+  @Transform(({ value, obj }) => SettingUtil.parseCache(value, obj.type))
   @Expose()
   value: string | number | boolean
 

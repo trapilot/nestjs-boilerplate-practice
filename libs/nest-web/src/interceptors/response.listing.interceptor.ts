@@ -4,16 +4,16 @@ import { Reflector } from '@nestjs/core'
 import { ClassConstructor, ClassTransformOptions, plainToInstance } from 'class-transformer'
 import { stream, Workbook, Worksheet } from 'exceljs'
 import {
+  DecoratorPropertyStorage,
   EnumFileExtensionDocument,
   FileUtil,
   HelperService,
   IExportableMetadata,
   IRequestApp,
   IResponseApp,
-  IReturnIterator,
+  IReturnGenerator,
   IReturnList,
   MessageService,
-  PropertyDecoratorStorage,
   ResponseListMetadataDto,
   ResponseSuccessDto,
   ScopeContext,
@@ -36,7 +36,7 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
   constructor(
     private readonly message: MessageService,
     private readonly reflector: Reflector,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
   ) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
@@ -48,23 +48,23 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
     const bookType = query?.bookType
     const exportFlag = this.reflector.get<boolean>(
       RESPONSE_FILE_EXPORT_METADATA,
-      context.getHandler()
+      context.getHandler(),
     )
 
     return next.handle().pipe(
       mergeMap(async (res: IResponseList<R>) => {
         if (exportFlag && Boolean(bookType) && ['xlsx', 'csv'].includes(bookType)) {
-          return await this.export(context, res as IReturnIterator<R>, bookType)
+          return await this.export(context, res as IReturnGenerator<R>, bookType)
         }
         return await this.send(context, res as IReturnList<R>)
       }),
-      catchError(err => throwError(() => err))
+      catchError(err => throwError(() => err)),
     )
   }
 
   private async send(
     context: ExecutionContext,
-    response: IReturnList<R>
+    response: IReturnList<R>,
   ): Promise<ResponseSuccessDto> {
     const ctx: HttpArgumentsHost = context.switchToHttp()
     const req: IRequestApp = ctx.getRequest<IRequestApp>()
@@ -72,12 +72,12 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
 
     const dtoClass = this.reflector.get<ClassConstructor<any>>(
       RESPONSE_DTO_CONSTRUCTOR_METADATA,
-      context.getHandler()
+      context.getHandler(),
     )
 
     const dtoTransform = this.reflector.get<ClassTransformOptions>(
       RESPONSE_DTO_TRANSFORM_METADATA,
-      context.getHandler()
+      context.getHandler(),
     )
 
     const dtoGroups = [req?.user?.loginFrom, req?.user?.scopeType]
@@ -101,7 +101,7 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
     if (dtoClass) {
       result = ResponseUtil.mapToInstances(result, {
         type: dtoClass,
-        transform: { ...dtoGroups, ...dtoTransform },
+        transform: { groups: dtoGroups, ...dtoTransform },
         mappingProperties: response?.metadata?.mappingProperties,
       })
     }
@@ -124,19 +124,19 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
     }
   }
 
-  private async export(context: ExecutionContext, response: IReturnIterator<R>, bookType: string) {
+  private async export(context: ExecutionContext, response: IReturnGenerator<R>, bookType: string) {
     const ctx: HttpArgumentsHost = context.switchToHttp()
     const req: IRequestApp = ctx.getRequest<IRequestApp>()
     const res: IResponseApp = ctx.getResponse<IResponseApp>()
 
     const dtoClass = this.reflector.get<ClassConstructor<any>>(
       RESPONSE_DTO_CONSTRUCTOR_METADATA,
-      context.getHandler()
+      context.getHandler(),
     )
 
     const dtoTransform = this.reflector.get<ClassTransformOptions>(
       RESPONSE_DTO_TRANSFORM_METADATA,
-      context.getHandler()
+      context.getHandler(),
     )
 
     const dtoGroups = [req?.user?.loginFrom, req?.user?.scopeType]
@@ -165,7 +165,7 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
     }
 
     const userProperties = Object.keys(plainToInstance(ResponseUserBelongDto, {}, serializeOptions))
-    const exportProperties = PropertyDecoratorStorage.get<IExportableMetadata>(dtoClass)
+    const exportProperties = DecoratorPropertyStorage.get<IExportableMetadata>(dtoClass)
     const mappingProperties = response?.metadata?.mappingProperties
 
     let rowIndex = 0
@@ -175,10 +175,10 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
     let worksheet: Worksheet = null
 
     const sheetSize = REQUEST_DEFAULT_EXPORT_PER_SHEET
-    const iterator: AsyncGenerator<R[]> = response.data
+    const generator: AsyncGenerator<R[]> = response.data
 
-    // Process each data item in the iterator stream
-    for await (const records of iterator) {
+    // Process each data item in the generator stream
+    for await (const records of generator) {
       for (let data of records) {
         if (rowIndex > 0 && sheetHeaders.length === 0) break
 
@@ -210,7 +210,7 @@ export class ResponseListInterceptor<T, R> implements NestInterceptor<T, IRespon
 
           if (sheetHeaders.length === 0) {
             console.warn(
-              `${dtoClass.name} does not exists exportable properties. Please add Exportable decorator`
+              `${dtoClass.name} does not exists exportable properties. Please add Exportable decorator`,
             )
           }
         }

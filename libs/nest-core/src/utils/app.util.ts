@@ -1,15 +1,17 @@
 import { ValidationError } from '@nestjs/common'
 import { ClassConstructor, plainToInstance } from 'class-transformer'
 import { validate, ValidatorOptions } from 'class-validator'
+import ms from 'ms'
 import { hostname } from 'os'
 import { APP_ENV, APP_URL } from '../constants'
+import { ScopeContext } from '../contexts'
 import { EnumAppEnvironment, EnumRouteType } from '../enums'
-import { ScopeContext } from '../helpers'
+import { IAppRule } from '../interfaces'
 import { FileUtil } from './file.util'
 
 export class AppUtil {
   static isEnv(env: EnumAppEnvironment): boolean {
-    return env === (process.env.APP_ENV || APP_ENV)
+    return env === APP_ENV
   }
 
   static isLocal(): boolean {
@@ -24,11 +26,24 @@ export class AppUtil {
     return this.isEnv(EnumAppEnvironment.PRODUCTION)
   }
 
+  static sleep(value: ms.StringValue): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms(value)))
+  }
+
+  static ms(value: ms.StringValue): number {
+    return ms(value)
+  }
+
+  static seconds(value: ms.StringValue): number {
+    return Math.floor(ms(value) / 1000)
+  }
+
   static captureException(exception: any): void {
     console.error(exception)
   }
 
   static catchMessage(err: unknown): string {
+    console.error({ catchMessage: err })
     return err instanceof Error ? err.message : 'Unknown error'
   }
 
@@ -52,12 +67,34 @@ export class AppUtil {
     return `${host}/${path}`
   }
 
-  static async valiateDto(
+  static async validateDto(
     dto: ClassConstructor<any>,
     object: object,
-    options?: ValidatorOptions
+    options?: ValidatorOptions,
   ): Promise<ValidationError[]> {
     const classDto = plainToInstance(dto, object)
     return await validate(classDto, options)
+  }
+
+  static initializeRuler<T>(rules: IAppRule<T>[] = []) {
+    return new AppRuler<T>(rules)
+  }
+}
+
+class AppRuler<T> {
+  private rules: IAppRule<T>[] = []
+
+  constructor(rules: IAppRule<T>[] = []) {
+    this.rules = rules
+  }
+
+  addRule(rule: IAppRule<T>): void {
+    this.rules.push(rule)
+  }
+
+  async validate(data: T): Promise<void> {
+    for (const rule of this.rules) {
+      await rule.validate(data)
+    }
   }
 }

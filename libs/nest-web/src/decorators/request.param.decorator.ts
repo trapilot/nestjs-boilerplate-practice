@@ -7,7 +7,7 @@ export const RequestBookType = createParamDecorator(
   (_data: string, ctx: ExecutionContext): EnumFileExtensionDocument => {
     const req = ctx.switchToHttp().getRequest<IRequestApp>()
     return req?.query?.bookType as EnumFileExtensionDocument
-  }
+  },
 )
 
 export function RequestUserIp(): ParameterDecorator {
@@ -31,7 +31,7 @@ export const RequestUserAgent: () => ParameterDecorator = createParamDecorator(
     const parserUserAgent = new UAParser(userAgentString)
     const userAgent: IResult = parserUserAgent.getResult()
     return userAgent
-  }
+  },
 )
 
 export const RequestUserFrom: () => ParameterDecorator = createParamDecorator(
@@ -48,35 +48,35 @@ export const RequestUserFrom: () => ParameterDecorator = createParamDecorator(
       }
     } catch (_err: unknown) {}
     return null
-  }
+  },
 )
 
 export const RequestUserToken: () => ParameterDecorator = createParamDecorator(
   (_data: string, ctx: ExecutionContext): string => {
     const req = ctx.switchToHttp().getRequest<IRequestApp>()
     return (req.headers['x-user-token'] as string) ?? undefined
-  }
+  },
 )
 
 export const RequestUserOTP: () => ParameterDecorator = createParamDecorator(
   (_data: string, ctx: ExecutionContext): string => {
     const req = ctx.switchToHttp().getRequest<IRequestApp>()
     return (req.headers['x-user-otp'] as string) ?? undefined
-  }
+  },
 )
 
 export const RequestUserOTT: () => ParameterDecorator = createParamDecorator(
   (_data: string, ctx: ExecutionContext): string => {
     const req = ctx.switchToHttp().getRequest<IRequestApp>()
     return (req.headers['x-user-ott'] as string) ?? undefined
-  }
+  },
 )
 
 export const RequestUserLang: () => ParameterDecorator = createParamDecorator(
   (_data: string, ctx: ExecutionContext): string => {
     const { __language } = ctx.switchToHttp().getRequest<IRequestApp>()
     return __language
-  }
+  },
 )
 
 export const RequestUserType: () => ParameterDecorator = createParamDecorator(
@@ -87,7 +87,7 @@ export const RequestUserType: () => ParameterDecorator = createParamDecorator(
       enum: EnumUserType,
       fallback: data,
     })
-  }
+  },
 )
 
 export const RequestCartVersion: () => ParameterDecorator = createParamDecorator(
@@ -95,5 +95,5 @@ export const RequestCartVersion: () => ParameterDecorator = createParamDecorator
     const req = ctx.switchToHttp().getRequest<IRequestApp>()
     const cartVersion = (req.headers['x-cart-version'] as string) ?? 0
     return Number(cartVersion)
-  }
+  },
 )

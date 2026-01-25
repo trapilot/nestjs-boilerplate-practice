@@ -1,7 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpStatus } from '@nestjs/common'
 import { HttpArgumentsHost } from '@nestjs/common/interfaces'
+import { ScopeContext } from '../contexts'
 import { ResponseErrorDto, ResponseMetadataDto } from '../dtos'
-import { ScopeContext } from '../helpers'
 import { IRequestApp, IResponseApp } from '../interfaces'
 import { HelperService, LoggerService, MessageService } from '../services'
 import { AppUtil } from '../utils'
@@ -11,7 +11,7 @@ export class AppExceptionFilter implements ExceptionFilter {
   constructor(
     private readonly logger: LoggerService,
     private readonly message: MessageService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
   ) {}
 
   async catch(exception: unknown, host: ArgumentsHost): Promise<void> {

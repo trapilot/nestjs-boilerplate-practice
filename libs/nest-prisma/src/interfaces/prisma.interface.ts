@@ -1,7 +1,7 @@
 import {
   EnumFileExtensionDocument,
   IDatabaseProvider,
-  IReturnIterator,
+  IReturnGenerator,
   IReturnList,
   IReturnPaging,
 } from 'lib/nest-core'
@@ -9,6 +9,7 @@ import {
 export interface IPrismaModuleOptions {
   replication: boolean
   multiTenant: boolean
+  debug: boolean
 }
 
 export interface IPrismaClientOptions {
@@ -42,10 +43,10 @@ export interface IPrismaOptions<T = any> {
   document?: EnumFileExtensionDocument
 }
 
-export interface IPrismaIterator {
+export interface IPrismaGenerator {
   chunk?: number
-  iterator?: boolean
+  generator?: boolean
 }
 
-export type IPrismaReturnList<T = Record<string, any>> = IReturnIterator<T> | IReturnList<T>
-export type IPrismaReturnPaging<T = Record<string, any>> = IReturnIterator | IReturnPaging<T>
+export type IPrismaReturnList<T = Record<string, any>> = IReturnGenerator<T> | IReturnList<T>
+export type IPrismaReturnPaging<T = Record<string, any>> = IReturnGenerator | IReturnPaging<T>

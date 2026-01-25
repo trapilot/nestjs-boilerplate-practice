@@ -1,7 +1,7 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Prisma } from '@runtime/prisma-client'
-import { CryptoService, EnumAppEnvironment, HelperService } from 'lib/nest-core'
+import { EnumAppEnvironment, HelperService } from 'lib/nest-core'
 import {
   IPrismaOptions,
   IPrismaParams,
@@ -9,19 +9,19 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
+import { ApiKeyUtil } from '../helpers'
 import { TApiKey } from '../interfaces'
 
 @Injectable()
 export class ApiKeyService {
   private readonly appEnv: EnumAppEnvironment
-
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly crypto: CryptoService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
+    private readonly apiKeyUtil: ApiKeyUtil,
   ) {
-    this.appEnv = config.get<EnumAppEnvironment>('app.env')
+    this.appEnv = this.config.get<EnumAppEnvironment>('app.env')
   }
 
   async findOne(kwargs?: Prisma.ApiKeyFindUniqueArgs): Promise<TApiKey> {
@@ -38,7 +38,7 @@ export class ApiKeyService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.ApiKeyFindUniqueOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.ApiKeyFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TApiKey> {
     const apiKey = await this.prisma.apiKey
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -53,7 +53,7 @@ export class ApiKeyService {
 
   async matchOrFail(
     where: Prisma.ApiKeyWhereInput,
-    kwargs: Omit<Prisma.ApiKeyFindFirstOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.ApiKeyFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TApiKey> {
     const apiKey = await this.prisma.apiKey
       .findFirstOrThrow({ ...kwargs, where })
@@ -68,7 +68,7 @@ export class ApiKeyService {
 
   async differOrFail(
     where: Prisma.ApiKeyWhereInput,
-    options?: { limit?: number; message?: string }
+    options?: { limit?: number; message?: string },
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -83,7 +83,7 @@ export class ApiKeyService {
   async list(
     where?: Prisma.ApiKeyWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
     return await this.prisma.apiKey.list(where, params, options)
   }
@@ -91,7 +91,7 @@ export class ApiKeyService {
   async paginate(
     where?: Prisma.ApiKeyWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.apiKey.paginate(where, params, options)
   }
@@ -104,7 +104,7 @@ export class ApiKeyService {
 
   async find(
     id: number,
-    kwargs: Omit<Prisma.ApiKeyFindUniqueArgs, 'where'> = {}
+    kwargs: Omit<Prisma.ApiKeyFindUniqueArgs, 'where'> = {},
   ): Promise<TApiKey> {
     return await this.prisma.apiKey.findUnique({
       ...kwargs,
@@ -112,9 +112,10 @@ export class ApiKeyService {
     })
   }
 
-  async create(data: Prisma.ApiKeyUncheckedCreateInput): Promise<TApiKey> {
+  async create(data: Omit<Prisma.ApiKeyUncheckedCreateInput, 'key' | 'hash'>): Promise<TApiKey> {
+    const { key, hash } = this.apiKeyUtil.createHash(this.appEnv)
     const apiKey = await this.prisma.apiKey.create({
-      data,
+      data: { ...data, key, hash },
     })
     return apiKey
   }
@@ -167,22 +168,10 @@ export class ApiKeyService {
     })
   }
 
-  private async createKey(): Promise<string> {
-    const random: string = this.helperService.randomString(25)
-    return `${this.appEnv}_${random}`
-  }
-
-  private async createSecret(): Promise<string> {
-    return this.helperService.randomString(35)
-  }
-
-  async resetHashApiKey(id: number): Promise<TApiKey> {
+  async reset(id: number): Promise<TApiKey> {
     const apiKey = await this.findOrFail(id)
 
-    const secret: string = await this.createSecret()
-    const hash = this.crypto.createHash(`${apiKey.key}:${secret}`, {
-      algorithm: 'sha256',
-    })
+    const hash = this.apiKeyUtil.resetHash(apiKey.key)
 
     const updated = await this.prisma.apiKey.update({
       data: { hash },
@@ -190,15 +179,5 @@ export class ApiKeyService {
     })
 
     return updated
-  }
-
-  async createHashApiKey(): Promise<{ key: string; hash: string }> {
-    const key = await this.createKey()
-    const secret = await this.createSecret()
-
-    const hash = this.crypto.createHash(`${key}:${secret}`, {
-      algorithm: 'sha256',
-    })
-    return { key, hash }
   }
 }

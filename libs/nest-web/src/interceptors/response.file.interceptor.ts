@@ -11,7 +11,6 @@ import archiver from 'archiver'
 import * as fs from 'fs'
 import {
   EnumFileExtension,
-  FileService,
   FileUtil,
   IResponseApp,
   IReturnBuffer,
@@ -27,10 +26,7 @@ import { IResponseFile } from '../interfaces'
 
 @Injectable()
 export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseFile> {
-  constructor(
-    private readonly reflector: Reflector,
-    private readonly fileService: FileService
-  ) {}
+  constructor(private readonly reflector: Reflector) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
     if (context.getType() !== 'http') {
@@ -44,7 +40,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
         }
         return await this.sendFromPath(context, res as IReturnPath)
       }),
-      catchError(err => throwError(() => err))
+      catchError(err => throwError(() => err)),
     )
   }
 
@@ -54,7 +50,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
 
     const disposition = this.reflector.get<'attachment' | 'inline'>(
       RESPONSE_FILE_DISPOSITION_METADATA,
-      context.getHandler()
+      context.getHandler(),
     )
 
     if (Array.isArray(response.file)) {
@@ -72,7 +68,7 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
 
       if (zipFileTemporary) {
         // Create the ZIP file
-        await this.fileService.zipFiles(response.file, {
+        await FileUtil.zipFiles(response.file, {
           zipFilePath,
           zipFileRelative,
         })
@@ -207,12 +203,12 @@ export class ResponseFileInterceptor<T> implements NestInterceptor<T, IResponseF
 
     const disposition = this.reflector.get<'attachment' | 'inline'>(
       RESPONSE_FILE_DISPOSITION_METADATA,
-      context.getHandler()
+      context.getHandler(),
     )
 
     const fileType = this.reflector.get<EnumFileExtension>(
       RESPONSE_FILE_TYPE_METADATA,
-      context.getHandler()
+      context.getHandler(),
     )
 
     const fileBuffer = response.file

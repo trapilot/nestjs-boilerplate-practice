@@ -8,7 +8,7 @@ import {
 import { ModuleRef } from '@nestjs/core'
 import { Prisma } from '@runtime/prisma-client'
 import { EnumAuthSignUpFrom, IAuthPassword } from 'lib/nest-auth'
-import { FileService, HelperService } from 'lib/nest-core'
+import { FileUtil, HelperService } from 'lib/nest-core'
 import {
   IPrismaOptions,
   IPrismaParams,
@@ -26,8 +26,7 @@ export class UserService implements OnModuleInit {
   constructor(
     private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
-    private readonly fileService: FileService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
   ) {}
 
   onModuleInit(): void {
@@ -48,7 +47,7 @@ export class UserService implements OnModuleInit {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.UserFindUniqueOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.UserFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TUser> {
     return await this.prisma.user
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -62,7 +61,7 @@ export class UserService implements OnModuleInit {
 
   async differOrFail(
     where: Prisma.UserWhereInput,
-    options?: { limit?: number; message?: string }
+    options?: { limit?: number; message?: string },
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -76,7 +75,7 @@ export class UserService implements OnModuleInit {
 
   async matchOrFail(
     where: Prisma.UserWhereInput,
-    kwargs: Omit<Prisma.UserFindFirstOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.UserFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TUser> {
     const user = await this.prisma.user
       .findFirstOrThrow({ ...kwargs, where })
@@ -92,7 +91,7 @@ export class UserService implements OnModuleInit {
   async list(
     where?: Prisma.UserWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
     return await this.prisma.user.list(where, params, options)
   }
@@ -100,7 +99,7 @@ export class UserService implements OnModuleInit {
   async paginate(
     where?: Prisma.UserWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.user.paginate(where, params, options)
   }
@@ -114,7 +113,7 @@ export class UserService implements OnModuleInit {
   async create(
     data: Prisma.UserUncheckedCreateInput,
     { passwordHash }: IAuthPassword,
-    options?: IUserCreatedOptions
+    options?: IUserCreatedOptions,
   ): Promise<TUser> {
     try {
       await this.differOrFail({ phone: data.phone })
@@ -143,7 +142,7 @@ export class UserService implements OnModuleInit {
         },
       })
     } catch (err: unknown) {
-      this.fileService.removeLink(data?.avatar)
+      FileUtil.removeLink(data?.avatar)
       throw err
     }
   }
@@ -151,7 +150,7 @@ export class UserService implements OnModuleInit {
   async update(
     id: number,
     data: Prisma.UserUncheckedUpdateInput,
-    options?: IUserUpdateOptions
+    options?: IUserUpdateOptions,
   ): Promise<TUser> {
     const user = await this.findOrFail(id)
 
@@ -196,7 +195,7 @@ export class UserService implements OnModuleInit {
   async getLoginHistories(
     where?: Prisma.UserLoginHistoryWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
     return await this.prisma.userLoginHistory.list(where, params, options)
   }

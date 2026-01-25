@@ -64,7 +64,7 @@ export class CartAppController {
   async checkout(
     @RequestBody() body: CartRequestCheckoutDto,
     @RequestCartVersion() cartVersion: number,
-    @AuthJwtPayload('user.id') memberId: number
+    @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
     const cartData = await this.cartService.validate(memberId, cartVersion)
     const cartReset = await this.cartService.checkout(cartData.id, {
@@ -97,7 +97,7 @@ export class CartAppController {
   @Post('/items')
   async createItem(
     @RequestBody() body: CartRequestCreateItemDto,
-    @AuthJwtPayload('user.id') memberId: number
+    @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
     const cartData = await this.cartService.getCartData(memberId)
     const cartItems = await this.cartService.addItem(cartData, {
@@ -131,7 +131,7 @@ export class CartAppController {
     @RequestBody() body: CartRequestUpdateItemDto,
     @RequestCartVersion() cartVersion: number,
     @RequestParam('itemId') itemId: number,
-    @AuthJwtPayload('user.id') memberId: number
+    @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
     const cartData = await this.cartService.validate(memberId, cartVersion)
     const cartItem = await this.cartService.getCartItem({ where: { id: itemId } })
@@ -159,7 +159,7 @@ export class CartAppController {
   async deleteItem(
     @RequestCartVersion() cartVersion: number,
     @RequestParam('itemId') itemId: number,
-    @AuthJwtPayload('user.id') memberId: number
+    @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
     const cartData = await this.cartService.validate(memberId, cartVersion)
     const cartItem = await this.cartService.getCartItem({ where: { id: itemId } })

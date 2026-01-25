@@ -1,19 +1,43 @@
 import { Injectable } from '@nestjs/common'
+import { compareSync, genSaltSync, hashSync } from 'bcrypt'
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHash,
+  createHmac,
+  createSign,
+  createVerify,
+} from 'crypto'
 import { DateObjectUnits, DateTime, Duration, DurationLikeObject } from 'luxon'
 import RandExp from 'randexp'
+import { IResult } from 'ua-parser-js'
+import { ScopeContext } from '../contexts'
 import { EnumCountryCode, EnumDateFormat } from '../enums'
-import { ScopeContext } from '../helpers'
 import {
   IDateCompareOptions,
   IDateCreateOptions,
   IDateExtractData,
   IDateRange,
+  IEncryptionHashOptions,
+  IEncryptionHmacOptions,
+  IEncryptionSignOptions,
+  IEncryptionVerifyOptions,
+  INumberRandomOptions,
+  IStringFormatOptions,
+  IStringPadZeroOptions,
   IStringRandomOptions,
 } from '../interfaces'
-import { ArrUtil, DateUtil } from '../utils'
+import { ArrUtil, DateUtil, StrUtil } from '../utils'
 
 @Injectable()
 export class HelperService {
+  BASE_CHARS: Record<number, string> = {
+    10: '0123456789',
+    16: '0123456789ABCDEF',
+    36: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    62: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+  }
+
   arrayReverse<T>(array: T[]): T[] {
     return array.reverse()
   }
@@ -24,6 +48,10 @@ export class HelperService {
 
   arrayMerge<T>(a: T[], b: T[]): T[] {
     return a.concat(b)
+  }
+
+  arrayRandom<T>(array: T[]): T {
+    return array[Math.floor(Math.random() * array.length)]
   }
 
   arrayDifference<T>(a: T[], b: T[]): T[] {
@@ -63,15 +91,14 @@ export class HelperService {
     return regex.test(number)
   }
 
-  randomDigits(length: number): string {
-    const min: number = Number.parseInt(`1`.padEnd(length, '0'))
-    const max: number = Number.parseInt(`9`.padEnd(length, '9'))
-    return this.randomNumberInRange(min, max).toString()
+  randomBoolean(ratio: number = 50): boolean {
+    if (ratio <= 0 || ratio > 100) ratio = 50 // default 50%
+    return 0 === Math.floor(Math.random() * Math.floor(100 / ratio))
   }
 
-  randomNumberInRange(min: number, max: number): number {
-    min = Math.ceil(min)
-    max = Math.floor(max)
+  randomNumber(options: INumberRandomOptions): number {
+    const min = Math.ceil(options.min)
+    const max = Math.floor(options.max)
     return Math.floor(Math.random() * (max - min) + min)
   }
 
@@ -105,17 +132,68 @@ export class HelperService {
     return dateTime.diff(dateTimeDob)
   }
 
+  randomBirthDate(minAge: number, maxAge: number): Date {
+    const today = DateTime.now()
+
+    // Oldest allowed birthdate
+    const maxBirthDate = today.minus({ years: minAge }).toMillis()
+
+    // Youngest allowed birthdate
+    const minBirthDate = today.minus({ years: maxAge }).toMillis()
+
+    const randomMillis = Math.random() * (maxBirthDate - minBirthDate) + minBirthDate
+
+    return DateTime.fromMillis(randomMillis).toJSDate()
+  }
+
+  mixinString(
+    items: string[][],
+    options?: {
+      delimiter?: string
+      prefix?: string
+      suffix?: string
+      format?: 'uppercase' | 'lowercase' | 'capitalize'
+    },
+  ): string {
+    return ArrUtil.join(
+      [
+        options?.prefix,
+        StrUtil.format(
+          ArrUtil.join(
+            items.map(arr => this.arrayRandom(arr)),
+            { delimiter: options?.delimiter ?? '' },
+          ),
+          { format: options?.format },
+        ),
+        options?.suffix,
+      ],
+      { delimiter: '', allowEmpty: false },
+    )
+  }
+
+  randomDigits(length: number, options?: { prefix?: string; suffix?: string }): string {
+    const min = Number.parseInt(`1`.padEnd(length, '0'))
+    const max = Number.parseInt(`9`.padEnd(length, '9'))
+    return ArrUtil.join(
+      [options?.prefix, this.randomNumber({ min, max }).toString(), options?.suffix],
+      {
+        delimiter: '',
+        allowEmpty: false,
+      },
+    )
+  }
+
   randomString(length: number, options?: IStringRandomOptions): string {
-    if (options?.numeric) {
-      return new RandExp(`[0-9]{${length},${length}}`).gen()
-    }
-    let rString = options?.safe
-      ? new RandExp(`[A-Z]{${length},${length}}`).gen()
+    const rString = options?.safe
+      ? options?.numeric
+        ? new RandExp(`[A-Z0-9]{${length},${length}}`).gen()
+        : new RandExp(`[A-Z]{${length},${length}}`).gen()
       : new RandExp(`\\w{${length},${length}}`).gen()
-    if (options?.upperCase) {
-      rString = rString.toUpperCase()
-    }
-    return options?.prefix ? `${options.prefix}${rString}` : rString
+
+    return ArrUtil.join(
+      [options?.prefix, options?.upperCase ? rString.toUpperCase() : rString, options?.suffix],
+      { delimiter: '', allowEmpty: false },
+    )
   }
 
   censorString(text: string): string {
@@ -136,14 +214,21 @@ export class HelperService {
     return `${text.slice(0, 3)}${stringCensor}${text.slice(-lengthExplicit)}`
   }
 
+  stringFormat(text: string, options: IStringFormatOptions) {
+    return StrUtil.format(text, options)
+  }
+
   dirtyString(text: string, dirty?: string | number): string {
     if (!text) return text
     dirty = dirty ?? new Date().getTime()
     return ArrUtil.join([text, dirty], { delimiter: '_' })
   }
 
-  padZero(text: string | number, length: number = 1, prefix: string = ''): string {
-    return prefix + `${text}`.padStart(Math.max(length, `${text}`.length), '0')
+  padZero(text: string | number, options: IStringPadZeroOptions): string {
+    const prefix = options?.prefix ? options.prefix : ''
+    const fillLength = Math.max(0, options.length - prefix.length)
+
+    return prefix + `${text}`.padStart(fillLength, '0')
   }
 
   checkUrlMatchesPatterns(url: string, patterns: string[]): boolean {
@@ -207,7 +292,7 @@ export class HelperService {
     })
   }
 
-  createPhone(country: string, phone?: string): string {
+  createPhone(phone: string, country?: string): string {
     return `${country ?? ''}${phone}`
   }
 
@@ -219,8 +304,20 @@ export class HelperService {
     }
   }
 
-  dateNow(): Date {
-    return DateUtil.current().toJSDate()
+  dateNow(zeroMs?: boolean): Date {
+    return zeroMs === true
+      ? DateUtil.current().set({ millisecond: 0 }).toJSDate()
+      : DateUtil.current().toJSDate()
+  }
+
+  dateStart(): Date {
+    const nowDate = this.dateNow()
+    return this.dateCreate(nowDate, { startOfDay: true })
+  }
+
+  dateEnd(): Date {
+    const nowDate = this.dateNow()
+    return this.dateCreate(nowDate, { endOfDay: true })
   }
 
   dateCreate(date: Date, options?: IDateCreateOptions): Date {
@@ -229,6 +326,13 @@ export class HelperService {
 
   dateInstance(date: Date, options?: IDateCreateOptions): DateTime {
     return DateUtil.create(date, options)
+  }
+
+  dateCreateFromGeneric(date: string | Date, options?: IDateCreateOptions): Date {
+    if (typeof date === 'string') {
+      return this.dateCreateFromIso(date, options)
+    }
+    return this.dateCreate(date, options)
   }
 
   dateCreateFromIso(iso: string, options?: IDateCreateOptions): Date {
@@ -328,5 +432,178 @@ export class HelperService {
 
   dateCheckZone(timezone: string): boolean {
     return DateTime.fromObject({}, { zone: timezone }).isValid
+  }
+
+  baseEncode(data: string, base: 10 | 16 | 36 | 62 = 62): string {
+    const chars = this.BASE_CHARS[base]
+    if (!chars) throw new Error('Unsupported base')
+
+    // string → BigInt
+    let num = BigInt('0x' + Buffer.from(data, 'utf8').toString('hex'))
+
+    if (num === 0n) return chars[0]
+
+    let result = ''
+    const baseBigInt = BigInt(base)
+
+    while (num > 0) {
+      result = chars[Number(num % baseBigInt)] + result
+      num = num / baseBigInt
+    }
+
+    return result
+  }
+
+  baseDecode(encoded: string, base: 10 | 16 | 36 | 62 = 62): string {
+    const chars = this.BASE_CHARS[base]
+    if (!chars) throw new Error('Unsupported base')
+
+    let num = 0n
+    const baseBigInt = BigInt(base)
+
+    for (const c of encoded) {
+      const index = chars.indexOf(c)
+      if (index === -1) {
+        throw new Error(`Invalid character '${c}' for base ${base}`)
+      }
+      num = num * baseBigInt + BigInt(index)
+    }
+
+    // BigInt → hex → string
+    let hex = num.toString(16)
+    if (hex.length % 2 !== 0) hex = '0' + hex
+
+    return Buffer.from(hex, 'hex').toString('utf8')
+  }
+
+  base64Encrypt(data: string): string {
+    const buff: Buffer = Buffer.from(data, 'utf8')
+    return buff.toString('base64')
+  }
+
+  base64Decrypt(encrypted: string): string {
+    const buff: Buffer = Buffer.from(encrypted, 'base64')
+    return buff.toString('utf8')
+  }
+
+  aes256Encrypt(data: string, options: { key: string; iv: string }): string {
+    const keyBuffer = Buffer.from(options.key, 'utf-8')
+    const ivBuffer = Buffer.from(options.iv, 'utf-8')
+
+    const cipher = createCipheriv('aes-256-cbc', keyBuffer, ivBuffer)
+
+    return cipher.update(data, 'utf8', 'base64') + cipher.final('base64')
+  }
+
+  aes256Decrypt(encrypted: string, options: { key: string; iv: string }): string {
+    const keyBuffer = Buffer.from(options.key, 'utf-8')
+    const ivBuffer = Buffer.from(options.iv, 'utf-8')
+
+    const decipher = createDecipheriv('aes-256-cbc', keyBuffer, ivBuffer)
+
+    return decipher.update(encrypted, 'base64', 'utf8') + decipher.final('utf8')
+  }
+
+  randomSalt(length: number): string {
+    return genSaltSync(length)
+  }
+
+  bcryptCreate(data: string, salt: string): string {
+    return hashSync(data, salt)
+  }
+
+  bcryptCompare(data: string, bcrypted: string): boolean {
+    return compareSync(data, bcrypted || '')
+  }
+
+  hashCreate(data: string, options: IEncryptionHashOptions): string {
+    const { algorithm, ...hashOpts } = options
+
+    const hash = createHash(algorithm, hashOpts)
+
+    hash.update(data, 'utf8')
+
+    const hexDigest = hash.digest(options?.encoding ?? 'hex')
+
+    return hexDigest
+  }
+
+  hashCompare(data: string, hashed: string, options: IEncryptionHashOptions): boolean {
+    return hashed === this.hashCreate(data, options)
+  }
+
+  hmacCreate(data: string, options: IEncryptionHmacOptions): string {
+    const { algorithm, key, length = 12, ...hmacOpts } = options
+    const matches = this.BASE_CHARS[62]
+
+    const hmac = createHmac(algorithm, key, hmacOpts)
+
+    hmac.update(data, 'utf8')
+
+    const hexDigest = hmac.digest('hex')
+
+    let hmacValue = ''
+    let hmacDigit = parseInt(hexDigest, 16)
+
+    for (let i = 0; i < length; i++) {
+      hmacValue += [hmacDigit % matches.length]
+      hmacDigit = Math.floor(hmacDigit / matches.length) // Move to the next "digit"
+    }
+
+    return hmacValue
+  }
+
+  hmacCompare(data: string, hmac: string, options: IEncryptionHmacOptions): boolean {
+    return hmac === this.hmacCreate(data, options)
+  }
+
+  signatureCreate(data: string, options: IEncryptionSignOptions): string {
+    const signer = createSign(options.algorithm)
+    signer.update(data)
+    signer.end?.()
+    return signer.sign(options.privateKey, options.encoding)
+  }
+
+  signatureVerify(data: string, options: IEncryptionVerifyOptions): boolean {
+    const verify = createVerify(options.algorithm)
+    verify.update(data)
+    return verify.verify(options.publicKey, options.signature, options.encoding)
+  }
+
+  createUserToken(userIp: string, userAgent: IResult, userRotate: boolean = false): string {
+    const { ua, browser, device, engine, os, cpu } = userAgent
+    const randToken = userRotate ? this.randomString(30) : ''
+
+    return this.hashCreate(
+      [
+        JSON.stringify(browser),
+        JSON.stringify(device),
+        JSON.stringify(engine),
+        JSON.stringify(os),
+        JSON.stringify(cpu),
+        ua,
+        userIp,
+        randToken,
+      ].join('|'),
+      { algorithm: 'sha256' },
+    )
+  }
+
+  createUserHmac(userId: number, options: { key: string }): string {
+    const nowDate = this.dateNow()
+    const timestamp = this.dateGetTimestamp(nowDate)
+
+    const md5 = this.hmacCreate(userId.toString(), { algorithm: 'md5', key: options.key })
+    const sha256 = this.hmacCreate(timestamp.toString(), { algorithm: 'sha256', key: options.key })
+    return ArrUtil.join([md5, sha256, timestamp], { delimiter: ':' })
+  }
+
+  verifyUserHmac(userId: number, options: { key: string; hmac: string }): boolean {
+    const [md5, sha256, timestamp] = options.hmac.split(':')
+
+    if (!this.hmacCompare(userId.toString(), md5, { algorithm: 'md5', key: options.key })) {
+      return false
+    }
+    return this.hmacCompare(timestamp.toString(), sha256, { algorithm: 'sha256', key: options.key })
   }
 }

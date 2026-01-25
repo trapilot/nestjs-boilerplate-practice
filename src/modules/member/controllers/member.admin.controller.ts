@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
 import { AuthJwtPayload, AuthUtil, EnumAuthScopeType } from 'lib/nest-auth'
 import {
   EnumFileExtensionDocument,
@@ -25,7 +26,6 @@ import {
   RequestQueryList,
   RequestRequiredPipe,
 } from 'lib/nest-web'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import {
   MEMBER_DOC_ADMIN_QUERY_LIST,
   MEMBER_DOC_OPERATION,
@@ -46,7 +46,7 @@ import { MemberService } from '../services'
 export class MemberAdminController {
   constructor(
     protected readonly authUtil: AuthUtil,
-    protected readonly memberService: MemberService
+    protected readonly memberService: MemberService,
   ) {}
 
   @ApiRequestPaging({
@@ -86,7 +86,7 @@ export class MemberAdminController {
     @RequestQueryFilterContain('phone') _phone: RequestFilterDto,
     @RequestQueryFilterContain('email') _email: RequestFilterDto,
     @RequestQueryFilterContain('name') _name: RequestFilterDto,
-    @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto
+    @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto,
   ): Promise<IResponsePaging> {
     const _where: Prisma.MemberWhereInput = {
       ..._search,
@@ -138,7 +138,7 @@ export class MemberAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto
+    { _search, _params }: RequestListDto,
   ): Promise<IResponseList> {
     const _where: Prisma.MemberWhereInput = {
       ..._search,
@@ -227,19 +227,18 @@ export class MemberAdminController {
     @RequestBody() body: MemberRequestCreateDto,
     @AuthJwtPayload('user.id') createdBy: number,
     @UploadedFile(
-      RequestRequiredPipe,
       FileExtensionPipe([
         EnumFileExtensionImage.JPEG,
         EnumFileExtensionImage.JPG,
         EnumFileExtensionImage.PNG,
-      ])
+      ]),
     )
-    file: IFile
+    file: IFile,
   ): Promise<IResponseData> {
     const passwordHash = this.authUtil.createPassword(body.password)
     const member = await this.memberService.create(
       { ...body, avatar: file?.path ?? undefined, createdBy },
-      passwordHash
+      passwordHash,
     )
 
     return {
@@ -273,15 +272,19 @@ export class MemberAdminController {
   async put(
     @RequestBody() body: MemberRequestUpdateDto,
     @RequestParam('id') memberId: number,
-    @AuthJwtPayload('user.id') updatedBy: number
+    @AuthJwtPayload('user.id') updatedBy: number,
   ): Promise<IResponseData> {
     let password = undefined
     if (body?.password) {
-      const authHash = this.authUtil.createPassword(body.password)
-      password = authHash.passwordHash
+      const { passwordHash } = this.authUtil.createPassword(body.password)
+      password = passwordHash
     }
 
-    const member = await this.memberService.update(memberId, { ...body, password, updatedBy })
+    const member = await this.memberService.update(memberId, {
+      ...body,
+      password,
+      updatedBy,
+    })
 
     return {
       data: member,
@@ -383,9 +386,9 @@ export class MemberAdminController {
         EnumFileExtensionImage.JPEG,
         EnumFileExtensionImage.JPG,
         EnumFileExtensionImage.PNG,
-      ])
+      ]),
     )
-    file: IFile
+    file: IFile,
   ): Promise<IResponseData> {
     const member = await this.memberService.findOrFail(memberId)
     const updated = await this.memberService.changeAvatar(member, {
@@ -424,7 +427,7 @@ export class MemberAdminController {
   async addPoint(
     @RequestBody() body: MemberAddPointRequestDto,
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') createdBy: number
+    @AuthJwtPayload('user.id') createdBy: number,
   ): Promise<IResponseData> {
     const member = await this.memberService.addPoint(id, {
       point: body.point,

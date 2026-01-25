@@ -1,6 +1,7 @@
 import { Controller, Delete, Get, Post, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument, IFile } from 'lib/nest-core'
 import { PrismaUtil } from 'lib/nest-prisma'
@@ -21,7 +22,6 @@ import {
   RequestQueryList,
   RequestRequiredPipe,
 } from 'lib/nest-web'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import {
   PRODUCT_DOC_ADMIN_PARAM_GET,
   PRODUCT_DOC_ADMIN_QUERY_LIST,
@@ -80,7 +80,7 @@ export class ProductAdminController {
       parseAs: 'number',
       queryField: 'salePrice',
     })
-    _price: RequestFilterDto
+    _price: RequestFilterDto,
   ): Promise<IResponsePaging> {
     const _where: Prisma.ProductWhereInput = {
       ..._search,
@@ -124,7 +124,7 @@ export class ProductAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto
+    { _search, _params }: RequestListDto,
   ): Promise<IResponseList> {
     const _where: Prisma.ProductWhereInput = {
       ..._search,
@@ -210,7 +210,7 @@ export class ProductAdminController {
     @RequestBody() body: ProductRequestUpdateDto,
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') updatedBy: number,
-    @UploadedFile() file: IFile
+    @UploadedFile() file: IFile,
   ): Promise<IResponseData> {
     const { content, termAndCond, ...dto } = body
     const jsonLanguage = { content, termAndCond }
@@ -265,7 +265,7 @@ export class ProductAdminController {
   async create(
     @RequestBody() body: ProductRequestCreateDto,
     @AuthJwtPayload('user.id') createdBy: number,
-    @UploadedFile(RequestRequiredPipe) file: IFile
+    @UploadedFile(RequestRequiredPipe) file: IFile,
   ): Promise<IResponseData> {
     const { content, termAndCond, ...dto } = body
     const jsonLanguage = { content, termAndCond }
@@ -307,7 +307,7 @@ export class ProductAdminController {
   @Delete('/:id')
   async delete(
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number
+    @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
     await this.productService.delete(id, deletedBy)
     return { data: { status: true } }

@@ -1,3 +1,4 @@
+import { ConfigurationParameters } from '@onesignal/node-onesignal/dist/configuration'
 import { EnumAppEnvironment, EnumAppLanguage, EnumAppTimezone, EnumMessageLanguage } from '../enums'
 
 export interface IConfigApp {
@@ -28,7 +29,6 @@ export interface IConfigApp {
 
 export type IDatabaseProvider = 'mysql' | 'mariadb' | 'postgres' | 'mongo'
 export interface IConfigDatabase {
-  debug: boolean
   replication?: {
     provider: IDatabaseProvider
     master: string
@@ -61,6 +61,15 @@ export interface IConfigHelper {
   message: {
     fallback: string | EnumMessageLanguage
     availableList: EnumMessageLanguage[]
+  }
+  mailer: {
+    dryRun: boolean
+    defaultTransport: 'smtp' | 'ses' | string
+    transports: {
+      smtp: { url: string; from: string }
+      ses: { url: string; from: string }
+      [key: string]: { url: string; from: string }
+    }
   }
 }
 
@@ -106,27 +115,6 @@ export interface IConfigRequest {
   }
 }
 
-export interface IConfigNotification {
-  sms: {
-    dryRun: boolean
-    twilio: {
-      accountSid: string
-      authToken: string
-    }
-  }
-  email: {
-    dryRun: boolean
-    transport: string
-    noReply: string
-  }
-  push: {
-    dryRun: boolean
-    firebase: {
-      serviceAccountPath: string
-    }
-  }
-}
-
 interface IConfigRedisOptions {
   url: string
   namespace: string
@@ -139,4 +127,28 @@ export interface IConfigRedis {
   pubsub: IConfigRedisOptions
   realtime: IConfigRedisOptions
   stream: IConfigRedisOptions
+}
+
+export interface IConfigSms {
+  dryRun: boolean
+  drivers: {
+    twilio: {
+      sender: string
+      accountSid: string
+      authToken: string
+    }
+  }
+}
+
+export interface IConfigPush {
+  dryRun: boolean
+  drivers: {
+    firebase?: {
+      serviceAccountPath: string
+    }
+    onesignal?: {
+      appId: string
+      parameters: ConfigurationParameters
+    }
+  }
 }

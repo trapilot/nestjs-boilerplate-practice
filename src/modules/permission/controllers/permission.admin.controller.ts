@@ -1,6 +1,8 @@
 import { Controller, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { UserAbilityUtil } from 'app/helpers'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import {
   ApiRequestData,
@@ -14,8 +16,6 @@ import {
   RequestQueryFilterInBoolean,
   RequestQueryList,
 } from 'lib/nest-web'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
-import { UserAbilityUtil } from 'shared/helpers'
 import { PERMISSION_DOC_ADMIN_QUERY_LIST, PERMISSION_DOC_OPERATION } from '../constants'
 import {
   PermissionRequestCreateDto,
@@ -63,7 +63,7 @@ export class PermissionAdminController {
     })
     { _search, _params }: RequestListDto,
     @RequestQueryFilterInBoolean('isActive', true) _enabled: RequestFilterDto,
-    @RequestQueryFilterInBoolean('isVisible', true) _visible: RequestFilterDto
+    @RequestQueryFilterInBoolean('isVisible', true) _visible: RequestFilterDto,
   ): Promise<IResponseList> {
     const _where: Prisma.PermissionWhereInput = {
       ..._search,
@@ -100,14 +100,14 @@ export class PermissionAdminController {
   async update(
     @RequestBody() body: PermissionRequestUpdateDto,
     @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') updatedBy: number
+    @AuthJwtPayload('user.id') updatedBy: number,
   ): Promise<IResponseData> {
     const { actions, ...dto } = body
 
     const data: Prisma.PermissionUncheckedUpdateInput = {
       ...dto,
       updatedBy,
-      bitwise: UserAbilityUtil.toBitwise(actions),
+      bitwise: UserAbilityUtil.map2Bitwise(actions),
     }
 
     const updated = await this.permissionService.update(id, data)
@@ -140,13 +140,13 @@ export class PermissionAdminController {
   @Post('/')
   async create(
     @RequestBody() body: PermissionRequestCreateDto,
-    @AuthJwtPayload('user.id') createdBy: number
+    @AuthJwtPayload('user.id') createdBy: number,
   ): Promise<IResponseData> {
     const { actions, ...dto } = body
     const data: Prisma.PermissionUncheckedCreateInput = {
       ...dto,
       createdBy,
-      bitwise: UserAbilityUtil.toBitwise(actions),
+      bitwise: UserAbilityUtil.map2Bitwise(actions),
     }
 
     const created = await this.permissionService.create(data)

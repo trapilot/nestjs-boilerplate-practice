@@ -1,5 +1,5 @@
-import { PipeTransform, Type } from '@nestjs/common'
-import { RouteInfo } from '@nestjs/common/interfaces'
+import { PipeTransform, Type, ValidationPipeOptions } from '@nestjs/common'
+import { MiddlewareConsumer, RouteInfo } from '@nestjs/common/interfaces'
 import {
   ApiBodyOptions,
   ApiHeaderOptions,
@@ -69,6 +69,13 @@ export interface IRequestMetricsOptions {
       password: string
     }
   }
+}
+
+export interface IRequestHttpOptions {
+  routes: { path: string; module: Type<any> }[]
+  logger: IRequestLoggerOptions
+  validator: ValidationPipeOptions
+  middleware?: (consumer: MiddlewareConsumer) => void
 }
 
 export interface IRequestLoggerOptions {

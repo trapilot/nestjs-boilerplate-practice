@@ -68,7 +68,7 @@ export interface IReturnPaging<T = Record<string, any>> {
   }
 }
 
-export interface IReturnIterator<T = Record<string, any>> {
+export interface IReturnGenerator<T = Record<string, any>> {
   metadata?: IReturnMetadata
   data: AsyncGenerator<T[]>
   filePrefix?: string

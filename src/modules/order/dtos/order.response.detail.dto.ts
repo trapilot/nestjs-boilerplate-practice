@@ -172,7 +172,7 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
   @Expose()
   member: MemberResponseBelongDto
 
-  @ApiProperty({ type: () => [ResponseDataItemDto] })
+  @ApiProperty({ type: () => ResponseDataItemDto })
   @Type(() => ResponseDataItemDto)
   @Expose()
   items: ResponseDataItemDto[]
@@ -180,12 +180,12 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class OrderResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class OrderResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class OrderResponseBelongDto extends IntersectionType(
@@ -199,5 +199,5 @@ export class OrderResponseBelongDto extends IntersectionType(
     'finalPrice',
     'finalPoint',
   ] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}

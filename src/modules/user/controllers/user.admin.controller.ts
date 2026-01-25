@@ -39,7 +39,7 @@ import {
   RequestRequiredPipe,
   RequestRequiredYearPipe,
 } from 'lib/nest-web'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
 import { USER_DOC_ADMIN_QUERY_LIST, USER_DOC_OPERATION, USER_UPLOAD_IMAGE_PATH } from '../constants'
 import {
   UserRequestChangeAvatarDto,
@@ -57,7 +57,7 @@ export class UserAdminController {
   constructor(
     protected readonly authUtil: AuthUtil,
     protected readonly userService: UserService,
-    protected readonly helperService: HelperService
+    protected readonly helperService: HelperService,
   ) {}
 
   @ApiRequestPaging({
@@ -97,7 +97,7 @@ export class UserAdminController {
     @RequestQueryFilterMany('roleId', { parseAs: 'id' }) rawRole: RequestFilterDto,
     @RequestQueryFilterContain('phone') _phone: RequestFilterDto,
     @RequestQueryFilterContain('name') _name: RequestFilterDto,
-    @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto
+    @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto,
   ): Promise<IResponsePaging> {
     const _where: Prisma.UserWhereInput = {
       ..._search,
@@ -194,7 +194,7 @@ export class UserAdminController {
     @RequestBookType() bookType: EnumFileExtensionDocument,
     @RequestParam('id') id: number,
     @RequestQuery('month', { pipes: [RequestRequiredMonthPipe] }) month: number,
-    @RequestQuery('year', { pipes: [RequestRequiredYearPipe] }) year: number
+    @RequestQuery('year', { pipes: [RequestRequiredYearPipe] }) year: number,
   ): Promise<IResponseList> {
     const nowDate = this.helperService.dateNow()
     const reqDate = this.helperService.dateSet(nowDate, { year, month })
@@ -252,16 +252,16 @@ export class UserAdminController {
         EnumFileExtensionImage.JPEG,
         EnumFileExtensionImage.JPG,
         EnumFileExtensionImage.PNG,
-      ])
+      ]),
     )
-    file: IFile
+    file: IFile,
   ): Promise<IResponseData> {
     const { roleId, ...data } = body
     const authPassword = this.authUtil.createPassword(body.password)
     const created = await this.userService.create(
       { ...data, avatar: file?.path ?? undefined },
       authPassword,
-      { roleId }
+      { roleId },
     )
 
     return {
@@ -295,7 +295,7 @@ export class UserAdminController {
   async update(
     @RequestParam('id') id: number,
     @RequestBody() body: UserRequestUpdateDto,
-    @AuthJwtPayload('user.id') userId: number
+    @AuthJwtPayload('user.id') userId: number,
   ): Promise<IResponseData> {
     const { roleId, ...data } = body
 
@@ -371,9 +371,9 @@ export class UserAdminController {
         EnumFileExtensionImage.JPEG,
         EnumFileExtensionImage.JPG,
         EnumFileExtensionImage.PNG,
-      ])
+      ]),
     )
-    file: IFile
+    file: IFile,
   ): Promise<IResponseData> {
     const user = await this.userService.findOrFail(id)
     const updated = await this.userService.changeAvatar(user, {

@@ -8,8 +8,8 @@ import {
 import { ConfigService } from '@nestjs/config'
 import {
   CacheService,
-  CryptoService,
   EnumRouteType,
+  HelperService,
   IRequestApp,
   ScopeContext,
 } from 'lib/nest-core'
@@ -21,9 +21,9 @@ export class RequestSecurityGuard implements CanActivate {
   private readonly securityTTL: number
 
   constructor(
-    private readonly config: ConfigService,
     private readonly cache: CacheService,
-    private readonly crypto: CryptoService
+    private readonly config: ConfigService,
+    private readonly helperService: HelperService,
   ) {
     this.securityEnable = this.config.get<boolean>('request.security.enable')
     this.securityKey = this.config.get<string>('request.security.key')
@@ -115,10 +115,10 @@ export class RequestSecurityGuard implements CanActivate {
       nonce: string
       timestamp: number
       signature: string
-    }
+    },
   ): boolean {
     // Hash body of request on server
-    const serverBodyHash = this.crypto.createHash(bodyPayload, {
+    const serverBodyHash = this.helperService.hashCreate(bodyPayload, {
       algorithm: 'sha256',
     })
 
@@ -132,7 +132,7 @@ export class RequestSecurityGuard implements CanActivate {
 
     // Create dataToValidate with only metadata and hash of body
     const dataToValidate = `${checkOpts.nonce}${checkOpts.timestamp}${bodyHash}`
-    const validated = this.crypto.compareHmac(dataToValidate, checkOpts.signature, {
+    const validated = this.helperService.hmacCompare(dataToValidate, checkOpts.signature, {
       algorithm: 'sha256',
       key: this.securityKey,
     })

@@ -27,7 +27,7 @@ export class PointHistoryService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.MemberPointHistoryFindUniqueOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.MemberPointHistoryFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TPointHistory> {
     const pointHistory = await this.prisma.memberPointHistory
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -42,7 +42,7 @@ export class PointHistoryService {
 
   async matchOrFail(
     where: Prisma.MemberPointHistoryWhereInput,
-    kwargs: Omit<Prisma.MemberPointHistoryFindFirstOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.MemberPointHistoryFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TPointHistory> {
     const pointHistory = await this.prisma.memberPointHistory
       .findFirstOrThrow({ ...kwargs, where })
@@ -57,7 +57,7 @@ export class PointHistoryService {
 
   async differOrFail(
     where: Prisma.MemberPointHistoryWhereInput,
-    options?: { limit?: number; message?: string }
+    options?: { limit?: number; message?: string },
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -72,7 +72,7 @@ export class PointHistoryService {
   async list(
     where?: Prisma.MemberPointHistoryWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
     return await this.prisma.memberPointHistory.list(where, params, options)
   }
@@ -80,7 +80,7 @@ export class PointHistoryService {
   async paginate(
     where?: Prisma.MemberPointHistoryWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.memberPointHistory.paginate(where, params, options)
   }
@@ -93,7 +93,7 @@ export class PointHistoryService {
 
   async find(
     id: number,
-    kwargs: Omit<Prisma.MemberPointHistoryFindUniqueArgs, 'where'> = {}
+    kwargs: Omit<Prisma.MemberPointHistoryFindUniqueArgs, 'where'> = {},
   ): Promise<TPointHistory> {
     return await this.prisma.memberPointHistory.findUnique({
       ...kwargs,
@@ -110,7 +110,7 @@ export class PointHistoryService {
 
   async update(
     id: number,
-    data: Prisma.MemberPointHistoryUncheckedUpdateInput
+    data: Prisma.MemberPointHistoryUncheckedUpdateInput,
   ): Promise<TPointHistory> {
     const pointHistory = await this.findOrFail(id)
 

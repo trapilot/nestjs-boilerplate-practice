@@ -1,14 +1,12 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import {
   EnumInvoiceStatus,
-  EnumOrderSource,
   EnumOrderStatus,
   EnumPaymentStatus,
   EnumRedemptionStatus,
   Prisma,
 } from '@runtime/prisma-client'
-import { EnumDateFormat, HelperService } from 'lib/nest-core'
+import { HelperService, LoggerService } from 'lib/nest-core'
 import {
   IPrismaOptions,
   IPrismaParams,
@@ -16,14 +14,14 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { IInvoiceAddPaymentOptions, IInvoiceGroup, TInvoice } from '../interfaces'
+import { IInvoiceAddPaymentOptions, TInvoice } from '../interfaces'
 
 @Injectable()
 export class InvoiceService {
   constructor(
-    private readonly config: ConfigService,
+    private readonly logger: LoggerService,
     private readonly prisma: PrismaService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
   ) {}
 
   async findOne(kwargs?: Prisma.InvoiceFindUniqueArgs): Promise<TInvoice> {
@@ -40,7 +38,7 @@ export class InvoiceService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.InvoiceFindUniqueOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.InvoiceFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TInvoice> {
     const invoice = await this.prisma.invoice
       .findUniqueOrThrow({ ...kwargs, where: { id } })
@@ -55,7 +53,7 @@ export class InvoiceService {
 
   async matchOrFail(
     where: Prisma.InvoiceWhereInput,
-    kwargs: Omit<Prisma.InvoiceFindFirstOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.InvoiceFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TInvoice> {
     const invoice = await this.prisma.invoice
       .findFirstOrThrow({ ...kwargs, where })
@@ -70,7 +68,7 @@ export class InvoiceService {
 
   async differOrFail(
     where: Prisma.InvoiceWhereInput,
-    options?: { limit?: number; message?: string }
+    options?: { limit?: number; message?: string },
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -85,7 +83,7 @@ export class InvoiceService {
   async list(
     where?: Prisma.InvoiceWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
     return await this.prisma.invoice.list(where, params, options)
   }
@@ -93,7 +91,7 @@ export class InvoiceService {
   async paginate(
     where?: Prisma.InvoiceWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.invoice.paginate(where, params, options)
   }
@@ -106,7 +104,7 @@ export class InvoiceService {
 
   async find(
     id: number,
-    kwargs: Omit<Prisma.InvoiceFindUniqueArgs, 'where'> = {}
+    kwargs: Omit<Prisma.InvoiceFindUniqueArgs, 'where'> = {},
   ): Promise<TInvoice> {
     return await this.prisma.invoice.findUnique({
       ...kwargs,
@@ -190,120 +188,25 @@ export class InvoiceService {
     })
   }
 
-  async getHighestInvoice(memberId: number, startDate: Date, untilDate: Date): Promise<TInvoice> {
-    return await this.prisma.invoice.findFirst({
-      where: { memberId, issuedAt: { gte: startDate, lte: untilDate } },
-      orderBy: [{ finalPrice: 'desc' }, { issuedAt: 'asc' }],
-    })
-  }
+  async rejectOverDue(invoiceIds: number[]): Promise<void> {
+    const nowDate = this.helperService.dateNow()
 
-  async getFirstInvoice(issuedAt: Date): Promise<TInvoice> {
-    const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
-    return await this.prisma.invoice.findFirst({
-      where: {
-        isEarned: false,
-        issuedAt: { lte: startOfDay },
-        createdAt: { lte: startOfDay },
-      },
-      orderBy: [{ issuedAt: 'asc' }],
-    })
-  }
-
-  async getEarnInvoices(issuedAt: Date): Promise<IInvoiceGroup> {
-    const firstTransactionDays = this.config.getOrThrow<number>('module.member.firstTransaction')
-    const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
-    const cutOffDay = this.helperService.dateBackward(startOfDay, { days: firstTransactionDays })
-
-    const invoices = await this.prisma.invoice.findMany({
-      orderBy: [{ issuedAt: 'asc' }, { createdAt: 'asc' }],
-      where: {
-        isEarned: false,
-        status: EnumInvoiceStatus.FULLY_PAID,
-        issuedAt: { lte: startOfDay },
-        createdAt: { lte: startOfDay },
-        member: {
-          isActive: true,
-          OR: [
-            { hasFirstPurchased: true },
-            {
-              invoices: {
-                some: {
-                  order: {
-                    source: {
-                      in: [EnumOrderSource.SYSTEM, EnumOrderSource.POS],
-                    },
-                  },
-                  issuedAt: { lte: startOfDay },
-                },
-              },
-            },
-            {
-              hasFirstPurchased: false,
-              invoices: {
-                some: {
-                  order: {
-                    source: {
-                      in: [EnumOrderSource.APP, EnumOrderSource.WEB],
-                    },
-                  },
-                  issuedAt: { lte: cutOffDay },
-                },
-              },
-            },
-          ],
-        },
-      },
-    })
-
-    const formatDate = EnumDateFormat.DATE_REFERENCE
-    const groupInvoices: IInvoiceGroup = {}
-    for (const inv of invoices) {
-      const _cDate = this.helperService.dateFormat(inv.createdAt, formatDate)
-      const _iDate = this.helperService.dateFormat(inv.issuedAt, formatDate)
-
-      const _groupKey = `${_iDate}|${_cDate}`
-      if (!(_groupKey in groupInvoices)) {
-        groupInvoices[_groupKey] = []
-      }
-      groupInvoices[_groupKey].push(inv)
-    }
-
-    return groupInvoices
-  }
-
-  async expireOverDue(issuedAt: Date): Promise<void> {
-    const batchSize: number = 500
-    const startOfDay = this.helperService.dateCreate(issuedAt, {
-      startOfDay: true,
-    })
-
-    let loop: boolean = false
-    do {
-      const invoices = await this.prisma.invoice.findMany({
-        where: {
-          status: {
-            in: [EnumInvoiceStatus.PENDING, EnumInvoiceStatus.PARTIALLY_PAID],
-          },
-          dueDate: { gte: startOfDay },
-        },
-        take: batchSize,
-      })
-
-      for (const invoice of invoices) {
+    for (const invoiceId of invoiceIds) {
+      try {
         await this.prisma.invoice.update({
-          where: { id: invoice.id },
+          where: { id: invoiceId },
           data: {
             status: EnumInvoiceStatus.OVERDUE,
-            issuedAt: startOfDay,
-            updatedAt: startOfDay,
+            issuedAt: nowDate,
+            updatedAt: nowDate,
             order: {
               update: {
                 redeems: {
                   updateMany: {
                     data: {
                       status: EnumRedemptionStatus.REJECTED,
-                      issuedAt: startOfDay,
-                      updatedAt: startOfDay,
+                      issuedAt: nowDate,
+                      updatedAt: nowDate,
                     },
                     where: {
                       status: EnumRedemptionStatus.PENDING,
@@ -314,9 +217,31 @@ export class InvoiceService {
             },
           },
         })
+      } catch (err: unknown) {
+        this.logger.error(err)
       }
+    }
+  }
 
-      loop = invoices.length === batchSize
-    } while (loop)
+  async chunkOverDue(lastId: number, chunkSize: number = 10): Promise<number[]> {
+    const nowDate = this.helperService.dateNow()
+
+    const invoices = await this.prisma.invoice.findMany({
+      where: {
+        status: {
+          in: [EnumInvoiceStatus.PENDING, EnumInvoiceStatus.PARTIALLY_PAID],
+        },
+        dueDate: { lte: nowDate },
+      },
+      take: chunkSize,
+      orderBy: { id: 'asc' },
+      select: { id: true },
+      ...(lastId && {
+        cursor: { id: lastId },
+        skip: 1,
+      }),
+    })
+
+    return invoices.map(inv => inv.id)
   }
 }

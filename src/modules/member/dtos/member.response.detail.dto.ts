@@ -161,7 +161,7 @@ class ResponseDataDetailDto {
 }
 
 class ResponseDataRelationDto extends ResponseUserBelongDto {
-  @ApiProperty({ type: TierResponseBelongDto })
+  @ApiProperty({ type: () => TierResponseBelongDto })
   @Type(() => TierResponseBelongDto)
   @Expose()
   tier: TierResponseBelongDto
@@ -169,12 +169,12 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class MemberResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class MemberResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class MemberResponseBelongDto extends PickType(MemberResponseDetailDto, [

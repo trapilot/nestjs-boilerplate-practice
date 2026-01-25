@@ -39,15 +39,15 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class RoleResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class RoleResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class RoleResponseBelongDto extends IntersectionType(
   PickType(ResponseDataDetailDto, ['id', 'title', 'isActive'] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}

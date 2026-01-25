@@ -8,7 +8,7 @@ export class LoggerService implements NestLoggerService {
   private logger: Logger
 
   constructor(private readonly loggerFactory: LoggerFactory) {
-    this.logger = this.loggerFactory.createPino()
+    this.logger = this.loggerFactory.createStreamPino()
   }
 
   verbose(message: any, ...optionalParams: any[]) {
@@ -66,7 +66,7 @@ export class LoggerService implements NestLoggerService {
   private isWrongExceptionsHandlerContract(
     level: Level,
     message: any,
-    params: any[]
+    params: any[],
   ): params is [string] {
     return (
       level === 'error' &&

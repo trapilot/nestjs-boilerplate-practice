@@ -17,13 +17,13 @@ export class UserRequestCreateDto {
   @IsEmail()
   @ToString()
   @MaxLength(100)
-  @ApiProperty({ required: true, example: process.env.MOCK_USER_EMAIL })
+  @ApiProperty({ required: true, example: process.env.MOCK_ADMIN_EMAIL })
   email: string
 
   @IsNotEmpty()
   @IsPhone()
   @ToString()
-  @ApiProperty({ required: false, example: process.env.MOCK_USER_PHONE })
+  @ApiProperty({ required: false, example: process.env.MOCK_ADMIN_PHONE })
   phone: string
 
   @IsNotEmpty()
@@ -47,7 +47,7 @@ export class UserRequestCreateDto {
   @IsNotEmpty()
   @IsPassword()
   @ToString()
-  @ApiProperty({ required: true, example: process.env.MOCK_USER_PASS })
+  @ApiProperty({ required: true, example: process.env.MOCK_ADMIN_PASS })
   password: string
 
   @IsOptional()

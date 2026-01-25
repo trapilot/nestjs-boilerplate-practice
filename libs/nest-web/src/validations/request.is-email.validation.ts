@@ -26,7 +26,7 @@ export class IsEmailConstraint implements ValidatorConstraintInterface {
 
 export function IsEmail(
   emailOptions?: Record<string, string>,
-  validationOptions?: ValidationOptions
+  validationOptions?: ValidationOptions,
 ) {
   return function (object: Record<string, any>, propertyName: string): void {
     registerDecorator({

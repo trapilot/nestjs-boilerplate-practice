@@ -7,7 +7,7 @@ export class UserRequestSignInDto extends PickType(UserRequestCreateDto, ['email
   @IsOptional()
   @IsString()
   @ToString()
-  @ApiProperty({ required: true, example: process.env.MOCK_USER_PASS || '' })
+  @ApiProperty({ required: true, example: process.env.MOCK_ADMIN_PASS || '' })
   password: string
 
   @IsOptional()

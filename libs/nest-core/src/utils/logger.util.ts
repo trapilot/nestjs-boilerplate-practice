@@ -1,5 +1,5 @@
 import { v7 as uuidv7 } from 'uuid'
-import { ScopeContext } from '../helpers'
+import { ScopeContext } from '../contexts'
 
 export class LoggerUtil {
   static genReqId(): string {

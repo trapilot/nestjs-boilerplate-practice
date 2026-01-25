@@ -190,12 +190,12 @@ class ResponseDataDetailDto {
 }
 
 class ResponseDataRelationDto extends ResponseUserBelongDto {
-  @ApiProperty({ type: ProductBrandResponseBelongDto })
+  @ApiProperty({ type: () => ProductBrandResponseBelongDto })
   @Type(() => ProductBrandResponseBelongDto)
   @Expose()
   brand: ProductBrandResponseBelongDto
 
-  @ApiProperty({ type: ProductCategoryResponseBelongDto })
+  @ApiProperty({ type: () => ProductCategoryResponseBelongDto })
   @Type(() => ProductCategoryResponseBelongDto)
   @Expose()
   category: ProductCategoryResponseBelongDto
@@ -203,12 +203,12 @@ class ResponseDataRelationDto extends ResponseUserBelongDto {
 
 export class ProductResponseDetailDto extends IntersectionType(
   ResponseDataDetailDto,
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class ProductResponseListDto extends IntersectionType(
   OmitType(ResponseDataDetailDto, [] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}
 
 export class ProductResponseBelongDto extends IntersectionType(
@@ -220,5 +220,5 @@ export class ProductResponseBelongDto extends IntersectionType(
     'stockQty',
     'isActive',
   ] as const),
-  ResponseDataRelationDto
+  ResponseDataRelationDto,
 ) {}

@@ -53,6 +53,7 @@
   "isFileRequire": "Chưa tải lên {property}",
 
   "error": {
+    "paramRequired": "Thiếu tham số bắt buộc",
     "userAgentInvalid": "User-Agent của yêu cầu không được chấp nhận",
     "userAgentOsInvalid": "Hệ điều hành của User-Agent không được chấp nhận",
     "userAgentBrowserInvalid": "Trình duyệt của User-Agent không được chấp nhận",

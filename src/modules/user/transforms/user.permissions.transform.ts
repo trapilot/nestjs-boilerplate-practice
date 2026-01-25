@@ -1,13 +1,13 @@
+import { UserAbilityUtil } from 'app/helpers'
 import { Transform } from 'class-transformer'
 import { ArrUtil, LocaleUtil } from 'lib/nest-core'
-import { UserAbilityUtil } from 'shared/helpers'
+import { UserUtil } from '../helpers'
 import {
   IContextUserPermission,
   IUserDataPermission,
   IUserProfilePermission,
   IUserTransformOptions,
 } from '../interfaces'
-import { UserUtil } from '../utils'
 
 export function ToUserPermissions(): (target: object, key: string) => void {
   return Transform(({ obj: user }: IUserTransformOptions): IUserProfilePermission[] => {
@@ -47,7 +47,7 @@ export function ToUserPermissions(): (target: object, key: string) => void {
         if (!(context in grpContextPermission)) {
           grpContextPermission[context] = {
             group: false,
-            title: UserAbilityUtil.toContext(context),
+            title: UserAbilityUtil.getContextTitle(context),
             context,
             subjects: [],
           }
@@ -55,18 +55,21 @@ export function ToUserPermissions(): (target: object, key: string) => void {
 
         const exist = grpContextPermission[context].subjects.find(data => data.subject === subject)
         if (exist) {
-          exist.actions = ArrUtil.unique([...exist.actions, ...UserAbilityUtil.toActions(bitwise)])
+          exist.actions = ArrUtil.unique([
+            ...exist.actions,
+            ...UserAbilityUtil.map2Actions(bitwise),
+          ])
         } else {
           grpContextPermission[context].subjects.push({
             title,
             context,
             subject,
             isVisible,
-            actions: UserAbilityUtil.toActions(bitwise),
+            actions: UserAbilityUtil.map2Actions(bitwise),
           })
           if (!grpContextPermission[context].group) {
             const activeSubjects = grpContextPermission[context].subjects.filter(
-              subject => subject.isVisible
+              subject => subject.isVisible,
             )
             grpContextPermission[context].group = activeSubjects.length > 1
           }

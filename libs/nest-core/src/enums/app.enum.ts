@@ -7,8 +7,8 @@ export enum EnumAppEnvironment {
 }
 
 export enum EnumAppLanguage {
-  EN = 'en',
-  VI = 'vi',
+  EN = 'en_EN',
+  VI = 'vi_VN',
   CN = 'zh_CN',
   HK = 'zh_HK',
   TW = 'zh_TW',
@@ -60,6 +60,11 @@ export enum EnumScopeType {
   CRON = 'cron',
   QUEUE = 'queue',
   COMMAND = 'command',
+}
+
+export enum EnumCommandType {
+  up = 'up',
+  down = 'down',
 }
 
 export enum EnumRouteType {

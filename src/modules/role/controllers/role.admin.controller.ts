@@ -1,6 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import {
   ApiRequestData,
@@ -16,7 +17,6 @@ import {
   RequestQueryFilterInBoolean,
   RequestQueryList,
 } from 'lib/nest-web'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'shared/enums'
 import { ROLE_DOC_ADMIN_QUERY_LIST, ROLE_DOC_OPERATION } from '../constants'
 import { RequestRoleLevel } from '../decorators'
 import {
@@ -67,7 +67,7 @@ export class RoleAdminController {
     })
     { _search, _params }: RequestListDto,
     @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto,
-    @RequestRoleLevel() _level: RequestFilterDto
+    @RequestRoleLevel() _level: RequestFilterDto,
   ): Promise<IResponsePaging> {
     const _where: Prisma.RoleWhereInput = {
       ..._search,
@@ -105,7 +105,7 @@ export class RoleAdminController {
     })
     { _search, _params }: RequestListDto,
     @RequestQueryFilterInBoolean('isActive', true) _enabled: RequestFilterDto,
-    @RequestRoleLevel() _level: RequestFilterDto
+    @RequestRoleLevel() _level: RequestFilterDto,
   ): Promise<IResponseList> {
     const _where: Prisma.RoleWhereInput = {
       ..._search,
@@ -213,7 +213,7 @@ export class RoleAdminController {
   async update(
     @RequestBody() body: RoleRequestUpdateDto,
     @RequestParam('id', RoleNotSelfPipe, RoleLimitedLevelPipe) id: number,
-    @AuthJwtPayload('user.id') updatedBy: number
+    @AuthJwtPayload('user.id') updatedBy: number,
   ): Promise<IResponseData> {
     const { permissions, ...dto } = body
     const data = { ...dto, updatedBy }
@@ -249,7 +249,7 @@ export class RoleAdminController {
   @Post('/')
   async create(
     @RequestBody() body: RoleRequestCreateDto,
-    @AuthJwtPayload('user.id') createdBy: number
+    @AuthJwtPayload('user.id') createdBy: number,
   ): Promise<IResponseData> {
     const { permissions, ...data } = body
     const created = await this.roleService.create({ ...data, createdBy }, { permissions })
@@ -307,7 +307,7 @@ export class RoleAdminController {
   @Put('/:id/active')
   async active(
     @RequestParam('id', RoleLimitedLevelPipe) id: number,
-    @AuthJwtPayload('user.id') updatedBy: number
+    @AuthJwtPayload('user.id') updatedBy: number,
   ): Promise<IResponseData> {
     const updated = await this.roleService.change(id, {
       isActive: true,
@@ -342,7 +342,7 @@ export class RoleAdminController {
   @Put('/:id/inactive')
   async inactive(
     @RequestParam('id', RoleNotSelfPipe, RoleLimitedLevelPipe) id: number,
-    @AuthJwtPayload('user.id') updatedBy: number
+    @AuthJwtPayload('user.id') updatedBy: number,
   ): Promise<IResponseData> {
     const updated = await this.roleService.change(id, {
       isActive: false,

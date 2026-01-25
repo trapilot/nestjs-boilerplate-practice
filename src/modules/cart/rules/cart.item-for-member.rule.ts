@@ -1,21 +1,23 @@
 import { BadRequestException, HttpStatus } from '@nestjs/common'
-import { ICartRule, TCartItem } from '../interfaces'
+import { IAppRule } from 'lib/nest-core'
+import { TCartItem } from '../interfaces'
 import { CartService } from '../services'
 
-export class CartItemForMemberRule implements ICartRule {
+export class CartItemForMemberRule implements IAppRule<TCartItem> {
   constructor(
     private readonly cartService: CartService,
     private readonly memberId: number,
-    private readonly issuedAt: Date
+    private readonly issuedAt: Date,
   ) {}
 
-  async validate({ product, quantity }: TCartItem): Promise<void> {
+  async validate(data: TCartItem): Promise<void> {
+    const { product, quantity } = data
     if (product.salePoint) {
       const pointRequire = product.salePoint * quantity
       const checkPoint = await this.cartService.checkPointRequire(
         this.memberId,
         pointRequire,
-        this.issuedAt
+        this.issuedAt,
       )
       if (!checkPoint) {
         throw new BadRequestException({

@@ -1,5 +1,5 @@
+import { ScopeContext } from '../contexts'
 import { EnumMessageLanguage, EnumNumberCurrency, EnumNumberLocale } from '../enums'
-import { ScopeContext } from '../helpers'
 import { INumberFormatOptions } from '../interfaces'
 import { EnumUtil } from './enum.util'
 
@@ -25,7 +25,7 @@ export class NumberUtil {
         maximumFractionDigits: options?.maximumFractionDigits ?? 10,
         currencyDisplay: currLang === options?.language ? 'narrowSymbol' : undefined,
         useGrouping: options?.useGrouping ?? false,
-      }
+      },
     )
     return formatter.format(number)
   }

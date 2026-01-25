@@ -32,7 +32,7 @@ export class IsPasswordConstraint implements ValidatorConstraintInterface {
 
 export function IsPassword(
   passwordOptions?: IsStrongPasswordOptions,
-  validationOptions?: ValidationOptions
+  validationOptions?: ValidationOptions,
 ) {
   return function (object: Record<string, any>, propertyName: string): void {
     registerDecorator({

@@ -27,7 +27,7 @@ export class TierHistoryService {
 
   async findOrFail(
     id: number,
-    kwargs: Omit<Prisma.MemberTierHistoryFindUniqueOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.MemberTierHistoryFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TTierHistory> {
     const tierHistory = await this.prisma.memberTierHistory
       .findUniqueOrThrow({
@@ -45,7 +45,7 @@ export class TierHistoryService {
 
   async matchOrFail(
     where: Prisma.MemberTierHistoryWhereInput,
-    kwargs: Omit<Prisma.MemberTierHistoryFindFirstOrThrowArgs, 'where'> = {}
+    kwargs: Omit<Prisma.MemberTierHistoryFindFirstOrThrowArgs, 'where'> = {},
   ): Promise<TTierHistory> {
     const tierHistory = await this.prisma.memberTierHistory
       .findFirstOrThrow({
@@ -63,7 +63,7 @@ export class TierHistoryService {
 
   async differOrFail(
     where: Prisma.MemberTierHistoryWhereInput,
-    options?: { limit?: number; message?: string }
+    options?: { limit?: number; message?: string },
   ): Promise<void> {
     const totalRecords = await this.count(where)
     const limitRecords = options?.limit ?? 0
@@ -78,7 +78,7 @@ export class TierHistoryService {
   async list(
     where?: Prisma.MemberTierHistoryWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
     return await this.prisma.memberTierHistory.list(where, params, options)
   }
@@ -86,7 +86,7 @@ export class TierHistoryService {
   async paginate(
     where?: Prisma.MemberTierHistoryWhereInput,
     params?: IPrismaParams,
-    options?: IPrismaOptions
+    options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.memberTierHistory.paginate(where, params, options)
   }
@@ -99,7 +99,7 @@ export class TierHistoryService {
 
   async find(
     id: number,
-    kwargs: Omit<Prisma.MemberTierHistoryFindUniqueArgs, 'where'> = {}
+    kwargs: Omit<Prisma.MemberTierHistoryFindUniqueArgs, 'where'> = {},
   ): Promise<TTierHistory> {
     return await this.prisma.memberTierHistory.findUnique({
       ...kwargs,
@@ -116,7 +116,7 @@ export class TierHistoryService {
 
   async update(
     id: number,
-    data: Prisma.MemberTierHistoryUncheckedUpdateInput
+    data: Prisma.MemberTierHistoryUncheckedUpdateInput,
   ): Promise<TTierHistory> {
     const tierHistory = await this.findOrFail(id)
     return await this.prisma.memberTierHistory.update({

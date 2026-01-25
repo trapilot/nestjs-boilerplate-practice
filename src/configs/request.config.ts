@@ -1,5 +1,5 @@
 import { registerAs } from '@nestjs/config'
-import { FileUtil, IConfigRequest, TimeUtil } from 'lib/nest-core'
+import { AppUtil, FileUtil, IConfigRequest } from 'lib/nest-core'
 
 export default registerAs(
   'request',
@@ -63,15 +63,15 @@ export default registerAs(
       ],
     },
     cachePrefix: 'API_CACHE',
-    timeoutInMs: TimeUtil.ms('10s'), // 10s based on ms module
+    timeoutInMs: AppUtil.ms('10s'), // 10s based on ms module
     security: {
       enable: false,
       key: process.env.MIDDLEWARE_SECURITY_KEY ?? 'SECURITY=PdmXqYqRe5E/Q==',
-      ttl: TimeUtil.ms(300), // 5 minutes
+      ttl: AppUtil.ms('5m'), // 5 minutes
     },
     throttle: {
-      ttl: TimeUtil.ms(500), // 0.5 secs
+      ttl: AppUtil.ms('500Ms'), // 0.5 secs
       limit: 5, // max request per reset time
     },
-  })
+  }),
 )

@@ -41,7 +41,7 @@ export class RequestCorsMiddleware implements NestMiddleware {
    */
   private originValidator(
     origin: string,
-    callback: (err: Error | null, allow?: boolean) => void
+    callback: (err: Error | null, allow?: boolean) => void,
   ): void {
     if (!origin) {
       return callback(null, true)
