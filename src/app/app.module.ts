@@ -54,7 +54,7 @@ import configs from '../configs'
       actions: EnumAuthAbilityAction,
     }),
     NestPrismaModule.forRoot({
-      multiTenant: StrUtil.isTrue(process.env.MULTITENANT_ENABLE),
+      multiTenant: StrUtil.isTrue(process.env.APP_TENANT),
       replication: false,
       debug: StrUtil.isTrue(process.env.DATABASE_DEBUG),
     }),

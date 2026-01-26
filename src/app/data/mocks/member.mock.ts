@@ -3,10 +3,10 @@ import { ConfigService } from '@nestjs/config'
 import { EnumMemberType, EnumTierHistoryMethod } from '@runtime/prisma-client'
 import { AuthUtil } from 'lib/nest-auth'
 import {
-  EnumCountryCode,
+  APP_COUNTRY_LIST,
+  APP_LANGUAGE_LIST,
   EnumUserType,
   HelperService,
-  MESSAGE_LANGUAGES,
   ScheduleMockupBase,
   StrUtil
 } from 'lib/nest-core'
@@ -51,8 +51,6 @@ export class MemberMock extends ScheduleMockupBase {
     const streetNames = ['Main St', 'Oak Ave', 'Pine Rd', 'Maple Dr', 'Cedar Ln']
     const cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Seul', 'Tokyo', 'Shanghai']
     const states = ['NY', 'CA', 'IL', 'TX', 'AZ', 'AX', 'YY', 'TW', 'AT', 'IG']
-    const countries = Object.values(EnumCountryCode)
-    const locales = MESSAGE_LANGUAGES
 
     const dateCheck = lastMember ? lastMember.createdAt : this.startDate
     const dateExecute = this.helperService.dateForward(dateCheck, {
@@ -72,7 +70,7 @@ export class MemberMock extends ScheduleMockupBase {
       const memberTier = isStaff ? tierChart.getStaffTier() : tierChart.getNormalTier()
       const tierData = tierChart.getStats(memberTier.id)
 
-      const randCountry = this.helperService.arrayRandom(countries)
+      const randCountry = this.helperService.arrayRandom(APP_COUNTRY_LIST)
       const fullPhone = this.helperService.randomDigits(10 - randCountry.length, {
         prefix: randCountry,
       })
@@ -128,7 +126,7 @@ export class MemberMock extends ScheduleMockupBase {
             prefix: this.helperService.randomDigits(3, { suffix: ' ' }),
             suffix: this.helperService.randomDigits(5, { prefix: ' ' }),
           }),
-          locale: this.helperService.arrayRandom(locales),
+          locale: this.helperService.arrayRandom(APP_LANGUAGE_LIST),
           gender: isFemale ? EnumUserType.FEMALE : EnumUserType.MALE,
           birthDate,
           expiryDate,

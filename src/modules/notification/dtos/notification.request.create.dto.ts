@@ -16,7 +16,6 @@ import {
 } from 'class-validator'
 import {
   EnumDateFormat,
-  EnumMessageRefType,
   ToArray,
   ToBoolean,
   ToDate,
@@ -32,6 +31,7 @@ import {
   RequestParagraphDto,
   RequestSentenceDto,
 } from 'lib/nest-web'
+import { EnumNotificationRefType } from '../enums'
 import { NotificationUtil } from '../helpers'
 
 export class NotificationPushDto {
@@ -125,12 +125,12 @@ export class NotificationRequestCreateDto {
   refId: number
 
   @IsOptional()
-  @IsEnum(EnumMessageRefType)
+  @IsEnum(EnumNotificationRefType)
   @ToString()
   @ApiProperty({
     required: false,
-    enum: EnumMessageRefType,
-    example: EnumMessageRefType.TEXT,
+    enum: EnumNotificationRefType,
+    example: EnumNotificationRefType.TEXT,
   })
   refType: string
 

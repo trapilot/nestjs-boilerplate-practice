@@ -1,5 +1,11 @@
 import { registerAs } from '@nestjs/config'
-import { AppUtil, IConfigHelper, MESSAGE_FALLBACK, MESSAGE_LANGUAGES, StrUtil } from 'lib/nest-core'
+import {
+  APP_LANGUAGE_FALLBACK,
+  APP_LANGUAGE_LIST,
+  AppUtil,
+  IConfigHelper,
+  StrUtil,
+} from 'lib/nest-core'
 
 export default registerAs(
   'helper',
@@ -17,8 +23,8 @@ export default registerAs(
       timeout: 5_000,
     },
     message: {
-      fallback: MESSAGE_FALLBACK,
-      availableList: MESSAGE_LANGUAGES,
+      fallback: APP_LANGUAGE_FALLBACK,
+      availableList: APP_LANGUAGE_LIST,
     },
     mailer: {
       dryRun: StrUtil.isTrue(process.env.EMAIL_DRYRUN),

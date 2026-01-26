@@ -9,8 +9,9 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator'
-import { EnumMessageRefType, ToBoolean, ToNumber, ToObject, ToString } from 'lib/nest-core'
+import { ToBoolean, ToNumber, ToObject, ToString } from 'lib/nest-core'
 import { RequestSentenceDto } from 'lib/nest-web'
+import { EnumMediaRefType } from '../enums'
 
 export class MediaRequestCreateDto {
   @IsNotEmpty()
@@ -38,9 +39,9 @@ export class MediaRequestCreateDto {
   sorting: number
 
   @IsOptional()
-  @IsEnum(EnumMessageRefType)
+  @IsEnum(EnumMediaRefType)
   @ToString()
-  @ApiProperty({ required: false, enum: EnumMessageRefType, example: EnumMessageRefType.TEXT })
+  @ApiProperty({ required: false, enum: EnumMediaRefType, example: EnumMediaRefType.TEXT })
   refType: string
 
   @IsOptional()

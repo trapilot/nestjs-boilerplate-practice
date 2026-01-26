@@ -6,113 +6,96 @@ type schemas = components['schemas']
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const productReviewService = {
-  list: async <T = schemas['ProductReviewResponseListDto'][]>(
-    options?: RequestOptions,
-  ): Promise<T> => {
+  list: async <T = schemas['ProductReviewResponseListDto'][]>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/product-reviews'
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/product-reviews"
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
   },
-  create: async <T = schemas['ProductReviewResponseDetailDto']>(
-    body?: schemas['ProductReviewRequestCreateDto'],
-    options?: RequestOptions,
-  ): Promise<T> => {
+  create: async <T = schemas['ProductReviewResponseDetailDto']>(body?: schemas['ProductReviewRequestCreateDto'], options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/product-reviews'
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/product-reviews"
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.post(url, body, config)
     return data as T
   },
-  mapShorted: async <T = schemas['ProductReviewResponseListDto'][]>(
-    options?: RequestOptions,
-  ): Promise<T> => {
+  mapShorted: async <T = schemas['ProductReviewResponseListDto'][]>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/product-reviews/map-shorted'
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/product-reviews/map-shorted"
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
   },
-  get: async <T = schemas['ProductReviewResponseDetailDto']>(
-    params: { id: string | number },
-    options?: RequestOptions,
-  ): Promise<T> => {
+  get: async <T = schemas['ProductReviewResponseDetailDto']>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/product-reviews/' + String(params.id)
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/product-reviews/" + String(params .id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
   },
-  update: async <T = schemas['ProductReviewResponseDetailDto']>(
-    params: { id: string | number },
-    body?: schemas['ProductReviewRequestUpdateDto'],
-    options?: RequestOptions,
-  ): Promise<T> => {
+  update: async <T = schemas['ProductReviewResponseDetailDto']>(params: { id: string | number }, body?: schemas['ProductReviewRequestUpdateDto'], options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/product-reviews/' + String(params.id)
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/product-reviews/" + String(params .id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
     return data as T
   },
-  delete: async <T = any>(
-    params: { id: string | number },
-    options?: RequestOptions,
-  ): Promise<T> => {
+  delete: async <T = any>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/product-reviews/' + String(params.id)
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/product-reviews/" + String(params .id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}

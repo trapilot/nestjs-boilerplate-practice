@@ -1,5 +1,5 @@
 import { ScopeContext } from '../contexts'
-import { EnumMessageLanguage, EnumNumberCurrency, EnumNumberLocale } from '../enums'
+import { EnumAppLanguage, EnumNumberCurrency, EnumNumberLocale } from '../enums'
 import { INumberFormatOptions } from '../interfaces'
 import { EnumUtil } from './enum.util'
 
@@ -9,7 +9,7 @@ export class NumberUtil {
 
     const formatter = new Intl.NumberFormat(
       EnumUtil.relative(currLang, {
-        enumRoot: EnumMessageLanguage,
+        enumRoot: EnumAppLanguage,
         enumRelative: EnumNumberLocale,
       }),
       {
@@ -17,7 +17,7 @@ export class NumberUtil {
         currency:
           options.style === 'currency'
             ? EnumUtil.relative(currLang, {
-                enumRoot: EnumMessageLanguage,
+                enumRoot: EnumAppLanguage,
                 enumRelative: EnumNumberCurrency,
               })
             : undefined,

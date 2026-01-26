@@ -5,7 +5,8 @@ import {
   setAccessToken,
   setRefreshToken,
 } from '../hooks/useAuthToken'
-import { authenticationService } from '../services/authentication.service'
+import { authenticationService } from '../services'
+import { getErrorMsg } from '../utils/error'
 
 export interface Permission {
   group: boolean
@@ -93,7 +94,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       await refreshProfile()
     } catch (err: unknown) {
       console.error('Login failed:', err)
-      setError(err?.message || 'Login failed')
+      setError(getErrorMsg(err, 'Login failed'))
       throw err
     } finally {
       setLoading(false)

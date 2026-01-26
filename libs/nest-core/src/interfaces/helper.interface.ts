@@ -1,7 +1,8 @@
 import { BinaryLike, BinaryToTextEncoding, HashOptions, KeyObject } from 'crypto'
 import { DateObjectUnits } from 'luxon'
 import { TransformOptions } from 'stream'
-import { EnumDateFormat, EnumMessageLanguage, EnumNumberCurrency } from '../enums'
+import { EnumAppLanguage, EnumDateFormat, EnumNumberCurrency } from '../enums'
+import { EnumLike } from './app.interface'
 
 export interface IArrayJoinOptions {
   delimiter: string
@@ -20,7 +21,7 @@ export interface INumberRandomOptions {
 
 export interface INumberFormatOptions {
   style: 'decimal' | 'percent' | 'currency'
-  language?: EnumMessageLanguage
+  language?: EnumAppLanguage
   currency?: EnumNumberCurrency
   useGrouping?: boolean
   minimumFractionDigits?: number
@@ -52,6 +53,12 @@ export interface IStringFormatOptions {
 export interface IStringParseOptions {
   parseAs: IStringParse
   errorAs?: any
+}
+
+export interface IStringParseEnumOptions<T> {
+  enum: EnumLike<T>
+  fallback: T
+  format?: 'uppercase' | 'lowercase' | 'capitalize'
 }
 
 export interface IStringSplitOptions {
@@ -116,7 +123,7 @@ export interface IDateFormatOptions extends IDateCreateOptions {
 
 export interface IDateFriendlyOptions {
   days: number
-  language?: EnumMessageLanguage
+  language?: EnumAppLanguage
   format?: EnumDateFormat | string
 }
 

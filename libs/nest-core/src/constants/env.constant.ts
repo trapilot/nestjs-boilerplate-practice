@@ -1,12 +1,7 @@
 import { config } from 'dotenv'
 import { join } from 'path'
-import {
-  EnumAppEnvironment,
-  EnumAppLanguage,
-  EnumAppTimezone,
-  EnumCountryCode,
-  EnumMessageLanguage,
-} from '../enums'
+import { EnumAppEnvironment, EnumAppLanguage, EnumAppTimezone, EnumCountryCode } from '../enums'
+import { DateUtil, EnumUtil, StrUtil } from '../utils'
 
 export const ENV_CONFIG = ['.env', `.env.${process.env.APP_ENV}`]
 const IntlDatetime = Intl.DateTimeFormat().resolvedOptions()
@@ -21,14 +16,39 @@ export const APP_PATH = process.env.APP_PATH ?? join(ROOT_PATH, 'src')
 export const APP_ENV = process.env.APP_ENV || EnumAppEnvironment.DEVELOPMENT
 export const APP_URL = process.env.APP_URL || ''
 export const APP_NAME = process.env.APP_NAME || ''
-export const APP_START = new Date(process.env.APP_START ?? '2025-01-01T00:00:00.000Z')
+export const APP_TENANT = process.env.APP_TENANT === 'true'
 export const APP_TIMEZONE = process.env.APP_TIMEZONE ?? IntlDatetime.timeZone
-export const APP_LANGUAGE = process.env.APP_LANGUAGE ?? EnumAppLanguage.EN
+export const APP_LANGUAGE = StrUtil.safeEnum<EnumAppLanguage>(process.env.APP_LANGUAGE, {
+  enum: EnumAppLanguage,
+  fallback: EnumAppLanguage.EN,
+})
 
-export const MULTITENANT_ENABLE = process.env.MULTITENANT_ENABLE === 'true'
+export const APP_START = DateUtil.asDate(process.env.APP_START, {
+  startOfDay: true,
+  timezone: APP_TIMEZONE,
+})
 
-export const MESSAGE_FALLBACK = process.env.MESSAGE_FALLBACK ?? EnumMessageLanguage.EN
-export const MESSAGE_LANGUAGES = [EnumMessageLanguage.EN, EnumMessageLanguage.VI]
+export const APP_LANGUAGE_FALLBACK = process.env.APP_LANGUAGE_FALLBACK ?? APP_LANGUAGE
+export const APP_LANGUAGE_LIST = StrUtil.split(
+  process.env.APP_LANGUAGE_LIST || EnumUtil.enumToString(EnumAppLanguage, ','),
+  {
+    delimiter: ',',
+    allowEmpty: false,
+  },
+) as EnumAppLanguage[]
 
-export const TIMEZONE_LIST = [EnumAppTimezone.UTC, EnumAppTimezone.ASIA_HO_CHI_MINH]
-export const COUNTRY_LIST = Object.values(EnumCountryCode)
+export const APP_TIMEZONE_LIST = StrUtil.split(
+  process.env.APP_TIMEZONE_LIST || EnumUtil.enumToString(EnumAppTimezone, ','),
+  {
+    delimiter: ',',
+    allowEmpty: false,
+  },
+) as EnumAppTimezone[]
+
+export const APP_COUNTRY_LIST = StrUtil.split(
+  process.env.APP_COUNTRY_LIST || EnumUtil.enumToString(EnumCountryCode, ','),
+  {
+    delimiter: ',',
+    allowEmpty: false,
+  },
+) as EnumCountryCode[]

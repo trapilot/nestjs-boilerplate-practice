@@ -36,6 +36,7 @@
     "app:reset:data": "pnpm db:clear && pnpm start:cli seed:role && pnpm start:cli seed:permission && pnpm start:cli seed:user",
     "admin:install": "pnpm install --filter nest-admin",
     "admin:build": "pnpm --filter nest-admin build",
+    "admin:rebuild": "pnpm --filter nest-admin rebuild",
     "admin:migrate": "rm -rf public/admin && mv ./packages/nest-admin/dist public/admin",
     "schematics:install": "pnpm install --filter nest-schematics",
     "schematics:build": "pnpm --filter nest-schematics build",

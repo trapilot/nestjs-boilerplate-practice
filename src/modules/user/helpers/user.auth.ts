@@ -130,7 +130,7 @@ export class UserAuth implements IAuthValidator<TUser> {
       })
     }
 
-    if (!userToken.isActive || this.helperService.dateCheckAfter(userToken.refreshExpired)) {
+    if (!userToken.isActive || this.helperService.dateIsAfter(userToken.refreshExpired)) {
       // tracking spam refresh token
       await this.prisma.userTokenHistory.update({
         where: { id: userToken.id },

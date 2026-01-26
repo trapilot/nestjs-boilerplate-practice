@@ -14,7 +14,7 @@ export function RunInNewThread(timeout?: number) {
     descriptor.value = function (...args: unknown[]) {
       const fnCode = originalMethod.toString()
 
-      const worker = new Worker(`${__dirname}/../nest-thread.concurrency.js`)
+      const worker = new Worker(`${__dirname}/../runners/nest-thread.concurrency.js`)
 
       let timeoutId: NodeJS.Timeout | null = null
 
@@ -76,7 +76,7 @@ export function RunInNewProcess(timeout?: number) {
     const originalMethod = descriptor.value
 
     descriptor.value = function (...args: unknown[]) {
-      const child: ChildProcess = fork(`${__dirname}/../nest-process.concurrency.js`)
+      const child: ChildProcess = fork(`${__dirname}/../runners/nest-process.concurrency.js`)
 
       child.send({ callbackFn: originalMethod.toString(), args })
 

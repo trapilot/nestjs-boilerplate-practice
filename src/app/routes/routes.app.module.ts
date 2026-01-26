@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common'
 import { CartAppController, CartModule } from 'modules/cart'
 import { CountryAppController, CountryModule } from 'modules/country'
 import { DistrictAppController, DistrictModule } from 'modules/district'
-import { FactAppController, FactModule } from 'modules/fact'
 import { InvoiceAppController, InvoiceModule } from 'modules/invoice'
 import { MediaAppController, MediaModule } from 'modules/media'
 import { MemberAppController, MemberAuthController, MemberModule } from 'modules/member'
+import { PageAppController, PageModule } from 'modules/page'
 import { PointHistoryAppController, PointHistoryModule } from 'modules/point-history'
 import { ProductAppController, ProductModule } from 'modules/product'
 import { ProductBrandAppController, ProductBrandModule } from 'modules/product-brand'
@@ -17,7 +17,7 @@ import { TierAppController, TierModule } from 'modules/tier'
   controllers: [
     MemberAuthController,
     MemberAppController,
-    FactAppController,
+    PageAppController,
     CountryAppController,
     DistrictAppController,
     TierAppController,
@@ -32,7 +32,7 @@ import { TierAppController, TierModule } from 'modules/tier'
   ],
   imports: [
     MemberModule,
-    FactModule,
+    PageModule,
     CountryModule,
     DistrictModule,
     TierModule,

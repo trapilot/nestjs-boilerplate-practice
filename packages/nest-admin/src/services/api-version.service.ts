@@ -6,153 +6,128 @@ type schemas = components['schemas']
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const apiVersionService = {
-  list: async <T = schemas['AppVersionResponseListDto'][]>(
-    options?: RequestOptions,
-  ): Promise<T> => {
+  list: async <T = schemas['AppVersionResponseListDto'][]>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/app-versions'
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/app-versions"
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
   },
-  create: async <T = schemas['AppVersionResponseDetailDto']>(
-    body?: schemas['AppVersionRequestCreateDto'],
-    options?: RequestOptions,
-  ): Promise<T> => {
+  create: async <T = schemas['AppVersionResponseDetailDto']>(body?: schemas['AppVersionRequestCreateDto'], options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/app-versions'
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/app-versions"
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.post(url, body, config)
     return data as T
   },
-  mapShorted: async <T = schemas['AppVersionResponseListDto'][]>(
-    options?: RequestOptions,
-  ): Promise<T> => {
+  mapShorted: async <T = schemas['AppVersionResponseListDto'][]>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/app-versions/map-shorted'
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/app-versions/map-shorted"
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
   },
-  get: async <T = schemas['AppVersionResponseDetailDto']>(
-    params: { id: string | number },
-    options?: RequestOptions,
-  ): Promise<T> => {
+  get: async <T = schemas['AppVersionResponseDetailDto']>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/app-versions/' + String(params.id)
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/app-versions/" + String(params .id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
   },
-  update: async <T = schemas['AppVersionResponseDetailDto']>(
-    params: { id: string | number },
-    body?: schemas['AppVersionRequestUpdateDto'],
-    options?: RequestOptions,
-  ): Promise<T> => {
+  update: async <T = schemas['AppVersionResponseDetailDto']>(params: { id: string | number }, body?: schemas['AppVersionRequestUpdateDto'], options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/app-versions/' + String(params.id)
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/app-versions/" + String(params .id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
     return data as T
   },
-  delete: async <T = any>(
-    params: { id: string | number },
-    options?: RequestOptions,
-  ): Promise<T> => {
+  delete: async <T = any>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/app-versions/' + String(params.id)
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/app-versions/" + String(params .id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.delete(url, config)
     return data as T
   },
-  inactive: async <T = schemas['AppVersionResponseDetailDto']>(
-    params: { id: string | number },
-    body?: unknown,
-    options?: RequestOptions,
-  ): Promise<T> => {
+  inactive: async <T = schemas['AppVersionResponseDetailDto']>(params: { id: string | number }, body?: unknown, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/app-versions/' + String(params.id) + '/inactive'
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/app-versions/" + String(params .id) + "/inactive"
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
     return data as T
   },
-  active: async <T = schemas['AppVersionResponseDetailDto']>(
-    params: { id: string | number },
-    body?: unknown,
-    options?: RequestOptions,
-  ): Promise<T> => {
+  active: async <T = schemas['AppVersionResponseDetailDto']>(params: { id: string | number }, body?: unknown, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/app-versions/' + String(params.id) + '/active'
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/app-versions/" + String(params .id) + "/active"
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}

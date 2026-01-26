@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 import { EnumJobStatus } from '@runtime/prisma-client'
 import { AppUtil, HelperService, IQueueHandler, QueueConsumer, RunnerService } from 'lib/nest-core'
-import { PrismaService } from 'lib/nest-prisma'
+import { PrismaService, PrismaUtil } from 'lib/nest-prisma'
 
 @Injectable()
 export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
@@ -188,6 +188,10 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
         })
       }
     } catch (error: unknown) {
+      if (PrismaUtil.isNoRequiredRecord(error)) {
+        return
+      }
+
       await this.prisma.queueJob.update({
         where: { id: jobId },
         data: {

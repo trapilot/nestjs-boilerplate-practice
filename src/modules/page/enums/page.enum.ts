@@ -1,0 +1,7 @@
+export enum EnumPageType {
+  TERM_AND_CONDITION = 'TERM_AND_CONDITION',
+  ABOUT_US = 'ABOUT_US',
+  PRIVACY = 'PRIVACY',
+  REASON = 'REASON',
+  FAQ = 'FAQ',
+}

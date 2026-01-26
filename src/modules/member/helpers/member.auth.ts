@@ -118,7 +118,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
       })
     }
 
-    if (!userToken.isActive || this.helperService.dateCheckAfter(userToken.refreshExpired)) {
+    if (!userToken.isActive || this.helperService.dateIsAfter(userToken.refreshExpired)) {
       // tracking spam refresh token
       await this.prisma.memberTokenHistory.update({
         where: { id: userToken.id },

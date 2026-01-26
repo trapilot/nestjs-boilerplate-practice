@@ -16,8 +16,8 @@
   "dashboard": {
     "title": "Dashboard"
   },
-  "fact": {
-    "title": "Facts",
+  "page": {
+    "title": "Pages",
     "fields": {
       "id": "ID",
       "title": "Title",

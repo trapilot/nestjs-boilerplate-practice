@@ -20,7 +20,7 @@
     "memberTierExpiresIn": "Hạng thành viên có hiệu lực đến {tierExpireDate}",
     "memberPointExpiresIn": "{pointExpireValue} điểm có hiệu lực đến {pointExpireDate}"
   },
-  "fact": {
+  "page": {
     "notFound": "Dữ liệu thực tế không tồn tại",
     "requiredOne": "Cần ít nhất một bản ghi"
   },

@@ -3,10 +3,7 @@ import { ScopeContext } from '../contexts'
 import { IDateCreateOptions, IDateExtractData, IDateFormatOptions, IDateRange } from '../interfaces'
 
 export class DateUtil {
-  static create(date: Date, options?: IDateCreateOptions): DateTime {
-    const timezone = options?.timezone ?? ScopeContext.getReqZone()
-    let mDate = DateTime.fromJSDate(date).setZone(timezone)
-
+  private static _create(mDate: DateTime, options: IDateCreateOptions): DateTime {
     if (options?.startOfDay) {
       mDate = mDate.startOf('day')
     } else if (options?.endOfDay) {
@@ -14,8 +11,19 @@ export class DateUtil {
     } else if (options?.durationSet) {
       mDate = mDate.set(options.durationSet)
     }
-
     return mDate
+  }
+
+  static create(date: Date, options?: IDateCreateOptions): DateTime {
+    const timezone = options?.timezone ?? ScopeContext.getReqZone()
+    const mDate = DateTime.fromJSDate(date).setZone(timezone)
+    return this._create(mDate, options)
+  }
+
+  static createFromIso(iso: string, options?: IDateCreateOptions): DateTime {
+    const timezone = options?.timezone ?? ScopeContext.getReqZone()
+    const mDate = DateTime.fromISO(iso).setZone(timezone)
+    return this._create(mDate, options)
   }
 
   static current(): DateTime {
@@ -31,10 +39,9 @@ export class DateUtil {
     return this.current().toJSDate()
   }
 
-  static getDate(date: Date | string, options?: IDateCreateOptions): Date {
+  static asDate(date: Date | string, options?: IDateCreateOptions): Date {
     if (typeof date === 'string') {
-      const [day, month, year] = date.split('/')
-      date = new Date(`${year}-${month}-${day}`)
+      return this.createFromIso(date, options).toJSDate()
     }
     return this.create(date, options).toJSDate()
   }

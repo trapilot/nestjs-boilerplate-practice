@@ -6,14 +6,9 @@ import {
   EnumPushType,
 } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
-import {
-  EnumDateFormat,
-  EnumMessageRefType,
-  ToDate,
-  ToDuration,
-  ToNestedArray,
-} from 'lib/nest-core'
+import { EnumDateFormat, ToDate, ToDuration, ToNestedArray } from 'lib/nest-core'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
+import { EnumNotificationRefType } from '../enums'
 
 class ResponsePushDetailDto {
   @ApiProperty({ example: 1 })
@@ -108,7 +103,7 @@ class ResponseDataDetailDto {
   @Expose()
   refId: number
 
-  @ApiProperty({ example: EnumMessageRefType.TEXT })
+  @ApiProperty({ example: EnumNotificationRefType.TEXT })
   @Type(() => String)
   @Expose()
   refType: string

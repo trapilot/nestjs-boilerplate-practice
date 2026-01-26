@@ -24,8 +24,5 @@ export default registerAs(
       prefix: process.env.HTTP_PREFIX ?? 'api',
       compress: StrUtil.isTrue(process.env.HTTP_COMPRESS, true),
     },
-
-    wssEnable: StrUtil.isTrue(process.env.WSS_ENABLE),
-    jobEnable: StrUtil.isTrue(process.env.JOB_ENABLE),
   }),
 )

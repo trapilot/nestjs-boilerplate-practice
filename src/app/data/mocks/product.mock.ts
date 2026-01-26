@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { EnumProductExpiryType } from '@runtime/prisma-client'
-import { EnumMessageLanguage, HelperService, ScheduleMockupBase, StrUtil } from 'lib/nest-core'
+import { EnumAppLanguage, HelperService, ScheduleMockupBase, StrUtil } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { TProductBrand } from 'modules/product-brand'
 import { TProductCategory } from 'modules/product-category'
@@ -74,25 +74,25 @@ export class ProductMock extends ScheduleMockupBase {
           categoryId: category.id,
           brandId: brand.id,
           name: {
-            [EnumMessageLanguage.EN]: `Product No #0${i + 1}`,
-            [EnumMessageLanguage.VI]: `Product No #0${i + 1}`,
-            [EnumMessageLanguage.HK]: `Product No #0${i + 1}`,
+            [EnumAppLanguage.EN]: `Product No #0${i + 1}`,
+            [EnumAppLanguage.VI]: `Product No #0${i + 1}`,
+            [EnumAppLanguage.HK]: `Product No #0${i + 1}`,
           },
           languages: {
             createMany: {
               data: [
                 {
-                  language: EnumMessageLanguage.EN,
+                  language: EnumAppLanguage.EN,
                   content: `<p>Product content #0${i + 1}</p>`,
                   termAndCond: `<p>Product term and condition #0${i + 1}</p>`,
                 },
                 {
-                  language: EnumMessageLanguage.VI,
+                  language: EnumAppLanguage.VI,
                   content: `<p>Product content #0${i + 1}</p>`,
                   termAndCond: `<p>Product term and condition #0${i + 1}</p>`,
                 },
                 {
-                  language: EnumMessageLanguage.HK,
+                  language: EnumAppLanguage.HK,
                   content: `<p>Product content #0${i + 1}</p>`,
                   termAndCond: `<p>Product term and condition #0${i + 1}</p>`,
                 },
@@ -145,9 +145,9 @@ export class ProductMock extends ScheduleMockupBase {
         data: ['Barber', 'Hair removal', 'Med spa', 'Nails', 'Tanning', 'Braids'].map(name => {
           return {
             name: {
-              [EnumMessageLanguage.EN]: name,
-              [EnumMessageLanguage.VI]: name,
-              [EnumMessageLanguage.HK]: name,
+              [EnumAppLanguage.EN]: name,
+              [EnumAppLanguage.VI]: name,
+              [EnumAppLanguage.HK]: name,
             },
             createdAt: this.dateStarted,
             updatedAt: this.dateStarted,
@@ -168,9 +168,9 @@ export class ProductMock extends ScheduleMockupBase {
         data: BRANDS.map(name => {
           return {
             name: {
-              [EnumMessageLanguage.EN]: name,
-              [EnumMessageLanguage.VI]: name,
-              [EnumMessageLanguage.HK]: name,
+              [EnumAppLanguage.EN]: name,
+              [EnumAppLanguage.VI]: name,
+              [EnumAppLanguage.HK]: name,
             },
             address: `International Airport`,
             latitude: 10.8087479,

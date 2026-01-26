@@ -16,7 +16,7 @@
   "dashboard": {
     "title": "Bảng điều khiển"
   },
-  "fact": {
+  "page": {
     "title": "Sự kiện",
     "fields": {
       "id": "ID",
@@ -313,4 +313,3 @@
     }
   }
 }
-

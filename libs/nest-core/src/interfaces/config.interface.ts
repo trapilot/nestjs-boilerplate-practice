@@ -1,5 +1,5 @@
 import { ConfigurationParameters } from '@onesignal/node-onesignal/dist/configuration'
-import { EnumAppEnvironment, EnumAppLanguage, EnumAppTimezone, EnumMessageLanguage } from '../enums'
+import { EnumAppEnvironment, EnumAppLanguage, EnumAppTimezone } from '../enums'
 
 export interface IConfigApp {
   env: string | EnumAppEnvironment
@@ -22,9 +22,6 @@ export interface IConfigApp {
     prefix: string
     compress: boolean
   }
-
-  wssEnable: boolean
-  jobEnable: boolean
 }
 
 export type IDatabaseProvider = 'mysql' | 'mariadb' | 'postgres' | 'mongo'
@@ -59,8 +56,8 @@ export interface IConfigHelper {
     timeout: number
   }
   message: {
-    fallback: string | EnumMessageLanguage
-    availableList: EnumMessageLanguage[]
+    fallback: string | EnumAppLanguage
+    availableList: EnumAppLanguage[]
   }
   mailer: {
     dryRun: boolean

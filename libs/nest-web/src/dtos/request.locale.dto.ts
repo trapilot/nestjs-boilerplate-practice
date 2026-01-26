@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty, IsString } from 'class-validator'
-import { EnumMessageLanguage, ToString } from 'lib/nest-core'
+import { EnumAppLanguage, ToString } from 'lib/nest-core'
 
 export class RequestSentenceDto {
   @IsNotEmpty()
@@ -10,7 +10,7 @@ export class RequestSentenceDto {
     required: true,
     example: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
   })
-  [EnumMessageLanguage.EN]: string;
+  [EnumAppLanguage.EN]: string;
 
   @IsNotEmpty()
   @IsString()
@@ -19,7 +19,7 @@ export class RequestSentenceDto {
     required: true,
     example: 'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi u....',
   })
-  [EnumMessageLanguage.VI]: string
+  [EnumAppLanguage.VI]: string
 }
 
 export class RequestParagraphDto {
@@ -30,7 +30,7 @@ export class RequestParagraphDto {
     required: true,
     example: 'Lorem ipsum dolor sit amet c',
   })
-  [EnumMessageLanguage.EN]: string;
+  [EnumAppLanguage.EN]: string;
 
   @IsNotEmpty()
   @IsString()
@@ -39,7 +39,7 @@ export class RequestParagraphDto {
     required: true,
     example: 'Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fri',
   })
-  [EnumMessageLanguage.VI]: string
+  [EnumAppLanguage.VI]: string
 }
 
 export class RequestContentDto {
@@ -54,7 +54,7 @@ export class RequestContentDto {
     <p>In id cursus mi pretium tellus duis convallis</p>
     </p>`,
   })
-  [EnumMessageLanguage.EN]: string;
+  [EnumAppLanguage.EN]: string;
 
   @IsNotEmpty()
   @IsString()
@@ -67,5 +67,5 @@ export class RequestContentDto {
     <p>In id cursus mi pretium tellus duis convallis</p>
     </p>`,
   })
-  [EnumMessageLanguage.VI]: string
+  [EnumAppLanguage.VI]: string
 }

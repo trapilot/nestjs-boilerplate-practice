@@ -1,11 +1,11 @@
 import { registerAs } from '@nestjs/config'
-import { COUNTRY_LIST } from 'lib/nest-core'
+import { APP_COUNTRY_LIST } from 'lib/nest-core'
 
 export default registerAs(
   'module',
   (): Record<string, Record<string, number | string | string[]>> => ({
     country: {
-      availableList: COUNTRY_LIST,
+      availableList: APP_COUNTRY_LIST,
     },
 
     member: {

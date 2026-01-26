@@ -28,7 +28,7 @@ interface IClientQuery {
 
 export abstract class SocketGateWayBase {
   @WebSocketServer() server: Server
-  protected readonly enabled = StrUtil.isTrue(process.env.WSS_ENABLE)
+  protected readonly enabled = StrUtil.isTrue(process.env.APP_WEBSOCKET)
 
   abstract setOnline(_client: Socket): Promise<boolean>
   abstract setOffline(_client: Socket): Promise<boolean>

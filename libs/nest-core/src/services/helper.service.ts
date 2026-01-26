@@ -329,10 +329,7 @@ export class HelperService {
   }
 
   dateCreateFromGeneric(date: string | Date, options?: IDateCreateOptions): Date {
-    if (typeof date === 'string') {
-      return this.dateCreateFromIso(date, options)
-    }
-    return this.dateCreate(date, options)
+    return DateUtil.asDate(date, options)
   }
 
   dateCreateFromIso(iso: string, options?: IDateCreateOptions): Date {
@@ -392,7 +389,7 @@ export class HelperService {
       .toJSDate()
   }
 
-  dateCheckAfter(dateOne: Date, options?: IDateCompareOptions): boolean {
+  dateIsAfter(dateOne: Date, options?: IDateCompareOptions): boolean {
     const dtDateOne = DateUtil.create(dateOne)
     const dtDateTwo = DateUtil.create(options?.sinceDate, {
       ...options,
@@ -401,7 +398,7 @@ export class HelperService {
     return dtDateTwo > dtDateOne
   }
 
-  dateCheckBefore(dateOne: Date, options?: IDateCompareOptions): boolean {
+  dateIsBefore(dateOne: Date, options?: IDateCompareOptions): boolean {
     const dtDateOne = DateUtil.create(dateOne)
     const dtDateTwo = DateUtil.create(options?.sinceDate, {
       ...options,
@@ -410,7 +407,7 @@ export class HelperService {
     return dtDateTwo < dtDateOne
   }
 
-  dateCheckSet(date: Date, options: Partial<Omit<IDateExtractData, 'date'>>): boolean {
+  dateIsSet(date: Date, options: Partial<Omit<IDateExtractData, 'date'>>): boolean {
     const extractDate = this.dateExtract(date)
     if (options?.year && extractDate.year != options.year) return false
     if (options?.month && extractDate.month != options.month) return false

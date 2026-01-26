@@ -19,6 +19,10 @@ export class EnumUtil {
     return Object.values(value).filter((v): v is string => typeof v === 'string')
   }
 
+  static enumToString(value: EnumLike | string[], delimiter: string = ''): string {
+    return this.enumToStrings(value).join(delimiter)
+  }
+
   static findKey<T = EnumValue>(value: T, options: { enum: EnumLike<T>; fallback?: T }): T {
     for (const [k, v] of Object.entries(options.enum)) {
       if (v == value) return k as T

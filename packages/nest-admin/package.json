@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite --port 4000",
     "build": "tsc && vite build",
+    "rebuild": "pnpm service:update && pnpm build",
     "schema:download": "curl -o ./swagger.json http://localhost:3000/public/docs/swagger-admin.json",
     "schema:generate": "npx openapi-typescript ./swagger.json -o ./src/types/api.d.ts",
     "schema:update": "pnpm schema:download && pnpm schema:generate",

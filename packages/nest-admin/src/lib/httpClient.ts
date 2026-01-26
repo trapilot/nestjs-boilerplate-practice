@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from 'axios'
 import { ENV } from '../config/env'
 import { getAccessToken, setAccessToken } from '../hooks/useAuthToken'
-import i18n from '../i18n'
+import i18n, { LANGUAGES } from '../i18n'
 import { authenticationService } from '../services'
 import { createCorrelationId, generateNonce } from '../utils/crypto'
 import { getTimezone, nowUnixTimesstamp } from '../utils/time'
@@ -58,10 +58,13 @@ type IResponseBody<T = any> = ISuccessResponse<T> | IErrorResponse
 function attachCommonHeaders(config: any) {
   config.headers = config.headers || {}
 
-  let language: string | null = i18n.language || 'en'
+  let language: string | null = i18n.language || LANGUAGES[0]
+
   try {
     const storedLang = localStorage.getItem('language')
-    language = storedLang
+    if (storedLang) {
+      language = storedLang
+    }
   } catch {}
 
   config.headers['x-nonce'] = generateNonce()

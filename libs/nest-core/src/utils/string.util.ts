@@ -2,6 +2,7 @@ import ms from 'ms'
 import {
   IStringCapitalizeOptions,
   IStringFormatOptions,
+  IStringParseEnumOptions,
   IStringParseOptions,
   IStringSplitOptions,
 } from '../interfaces'
@@ -73,6 +74,16 @@ export class StrUtil {
         break
     }
     return finalValue as T
+  }
+
+  static safeEnum<T>(value: string, options: IStringParseEnumOptions<T>): T {
+    if (!value) return options.fallback
+
+    const normalized = String(value).toLowerCase() as T
+
+    const values = Object.values(options.enum)
+
+    return values.includes(normalized) ? normalized : options.fallback
   }
 
   static split(value: string, options: IStringSplitOptions): string[] {

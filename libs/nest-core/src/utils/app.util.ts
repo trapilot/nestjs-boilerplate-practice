@@ -3,10 +3,10 @@ import { ClassConstructor, plainToInstance } from 'class-transformer'
 import { validate, ValidatorOptions } from 'class-validator'
 import ms from 'ms'
 import { hostname } from 'os'
-import { APP_ENV, APP_URL } from '../constants'
+import { APP_ENV, APP_LANGUAGE_LIST, APP_URL } from '../constants'
 import { ScopeContext } from '../contexts'
 import { EnumAppEnvironment, EnumRouteType } from '../enums'
-import { IAppRule } from '../interfaces'
+import { IAppRule, IMessageAttributes, IMessageField, IMessageRow } from '../interfaces'
 import { FileUtil } from './file.util'
 
 export class AppUtil {
@@ -56,6 +56,50 @@ export class AppUtil {
       return `http://10.0.2.2:3000`
     }
     return process.env.APP_URL || APP_URL
+  }
+
+  static buildMessageField<T>(
+    jsonRows: IMessageRow<T>[],
+    options: {
+      fieldName: string
+      fieldLang: string
+      fallbackValue: T
+    },
+  ): IMessageField<string> {
+    const jsonField = APP_LANGUAGE_LIST.reduce((localizedField, language) => {
+      const jsonRow = jsonRows.find(jsonRow => jsonRow[options.fieldLang] === language)
+      localizedField[language] = jsonRow?.[options.fieldName] ?? options.fallbackValue
+      return localizedField
+    }, {})
+    return jsonField
+  }
+
+  static getMessageValue<T>(
+    field: IMessageField<T>,
+    options: { language: string; fallbackValue: T },
+  ): T {
+    if (field) {
+      return field[options.language] ?? options.fallbackValue
+    }
+    return options.fallbackValue
+  }
+
+  static parseMessageRows<T>(
+    attributes: IMessageAttributes<T>,
+    options: {
+      fieldLang: string
+      fallbackValue: T
+    },
+  ): IMessageRow<string>[] {
+    const jsonRows = APP_LANGUAGE_LIST.map(language => {
+      const jsonRow = {}
+      for (const attribute in attributes) {
+        jsonRow[attribute] = attributes[attribute][language] || options.fallbackValue
+        jsonRow[options.fieldLang] = language
+      }
+      return jsonRow
+    })
+    return jsonRows
   }
 
   static buildUrl(path: string, host?: string): string {

@@ -766,7 +766,7 @@ export class MemberService implements OnModuleInit {
 
           const pointExpiryDate = this.memberUtil.getPointExpirationDate(sinceDate)
           const tierExpiryDate = this.memberUtil.getTierExpirationDate(sinceDate)
-          const isBirthMonth = this.helperService.dateCheckSet(invoice.issuedAt, {
+          const isBirthMonth = this.helperService.dateIsSet(invoice.issuedAt, {
             month: member.birthMonth,
           })
 

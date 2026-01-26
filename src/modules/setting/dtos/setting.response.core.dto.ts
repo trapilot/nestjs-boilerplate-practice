@@ -1,6 +1,6 @@
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
-import { EnumMessageLanguage } from 'lib/nest-core'
+import { EnumAppLanguage } from 'lib/nest-core'
 import { SettingFileResponseDto } from './setting.response.file.dto'
 import { SettingTimezoneResponseDto } from './setting.response.timezone.dto'
 
@@ -8,12 +8,12 @@ export class SettingCoreResponseDto {
   @ApiProperty({
     required: true,
     nullable: false,
-    enum: EnumMessageLanguage,
+    enum: EnumAppLanguage,
     type: 'array',
     isArray: true,
   })
   @Expose()
-  languages: EnumMessageLanguage[]
+  languages: EnumAppLanguage[]
 
   @ApiProperty({
     required: true,

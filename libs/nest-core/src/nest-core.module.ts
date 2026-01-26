@@ -10,7 +10,7 @@ import { ScheduleModule } from '@nestjs/schedule'
 import { HeaderResolver, I18nJsonLoader, I18nModule } from 'nestjs-i18n'
 import { QUEUE_CONFIG_KEY, QUEUE_PROCESSOR_CONFIG_KEY } from './constants'
 import { PushDispatcher, SmsDispatcher } from './dispatchers'
-import { EnumAppEnvironment, EnumFileExtensionTemplate, EnumMessageLanguage } from './enums'
+import { EnumAppEnvironment, EnumAppLanguage, EnumFileExtensionTemplate } from './enums'
 import { AppExceptionFilter } from './filters'
 import { LoggerFactory, PushFactory, SmsFactory, TransportFactory } from './helpers'
 import {
@@ -89,10 +89,10 @@ export class NestCoreModule {
           inject: [ConfigService],
           resolvers: [new HeaderResolver(['x-language'])],
           useFactory: (config: ConfigService) => ({
-            fallbackLanguage: config.getOrThrow<EnumMessageLanguage>('helper.message.fallback'),
+            fallbackLanguage: config.getOrThrow<EnumAppLanguage>('helper.message.fallback'),
             fallbacks: config
-              .get<EnumMessageLanguage[]>('helper.message.availableList')
-              .reduce((a, v) => ({ ...a, [`${v}_*`]: v }), {}),
+              .get<EnumAppLanguage[]>('helper.message.availableList')
+              .reduce((a, v) => ({ ...a, [`${v}_*`]: v, [`${v}-*`]: v }), {}),
             loaderOptions: {
               path: FileUtil.joinApp(['resources', 'languages']),
               watch: true,

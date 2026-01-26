@@ -104,7 +104,7 @@ export class { <%= singular(classify(name)) %>Auth implements IAuthValidator<T<%
       })
     }
 
-    if (!userToken.isActive || this.helperService.dateCheckAfter(userToken.refreshExpired)) {
+    if (!userToken.isActive || this.helperService.dateIsAfter(userToken.refreshExpired)) {
       // tracking spam refresh token
       await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.update({
         where: { id: userToken.id },

@@ -21,8 +21,8 @@
     "memberPointExpiresIn": "{pointExpireValue} points are valid until {pointExpireDate}",
     "notEnoughPoint": "You haven't enough points to redeem"
   },
-  "fact": {
-    "notFound": "Fact does not exist",
+  "page": {
+    "notFound": "Page does not exist",
     "requiredOne": "At least one record is required"
   },
   "cart": {

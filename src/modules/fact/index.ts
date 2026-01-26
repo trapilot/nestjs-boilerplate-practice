@@ -1,7 +1,0 @@
-export * from './constants'
-export * from './controllers'
-export * from './dtos'
-export * from './enums'
-export * from './fact.module'
-export * from './interfaces'
-export * from './services'

@@ -297,8 +297,8 @@ model User {
   updatedNotifications   Notification[]         @relation("updatedByUser")
   createdPushes          Push[]                 @relation("createdByUser")
   updatedPushes          Push[]                 @relation("updatedByUser")
-  createdFacts           Fact[]                 @relation("createdByUser")
-  updatedFacts           Fact[]                 @relation("updatedByUser")
+  createdPages           Page[]                 @relation("createdByUser")
+  updatedPages           Page[]                 @relation("updatedByUser")
   createdMembers         Member[]               @relation("createdByUser")
   updatedMembers         Member[]               @relation("updatedByUser")
   deletedMembers         Member[]               @relation("deletedByUser")
@@ -982,7 +982,7 @@ model Payment {
   @@map("payments")
 }
 
-model Fact {
+model Page {
   id        Int       @id @default(autoincrement())
   type      String
   title     Json?
@@ -999,7 +999,7 @@ model Fact {
   createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
   updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
 
-  @@map("facts")
+  @@map("pages")
 }
 
 model Product {

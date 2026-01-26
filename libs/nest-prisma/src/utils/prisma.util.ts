@@ -2,12 +2,15 @@ import { PrismaMariaDb } from '@prisma/adapter-mariadb'
 import { PrismaPg } from '@prisma/adapter-pg'
 import * as runtime from '@prisma/client/runtime/client'
 import { Prisma } from '@runtime/prisma-client'
-import { IDatabaseProvider, MESSAGE_LANGUAGES } from 'lib/nest-core'
+import { AppUtil, IDatabaseProvider, IMessageAttributes } from 'lib/nest-core'
 import { IPrismaAdapterCreateOptions, IPrismaLanguageBuildOptions } from '../interfaces'
 
 export class PrismaUtil {
   static isUniqueError(error: unknown): boolean {
     return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002'
+  }
+  static isNoRequiredRecord(error: unknown): boolean {
+    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025'
   }
 
   static isTimeoutError(error: unknown): boolean {
@@ -47,18 +50,14 @@ export class PrismaUtil {
   }
 
   static buildLanguages<WhereInput = any>(
-    jsonObject: Record<string, any>,
+    attributes: IMessageAttributes<string>,
     options?: IPrismaLanguageBuildOptions<WhereInput>,
   ): any {
-    const langField = options?.langField || 'language'
-    const data = MESSAGE_LANGUAGES.map(language => {
-      const objValue = {}
-      for (const jsonField in jsonObject) {
-        objValue[langField] = language
-        objValue[jsonField] = jsonObject[jsonField][language] || ''
-      }
-      return objValue
+    const data = AppUtil.parseMessageRows(attributes, {
+      fieldLang: options?.langField || 'language',
+      fallbackValue: '',
     })
+
     return {
       createMany: { data, skipDuplicates: true },
       deleteMany: options?.whereField,

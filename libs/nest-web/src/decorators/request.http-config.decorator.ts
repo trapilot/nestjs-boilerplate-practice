@@ -39,16 +39,16 @@ import {
   AuthUserScopeProtected,
 } from 'lib/nest-auth'
 import {
+  APP_LANGUAGE_LIST,
+  APP_TENANT,
+  APP_TIMEZONE_LIST,
   AppUtil,
   EnumFileExtensionDocument,
   EnumUserType,
   FileUploadMultiple,
   FileUploadMultipleFields,
   FileUploadSingle,
-  MESSAGE_LANGUAGES,
-  MULTITENANT_ENABLE,
   NoFilesUpload,
-  TIMEZONE_LIST,
 } from 'lib/nest-core'
 import {
   REQUEST_DEFAULT_DOWNLOAD_TIMEOUT,
@@ -300,8 +300,8 @@ function HttpRequest(
     ...decorators,
     DocAuth(options),
     DocGuard({
-      timezone: options?.timezone ?? TIMEZONE_LIST.length > 1,
-      language: options?.language ?? MESSAGE_LANGUAGES.length > 1,
+      timezone: options?.timezone ?? APP_TIMEZONE_LIST.length > 1,
+      language: options?.language ?? APP_LANGUAGE_LIST.length > 1,
       ...options,
     }),
   )
@@ -428,7 +428,7 @@ function DocAuth(options?: IRequestAuthOptions & { docExpansion?: boolean }) {
     )
   }
 
-  if (MULTITENANT_ENABLE) {
+  if (APP_TENANT) {
     decorators.push(
       ApiHeader({
         name: 'x-tenant-id',
@@ -542,7 +542,7 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
       ApiHeader({
         name: 'x-language',
         required: false,
-        schema: { default: MESSAGE_LANGUAGES[0], type: 'string', enum: MESSAGE_LANGUAGES },
+        schema: { default: APP_LANGUAGE_LIST[0], type: 'string', enum: APP_LANGUAGE_LIST },
       }),
     )
   }
@@ -571,7 +571,7 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
         name: 'x-timezone',
         description: 'Timezone header',
         required: false,
-        schema: { default: TIMEZONE_LIST[0], type: 'string', enum: TIMEZONE_LIST },
+        schema: { default: APP_TIMEZONE_LIST[0], type: 'string', enum: APP_TIMEZONE_LIST },
       }),
     )
     oneOf.push({

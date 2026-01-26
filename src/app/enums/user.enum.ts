@@ -17,7 +17,7 @@ export enum EnumAuthAbilitySubject {
   ROLE = 'ROLE',
   PERMISSION = 'PERMISSION',
   USER = 'USER',
-  FACT = 'FACT',
+  PAGE = 'PAGE',
   COUNTRY = 'COUNTRY',
   DISTRICT = 'DISTRICT',
   MEMBER = 'MEMBER',

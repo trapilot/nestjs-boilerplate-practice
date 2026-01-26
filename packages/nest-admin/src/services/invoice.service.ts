@@ -8,109 +8,94 @@ type RequestOptions = { query?: Record<string, unknown>; config?: any }
 export const invoiceService = {
   list: async <T = schemas['InvoiceResponseListDto'][]>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/invoices'
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/invoices"
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
   },
-  create: async <T = schemas['InvoiceResponseDetailDto']>(
-    body?: schemas['InvoiceRequestCreateDto'],
-    options?: RequestOptions,
-  ): Promise<T> => {
+  create: async <T = schemas['InvoiceResponseDetailDto']>(body?: schemas['InvoiceRequestCreateDto'], options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/invoices'
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/invoices"
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.post(url, body, config)
     return data as T
   },
-  mapShorted: async <T = schemas['InvoiceResponseListDto'][]>(
-    options?: RequestOptions,
-  ): Promise<T> => {
+  mapShorted: async <T = schemas['InvoiceResponseListDto'][]>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/invoices/map-shorted'
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/invoices/map-shorted"
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
   },
-  get: async <T = schemas['InvoiceResponseDetailDto']>(
-    params: { id: string | number },
-    options?: RequestOptions,
-  ): Promise<T> => {
+  get: async <T = schemas['InvoiceResponseDetailDto']>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/invoices/' + String(params.id)
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/invoices/" + String(params .id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
   },
-  update: async <T = schemas['InvoiceResponseDetailDto']>(
-    params: { id: string | number },
-    body?: schemas['InvoiceRequestUpdateDto'],
-    options?: RequestOptions,
-  ): Promise<T> => {
+  update: async <T = schemas['InvoiceResponseDetailDto']>(params: { id: string | number }, body?: schemas['InvoiceRequestUpdateDto'], options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/invoices/' + String(params.id)
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/invoices/" + String(params .id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
     return data as T
   },
-  delete: async <T = any>(
-    params: { id: string | number },
-    options?: RequestOptions,
-  ): Promise<T> => {
+  delete: async <T = any>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
-    const search = new URLSearchParams()
-    Object.entries(query).forEach(([k, v]) => {
-      if (v === undefined || v === null) return
-      if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
-      else search.append(k, String(v))
-    })
-    const qs = search.toString()
-    const baseUrl = '/invoices/' + String(params.id)
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/invoices/" + String(params .id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}

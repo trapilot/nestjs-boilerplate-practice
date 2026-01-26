@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common'
 import { ApiKeyAdminController, ApiKeyModule } from 'modules/api-key'
 import { AppVersionAdminController, AppVersionModule } from 'modules/app-version'
 import { DashboardAdminController, DashboardModule } from 'modules/dashboard'
-import { FactAdminController, FactModule } from 'modules/fact'
 import { InvoiceAdminController, InvoiceModule } from 'modules/invoice'
 import { MediaAdminController, MediaModule } from 'modules/media'
 import { MemberAdminController, MemberModule } from 'modules/member'
 import { NotificationAdminController, NotificationModule } from 'modules/notification'
 import { OrderAdminController, OrderModule } from 'modules/order'
+import { PageAdminController, PageModule } from 'modules/page'
 import { PermissionAdminController, PermissionModule } from 'modules/permission'
 import { PointHistoryAdminController, PointHistoryModule } from 'modules/point-history'
 import { ProductAdminController, ProductModule } from 'modules/product'
@@ -39,7 +39,7 @@ import { UserAdminController, UserAuthController, UserModule } from 'modules/use
     ProductBrandAdminController,
     ProductCategoryAdminController,
     ProductReviewAdminController,
-    FactAdminController,
+    PageAdminController,
     TierAdminController,
     OrderAdminController,
     InvoiceAdminController,
@@ -62,7 +62,7 @@ import { UserAdminController, UserAuthController, UserModule } from 'modules/use
     ProductBrandModule,
     ProductCategoryModule,
     ProductReviewModule,
-    FactModule,
+    PageModule,
     TierModule,
     OrderModule,
     InvoiceModule,

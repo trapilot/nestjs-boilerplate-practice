@@ -1,6 +1,6 @@
 import { UserAbilityUtil } from 'app/helpers'
 import { Transform } from 'class-transformer'
-import { ArrUtil, LocaleUtil } from 'lib/nest-core'
+import { ArrUtil } from 'lib/nest-core'
 import { UserUtil } from '../helpers'
 import {
   IContextUserPermission,
@@ -31,7 +31,7 @@ export function ToUserPermissions(): (target: object, key: string) => void {
               isVisible,
               sorting,
               subject,
-              title: LocaleUtil.parseValue(title),
+              title: UserAbilityUtil.getPermTitle(title),
               bitwise: roleBitwise & bitwise,
             })
           }

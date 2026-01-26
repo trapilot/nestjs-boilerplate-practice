@@ -13,6 +13,7 @@ import {
   IRequestApp,
   IResponseApp,
   MessageService,
+  StrUtil,
 } from 'lib/nest-core'
 import docSetup from 'tools/swagger'
 
@@ -92,7 +93,7 @@ async function bootstrap(): Promise<void> {
   }
 
   // WebSocket Server
-  if (config.get<boolean>('app.wssEnable', false)) {
+  if (StrUtil.isTrue(process.env.APP_WEBSOCKET)) {
     app.useWebSocketAdapter(new IoAdapter(app))
   }
 

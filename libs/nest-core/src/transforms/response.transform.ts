@@ -2,7 +2,7 @@ import { ClassConstructor, plainToInstance, Transform } from 'class-transformer'
 import { ScopeContext } from '../contexts'
 import { EnumRouteType } from '../enums'
 import { IDateFormatOptions, INumberReturnOptions } from '../interfaces'
-import { AppUtil, DateUtil, LocaleUtil, NumberUtil } from '../utils'
+import { AppUtil, DateUtil, NumberUtil } from '../utils'
 
 export function ToUrl(host?: string): (target: any, key: string) => void {
   return Transform(({ value: path }: any) => {
@@ -193,7 +193,7 @@ export function ToLocaleField<T>(transform: {
       }
 
       if (data) {
-        data = LocaleUtil.buildFields(data, key)
+        data = AppUtil.buildMessageField(data, key)
       }
 
       if (data && transform?.type) {

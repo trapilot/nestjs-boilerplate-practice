@@ -6,7 +6,7 @@ import ApiKeysList from '../pages/ApiKeys/List'
 import ApiKeysView from '../pages/ApiKeys/View'
 import AppVersionsList from '../pages/AppVersions/List'
 import { Dashboard } from '../pages/Dashboard/Dashboard'
-import FactsList from '../pages/Facts/List'
+import PagesList from '../pages/Pages/List'
 import InvoicesList from '../pages/Invoices/List'
 import MediaList from '../pages/Media/List'
 import MemberNotificationsList from '../pages/MemberNotifications/List'
@@ -92,7 +92,7 @@ export function AppRoutes() {
         <Route path="roles" element={<RolesList />} />
         <Route path="tiers" element={<TiersList />} />
         <Route path="media" element={<MediaList />} />
-        <Route path="facts" element={<FactsList />} />
+        <Route path="pages" element={<PagesList />} />
         <Route path="app-versions" element={<AppVersionsList />} />
         <Route path="notifications" element={<NotificationsList />} />
         <Route path="orders" element={<OrdersList />} />
