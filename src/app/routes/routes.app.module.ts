@@ -5,12 +5,12 @@ import { DistrictAppController, DistrictModule } from 'modules/district'
 import { InvoiceAppController, InvoiceModule } from 'modules/invoice'
 import { MediaAppController, MediaModule } from 'modules/media'
 import { MemberAppController, MemberAuthController, MemberModule } from 'modules/member'
+import { MemberPointAppController, MemberPointModule } from 'modules/member-point'
+import { MemberRedemptionAppController, MemberRedemptionModule } from 'modules/member-redemption'
 import { PageAppController, PageModule } from 'modules/page'
-import { PointHistoryAppController, PointHistoryModule } from 'modules/point-history'
 import { ProductAppController, ProductModule } from 'modules/product'
 import { ProductBrandAppController, ProductBrandModule } from 'modules/product-brand'
 import { ProductCategoryAppController, ProductCategoryModule } from 'modules/product-category'
-import { ProductHistoryAppController, ProductHistoryModule } from 'modules/product-history'
 import { TierAppController, TierModule } from 'modules/tier'
 
 @Module({
@@ -23,8 +23,8 @@ import { TierAppController, TierModule } from 'modules/tier'
     TierAppController,
     CartAppController,
     InvoiceAppController,
-    PointHistoryAppController,
-    ProductHistoryAppController,
+    MemberPointAppController,
+    MemberRedemptionAppController,
     MediaAppController,
     ProductAppController,
     ProductBrandAppController,
@@ -38,8 +38,8 @@ import { TierAppController, TierModule } from 'modules/tier'
     TierModule,
     CartModule,
     InvoiceModule,
-    PointHistoryModule,
-    ProductHistoryModule,
+    MemberPointModule,
+    MemberRedemptionModule,
     MediaModule,
     ProductModule,
     ProductBrandModule,

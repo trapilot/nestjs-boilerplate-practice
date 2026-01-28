@@ -11,6 +11,7 @@ export const API_KEY_DOC_ADMIN_QUERY_LIST = [
     allowEmptyValue: true,
     required: false,
     enum: EnumApiKeyType,
+    enumName: 'EnumApiKeyType',
   },
   {
     name: 'isActive',

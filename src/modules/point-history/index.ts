@@ -1,5 +1,0 @@
-export * from './constants'
-export * from './controllers'
-export * from './dtos'
-export * from './point-history.module'
-export * from './services'

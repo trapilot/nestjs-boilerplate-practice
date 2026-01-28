@@ -3,6 +3,64 @@ import { Expose, Type } from 'class-transformer'
 import { ToUrl } from 'lib/nest-core'
 import { IUserProfilePermission } from '../interfaces'
 import { ToUserPermissions, ToUserRoles } from '../transforms'
+class ResponseUserPermissionSubject {
+  @ApiProperty({ example: '' })
+  @Type(() => String)
+  @Expose()
+  path: string
+
+  @ApiProperty({ example: '' })
+  @Type(() => String)
+  @Expose()
+  title: string
+
+  @ApiProperty({ example: '' })
+  @Type(() => String)
+  @Expose()
+  context: string
+
+  @ApiProperty({ example: '' })
+  @Type(() => String)
+  @Expose()
+  subject: string
+
+  @ApiProperty({ example: true })
+  @Type(() => Boolean)
+  @Expose()
+  isVisible: boolean
+
+  @ApiProperty({ example: ['read'] })
+  @Type(() => String)
+  @Expose()
+  actions: string[]
+}
+
+class ResponseUserPermission {
+  @ApiProperty({ example: true })
+  @Type(() => Boolean)
+  @Expose()
+  group: boolean
+
+  @ApiProperty({ example: '' })
+  @Type(() => String)
+  @Expose()
+  path: string
+
+  @ApiProperty({ example: '' })
+  @Type(() => String)
+  @Expose()
+  title: string
+
+  @ApiProperty({ example: '' })
+  @Type(() => String)
+  @Expose()
+  context: string
+
+  @ApiProperty({ type: () => [ResponseUserPermissionSubject] })
+  @Type(() => ResponseUserPermissionSubject)
+  @Expose()
+  subjects: ResponseUserPermissionSubject[]
+}
 
 export class ResponseUserProfileDto {
   @ApiProperty({ example: 1 })
@@ -15,27 +73,33 @@ export class ResponseUserProfileDto {
   @Expose()
   email: string
 
+  @ApiProperty({ example: '' })
   @Type(() => String)
   @Expose()
   phone: string | null
 
+  @ApiProperty({ example: '' })
   @Type(() => String)
   @Expose()
   name: string | null
 
+  @ApiProperty({ example: '' })
   @Type(() => String)
   @Expose()
   address: string | null
 
+  @ApiProperty({ example: '' })
   @Type(() => String)
   @ToUrl()
   @Expose()
   avatar: string | null
 
+  @ApiProperty({ example: new Date() })
   @Type(() => Date)
   @Expose()
   loginDate: Date | null
 
+  @ApiProperty({ example: new Date() })
   @Type(() => Date)
   @Expose()
   createdAt: Date
@@ -46,14 +110,19 @@ class ResponseUserProfileRelationDto {
   // @Expose()
   // roleLevels: number[]
 
+  @ApiProperty({ example: 1 })
   @ToUserRoles({ flat: true, key: true })
+  @Type(() => Number)
   @Expose()
   roleId: number
 
+  @ApiProperty({ example: 1 })
   @ToUserRoles({ flat: true, level: true })
+  @Type(() => Number)
   @Expose()
   roleLv: number
 
+  @ApiProperty({ type: () => [ResponseUserPermission] })
   @ToUserPermissions()
   @Expose()
   permissions: IUserProfilePermission[]

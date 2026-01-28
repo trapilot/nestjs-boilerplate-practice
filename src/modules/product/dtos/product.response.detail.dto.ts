@@ -1,5 +1,5 @@
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { EnumProductExpiryType } from '@runtime/prisma-client'
+import { EnumExpiryType } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
 import { EnumDateFormat, ToDecimal, ToLocaleField, ToUrl } from 'lib/nest-core'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
@@ -93,10 +93,10 @@ class ResponseDataDetailDto {
   @Expose()
   duePaidDays: number
 
-  @ApiProperty({ enum: EnumProductExpiryType, example: EnumProductExpiryType.STATIC })
+  @ApiProperty({ enum: EnumExpiryType, enumName: 'EnumExpiryType', example: EnumExpiryType.STATIC })
   @Type(() => String)
   @Expose()
-  expiryType: EnumProductExpiryType
+  expiryType: EnumExpiryType
 
   @ApiProperty({ example: 0 })
   @Type(() => Number)

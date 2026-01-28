@@ -17,7 +17,12 @@ export class MediaRequestCreateDto {
   @IsNotEmpty()
   @IsEnum(EnumMediaType)
   @ToString()
-  @ApiProperty({ required: true, enum: EnumMediaType, example: EnumMediaType.BANNER })
+  @ApiProperty({
+    required: true,
+    enum: EnumMediaType,
+    enumName: 'EnumMediaType',
+    example: EnumMediaType.BANNER,
+  })
   type: EnumMediaType
 
   @IsNotEmpty()
@@ -41,7 +46,12 @@ export class MediaRequestCreateDto {
   @IsOptional()
   @IsEnum(EnumMediaRefType)
   @ToString()
-  @ApiProperty({ required: false, enum: EnumMediaRefType, example: EnumMediaRefType.TEXT })
+  @ApiProperty({
+    required: false,
+    enum: EnumMediaRefType,
+    enumName: 'EnumMediaRefType',
+    example: EnumMediaRefType.TEXT,
+  })
   refType: string
 
   @IsOptional()

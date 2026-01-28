@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { EnumMemberType, EnumTierHistoryMethod } from '@runtime/prisma-client'
+import { EnumMemberType, EnumTierAction, EnumTierSource } from '@runtime/prisma-client'
 import { AuthUtil } from 'lib/nest-auth'
 import {
   APP_COUNTRY_LIST,
@@ -74,10 +74,10 @@ export class MemberMock extends ScheduleMockupBase {
       const fullPhone = this.helperService.randomDigits(10 - randCountry.length, {
         prefix: randCountry,
       })
-      const { country, phone } = this.helperService.parsePhone(fullPhone)
+      const { region, phone } = this.helperService.parsePhone(fullPhone)
 
       const memberCode = this.memberUtil.generateCode(nextNumber)
-      const invitedCode = referralCodes[Math.floor(Math.random() * referralCodes.length)]
+      const friendCode = referralCodes[Math.floor(Math.random() * referralCodes.length)]
       const hasReferrer = this.helperService.randomBoolean(10)
 
       const referralCode = this.helperService.baseEncode(`${memberCode}${fullPhone}`, 36)
@@ -97,7 +97,7 @@ export class MemberMock extends ScheduleMockupBase {
           tierId: memberTier.id,
           minTierId: memberTier.id,
           referralCode,
-          invitedCode: hasReferrer ? invitedCode : undefined,
+          friendCode: hasReferrer ? friendCode : undefined,
           type: isStaff ? EnumMemberType.STAFF : EnumMemberType.NORMAL,
           email:
             this.helperService.mixinString([lastNames, firstNames], {
@@ -119,7 +119,7 @@ export class MemberMock extends ScheduleMockupBase {
           name: this.helperService.mixinString([firstNames, lastNames], { delimiter: ' ' }),
           phone: i === 0 ? process.env.MOCK_MEMBER_PHONE : fullPhone,
           password: passwordHash,
-          phoneCountry: country,
+          phoneRegion: region,
           phoneNumber: phone,
           address: this.helperService.mixinString([streetNames, cities, states], {
             delimiter: ', ',
@@ -138,16 +138,15 @@ export class MemberMock extends ScheduleMockupBase {
           isPromotable: false,
           isEmailVerified: true,
           isPhoneVerified: true,
+          hasFirstOfficial: false,
           hasFirstPurchased: false,
           hasBirthPurchased: false,
-          hasDiamondAchieved: false,
-          maximumSpending: tierData.next.limitSpending,
-          personalSpending: 0,
-          referralSpending: 0,
+          personalAmount: 0,
+          referralAmount: 0,
           startedAt: dateExecute,
           createdAt: dateExecute,
           updatedAt: dateExecute,
-          deviceHistories: {
+          devices: {
             create:{
               type: 'mobile',
               model: this.helperService.mixinString([deviceModels,deviceVersions], {delimiter: ' '}),
@@ -156,14 +155,11 @@ export class MemberMock extends ScheduleMockupBase {
               isActive: this.helperService.randomBoolean(5)
             }
           },
-          tierHistories: {
+          tiers: {
             create: {
-              minTierId: memberTier.id,
-              prevTierId: memberTier.id,
-              currTierId: memberTier.id,
-              type: EnumTierHistoryMethod.INITIAL,
-              renewalSpending: tierData.curr.limitSpending,
-              upgradeSpending: tierData.next.limitSpending,
+              tierId: memberTier.id,
+              source: EnumTierSource.SYSTEM,
+              action: EnumTierAction.INITIAL,
               expiryDate,
               isActive: true,
               createdAt: dateExecute,

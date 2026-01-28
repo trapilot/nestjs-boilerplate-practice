@@ -10,6 +10,13 @@ export class SettingRequestCreateDto {
   @ToString()
   @SafeString()
   @ApiProperty({ required: true, example: '' })
+  code: string
+
+  @IsNotEmpty()
+  @IsString()
+  @ToString()
+  @SafeString()
+  @ApiProperty({ required: true, example: '' })
   name: string
 
   @IsOptional()
@@ -19,6 +26,7 @@ export class SettingRequestCreateDto {
     required: true,
     example: EnumSettingGroup.SYSTEM,
     enum: EnumSettingGroup,
+    enumName: 'EnumSettingGroup',
   })
   group: EnumSettingGroup
 
@@ -38,6 +46,7 @@ export class SettingRequestCreateDto {
     required: true,
     example: EnumSettingType.BOOLEAN,
     enum: EnumSettingType,
+    enumName: 'EnumSettingType',
   })
   type: EnumSettingType
 

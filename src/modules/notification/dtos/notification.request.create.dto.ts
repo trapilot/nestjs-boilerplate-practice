@@ -38,20 +38,25 @@ export class NotificationPushDto {
   @IsNotEmpty()
   @IsEnum(EnumPushType)
   @ToString()
-  @ApiProperty({ required: true, enum: EnumPushType, example: EnumPushType.INSTANT })
+  @ApiProperty({
+    required: true,
+    enum: EnumPushType,
+    enumName: 'EnumPushType',
+    example: EnumPushType.ONCE,
+  })
   type: EnumPushType
 
   @IsNotEmpty()
   @IsDuration()
   @ToDuration()
-  @TransformIf((obj: NotificationPushDto) => !NotificationUtil.isInstant(obj.type))
+  @TransformIf((obj: NotificationPushDto) => !NotificationUtil.isOnce(obj.type))
   @ApiProperty({ required: true, example: '' })
   executeTime: string
 
   @IsNotEmpty()
   @IsDate()
   @ToDate({ format: EnumDateFormat.DB_DATE })
-  @TransformIf((obj: NotificationPushDto) => NotificationUtil.isSpecDate(obj.type))
+  @TransformIf((obj: NotificationPushDto) => NotificationUtil.isOnce(obj.type))
   @ApiProperty({ required: true, example: new Date(Date.now() - 30000 * 3600) })
   executeDate: string
 
@@ -94,6 +99,12 @@ export class NotificationPushDto {
   @IsBoolean()
   @ToBoolean()
   @ApiProperty({ required: false, example: true })
+  isImmediate: boolean
+
+  @IsOptional()
+  @IsBoolean()
+  @ToBoolean()
+  @ApiProperty({ required: false, example: true })
   isActive: boolean
 }
 
@@ -104,6 +115,7 @@ export class NotificationRequestCreateDto {
   @ApiProperty({
     required: true,
     enum: EnumNotificationChannel,
+    enumName: 'EnumNotificationChannel',
     example: EnumNotificationChannel.SMS,
   })
   channel: EnumNotificationChannel
@@ -114,6 +126,7 @@ export class NotificationRequestCreateDto {
   @ApiProperty({
     required: true,
     enum: EnumNotificationMethod,
+    enumName: 'EnumNotificationMethod',
     example: EnumNotificationMethod.TEXT,
   })
   type: EnumNotificationMethod
@@ -130,6 +143,7 @@ export class NotificationRequestCreateDto {
   @ApiProperty({
     required: false,
     enum: EnumNotificationRefType,
+    enumName: 'EnumNotificationRefType',
     example: EnumNotificationRefType.TEXT,
   })
   refType: string

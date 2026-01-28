@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { EnumProductExpiryType } from '@runtime/prisma-client'
+import { EnumExpiryType } from '@runtime/prisma-client'
 import {
   IsBoolean,
   IsDate,
@@ -101,21 +101,22 @@ export class ProductRequestCreateDto {
   duePaidDays: number
 
   @IsNotEmpty()
-  @IsEnum(EnumProductExpiryType)
+  @IsEnum(EnumExpiryType)
   @ToString()
   @ValidateIf(dto => dto.hasExpiration)
   @TransformIf((dto: ProductRequestCreateDto) => dto.hasExpiration === true)
   @ApiProperty({
     required: true,
-    enum: EnumProductExpiryType,
-    example: EnumProductExpiryType.STATIC,
+    enum: EnumExpiryType,
+    enumName: 'EnumExpiryType',
+    example: EnumExpiryType.STATIC,
   })
-  expiryType: EnumProductExpiryType
+  expiryType: EnumExpiryType
 
   @IsNotEmpty()
   @IsNumber()
   @ToDynamicExpiryDays()
-  @ValidateIf(dto => dto.hasExpiration && dto.expiryType === EnumProductExpiryType.DYNAMIC)
+  @ValidateIf(dto => dto.hasExpiration && dto.expiryType === EnumExpiryType.DYNAMIC)
   @TransformIf((dto: ProductRequestCreateDto) => dto.hasExpiration === true)
   @ApiProperty({ required: false, example: 7 })
   dynamicExpiryDays: number
@@ -123,7 +124,7 @@ export class ProductRequestCreateDto {
   @IsNotEmpty()
   @IsDate()
   @ToStaticExpiryDate({ endOfDay: true })
-  @ValidateIf(dto => dto.hasExpiration && dto.expiryType === EnumProductExpiryType.STATIC)
+  @ValidateIf(dto => dto.hasExpiration && dto.expiryType === EnumExpiryType.STATIC)
   @TransformIf((dto: ProductRequestCreateDto) => dto.hasExpiration === true)
   @ApiProperty({ required: false, example: new Date(Date.now() + 30000 * 3600) })
   staticExpiryDate: Date

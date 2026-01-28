@@ -1,5 +1,5 @@
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { EnumAppVersionPlatform } from '@runtime/prisma-client'
+import { EnumPlatformType } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
 import { ToDate } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
@@ -10,10 +10,14 @@ class ResponseDataDetailDto {
   @Expose()
   id: number
 
-  @ApiProperty({ enum: EnumAppVersionPlatform, example: EnumAppVersionPlatform.IOS })
+  @ApiProperty({
+    enum: EnumPlatformType,
+    enumName: 'EnumPlatformType',
+    example: EnumPlatformType.IOS,
+  })
   @Type(() => String)
   @Expose()
-  type: string
+  type: EnumPlatformType
 
   @ApiProperty({ example: 'Api version name' })
   @Type(() => String)

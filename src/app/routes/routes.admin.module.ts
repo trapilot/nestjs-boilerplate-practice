@@ -5,20 +5,20 @@ import { DashboardAdminController, DashboardModule } from 'modules/dashboard'
 import { InvoiceAdminController, InvoiceModule } from 'modules/invoice'
 import { MediaAdminController, MediaModule } from 'modules/media'
 import { MemberAdminController, MemberModule } from 'modules/member'
+import { MemberPointAdminController, MemberPointModule } from 'modules/member-point'
+import { MemberRedemptionAdminController, MemberRedemptionModule } from 'modules/member-redemption'
+import { MemberTierAdminController, MemberTierModule } from 'modules/member-tier'
 import { NotificationAdminController, NotificationModule } from 'modules/notification'
 import { OrderAdminController, OrderModule } from 'modules/order'
 import { PageAdminController, PageModule } from 'modules/page'
 import { PermissionAdminController, PermissionModule } from 'modules/permission'
-import { PointHistoryAdminController, PointHistoryModule } from 'modules/point-history'
 import { ProductAdminController, ProductModule } from 'modules/product'
 import { ProductBrandAdminController, ProductBrandModule } from 'modules/product-brand'
 import { ProductCategoryAdminController, ProductCategoryModule } from 'modules/product-category'
-import { ProductHistoryAdminController, ProductHistoryModule } from 'modules/product-history'
 import { ProductReviewAdminController, ProductReviewModule } from 'modules/product-review'
 import { RoleAdminController, RoleModule } from 'modules/role'
 import { SettingAdminController, SettingModule } from 'modules/setting'
 import { TierAdminController, TierModule } from 'modules/tier'
-import { TierHistoryAdminController, TierHistoryModule } from 'modules/tier-history'
 import { UserAdminController, UserAuthController, UserModule } from 'modules/user'
 
 @Module({
@@ -32,9 +32,9 @@ import { UserAdminController, UserAuthController, UserModule } from 'modules/use
     RoleAdminController,
     PermissionAdminController,
     MemberAdminController,
-    TierHistoryAdminController,
-    PointHistoryAdminController,
-    ProductHistoryAdminController,
+    MemberTierAdminController,
+    MemberPointAdminController,
+    MemberRedemptionAdminController,
     ProductAdminController,
     ProductBrandAdminController,
     ProductCategoryAdminController,
@@ -55,9 +55,9 @@ import { UserAdminController, UserAuthController, UserModule } from 'modules/use
     RoleModule,
     PermissionModule,
     MemberModule,
-    TierHistoryModule,
-    PointHistoryModule,
-    ProductHistoryModule,
+    MemberTierModule,
+    MemberPointModule,
+    MemberRedemptionModule,
     ProductModule,
     ProductBrandModule,
     ProductCategoryModule,

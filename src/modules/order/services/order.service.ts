@@ -10,7 +10,8 @@ import { ModuleRef } from '@nestjs/core'
 import {
   EnumInvoiceStatus,
   EnumOrderStatus,
-  EnumPointHistoryType,
+  EnumPointAction,
+  EnumPointSource,
   EnumRedemptionSource,
   EnumRedemptionStatus,
   Prisma,
@@ -230,7 +231,8 @@ export class OrderService implements OnModuleInit {
                       memberId: cart.memberId,
                       tierId: cart.member.tierId,
                       invoiceAmount: finalPrice,
-                      type: EnumPointHistoryType.PURCHASE,
+                      source: EnumPointSource.PURCHASE,
+                      action: EnumPointAction.DEDUCT,
                       pointBalance,
                       point: recentPoint.point * -1,
                       expiryDate: recentPoint.date,
@@ -257,7 +259,7 @@ export class OrderService implements OnModuleInit {
               skipDuplicates: true,
             },
           },
-          redeems: {
+          redemptions: {
             createMany: {
               data: cart.items.flatMap(item =>
                 Array.from({ length: item.quantity }, () => ({
@@ -330,7 +332,7 @@ export class OrderService implements OnModuleInit {
     //                 memberId: cart.memberId,
     //                 tierId: cart.member.tierId,
     //                 invoiceAmount: finalPrice,
-    //                 type: EnumPointHistoryType.PURCHASE,
+    //                 type: EnumMemberPointType.PURCHASE,
     //                 point: finalPoint * -1,
     //                 pointBalance: pointBalance - finalPoint,
     //                 expiryDate: this.memberService.getPointExpirationDate(issuedAt),

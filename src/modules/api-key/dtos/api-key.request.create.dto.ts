@@ -8,10 +8,10 @@ export class ApiKeyRequestCreateDto {
   @IsNotEmpty()
   @IsEnum(EnumApiKeyType)
   @ApiProperty({
-    description: 'Api Key name',
     example: EnumApiKeyType.CLIENT,
     required: true,
     enum: EnumApiKeyType,
+    enumName: 'EnumApiKeyType',
   })
   type: EnumApiKeyType
 

@@ -4,7 +4,7 @@ import {
   EnumPushResult,
   EnumPushStatus,
   EnumPushType,
-  MemberNotifyHistory,
+  MemberNotification,
   Prisma,
 } from '@runtime/prisma-client'
 import {
@@ -66,7 +66,7 @@ export class NotificationUtil {
   async lockPush(pushId: number): Promise<boolean> {
     await this.prisma.push.update({
       where: { id: pushId, status: EnumPushStatus.PENDING },
-      data: { status: EnumPushStatus.PUSHING },
+      data: { status: EnumPushStatus.RUNNING },
     })
     return true
   }
@@ -126,7 +126,7 @@ export class NotificationUtil {
   }
 
   async dispatchPushData(
-    history: MemberNotifyHistory,
+    history: MemberNotification,
     options: { token: string; drivers: EnumPushDriver[] },
   ): Promise<void> {
     for (const driver of options.drivers) {
@@ -147,10 +147,10 @@ export class NotificationUtil {
     }
   }
   async sendPushData(
-    payload: Prisma.MemberNotifyHistoryUncheckedCreateInput,
+    payload: Prisma.MemberNotificationUncheckedCreateInput,
     drivers: EnumPushDriver[],
   ): Promise<void> {
-    const memberDevices = await this.prisma.memberDeviceHistory.findMany({
+    const memberDevices = await this.prisma.memberDevice.findMany({
       where: { memberId: payload.memberId, isActive: true },
       select: { token: true },
     })
@@ -164,10 +164,10 @@ export class NotificationUtil {
       const nowDate = this.helperService.dateNow()
       if (payload?.pushId) {
         const [history] = await this.prisma.$transaction([
-          this.prisma.memberNotifyHistory.create({
+          this.prisma.memberNotification.create({
             data: { ...payload, pushedAt: nowDate },
           }),
-          this.prisma.memberPushHistory.create({
+          this.prisma.memberPush.create({
             data: {
               deviceToken,
               memberId: payload.memberId,
@@ -180,7 +180,7 @@ export class NotificationUtil {
 
         await this.dispatchPushData(history, { token: deviceToken, drivers })
       } else {
-        const history = await this.prisma.memberNotifyHistory.create({
+        const history = await this.prisma.memberNotification.create({
           data: { ...payload, pushedAt: nowDate },
         })
 
@@ -192,9 +192,9 @@ export class NotificationUtil {
   async getPushData(
     memberId: number,
     pushId: number,
-  ): Promise<Prisma.MemberNotifyHistoryUncheckedCreateInput> {
+  ): Promise<Prisma.MemberNotificationUncheckedCreateInput> {
     const push = await this.prisma.push.findUnique({
-      where: { id: pushId, status: EnumPushStatus.PUSHING },
+      where: { id: pushId, status: EnumPushStatus.RUNNING },
       select: {
         id: true,
         notification: true,
@@ -235,10 +235,10 @@ export class NotificationUtil {
       where: {
         isActive: true,
         isPhoneVerified: true,
-        deviceHistories: {
+        devices: {
           some: { isActive: true },
         },
-        pushHistories: {
+        pushes: {
           none: { pushId },
         },
       },
@@ -268,12 +268,8 @@ export class NotificationUtil {
     return EnumPushType.YEARLY === type
   }
 
-  static isInstant(type: EnumPushType): boolean {
-    return EnumPushType.INSTANT === type
-  }
-
-  static isSpecDate(type: EnumPushType): boolean {
-    return EnumPushType.DATETIME === type
+  static isOnce(type: EnumPushType): boolean {
+    return EnumPushType.ONCE === type
   }
 
   static isLoop(type: EnumPushType): boolean {
@@ -285,15 +281,8 @@ export class NotificationUtil {
     )
   }
 
-  static isOnce(type: EnumPushType): boolean {
-    return EnumPushType.INSTANT === type || EnumPushType.DATETIME === type
-  }
-
   private static getScheduledDate(dto: NotificationPushDto): Date {
-    if (dto.type === EnumPushType.INSTANT) {
-      return new Date()
-    }
-    if (dto.type === EnumPushType.DATETIME) {
+    if (dto.type === EnumPushType.ONCE) {
       return DateUtil.mergeDate(dto.executeDate, dto.executeTime)
     }
     return DateUtil.mergeDate(dto.startDate, dto.executeTime)

@@ -22,7 +22,7 @@ class ResponseDataDetailDto {
   @Expose()
   code: string
 
-  @ApiProperty({ enum: EnumMemberType, example: EnumMemberType.NORMAL })
+  @ApiProperty({ enum: EnumMemberType, enumName: 'EnumMemberType', example: EnumMemberType.NORMAL })
   @Type(() => String)
   @Expose()
   type: EnumMemberType
@@ -45,7 +45,7 @@ class ResponseDataDetailDto {
   // @ApiProperty({ example: '852' })
   // @Type(() => String)
   // @Expose()
-  // phoneCountry: string
+  // phoneRegion: string
 
   // @ApiProperty({ example: '987654321' })
   // @Type(() => String)
@@ -67,7 +67,7 @@ class ResponseDataDetailDto {
   @Expose()
   avatar: string
 
-  // @ApiProperty({ enum: EnumUserType })
+  // @ApiProperty({ enum: EnumUserType, enumName: 'EnumUserType', enumName: 'EnumUserType' })
   // @Type(() => String)
   // @Expose()
   // gender: EnumUserType
@@ -100,17 +100,17 @@ class ResponseDataDetailDto {
   @ApiProperty({ example: 0 })
   @ToDecimal()
   @Expose()
-  maximumSpending: number
+  maximumAmount: number
 
   @ApiProperty({ example: 0 })
   @ToDecimal()
   @Expose()
-  personalSpending: number
+  personalAmount: number
 
   @ApiProperty({ example: 0 })
   @ToDecimal()
   @Expose()
-  referralSpending: number
+  referralAmount: number
 
   @Type(() => String)
   @Expose({ groups: [EnumAuthLoginFrom.CMS] })

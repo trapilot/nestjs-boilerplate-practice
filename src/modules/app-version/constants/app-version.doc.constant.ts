@@ -1,4 +1,4 @@
-export const APP_VERSION_DOC_OPERATION = 'Api Version'
+export const APP_VERSION_DOC_OPERATION = 'App Version'
 
 export const APP_VERSION_DOC_APP_QUERY_LIST = []
 export const APP_VERSION_DOC_APP_PARAM_LIST = []

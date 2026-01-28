@@ -33,7 +33,7 @@ export class TierData {
   }
 
   calculate(oldAmount: number, newAmount: number): TierValue {
-    const limitAmount = this.isUpgrade() ? this.curr.limitSpending : this.next.limitSpending
+    const limitAmount = this.isUpgrade() ? this.curr.limitAmount : this.next.limitAmount
     const totalAmount = oldAmount + newAmount
     const excessAmount = Math.max(0, totalAmount - limitAmount)
     const currAmount = this.curr.alive ? excessAmount : 0

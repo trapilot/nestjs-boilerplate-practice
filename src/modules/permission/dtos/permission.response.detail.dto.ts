@@ -12,6 +12,10 @@ class ResponseDataDetailDto {
 
   @Type(() => String)
   @Expose()
+  path: string
+
+  @Type(() => String)
+  @Expose()
   context: EnumAuthAbilityContext
 
   @Type(() => ResponseLocaleDto)

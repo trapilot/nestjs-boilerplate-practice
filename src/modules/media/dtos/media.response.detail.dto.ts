@@ -10,7 +10,7 @@ class ResponseDataDetailDto {
   @Expose()
   id: number
 
-  @ApiProperty({ enum: EnumMediaType, example: EnumMediaType.BANNER })
+  @ApiProperty({ enum: EnumMediaType, enumName: 'EnumMediaType', example: EnumMediaType.BANNER })
   @Type(() => String)
   @Expose()
   type: EnumMediaType

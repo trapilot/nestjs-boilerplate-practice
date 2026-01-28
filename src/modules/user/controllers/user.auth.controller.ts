@@ -199,6 +199,24 @@ export class UserAuthController {
 
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
+    docExclude: true,
+    docExpansion: false,
+    rateLimit: {
+      short: { limit: 3, seconds: 1 },
+      medium: { limit: 5, seconds: 60 },
+    },
+    response: {
+      dto: UserProfileResponseDto,
+    },
+  })
+  @Get('/_route')
+  async route(): Promise<IResponseData> {
+    const user = await this.userAuth.getUserData(1)
+    return { data: user }
+  }
+
+  @ApiRequestData({
+    summary: USER_DOC_AUTH_OPERATION,
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {

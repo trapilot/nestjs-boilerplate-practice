@@ -72,7 +72,7 @@ export class MemberUtil {
 
         pointRequire -= pointReduce
       }
-      // const recentPoint = await this.prisma.memberPointHistory.findFirst({
+      // const recentPoint = await this.prisma.memberPoint.findFirst({
       //   where: { memberId: id, isActive: true, isPending: false, point: { gt: 0 } },
       //   orderBy: { expiryDate: 'asc' },
       //   select: { expiryDate: true, point: true },
@@ -95,7 +95,7 @@ export class MemberUtil {
     issuedAt: Date,
     take: number = 1,
   ): Promise<{ date: Date; point: number }[]> {
-    const pointGroups = await this.prisma.memberPointHistory.groupBy({
+    const pointGroups = await this.prisma.memberPoint.groupBy({
       by: ['memberId', 'expiryDate'],
       _sum: { point: true },
       having: { point: { _sum: { gt: 0 } } },
@@ -117,7 +117,7 @@ export class MemberUtil {
   }
 
   async getPointBalance(id: number, issuedAt: Date): Promise<number> {
-    const pointBalance = await this.prisma.memberPointHistory.aggregate({
+    const pointBalance = await this.prisma.memberPoint.aggregate({
       _sum: { point: true },
       where: {
         memberId: id,

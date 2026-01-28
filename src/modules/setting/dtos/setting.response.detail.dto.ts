@@ -28,6 +28,7 @@ export class SettingResponseDetailDto {
     description: 'Data type of setting',
     example: EnumSettingType.BOOLEAN,
     enum: EnumSettingType,
+    enumName: 'EnumSettingType',
   })
   @Type(() => String)
   @Expose()

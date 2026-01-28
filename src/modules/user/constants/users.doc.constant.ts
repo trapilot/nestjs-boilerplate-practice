@@ -8,6 +8,7 @@ export const USER_DOC_ADMIN_QUERY_LIST = [
     required: false,
     type: 'string',
     enum: ['true', 'false'],
+    enumName: 'EnumStatus',
     example: 'true',
     description: 'boolean value',
   },

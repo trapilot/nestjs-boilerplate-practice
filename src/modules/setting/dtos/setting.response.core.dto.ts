@@ -9,6 +9,7 @@ export class SettingCoreResponseDto {
     required: true,
     nullable: false,
     enum: EnumAppLanguage,
+    enumName: 'EnumAppLanguage',
     type: 'array',
     isArray: true,
   })

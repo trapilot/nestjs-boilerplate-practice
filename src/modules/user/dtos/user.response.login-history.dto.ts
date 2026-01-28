@@ -3,7 +3,7 @@ import { Expose, Type } from 'class-transformer'
 import { EnumDateFormat, ToDate } from 'lib/nest-core'
 import { UserResponseBelongDto } from './user.response.detail.dto'
 
-class ResponseUserLoginHistoryDto {
+class ResponseUserLoginLogDto {
   @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
@@ -25,6 +25,6 @@ class ResponseUserRelationDto {
 }
 
 export class UserResponseLoginHistoryDto extends IntersectionType(
-  ResponseUserLoginHistoryDto,
+  ResponseUserLoginLogDto,
   ResponseUserRelationDto,
 ) {}

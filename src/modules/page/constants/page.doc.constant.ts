@@ -15,5 +15,6 @@ export const PAGE_DOC_ADMIN_QUERY_LIST = [
     required: false,
     type: 'string',
     enum: [EnumPageType.ABOUT_US, EnumPageType.PRIVACY, EnumPageType.TERM_AND_CONDITION],
+    enumName: 'EnumPageType',
   },
 ]

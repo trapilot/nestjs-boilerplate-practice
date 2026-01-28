@@ -35,7 +35,7 @@ export class MemberResetExpiryTierHandler implements IQueueHandler {
     const state = await this.scanner.scan<QueueCursor>(this.topic, this.version)
     const nowDate = this.helperService.dateNow()
 
-    const memberTiers = await this.prisma.memberTierHistory.findMany({
+    const memberTiers = await this.prisma.memberTier.findMany({
       where: {
         isActive: true,
         expiryDate: { lte: nowDate },
@@ -54,7 +54,8 @@ export class MemberResetExpiryTierHandler implements IQueueHandler {
     }
 
     // handle job
-    await this.memberService.resetMemberTiers(mtIds)
+    // TODO
+    // await this.memberService.resetMemberTiers(mtIds)
 
     // update cursor
     await this.scanner.commit(this.topic, {

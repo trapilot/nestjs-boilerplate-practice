@@ -8,9 +8,11 @@ import {
 import { ModuleRef } from '@nestjs/core'
 import {
   EnumMemberType,
-  EnumPointHistoryType,
+  EnumPointAction,
+  EnumPointSource,
   EnumSlipType,
-  EnumTierHistoryMethod,
+  EnumTierAction,
+  EnumTierSource,
   Member,
   Prisma,
 } from '@runtime/prisma-client'
@@ -34,7 +36,7 @@ import { InvoiceUtil } from 'modules/invoice'
 import { TierService, TierUtil } from 'modules/tier'
 import { MEMBER_AUTH_TOKEN } from '../constants'
 import { MemberChangePasswordRequestDto } from '../dtos'
-import { MemberAuth, MemberData, MemberUtil } from '../helpers'
+import { MemberAuth, MemberUtil } from '../helpers'
 import { ISlipCounterOptions, TMember, TMemberMetadata } from '../interfaces'
 
 @Injectable()
@@ -161,7 +163,7 @@ export class MemberService implements OnModuleInit {
 
     const nowDate = this.helperService.dateNow()
     const { endOfYear } = this.helperService.dateRange(nowDate)
-    const { country, phone } = this.helperService.parsePhone(data.phone)
+    const { region, phone } = this.helperService.parsePhone(data.phone)
     const { id: tierId } = this.tierService.getChart().getNormalTier()
 
     const member = await this.prisma.member.create({
@@ -171,7 +173,7 @@ export class MemberService implements OnModuleInit {
         type: EnumMemberType.NORMAL,
         expiryDate: endOfYear,
         locale: APP_LANGUAGE,
-        phoneCountry: country,
+        phoneRegion: region,
         phoneNumber: phone,
         startedAt: nowDate,
         isEmailVerified: false,
@@ -180,14 +182,14 @@ export class MemberService implements OnModuleInit {
         createdAt: nowDate,
         updatedAt: nowDate,
         ...data,
-        tierHistories: {
+        tiers: {
           createMany: {
             data: [
               {
-                prevTierId: tierId,
-                currTierId: tierId,
+                tierId: tierId,
                 isActive: true,
-                type: EnumTierHistoryMethod.INITIAL,
+                source: EnumTierSource.SYSTEM,
+                action: EnumTierAction.INITIAL,
                 expiryDate: endOfYear,
                 createdAt: nowDate,
                 updatedAt: nowDate,
@@ -209,12 +211,12 @@ export class MemberService implements OnModuleInit {
       id: { not: member.id },
     })
 
-    const { country, phone } = this.helperService.parsePhone(`${data?.phone}`)
+    const { region, phone } = this.helperService.parsePhone(`${data?.phone}`)
 
     return await this.prisma.member.update({
       data: {
         ...data,
-        phoneCountry: country,
+        phoneRegion: region,
         phoneNumber: phone,
       },
       where: { id: member.id },
@@ -274,12 +276,13 @@ export class MemberService implements OnModuleInit {
       data: {
         pointBalance: { increment: data.point },
         updatedAt: nowDate,
-        pointHistories: {
+        points: {
           create: {
             point: data.point,
             createdBy: data.createdBy,
             tierId: member.tierId,
-            type: EnumPointHistoryType.SYSTEM,
+            source: EnumPointSource.SYSTEM,
+            action: EnumPointAction.EARN,
             createdAt: nowDate,
             updatedAt: nowDate,
           },
@@ -299,7 +302,7 @@ export class MemberService implements OnModuleInit {
           isActive: false,
           email: this.helperService.dirtyString(member.email, timestamp),
           phone: this.helperService.dirtyString(member.phone, timestamp),
-          deleteReasons: {
+          deletions: {
             createMany: {
               data: reasons.map((reason: string) => {
                 return {
@@ -339,16 +342,20 @@ export class MemberService implements OnModuleInit {
         code: this.memberUtil.generateCode(member.id),
         expiryDate: expiryDate,
         updatedAt: member.updatedAt,
-        tierHistories: {
-          create: {
-            prevTierId: member.tierId,
-            currTierId: member.tierId,
-            minTierId: member.minTierId,
-            isActive: true,
-            type: EnumTierHistoryMethod.INITIAL,
-            expiryDate: expiryDate,
-            createdAt: member.createdAt,
-            updatedAt: member.updatedAt,
+        tiers: {
+          createMany: {
+            data: [
+              {
+                tierId: member.tierId,
+                isActive: true,
+                source: EnumTierSource.SYSTEM,
+                action: EnumTierAction.INITIAL,
+                expiryDate: expiryDate,
+                createdAt: member.createdAt,
+                updatedAt: member.updatedAt,
+              },
+            ],
+            skipDuplicates: true,
           },
         },
       },
@@ -376,7 +383,7 @@ export class MemberService implements OnModuleInit {
     const recentPoints = await this.memberUtil.getPointRecent(member.id, nowDate)
     if (recentPoints.length) {
       const recentExpiryDate = recentPoints[0].date
-      const totalExpiredPoints = await this.prisma.memberPointHistory.aggregate({
+      const totalExpiredPoints = await this.prisma.memberPoint.aggregate({
         _sum: { point: true },
         where: {
           memberId: member.id,
@@ -468,14 +475,14 @@ export class MemberService implements OnModuleInit {
   async releaseMemberPoints(memberPointIds: number[]): Promise<Date> {
     const nowDate = this.helperService.dateNow()
 
-    const releasePoints = await this.prisma.memberPointHistory.findMany({
+    const releasePoints = await this.prisma.memberPoint.findMany({
       where: { id: { in: memberPointIds } },
       orderBy: [{ releaseDate: 'asc' }],
     })
 
     for (const pointHistory of releasePoints) {
       const { id: _id, memberId, ...data } = pointHistory
-      const aggregate = await this.prisma.memberPointHistory.aggregate({
+      const aggregate = await this.prisma.memberPoint.aggregate({
         _sum: { point: true },
         where: { memberId, isActive: true, isDeleted: false },
       })
@@ -485,16 +492,21 @@ export class MemberService implements OnModuleInit {
         data: {
           pointBalance: { increment: pointHistory.point },
           updatedAt: nowDate,
-          pointHistories: {
-            create: {
-              ...data,
-              isActive: true,
-              isVisible: true,
-              isPending: false,
-              pointBalance: pointHistory.point + aggregate._sum.point,
-              expiryDate: this.memberUtil.getPointExpirationDate(nowDate),
-              createdAt: nowDate,
-              updatedAt: nowDate,
+          points: {
+            createMany: {
+              data: [
+                {
+                  ...data,
+                  isActive: true,
+                  isVisible: true,
+                  isPending: false,
+                  pointBalance: pointHistory.point + aggregate._sum.point,
+                  expiryDate: this.memberUtil.getPointExpirationDate(nowDate),
+                  createdAt: nowDate,
+                  updatedAt: nowDate,
+                },
+              ],
+              skipDuplicates: true,
             },
           },
         },
@@ -509,14 +521,14 @@ export class MemberService implements OnModuleInit {
     for (const memberId of memberIds) {
       const member = await this.findOrFail(memberId)
       if (member.isActive) {
-        const whereData: Prisma.MemberPointHistoryWhereInput = {
+        const whereData: Prisma.MemberPointWhereInput = {
           isActive: true,
           isDeleted: false,
           expiryDate: { lte: issuedAt, not: null },
           memberId: member.id,
         }
 
-        const aggregate = await this.prisma.memberPointHistory.aggregate({
+        const aggregate = await this.prisma.memberPoint.aggregate({
           _sum: { point: true },
           where: whereData,
         })
@@ -528,9 +540,10 @@ export class MemberService implements OnModuleInit {
           data: {
             pointBalance: { decrement: pointBalance },
             updatedAt: nowDate,
-            pointHistories: {
+            points: {
               create: {
-                type: EnumPointHistoryType.EXPIRY,
+                source: EnumPointSource.SYSTEM,
+                action: EnumPointAction.EXPIRE,
                 tierId: member.tierId,
                 point: pointBalance * -1,
                 pointBalance: 0,
@@ -550,118 +563,117 @@ export class MemberService implements OnModuleInit {
     return nowDate
   }
 
-  async resetMemberTiers(tierHistoryIds: number[]): Promise<Date> {
-    const nowDate = this.helperService.dateNow()
-    const rangeDate = this.helperService.dateRange(nowDate)
+  // async resetMemberTiers(tierHistoryIds: number[]): Promise<Date> {
+  //   const nowDate = this.helperService.dateNow()
+  //   const rangeDate = this.helperService.dateRange(nowDate)
 
-    const tierChart = this.tierService.getChart()
+  //   const tierChart = this.tierService.getChart()
 
-    const tierHistories = await this.prisma.memberTierHistory.findMany({
-      where: {
-        isActive: true,
-        id: { in: tierHistoryIds },
-      },
-    })
+  //   const tiers = await this.prisma.memberTier.findMany({
+  //     where: {
+  //       isActive: true,
+  //       id: { in: tierHistoryIds },
+  //     },
+  //   })
 
-    for (const tierHistory of tierHistories) {
-      const { personalSpending, referralSpending } = tierHistory
+  //   for (const tierHistory of tiers) {
+  //     const { personalAmount, referralAmount } = tierHistory
 
-      const maximumSpending = Math.max(personalSpending, referralSpending, 0)
-      const extendDate = this.memberUtil.getTierExpirationDate(tierHistory.expiryDate)
+  //     const maximumAmount = Math.max(personalAmount, referralAmount, 0)
+  //     const extendDate = this.memberUtil.getTierExpirationDate(tierHistory.expiryDate)
 
-      const { tierData } = tierChart.getData(
-        tierHistory.currTierId,
-        tierHistory.minTierId,
-        maximumSpending,
-      )
+  //     const { tierData } = tierChart.getData(
+  //       tierHistory.currTierId,
+  //       tierHistory.minTierId,
+  //       maximumAmount,
+  //     )
 
-      const isRenewal = tierData.isRenewal()
+  //     const isRenewal = tierData.isRenewal()
 
-      const newTierData: Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput = {
-        minTierId: tierHistory.minTierId,
-        prevTierId: tierHistory.currTierId,
-        currTierId: tierData.curr.id,
-        personalSpending: 0,
-        referralSpending: 0,
-        renewalSpending: tierData.curr.limitSpending,
-        upgradeSpending: tierData.next.limitSpending,
-        type: isRenewal ? EnumTierHistoryMethod.RENEWAL : EnumTierHistoryMethod.DOWNGRADE,
-        expiryDate: isRenewal ? rangeDate.endOfYear : extendDate,
-        isActive: true,
-        createdAt: nowDate,
-        updatedAt: nowDate,
-      }
+  //     const newTierData: Prisma.MemberTierUncheckedCreateWithoutMemberInput = {
+  //       minTierId: tierHistory.minTierId,
+  //       prevTierId: tierHistory.currTierId,
+  //       currTierId: tierData.curr.id,
+  //       personalAmount: 0,
+  //       referralAmount: 0,
+  //       renewalAmount: tierData.curr.limitAmount,
+  //       upgradeAmount: tierData.next.limitAmount,
+  //       type: isRenewal ? EnumTierMethod.RENEWAL : EnumTierMethod.DOWNGRADE,
+  //       expiryDate: isRenewal ? rangeDate.endOfYear : extendDate,
+  //       isActive: true,
+  //       createdAt: nowDate,
+  //       updatedAt: nowDate,
+  //     }
 
-      await this.prisma.member.update({
-        where: { id: tierHistory.memberId },
-        data: {
-          tierId: newTierData.currTierId,
-          minTierId: newTierData.minTierId,
-          maximumSpending: newTierData.upgradeSpending,
-          personalSpending: newTierData.personalSpending,
-          referralSpending: newTierData.referralSpending,
-          expiryDate: newTierData.expiryDate,
-          updatedAt: newTierData.updatedAt,
-          tierHistories: {
-            update: {
-              where: { id: tierHistory.id },
-              data: { isActive: false, isDeleted: true, updatedAt: newTierData.updatedAt },
-            },
-            create: newTierData,
-          },
-        },
-      })
-    }
-    return nowDate
-  }
+  //     await this.prisma.member.update({
+  //       where: { id: tierHistory.memberId },
+  //       data: {
+  //         tierId: newTierData.currTierId,
+  //         minTierId: newTierData.minTierId,
+  //         maximumAmount: newTierData.upgradeAmount,
+  //         personalAmount: newTierData.personalAmount,
+  //         referralAmount: newTierData.referralAmount,
+  //         expiryDate: newTierData.expiryDate,
+  //         updatedAt: newTierData.updatedAt,
+  //         tiers: {
+  //           update: {
+  //             where: { id: tierHistory.id },
+  //             data: { isActive: false, isDeleted: true, updatedAt: newTierData.updatedAt },
+  //           },
+  //           create: newTierData,
+  //         },
+  //       },
+  //     })
+  //   }
+  //   return nowDate
+  // }
 
-  private async getReferrerData(
-    member: TMember,
-    kwargs: Omit<Prisma.MemberFindUniqueOrThrowArgs, 'where'> = {},
-  ): Promise<MemberData> {
-    if (member.invitedCode) {
-      const referrer = await this.findOne({
-        ...kwargs,
-        where: { referralCode: member.invitedCode },
-      })
-      if (referrer) {
-        const referrerData = await this.getRecentData(referrer)
-        return referrerData.setIsReferrer(true)
-      }
-    }
-    return null
-  }
+  // private async getReferrerData(
+  //   member: TMember,
+  //   kwargs: Omit<Prisma.MemberFindUniqueOrThrowArgs, 'where'> = {},
+  // ): Promise<MemberData> {
+  //   if (member.friendCode) {
+  //     const referrer = await this.findOne({
+  //       ...kwargs,
+  //       where: { referralCode: member.friendCode },
+  //     })
+  //     if (referrer) {
+  //       const referrerData = await this.getRecentData(referrer)
+  //       return referrerData.setIsReferrer(true)
+  //     }
+  //   }
+  //   return null
+  // }
 
-  private async getRecentData(member: TMember): Promise<MemberData> {
-    const tierRecent = await this.prisma.memberTierHistory.findFirst({
-      where: { memberId: member.id, isActive: true },
-      orderBy: [{ id: 'desc' }],
-    })
+  // private async getRecentData(member: TMember): Promise<MemberData> {
+  //   const tierRecent = await this.prisma.memberTier.findFirst({
+  //     where: { memberId: member.id, isActive: true },
+  //     orderBy: [{ id: 'desc' }],
+  //   })
 
-    if (tierRecent) {
-      return MemberData.make(member, tierRecent)
-    }
+  //   if (tierRecent) {
+  //     return MemberData.make(member, tierRecent)
+  //   }
 
-    const tierChart = this.tierService.getChart()
-    const tierData = tierChart.getStats(member.tierId)
-    const newTierHistory = await this.prisma.memberTierHistory.create({
-      data: {
-        memberId: member.id,
-        prevTierId: member.tierId,
-        currTierId: member.tierId,
-        minTierId: member.minTierId,
-        personalSpending: member.personalSpending,
-        referralSpending: member.referralSpending,
-        renewalSpending: tierData.curr.limitSpending,
-        upgradeSpending: tierData.next.limitSpending,
-        expiryDate: member.expiryDate,
-        isActive: true,
-        createdAt: member.createdAt,
-        updatedAt: member.createdAt,
-      },
-    })
-    return MemberData.make(member, newTierHistory)
-  }
+  //   const tierChart = this.tierService.getChart()
+  //   const tierData = tierChart.getStats(member.tierId)
+  //   const newMemberTier = await this.prisma.memberTier.create({
+  //     data: {
+  //       memberId: member.id,
+  //       currTierId: member.tierId,
+  //       minTierId: member.minTierId,
+  //       personalAmount: member.personalAmount,
+  //       referralAmount: member.referralAmount,
+  //       renewalAmount: tierData.curr.limitAmount,
+  //       upgradeAmount: tierData.next.limitAmount,
+  //       expiryDate: member.expiryDate,
+  //       isActive: true,
+  //       createdAt: member.createdAt,
+  //       updatedAt: member.createdAt,
+  //     },
+  //   })
+  //   return MemberData.make(member, newMemberTier)
+  // }
 
   async earnHighestBirthInvoice(month: number, memberIds: number[]): Promise<Date> {
     const nowDate = this.helperService.dateNow()
@@ -678,7 +690,7 @@ export class MemberService implements OnModuleInit {
     })
 
     for (const member of members) {
-      const birthPoint = await this.prisma.memberPointHistory.findFirst({
+      const birthPoint = await this.prisma.memberPoint.findFirst({
         where: {
           memberId: member.id,
           isBirth: true,
@@ -702,12 +714,13 @@ export class MemberService implements OnModuleInit {
             hasBirthPurchased: true,
             hasBirthPurchasedAt: startOfDay,
             updatedAt: startOfDay,
-            pointHistories: {
+            points: {
               createMany: {
                 data: {
                   invoiceId: birthPoint.invoiceId,
                   invoiceAmount: birthPoint.invoiceAmount,
-                  type: EnumPointHistoryType.REWARD,
+                  source: EnumPointSource.SYSTEM,
+                  action: EnumPointAction.EARN,
                   isBirth: true,
                   tierId: memberTier.id,
                   multipleRatio: memberTier.birthdayRatio,
@@ -725,257 +738,257 @@ export class MemberService implements OnModuleInit {
     return nowDate
   }
 
-  async earnPointFromInvoices(issuedAt: Date | string): Promise<Date> {
-    issuedAt = this.helperService.dateCreateFromGeneric(issuedAt)
-    const sinceInvoice = await this.invoiceUtil.getFirstInvoice(issuedAt)
-    if (!sinceInvoice) {
-      return
-    }
+  // async earnPointFromInvoices(issuedAt: Date | string): Promise<Date> {
+  //   issuedAt = this.helperService.dateCreateFromGeneric(issuedAt)
+  //   const sinceInvoice = await this.invoiceUtil.getFirstInvoice(issuedAt)
+  //   if (!sinceInvoice) {
+  //     return
+  //   }
 
-    const tierChart = this.tierService.getChart()
+  //   const tierChart = this.tierService.getChart()
 
-    let sinceDate = this.helperService.dateCreate(sinceInvoice.issuedAt, { startOfDay: true })
-    const untilDate = this.helperService.dateCreate(issuedAt, { startOfDay: true })
+  //   let sinceDate = this.helperService.dateCreate(sinceInvoice.issuedAt, { startOfDay: true })
+  //   const untilDate = this.helperService.dateCreate(issuedAt, { startOfDay: true })
 
-    while (sinceDate <= untilDate) {
-      const grpInvoices = await this.invoiceUtil.getEarnInvoices(sinceDate)
+  //   while (sinceDate <= untilDate) {
+  //     const grpInvoices = await this.invoiceUtil.getEarnInvoices(sinceDate)
 
-      for (const [key, dateInvoices] of Object.entries(grpInvoices)) {
-        let usedInvoiceIds = []
-        for (const invoice of dateInvoices) {
-          if (usedInvoiceIds.includes(invoice.id)) {
-            continue
-          }
+  //     for (const [key, dateInvoices] of Object.entries(grpInvoices)) {
+  //       let usedInvoiceIds = []
+  //       for (const invoice of dateInvoices) {
+  //         if (usedInvoiceIds.includes(invoice.id)) {
+  //           continue
+  //         }
 
-          const member = await this.findOrFail(invoice.memberId)
-          const memberData = await this.getRecentData(member)
+  //         const member = await this.findOrFail(invoice.memberId)
+  //         const memberData = await this.getRecentData(member)
 
-          const memberTier = tierChart.getInfo(member.tierId)
-          const memberRatio = member.hasFirstPurchased
-            ? TierUtil.ratio(memberTier.personalRate)
-            : TierUtil.ratio(memberTier.initialRate)
-          const memberInvoices = member.hasFirstPurchased
-            ? [invoice]
-            : dateInvoices.filter(inv => inv.memberId === memberData.id)
+  //         const memberTier = tierChart.getInfo(member.tierId)
+  //         const memberRatio = member.hasFirstPurchased
+  //           ? TierUtil.ratio(memberTier.personalRate)
+  //           : TierUtil.ratio(memberTier.initialRate)
+  //         const memberInvoices = member.hasFirstPurchased
+  //           ? [invoice]
+  //           : dateInvoices.filter(inv => inv.memberId === memberData.id)
 
-          // const invoiceData = this.getDataFromInvoices(memberInvoices)
-          const invoiceData = this.invoiceUtil.getData(memberInvoices)
-          const { tierData, tierValue, invoiceIds } = memberData.hasFirstPurchased
-            ? tierChart.calculateData(memberData, invoiceData)
-            : tierChart.calculateDataInFirstPurchase(memberData, invoiceData)
+  //         // const invoiceData = this.getDataFromInvoices(memberInvoices)
+  //         const invoiceData = this.invoiceUtil.getData(memberInvoices)
+  //         const { tierData, tierValue, invoiceIds } = memberData.hasFirstPurchased
+  //           ? tierChart.calculateData(memberData, invoiceData)
+  //           : tierChart.calculateDataInFirstPurchase(memberData, invoiceData)
 
-          const pointExpiryDate = this.memberUtil.getPointExpirationDate(sinceDate)
-          const tierExpiryDate = this.memberUtil.getTierExpirationDate(sinceDate)
-          const isBirthMonth = this.helperService.dateIsSet(invoice.issuedAt, {
-            month: member.birthMonth,
-          })
+  //         const pointExpiryDate = this.memberUtil.getPointExpirationDate(sinceDate)
+  //         const tierExpiryDate = this.memberUtil.getTierExpirationDate(sinceDate)
+  //         const isBirthMonth = this.helperService.dateIsSet(invoice.issuedAt, {
+  //           month: member.birthMonth,
+  //         })
 
-          if (tierData.isUpgrade()) {
-            memberData
-              .addTierHistory({
-                id: memberData.orgTierHistory.id,
-                personalSpending: tierValue.usageAmount,
-              })
-              .addTierHistory({
-                type: EnumTierHistoryMethod.UPGRADE,
-                prevTierId: tierData.info.id,
-                currTierId: tierData.curr.id,
-                invoiceId: invoiceIds[invoiceIds.length - 1],
-                personalSpending: tierValue.currAmount,
-                excessSpending: tierValue.excessAmount,
-                renewalSpending: tierData.curr.limitSpending,
-                upgradeSpending: tierData.next.limitSpending,
-                expiryDate: tierExpiryDate,
-                createdAt: sinceDate,
-                updatedAt: sinceDate,
-              })
-              .addPointHistory({
-                type: EnumPointHistoryType.REWARD,
-                tierId: memberData.orgTierId,
-                invoiceId: invoiceIds[invoiceIds.length - 1],
-                invoiceAmount: tierValue.usageAmount,
-                isFirst: !memberData.hasFirstPurchased,
-                isBirth: memberData.hasBirthPurchased,
-                multipleRatio: memberRatio,
-                point: TierUtil.round(memberRatio * tierValue.usageAmount),
-                expiryDate: pointExpiryDate,
-                createdAt: sinceDate,
-                updatedAt: sinceDate,
-              })
-              .addPointHistory({
-                type: EnumPointHistoryType.REWARD,
-                tierId: tierData.curr.id,
-                invoiceId: invoiceIds[invoiceIds.length - 1],
-                invoiceAmount: tierValue.currAmount,
-                multipleRatio: memberRatio,
-                isFirst: !memberData.hasFirstPurchased,
-                isBirth: memberData.hasBirthPurchased,
-                point: TierUtil.round(memberRatio * tierValue.currAmount),
-                expiryDate: pointExpiryDate,
-                createdAt: sinceDate,
-                updatedAt: sinceDate,
-              })
-          } else {
-            memberData
-              .addTierHistory({
-                id: memberData.orgTierHistory.id,
-                personalSpending: tierValue.usageAmount,
-              })
-              .addPointHistory({
-                type: EnumPointHistoryType.REWARD,
-                tierId: tierData.curr.id,
-                invoiceId: invoiceIds[invoiceIds.length - 1],
-                invoiceAmount: tierValue.usageAmount,
-                isFirst: !memberData.hasFirstPurchased,
-                isBirth: memberData.hasBirthPurchased,
-                multipleRatio: memberRatio,
-                point: TierUtil.round(memberRatio * tierValue.usageAmount),
-                expiryDate: pointExpiryDate,
-                createdAt: sinceDate,
-                updatedAt: sinceDate,
-              })
-          }
+  //         if (tierData.isUpgrade()) {
+  //           memberData
+  //             .addMemberTier({
+  //               id: memberData.orgMemberTier.id,
+  //               personalAmount: tierValue.usageAmount,
+  //             })
+  //             .addMemberTier({
+  //               type: EnumTierMethod.UPGRADE,
+  //               prevTierId: tierData.info.id,
+  //               currTierId: tierData.curr.id,
+  //               invoiceId: invoiceIds[invoiceIds.length - 1],
+  //               personalAmount: tierValue.currAmount,
+  //               excessAmount: tierValue.excessAmount,
+  //               renewalAmount: tierData.curr.limitAmount,
+  //               upgradeAmount: tierData.next.limitAmount,
+  //               expiryDate: tierExpiryDate,
+  //               createdAt: sinceDate,
+  //               updatedAt: sinceDate,
+  //             })
+  //             .addMemberPoint({
+  //               type: EnumMemberPointType.REWARD,
+  //               tierId: memberData.orgTierId,
+  //               invoiceId: invoiceIds[invoiceIds.length - 1],
+  //               invoiceAmount: tierValue.usageAmount,
+  //               isFirst: !memberData.hasFirstPurchased,
+  //               isBirth: memberData.hasBirthPurchased,
+  //               multipleRatio: memberRatio,
+  //               point: TierUtil.round(memberRatio * tierValue.usageAmount),
+  //               expiryDate: pointExpiryDate,
+  //               createdAt: sinceDate,
+  //               updatedAt: sinceDate,
+  //             })
+  //             .addMemberPoint({
+  //               type: EnumMemberPointType.REWARD,
+  //               tierId: tierData.curr.id,
+  //               invoiceId: invoiceIds[invoiceIds.length - 1],
+  //               invoiceAmount: tierValue.currAmount,
+  //               multipleRatio: memberRatio,
+  //               isFirst: !memberData.hasFirstPurchased,
+  //               isBirth: memberData.hasBirthPurchased,
+  //               point: TierUtil.round(memberRatio * tierValue.currAmount),
+  //               expiryDate: pointExpiryDate,
+  //               createdAt: sinceDate,
+  //               updatedAt: sinceDate,
+  //             })
+  //         } else {
+  //           memberData
+  //             .addMemberTier({
+  //               id: memberData.orgMemberTier.id,
+  //               personalAmount: tierValue.usageAmount,
+  //             })
+  //             .addMemberPoint({
+  //               type: EnumMemberPointType.REWARD,
+  //               tierId: tierData.curr.id,
+  //               invoiceId: invoiceIds[invoiceIds.length - 1],
+  //               invoiceAmount: tierValue.usageAmount,
+  //               isFirst: !memberData.hasFirstPurchased,
+  //               isBirth: memberData.hasBirthPurchased,
+  //               multipleRatio: memberRatio,
+  //               point: TierUtil.round(memberRatio * tierValue.usageAmount),
+  //               expiryDate: pointExpiryDate,
+  //               createdAt: sinceDate,
+  //               updatedAt: sinceDate,
+  //             })
+  //         }
 
-          if (!member.hasFirstPurchased) {
-            const referrerData = await this.getReferrerData(member)
-            if (referrerData && referrerData.isActive) {
-              const { tierData, tierValue } = tierChart.calculateData(referrerData, invoiceData)
+  //         if (!member.hasFirstPurchased) {
+  //           const referrerData = await this.getReferrerData(member)
+  //           if (referrerData && referrerData.isActive) {
+  //             const { tierData, tierValue } = tierChart.calculateData(referrerData, invoiceData)
 
-              if (tierData.isUpgrade()) {
-                referrerData.addTierHistory({
-                  type: EnumTierHistoryMethod.UPGRADE,
-                  prevTierId: tierData.info.id,
-                  currTierId: tierData.curr.id,
-                  invoiceId: invoiceIds[invoiceIds.length - 1],
-                  personalSpending: tierValue.currAmount,
-                  referralSpending: 0,
-                  excessSpending: tierValue.excessAmount,
-                  renewalSpending: tierData.curr.limitSpending,
-                  upgradeSpending: tierData.next.limitSpending,
-                  expiryDate: tierExpiryDate,
-                  createdAt: sinceDate,
-                  updatedAt: sinceDate,
-                })
-              } else {
-                referrerData.addTierHistory({
-                  id: referrerData.orgTierHistory.id,
-                  referralSpending: tierValue.totalAmount,
-                })
+  //             if (tierData.isUpgrade()) {
+  //               referrerData.addMemberTier({
+  //                 type: EnumTierMethod.UPGRADE,
+  //                 prevTierId: tierData.info.id,
+  //                 currTierId: tierData.curr.id,
+  //                 invoiceId: invoiceIds[invoiceIds.length - 1],
+  //                 personalAmount: tierValue.currAmount,
+  //                 referralAmount: 0,
+  //                 excessAmount: tierValue.excessAmount,
+  //                 renewalAmount: tierData.curr.limitAmount,
+  //                 upgradeAmount: tierData.next.limitAmount,
+  //                 expiryDate: tierExpiryDate,
+  //                 createdAt: sinceDate,
+  //                 updatedAt: sinceDate,
+  //               })
+  //             } else {
+  //               referrerData.addMemberTier({
+  //                 id: referrerData.orgMemberTier.id,
+  //                 referralAmount: tierValue.totalAmount,
+  //               })
 
-                if (tierData.curr.referralRate && referrerData.hasDiamondAchieved) {
-                  referrerData.addPointHistory({
-                    type: EnumPointHistoryType.REFER,
-                    refereeId: memberData.id,
-                    tierId: referrerData.tierId,
-                    invoiceId: invoiceIds[invoiceIds.length - 1],
-                    invoiceAmount: tierValue.usageAmount,
-                    multipleRatio: TierUtil.ratio(tierData.curr.referralRate),
-                    point: TierUtil.convert(tierValue.usageAmount, tierData.curr.referralRate),
-                    expiryDate: pointExpiryDate,
-                    createdAt: sinceDate,
-                    updatedAt: sinceDate,
-                  })
-                }
-              }
+  //               if (tierData.curr.referralRate && referrerData.hasDiamondAchieved) {
+  //                 referrerData.addMemberPoint({
+  //                   type: EnumMemberPointType.REFER,
+  //                   refereeId: memberData.id,
+  //                   tierId: referrerData.tierId,
+  //                   invoiceId: invoiceIds[invoiceIds.length - 1],
+  //                   invoiceAmount: tierValue.usageAmount,
+  //                   multipleRatio: TierUtil.ratio(tierData.curr.referralRate),
+  //                   point: TierUtil.convert(tierValue.usageAmount, tierData.curr.referralRate),
+  //                   expiryDate: pointExpiryDate,
+  //                   createdAt: sinceDate,
+  //                   updatedAt: sinceDate,
+  //                 })
+  //               }
+  //             }
 
-              referrerData.addRefereeData(memberData).setDiamondAchieved(tierData.isUpgrade())
-            }
-          }
+  //             referrerData.addRefereeData(memberData).setDiamondAchieved(tierData.isUpgrade())
+  //           }
+  //         }
 
-          usedInvoiceIds = [...usedInvoiceIds, ...invoiceIds]
+  //         usedInvoiceIds = [...usedInvoiceIds, ...invoiceIds]
 
-          // Update member flags
-          memberData
-            .setFirstPurchased()
-            .setBirthPurchased(isBirthMonth)
-            .setDiamondAchieved(tierData.isUpgrade())
+  //         // Update member flags
+  //         memberData
+  //           .setFirstPurchased()
+  //           .setBirthPurchased(isBirthMonth)
+  //           .setDiamondAchieved(tierData.isUpgrade())
 
-          await this.prisma.$transaction(async tx => {
-            await tx.member.update({
-              where: { id: member.id },
-              data: {
-                tierId: memberData.tierId,
-                minTierId: memberData.minTierId,
-                expiryDate: memberData.expiryDate,
-                pointBalance: memberData.pointBalance,
-                maximumSpending: memberData.maximumSpending,
-                personalSpending: memberData.personalSpending,
-                referralSpending: memberData.referralSpending,
-                hasFirstPurchased: memberData.hasFirstPurchased,
-                hasFirstPurchasedAt: memberData.hasFirstPurchasedAt,
-                hasBirthPurchased: memberData.hasBirthPurchased,
-                hasBirthPurchasedAt: memberData.hasBirthPurchasedAt,
-                hasDiamondAchieved: memberData.hasDiamondAchieved,
-                hasDiamondAchievedAt: memberData.hasDiamondAchievedAt,
-                updatedAt: memberData.updatedAt,
-                invoices: {
-                  updateMany: {
-                    where: { id: { in: invoiceData.ids } },
-                    data: { isEarned: true, updatedAt: memberData.updatedAt },
-                  },
-                },
-                tierHistories: {
-                  update: {
-                    where: { id: memberData.orgTierHistory.id },
-                    data: memberData.orgTierHistory.data,
-                  },
-                  createMany: {
-                    data: memberData.tierHistories,
-                    skipDuplicates: true,
-                  },
-                },
-                pointHistories: {
-                  createMany: {
-                    data: memberData.pointHistories,
-                    skipDuplicates: true,
-                  },
-                },
-              },
-            })
+  //         await this.prisma.$transaction(async tx => {
+  //           await tx.member.update({
+  //             where: { id: member.id },
+  //             data: {
+  //               tierId: memberData.tierId,
+  //               minTierId: memberData.minTierId,
+  //               expiryDate: memberData.expiryDate,
+  //               pointBalance: memberData.pointBalance,
+  //               maximumAmount: memberData.maximumAmount,
+  //               personalAmount: memberData.personalAmount,
+  //               referralAmount: memberData.referralAmount,
+  //               hasFirstPurchased: memberData.hasFirstPurchased,
+  //               hasFirstPurchasedAt: memberData.hasFirstPurchasedAt,
+  //               hasBirthPurchased: memberData.hasBirthPurchased,
+  //               hasBirthPurchasedAt: memberData.hasBirthPurchasedAt,
+  //               hasDiamondAchieved: memberData.hasDiamondAchieved,
+  //               hasDiamondAchievedAt: memberData.hasDiamondAchievedAt,
+  //               updatedAt: memberData.updatedAt,
+  //               invoices: {
+  //                 updateMany: {
+  //                   where: { id: { in: invoiceData.ids } },
+  //                   data: { isEarned: true, updatedAt: memberData.updatedAt },
+  //                 },
+  //               },
+  //               tiers: {
+  //                 update: {
+  //                   where: { id: memberData.orgMemberTier.id },
+  //                   data: memberData.orgMemberTier.data,
+  //                 },
+  //                 createMany: {
+  //                   data: memberData.tiers,
+  //                   skipDuplicates: true,
+  //                 },
+  //               },
+  //               points: {
+  //                 createMany: {
+  //                   data: memberData.points,
+  //                   skipDuplicates: true,
+  //                 },
+  //               },
+  //             },
+  //           })
 
-            if (memberData.hasReferrer()) {
-              const refererData = memberData.getReferrerData()
-              await tx.member.update({
-                where: { id: refererData.id },
-                data: {
-                  tierId: refererData.tierId,
-                  minTierId: refererData.minTierId,
-                  expiryDate: refererData.expiryDate,
-                  pointBalance: refererData.pointBalance,
-                  maximumSpending: refererData.maximumSpending,
-                  personalSpending: refererData.personalSpending,
-                  referralSpending: refererData.referralSpending,
-                  hasDiamondAchieved: refererData.hasDiamondAchieved,
-                  hasDiamondAchievedAt: refererData.hasDiamondAchievedAt,
-                  updatedAt: refererData.updatedAt,
-                  tierHistories: {
-                    update: {
-                      where: { id: refererData.orgTierHistory.id },
-                      data: refererData.orgTierHistory.data,
-                    },
-                    createMany: {
-                      data: refererData.tierHistories,
-                      skipDuplicates: true,
-                    },
-                  },
-                  pointHistories: {
-                    createMany: {
-                      data: refererData.pointHistories,
-                      skipDuplicates: true,
-                    },
-                  },
-                },
-              })
-            }
-          })
-        }
+  //           if (memberData.hasReferrer()) {
+  //             const refererData = memberData.getReferrerData()
+  //             await tx.member.update({
+  //               where: { id: refererData.id },
+  //               data: {
+  //                 tierId: refererData.tierId,
+  //                 minTierId: refererData.minTierId,
+  //                 expiryDate: refererData.expiryDate,
+  //                 pointBalance: refererData.pointBalance,
+  //                 maximumAmount: refererData.maximumAmount,
+  //                 personalAmount: refererData.personalAmount,
+  //                 referralAmount: refererData.referralAmount,
+  //                 hasDiamondAchieved: refererData.hasDiamondAchieved,
+  //                 hasDiamondAchievedAt: refererData.hasDiamondAchievedAt,
+  //                 updatedAt: refererData.updatedAt,
+  //                 tiers: {
+  //                   update: {
+  //                     where: { id: refererData.orgMemberTier.id },
+  //                     data: refererData.orgMemberTier.data,
+  //                   },
+  //                   createMany: {
+  //                     data: refererData.tiers,
+  //                     skipDuplicates: true,
+  //                   },
+  //                 },
+  //                 points: {
+  //                   createMany: {
+  //                     data: refererData.points,
+  //                     skipDuplicates: true,
+  //                   },
+  //                 },
+  //               },
+  //             })
+  //           }
+  //         })
+  //       }
 
-        //  garbage collection (GC) to clean up unused memory
-        grpInvoices[key] = null
-      }
+  //       //  garbage collection (GC) to clean up unused memory
+  //       grpInvoices[key] = null
+  //     }
 
-      sinceDate = this.helperService.dateForward(sinceDate, { day: 1 })
-    }
-    return issuedAt
-  }
+  //     sinceDate = this.helperService.dateForward(sinceDate, { day: 1 })
+  //   }
+  //   return issuedAt
+  // }
 }

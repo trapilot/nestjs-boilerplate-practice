@@ -23,6 +23,7 @@ export class MemberEarnPointFromPurchaseHandler implements IQueueHandler {
 
     const nowDate = this.helperService.dateNow()
 
-    await this.memberService.earnPointFromInvoices(nowDate)
+    // TODO
+    // await this.memberService.earnPointFromInvoices(nowDate)
   }
 }

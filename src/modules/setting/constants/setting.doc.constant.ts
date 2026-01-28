@@ -19,6 +19,7 @@ export const SETTING_DOC_REQUEST_LIST = [
     required: false,
     type: 'string',
     enum: EnumSettingGroup,
+    enumName: 'EnumSettingGroup',
     description: 'Group',
   },
 ]

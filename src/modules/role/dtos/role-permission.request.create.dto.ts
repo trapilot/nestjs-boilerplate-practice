@@ -14,6 +14,11 @@ export class RolePermissionRequestCreateDto {
   @ArrayNotEmpty()
   @IsArray()
   @ToArray()
-  @ApiProperty({ required: true, isArray: true, enum: EnumAuthAbilityAction })
+  @ApiProperty({
+    required: true,
+    isArray: true,
+    enum: EnumAuthAbilityAction,
+    enumName: 'EnumAuthAbilityAction',
+  })
   actions: EnumAuthAbilityAction[]
 }

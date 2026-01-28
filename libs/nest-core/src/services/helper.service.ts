@@ -292,15 +292,15 @@ export class HelperService {
     })
   }
 
-  createPhone(phone: string, country?: string): string {
-    return `${country ?? ''}${phone}`
+  createPhone(phone: string, region?: string): string {
+    return `${region ?? ''}${phone}`
   }
 
-  parsePhone(phone: string): { country: string; phone: string } {
-    const country = Object.values(EnumCountryCode).find(code => phone.startsWith(code)) || ''
+  parsePhone(phone: string): { region: string; phone: string } {
+    const region = Object.values(EnumCountryCode).find(code => phone.startsWith(code)) || ''
     return {
-      country,
-      phone: phone.slice(country.length).trim(),
+      region,
+      phone: phone.slice(region.length).trim(),
     }
   }
 

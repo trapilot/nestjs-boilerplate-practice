@@ -69,7 +69,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
   @Cron(CronExpression.EVERY_2_HOURS)
   async cleanUpRefreshTokens(): Promise<Date> {
     const nowDate = this.helperService.dateNow()
-    await this.prisma.memberTokenHistory.deleteMany({
+    await this.prisma.memberSession.deleteMany({
       where: { refreshExpired: { lte: nowDate } },
     })
     return nowDate
@@ -107,7 +107,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
     refreshToken: string,
     refreshPayload: AuthJwtRefreshPayloadDto,
   ): Promise<boolean> {
-    const userToken = await this.prisma.memberTokenHistory.findFirst({
+    const userToken = await this.prisma.memberSession.findFirst({
       where: { refreshToken },
     })
 
@@ -120,7 +120,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
 
     if (!userToken.isActive || this.helperService.dateIsAfter(userToken.refreshExpired)) {
       // tracking spam refresh token
-      await this.prisma.memberTokenHistory.update({
+      await this.prisma.memberSession.update({
         where: { id: userToken.id },
         data: { refreshAttempt: { increment: 1 } },
       })
@@ -135,7 +135,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
       userToken.memberId !== refreshPayload.user.id
     ) {
       // kick users that logged in. user must login again
-      await this.prisma.memberTokenHistory.updateMany({
+      await this.prisma.memberSession.updateMany({
         where: { memberId: userToken.memberId },
         data: { isActive: false },
       })
@@ -310,11 +310,11 @@ export class MemberAuth implements IAuthValidator<TMember> {
 
       if (userToken) {
         // disabled old online refresh tokens
-        await this.prisma.memberTokenHistory.updateMany({
+        await this.prisma.memberSession.updateMany({
           data: { isActive: false, updatedAt: payload.loginDate },
           where: { memberId: member.id, isActive: true, memberToken: payload.loginToken },
         })
-        await this.prisma.memberTokenHistory.create({
+        await this.prisma.memberSession.create({
           data: {
             isActive: true,
             memberId: member.id,
@@ -331,12 +331,12 @@ export class MemberAuth implements IAuthValidator<TMember> {
 
       if (userAgent) {
         // disabled online devices
-        await this.prisma.memberDeviceHistory.updateMany({
+        await this.prisma.memberDevice.updateMany({
           data: { isActive: false, updatedAt: payload.loginDate },
           where: { token: payload.loginToken },
         })
 
-        const userData: Prisma.MemberDeviceHistoryUncheckedCreateInput = {
+        const userData: Prisma.MemberDeviceUncheckedCreateInput = {
           type: userAgent?.device?.type ?? null,
           model: userAgent?.device?.model ?? null,
           version: userAgent?.os?.version ?? null,
@@ -346,7 +346,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
           isActive: true,
           memberId: member.id,
         }
-        await this.prisma.memberDeviceHistory.upsert({
+        await this.prisma.memberDevice.upsert({
           where: { memberId_token: { memberId: userData.memberId, token: userData.token } },
           update: userData,
           create: userData,

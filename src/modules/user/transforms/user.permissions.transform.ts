@@ -24,14 +24,15 @@ export function ToUserPermissions(): (target: object, key: string) => void {
           const roleBitwise = userRolePermission?.bitwise ?? 0
 
           if (roleBitwise && rolePerm && rolePerm.isActive && rolePerm.context) {
-            const { context, isActive, isVisible, title, subject, sorting, bitwise } = rolePerm
+            const { context, isActive, isVisible, path, subject, sorting, bitwise } = rolePerm
             userPermissions.push({
               context,
               isActive,
               isVisible,
               sorting,
               subject,
-              title: UserAbilityUtil.getPermTitle(title),
+              path,
+              title: UserAbilityUtil.getPermTitle(rolePerm.title),
               bitwise: roleBitwise & bitwise,
             })
           }
@@ -43,7 +44,7 @@ export function ToUserPermissions(): (target: object, key: string) => void {
 
       // grouped
       for (const userPermission of userPermissions) {
-        const { context, isVisible, title, subject, bitwise } = userPermission
+        const { context, isVisible, path, title, subject, bitwise } = userPermission
         if (!(context in grpContextPermission)) {
           grpContextPermission[context] = {
             group: false,
@@ -61,6 +62,7 @@ export function ToUserPermissions(): (target: object, key: string) => void {
           ])
         } else {
           grpContextPermission[context].subjects.push({
+            path,
             title,
             context,
             subject,

@@ -1,18 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { EnumAppVersionPlatform } from '@runtime/prisma-client'
+import { EnumPlatformType } from '@runtime/prisma-client'
 import { IsEnum, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator'
 import { ToString } from 'lib/nest-core'
 
 export class AppVersionRequestCreateDto {
   @IsNotEmpty()
-  @IsEnum(EnumAppVersionPlatform)
+  @IsEnum(EnumPlatformType)
   @ApiProperty({
     description: 'Api Key name',
-    example: EnumAppVersionPlatform.AOS,
+    example: EnumPlatformType.AOS,
     required: true,
-    enum: EnumAppVersionPlatform,
+    enum: EnumPlatformType,
+    enumName: 'EnumPlatformType',
   })
-  type: EnumAppVersionPlatform
+  type: EnumPlatformType
 
   @IsNotEmpty()
   @IsString()
@@ -20,7 +21,7 @@ export class AppVersionRequestCreateDto {
   @MaxLength(100)
   @ApiProperty({
     description: 'Api version name',
-    example: EnumAppVersionPlatform.AOS,
+    example: EnumPlatformType.AOS,
     required: true,
   })
   name: string

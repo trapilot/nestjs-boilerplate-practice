@@ -10,7 +10,7 @@ import {
   IMemberVerifyCreateOptions,
   IMemberVerifyIdentity,
   IMemberVerifyRandomOptions,
-  TMemberVerifyHistory,
+  TMemberVerification,
 } from '../interfaces'
 
 @Injectable()
@@ -24,7 +24,7 @@ export class VerificationService {
   @Cron(CronExpression.EVERY_2_HOURS)
   async cleanUpTokens(): Promise<Date> {
     const nowDate = this.helperService.dateNow()
-    await this.prisma.memberVerifyHistory.updateMany({
+    await this.prisma.memberVerification.updateMany({
       where: { isActive: true, isExpired: true, expiresAt: { lte: nowDate } },
       data: { isActive: false },
     })
@@ -34,14 +34,14 @@ export class VerificationService {
   async randomToken(
     channel: EnumVerificationChannel,
     options: IMemberVerifyRandomOptions,
-  ): Promise<TMemberVerifyHistory> {
+  ): Promise<TMemberVerification> {
     const isInspector = this.checkIsInspector(options?.memberData)
 
     if (!isInspector) {
       const nowDate = this.helperService.dateNow()
       const dateRange = this.helperService.dateRange(nowDate)
 
-      const todayAttempts = await this.prisma.memberVerifyHistory.count({
+      const todayAttempts = await this.prisma.memberVerification.count({
         where: {
           channel,
           type: options.method,
@@ -69,7 +69,7 @@ export class VerificationService {
       inspector: isInspector,
     })
 
-    return await this.prisma.memberVerifyHistory.create({
+    return await this.prisma.memberVerification.create({
       data: {
         channel,
         type: options.method,
@@ -91,7 +91,7 @@ export class VerificationService {
       })
     }
 
-    return await this.prisma.memberVerifyHistory.exists({
+    return await this.prisma.memberVerification.exists({
       channel: options.channel,
       type: options.method,
       email: options?.email,
@@ -105,7 +105,7 @@ export class VerificationService {
   }
 
   async approveToken(token: string, options: IMemberVerifyApproveOptions): Promise<boolean> {
-    const lastVerifyData = await this.prisma.memberVerifyHistory.findFirst({
+    const lastVerifyData = await this.prisma.memberVerification.findFirst({
       where: {
         isActive: true,
         channel: options.channel,
@@ -142,11 +142,11 @@ export class VerificationService {
     const { id: verifyId, memberId, phone, email } = lastVerifyData
 
     await this.prisma.$transaction([
-      this.prisma.memberVerifyHistory.updateMany({
+      this.prisma.memberVerification.updateMany({
         where: { memberId, phone, email, isActive: true, id: { lt: verifyId } },
         data: { isActive: false },
       }),
-      this.prisma.memberVerifyHistory.update({
+      this.prisma.memberVerification.update({
         where: { id: verifyId },
         data: { isActive: true, isVerified: true, verifiedAt: nowDate },
       }),

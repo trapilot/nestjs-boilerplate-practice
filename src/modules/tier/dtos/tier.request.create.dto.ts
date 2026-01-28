@@ -19,7 +19,7 @@ export class TierRequestCreateDto {
   @IsNotEmpty()
   @IsEnum(EnumTierCode)
   @ToString()
-  @ApiProperty({ enum: EnumTierCode, example: EnumTierCode.NORMAL })
+  @ApiProperty({ enum: EnumTierCode, enumName: 'EnumTierCode', example: EnumTierCode.NORMAL })
   code: string
 
   @IsNotEmpty()
@@ -38,7 +38,7 @@ export class TierRequestCreateDto {
   @IsNumber()
   @ToNumber()
   @ApiProperty({ example: 0 })
-  limitSpending: number
+  limitAmount: number
 
   @IsNotEmpty()
   @IsNumber()

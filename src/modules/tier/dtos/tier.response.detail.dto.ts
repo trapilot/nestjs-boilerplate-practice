@@ -32,7 +32,7 @@ class ResponseDataDetailDto {
   @ApiProperty({ example: 0 })
   @Type(() => Number)
   @Expose()
-  limitSpending: number
+  limitAmount: number
 
   @ApiProperty({ example: 0 })
   @Type(() => Number)
@@ -99,7 +99,7 @@ class ResponseDataChartDto {
   @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
-  requireSpending: number
+  requireAmount: number
 
   @ApiProperty({ example: true })
   @Type(() => Boolean)

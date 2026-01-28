@@ -58,7 +58,7 @@ export class UserAuth implements IAuthValidator<TUser> {
   @Cron(CronExpression.EVERY_2_HOURS)
   async cleanUpRefreshTokens(): Promise<Date> {
     const nowDate = this.helperService.dateNow()
-    await this.prisma.userTokenHistory.deleteMany({
+    await this.prisma.userSession.deleteMany({
       where: { refreshExpired: { lte: nowDate } },
     })
     return nowDate
@@ -119,7 +119,7 @@ export class UserAuth implements IAuthValidator<TUser> {
     refreshToken: string,
     refreshPayload: AuthJwtRefreshPayloadDto,
   ): Promise<boolean> {
-    const userToken = await this.prisma.userTokenHistory.findFirst({
+    const userToken = await this.prisma.userSession.findFirst({
       where: { refreshToken },
     })
 
@@ -132,7 +132,7 @@ export class UserAuth implements IAuthValidator<TUser> {
 
     if (!userToken.isActive || this.helperService.dateIsAfter(userToken.refreshExpired)) {
       // tracking spam refresh token
-      await this.prisma.userTokenHistory.update({
+      await this.prisma.userSession.update({
         where: { id: userToken.id },
         data: { refreshAttempt: { increment: 1 } },
       })
@@ -147,7 +147,7 @@ export class UserAuth implements IAuthValidator<TUser> {
       userToken.userId !== refreshPayload.user.id
     ) {
       // kick users that logged in. user must login again
-      await this.prisma.userTokenHistory.updateMany({
+      await this.prisma.userSession.updateMany({
         where: { userId: userToken.userId },
         data: { isActive: false },
       })
@@ -341,11 +341,11 @@ export class UserAuth implements IAuthValidator<TUser> {
 
       if (userToken) {
         // disabled old online refresh tokens
-        await this.prisma.userTokenHistory.updateMany({
+        await this.prisma.userSession.updateMany({
           data: { isActive: false, updatedAt: payload.loginDate },
           where: { userId: user.id, isActive: true, userToken: payload.loginToken },
         })
-        await this.prisma.userTokenHistory.create({
+        await this.prisma.userSession.create({
           data: {
             isActive: true,
             userId: user.id,
@@ -359,7 +359,7 @@ export class UserAuth implements IAuthValidator<TUser> {
           },
         })
         if (userRequest) {
-          await this.prisma.userLoginHistory.create({
+          await this.prisma.userLoginLog.create({
             data: {
               userId: user.id,
               hostname: userRequest?.hostname,

@@ -1,4 +1,4 @@
-import { Member, MemberTierHistory, Prisma } from '@runtime/prisma-client'
+import { Member, MemberTier, Prisma } from '@runtime/prisma-client'
 
 export class MemberData {
   public readonly id: number
@@ -9,9 +9,9 @@ export class MemberData {
   public updatedAt: Date | string
   public expiryDate: Date | string
   public pointBalance: number
-  public maximumSpending: number
-  public personalSpending: number
-  public referralSpending: number
+  public maximumAmount: number
+  public personalAmount: number
+  public referralAmount: number
 
   public hasFirstPurchased: boolean
   public hasFirstPurchasedAt: Date | string
@@ -19,22 +19,22 @@ export class MemberData {
   public hasBirthPurchased: boolean
   public hasBirthPurchasedAt: Date | string
 
-  public hasDiamondAchieved: boolean
-  public hasDiamondAchievedAt: Date | string
+  public hasFirstOfficial: boolean
+  public hasFirstOfficialAt: Date | string
 
   // Referee (Friend): a person who is invited to a referral/ referred by another
   // Referrer (Brand Advocate/ Ambassador): a person who makes a referral/refers another
   private referrer: MemberData = null
   private isReferrer: boolean = false
 
-  public orgTierHistory: {
+  public orgMemberTier: {
     id: number
-    data: Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput
+    data: Prisma.MemberTierUncheckedCreateWithoutMemberInput
   }
-  public tierHistories: Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput[] = []
-  public pointHistories: Prisma.MemberPointHistoryUncheckedCreateWithoutMemberInput[] = []
+  public tiers: Prisma.MemberTierUncheckedCreateWithoutMemberInput[] = []
+  public points: Prisma.MemberPointUncheckedCreateWithoutMemberInput[] = []
 
-  constructor(member: Member, tierHistory: MemberTierHistory) {
+  constructor(member: Member, tierHistory: MemberTier) {
     this.id = member.id
     this.minTierId = member.minTierId
     this.orgTierId = member.tierId
@@ -43,9 +43,8 @@ export class MemberData {
     this.updatedAt = member.updatedAt
     this.expiryDate = member.expiryDate
     this.pointBalance = member.pointBalance
-    this.maximumSpending = member.maximumSpending
-    this.personalSpending = member.personalSpending
-    this.referralSpending = member.referralSpending
+    this.personalAmount = member.personalAmount
+    this.referralAmount = member.referralAmount
 
     this.hasFirstPurchased = member.hasFirstPurchased
     this.hasFirstPurchasedAt = member.hasFirstPurchasedAt
@@ -53,109 +52,99 @@ export class MemberData {
     this.hasBirthPurchased = member.hasBirthPurchased
     this.hasBirthPurchasedAt = member.hasBirthPurchasedAt
 
-    this.hasDiamondAchieved = member.hasDiamondAchieved
-    this.hasDiamondAchievedAt = member.hasDiamondAchievedAt
+    this.hasFirstOfficial = member.hasFirstOfficial
+    this.hasFirstOfficialAt = member.hasFirstOfficialAt
 
     const { id, memberId: _memberId, ...data } = tierHistory
-    this.orgTierHistory = { id, data }
+    this.orgMemberTier = { id, data }
   }
 
-  static make(member: Member, tierHistory: MemberTierHistory): MemberData {
+  static make(member: Member, tierHistory: MemberTier): MemberData {
     return new MemberData(member, tierHistory)
   }
 
   /*
-  addTierHistoryAmount(amount: number, updatedAt: Date): MemberData {
-    const orgTierHistory = this.getCurrTierData()
-    if (orgTierHistory) {
-      orgTierHistory.updatedAt = updatedAt
+  addMemberTierAmount(amount: number, updatedAt: Date): MemberData {
+    const orgMemberTier = this.getCurrTierData()
+    if (orgMemberTier) {
+      orgMemberTier.updatedAt = updatedAt
 
-      this.tierId = orgTierHistory.currTierId
-      this.minTierId = orgTierHistory.minTierId
-      this.updatedAt = orgTierHistory.updatedAt
+      this.tierId = orgMemberTier.currTierId
+      this.minTierId = orgMemberTier.minTierId
+      this.updatedAt = orgMemberTier.updatedAt
 
-      const { remainPersonalSpending, remainReferralSpending } = orgTierHistory
+      const { remainPersonalAmount, remainReferralAmount } = orgMemberTier
       if (this.isReferrer) {
-        orgTierHistory.referralSpending += amount
-        orgTierHistory.remainReferralSpending -= Math.min(remainReferralSpending, amount)
+        orgMemberTier.referralAmount += amount
+        orgMemberTier.remainReferralAmount -= Math.min(remainReferralAmount, amount)
       } else {
-        orgTierHistory.personalSpending += amount
-        orgTierHistory.remainPersonalSpending -= Math.min(remainPersonalSpending, amount)
+        orgMemberTier.personalAmount += amount
+        orgMemberTier.remainPersonalAmount -= Math.min(remainPersonalAmount, amount)
       }
     }
     return this
   }
   */
 
-  private isMemberTierHistoryUpdate(
+  private isMemberTierUpdate(
     tierHistory:
-      | Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput
-      | Prisma.MemberTierHistoryUncheckedUpdateWithoutMemberInput,
-  ): tierHistory is Prisma.MemberTierHistoryUncheckedUpdateWithoutMemberInput {
+      | Prisma.MemberTierUncheckedCreateWithoutMemberInput
+      | Prisma.MemberTierUncheckedUpdateWithoutMemberInput,
+  ): tierHistory is Prisma.MemberTierUncheckedUpdateWithoutMemberInput {
     return 'id' in tierHistory && !!tierHistory.id
   }
 
-  private isMemberTierHistoryCreate(
+  private isMemberTierCreate(
     tierHistory:
-      | Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput
-      | Prisma.MemberTierHistoryUncheckedUpdateWithoutMemberInput,
-  ): tierHistory is Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput {
-    return !this.isMemberTierHistoryUpdate(tierHistory)
+      | Prisma.MemberTierUncheckedCreateWithoutMemberInput
+      | Prisma.MemberTierUncheckedUpdateWithoutMemberInput,
+  ): tierHistory is Prisma.MemberTierUncheckedCreateWithoutMemberInput {
+    return !this.isMemberTierUpdate(tierHistory)
   }
 
-  addTierHistory(
+  addMemberTier(
     tierHistory:
-      | Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput
-      | Prisma.MemberTierHistoryUncheckedUpdateWithoutMemberInput,
+      | Prisma.MemberTierUncheckedCreateWithoutMemberInput
+      | Prisma.MemberTierUncheckedUpdateWithoutMemberInput,
   ): MemberData {
-    if (this.isMemberTierHistoryUpdate(tierHistory)) {
-      const { personalSpending, referralSpending } = tierHistory
+    if (this.isMemberTierUpdate(tierHistory)) {
+      const { personalAmount, referralAmount } = tierHistory
       if (this.isReferrer) {
-        this.referralSpending += +referralSpending
-        this.orgTierHistory.data.referralSpending += +referralSpending
+        this.referralAmount += +referralAmount
+        this.orgMemberTier.data.referralAmount += +referralAmount
       } else {
-        this.personalSpending += +personalSpending
-        this.orgTierHistory.data.personalSpending += +personalSpending
+        this.personalAmount += +personalAmount
+        this.orgMemberTier.data.personalAmount += +personalAmount
       }
     }
 
-    if (this.isMemberTierHistoryCreate(tierHistory)) {
-      this.tierId = tierHistory.currTierId
+    if (this.isMemberTierCreate(tierHistory)) {
+      this.tierId = tierHistory.tierId
       this.expiryDate = tierHistory.expiryDate
-      this.maximumSpending = tierHistory.upgradeSpending
-
-      if (tierHistory?.minTierId) {
-        this.minTierId = tierHistory.minTierId
-      } else {
-        tierHistory.minTierId = this.minTierId
-      }
 
       if (this.isReferrer) {
-        this.referralSpending = +tierHistory.referralSpending
+        this.referralAmount = +tierHistory.referralAmount
       } else {
-        this.personalSpending = +tierHistory.personalSpending
+        this.personalAmount = +tierHistory.personalAmount
       }
 
-      if (this.orgTierHistory.data.isActive) {
-        this.orgTierHistory.data.isActive = false
-        this.orgTierHistory.data.isDeleted = true
+      if (this.orgMemberTier.data.isActive) {
+        this.orgMemberTier.data.isActive = false
       }
 
-      this.tierHistories.push(tierHistory)
+      this.tiers.push(tierHistory)
     }
 
     return this
   }
 
-  addPointHistory(
-    pointHistory: Prisma.MemberPointHistoryUncheckedCreateWithoutMemberInput,
-  ): MemberData {
+  addMemberPoint(pointHistory: Prisma.MemberPointUncheckedCreateWithoutMemberInput): MemberData {
     if (pointHistory && pointHistory.point !== 0) {
       this.pointBalance += pointHistory.point
       pointHistory.pointBalance = this.pointBalance
 
       // const { memberId, ...data } = pointHistory
-      this.pointHistories.push(pointHistory)
+      this.points.push(pointHistory)
     }
     return this
   }
@@ -201,34 +190,34 @@ export class MemberData {
   }
 
   setDiamondAchieved(flag: boolean = true): MemberData {
-    this.hasDiamondAchieved ||= flag
+    this.hasFirstOfficial ||= flag
     return this
   }
 
-  getCurrTierData(): Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput {
-    return this.tierHistories.find(o => o?.id)
+  getCurrTierData(): Prisma.MemberTierUncheckedCreateWithoutMemberInput {
+    return this.tiers.find(o => o?.id)
   }
 
   isLimitedTier(tierId: number): boolean {
     return tierId === this.minTierId
   }
 
-  getRecentSpending(): number {
+  getRecentAmount(): number {
     const recentData = this.getRecentTierData()
     if (recentData) {
-      return this.isReferrer ? recentData.referralSpending : recentData.personalSpending
+      return this.isReferrer ? recentData.referralAmount : recentData.personalAmount
     }
     return 0
   }
 
-  getRecentTierData(): Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput {
-    if (this.tierHistories.length) {
-      return this.tierHistories[this.tierHistories.length - 1]
+  getRecentTierData(): Prisma.MemberTierUncheckedCreateWithoutMemberInput {
+    if (this.tiers.length) {
+      return this.tiers[this.tiers.length - 1]
     }
-    return this.orgTierHistory.data
+    return this.orgMemberTier.data
   }
 
-  getRecentPointData(): Prisma.MemberPointHistoryUncheckedCreateWithoutMemberInput {
-    return this.pointHistories[this.pointHistories.length - 1] || null
+  getRecentPointData(): Prisma.MemberPointUncheckedCreateWithoutMemberInput {
+    return this.points[this.points.length - 1] || null
   }
 }

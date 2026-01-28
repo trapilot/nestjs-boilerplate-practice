@@ -20,7 +20,7 @@ export class PageRequestCreateDto {
   @IsNotEmpty()
   @IsEnum(EnumPageType)
   @ToString()
-  @ApiProperty({ required: true, enum: EnumPageType })
+  @ApiProperty({ required: true, enum: EnumPageType, enumName: 'EnumPageType' })
   type: EnumPageType
 
   @IsOptional()

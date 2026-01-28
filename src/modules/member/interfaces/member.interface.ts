@@ -3,25 +3,25 @@ import {
   EnumVerificationChannel,
   EnumVerificationMethod,
   Member,
-  MemberDeviceHistory,
-  MemberPointHistory,
-  MemberTierHistory,
-  MemberTokenHistory,
-  MemberVerifyHistory,
+  MemberDevice,
+  MemberPoint,
+  MemberSession,
+  MemberTier,
+  MemberVerification,
   Prisma,
   Tier,
 } from '@runtime/prisma-client'
 import { EnumSmsDriver, TypeLeastOne } from 'lib/nest-core'
 
-export type TMemberVerifyHistory = MemberVerifyHistory
+export type TMemberVerification = MemberVerification
 
 export type TMember = Member & {
   tier?: Tier
-  deviceHistories?: MemberDeviceHistory[]
-  tokenHistories?: MemberTokenHistory[]
-  tierHistories?: MemberTierHistory[]
-  pointHistories?: MemberPointHistory[]
-  verifyHistories?: TMemberVerifyHistory[]
+  devices?: MemberDevice[]
+  sessions?: MemberSession[]
+  tiers?: MemberTier[]
+  points?: MemberPoint[]
+  verifications?: MemberVerification[]
 }
 
 export type TMemberMetadata = {
@@ -32,11 +32,11 @@ export interface IMemberRecentData {
   pointBalance: number
   tierId: number
   expiryDate: Date
-  personalSpending: number
-  referralSpending: number
-  maximumSpending: number
-  tierHistories: Prisma.MemberTierHistoryUncheckedCreateWithoutMemberInput[]
-  pointHistories: Prisma.MemberPointHistoryUncheckedCreateWithoutMemberInput[]
+  personalAmount: number
+  referralAmount: number
+  maximumAmount: number
+  tiers: Prisma.MemberTierUncheckedCreateWithoutMemberInput[]
+  points: Prisma.MemberPointUncheckedCreateWithoutMemberInput[]
 }
 
 export interface IMemberData extends IMemberRecentData {

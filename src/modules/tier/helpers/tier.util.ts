@@ -39,7 +39,7 @@ export class TierUtil {
 
   static calculate(tier: TTier, oldAmount: number, newAmount: number): TierValue {
     const totalAmount = oldAmount + newAmount
-    const excessAmount = totalAmount - tier.limitSpending
+    const excessAmount = totalAmount - tier.limitAmount
     const usageAmount = newAmount - excessAmount
     const currAmount = tier.alive ? excessAmount : 0
 

@@ -9,6 +9,7 @@ import {
   IsNumber,
   IsObject,
   IsOptional,
+  IsString,
 } from 'class-validator'
 import { ToArray, ToBoolean, ToNumber, ToObject, ToString } from 'lib/nest-core'
 import { RequestSentenceDto } from 'lib/nest-web'
@@ -17,21 +18,35 @@ export class PermissionRequestCreateDto {
   @IsOptional()
   @IsEnum(EnumAuthAbilityContext)
   @ToString()
-  @ApiProperty({ required: false, enum: EnumAuthAbilityContext })
+  @ApiProperty({
+    required: false,
+    enum: EnumAuthAbilityContext,
+    enumName: 'EnumAuthAbilityContext',
+  })
   context: EnumAuthAbilityContext
 
   @IsNotEmpty()
   @IsEnum(EnumAuthAbilitySubject)
   @ToString()
-  @ApiProperty({ required: true, enum: EnumAuthAbilitySubject })
+  @ApiProperty({ required: true, enum: EnumAuthAbilitySubject, enumName: 'EnumAuthAbilitySubject' })
   subject: EnumAuthAbilitySubject
 
   @IsNotEmpty()
   @ArrayNotEmpty()
   @IsArray()
   @ToArray({ type: EnumAuthAbilityAction })
-  @ApiProperty({ required: true, isArray: true, enum: EnumAuthAbilityAction })
+  @ApiProperty({
+    required: true,
+    isArray: true,
+    enum: EnumAuthAbilityAction,
+    enumName: 'EnumAuthAbilityAction',
+  })
   actions: EnumAuthAbilityAction[]
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({ required: true, example: '' })
+  path: string
 
   @IsNotEmpty()
   @IsObject()

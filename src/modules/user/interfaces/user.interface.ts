@@ -1,15 +1,15 @@
-import { Role, User, UserLoginHistory, UserTokenHistory, UsersRoles } from '@runtime/prisma-client'
+import { Role, User, UserLoginLog, UserSession, UsersRoles } from '@runtime/prisma-client'
 
-export type TUserTokenHistory = UserTokenHistory
-export type TUserLoginHistory = UserLoginHistory
+export type TUserSession = UserSession
+export type TUserLoginLog = UserLoginLog
 
 export type TUsersRoles = UsersRoles & {
   role?: Role
 }
 
 export type TUser = User & {
-  tokenHistories?: TUserTokenHistory[]
-  loginHistories?: TUserLoginHistory[]
+  logs?: TUserLoginLog[]
+  sessions?: TUserSession[]
   pivotRoles?: TUsersRoles[]
 }
 

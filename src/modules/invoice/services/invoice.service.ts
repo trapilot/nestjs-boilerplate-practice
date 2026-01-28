@@ -160,7 +160,7 @@ export class InvoiceService {
           update: isFullPaid
             ? {
                 status: EnumOrderStatus.DELIVERED,
-                redeems: {
+                redemptions: {
                   updateMany: {
                     data: {
                       isActive: true,
@@ -178,6 +178,7 @@ export class InvoiceService {
           create: {
             status: EnumPaymentStatus.PAID,
             method: options.method,
+            provider: options.provider,
             amount: options.amount,
             issuedAt: issuedAt,
             createdAt: issuedAt,
@@ -201,7 +202,7 @@ export class InvoiceService {
             updatedAt: nowDate,
             order: {
               update: {
-                redeems: {
+                redemptions: {
                   updateMany: {
                     data: {
                       status: EnumRedemptionStatus.REJECTED,

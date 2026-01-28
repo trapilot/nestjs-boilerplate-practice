@@ -129,12 +129,12 @@ export class UserService implements OnModuleInit {
         }
       }
 
-      const { country, phone } = this.helperService.parsePhone(data.phone)
+      const { region, phone } = this.helperService.parsePhone(data.phone)
 
       return await this.prisma.user.create({
         data: {
           ...data,
-          phoneCountry: country,
+          phoneRegion: region,
           phoneNumber: phone,
           isActive: true,
           signUpFrom: EnumAuthSignUpFrom.CMS,
@@ -164,7 +164,7 @@ export class UserService implements OnModuleInit {
       data.level = role.level
     }
 
-    const { country, phone } = this.helperService.parsePhone(`${data.phone}`)
+    const { region, phone } = this.helperService.parsePhone(`${data.phone}`)
 
     return await this.prisma.$transaction(async tx => {
       if (options?.roleId) {
@@ -176,7 +176,7 @@ export class UserService implements OnModuleInit {
         where: { id: user.id },
         data: {
           ...data,
-          phoneCountry: country,
+          phoneRegion: region,
           phoneNumber: phone,
           updatedAt: options?.updatedAt,
         },
@@ -193,10 +193,10 @@ export class UserService implements OnModuleInit {
   }
 
   async getLoginHistories(
-    where?: Prisma.UserLoginHistoryWhereInput,
+    where?: Prisma.UserLoginLogWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.userLoginHistory.list(where, params, options)
+    return await this.prisma.userLoginLog.list(where, params, options)
   }
 }

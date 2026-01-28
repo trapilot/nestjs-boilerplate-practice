@@ -3,6 +3,7 @@ export interface IUserProfilePermission {
   title: string
   context: string
   subjects: {
+    path: string
     title: string
     context: string
     subject: string
@@ -47,6 +48,7 @@ export interface IUserDataRole {
 export interface IUserDataPermission {
   context: string
   subject: string
+  path: string
   title: string
   sorting: number
   bitwise: number

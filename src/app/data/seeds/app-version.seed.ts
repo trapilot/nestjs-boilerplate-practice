@@ -1,4 +1,4 @@
-import { EnumAppVersionPlatform, Prisma } from '@runtime/prisma-client'
+import { EnumPlatformType, Prisma } from '@runtime/prisma-client'
 import { CommandMigrateBase } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command } from 'nest-commander'
@@ -15,13 +15,13 @@ export class AppVersionSeed extends CommandMigrateBase {
 
     this.dtos = [
       {
-        name: EnumAppVersionPlatform.AOS,
-        type: EnumAppVersionPlatform.AOS,
+        name: EnumPlatformType.AOS,
+        type: EnumPlatformType.AOS,
         version: '0.0.0',
       },
       {
-        name: EnumAppVersionPlatform.IOS,
-        type: EnumAppVersionPlatform.IOS,
+        name: EnumPlatformType.IOS,
+        type: EnumPlatformType.IOS,
         version: '0.0.0',
       },
     ]

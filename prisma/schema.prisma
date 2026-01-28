@@ -100,15 +100,15 @@ model ApiKey {
 }
 
 model AppVersion {
-  id        Int                    @id @default(autoincrement())
-  type      EnumAppVersionPlatform @unique @default(IOS)
+  id        Int              @id @default(autoincrement())
+  type      EnumPlatformType @unique @default(IOS)
   name      String
   version   String
   url       String?
-  isForce   Boolean?               @default(false)
-  isActive  Boolean?               @default(true)
-  createdAt DateTime?              @default(now())
-  updatedAt DateTime?              @updatedAt
+  isForce   Boolean?         @default(false)
+  isActive  Boolean?         @default(true)
+  createdAt DateTime?        @default(now())
+  updatedAt DateTime?        @updatedAt
 
   @@unique([type, version])
   @@map("app_versions")
@@ -163,8 +163,8 @@ model Notification {
   createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
   updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
 
-  pushes                Push[]
-  memberNotifyHistories MemberNotifyHistory[]
+  pushes       Push[]
+  pivotMembers MemberNotification[]
 
   @@map("notifications")
 }
@@ -172,21 +172,21 @@ model Notification {
 model Push {
   id             Int             @id @default(autoincrement())
   notificationId Int
-  type           EnumPushType    @default(INSTANT)
+  type           EnumPushType    @default(ONCE)
   status         EnumPushStatus? @default(PENDING)
-  executeTime    String?
-  executeDate    String?
+  year           Int?
+  month          Int?
+  day            Int?
+  weekday        Int?
   hour           Int?
   minute         Int?
   second         Int?
-  weekday        Int?
-  day            Int?
-  month          Int?
-  startDate      DateTime?
+  sinceDate      DateTime?
   untilDate      DateTime?
   retryCount     Int?            @default(0)
   maxRetries     Int             @default(3)
   lastError      String?
+  isImmediate    Boolean?        @default(false)
   isActive       Boolean?        @default(true)
   startAt        DateTime?
   expiresAt      DateTime?
@@ -198,9 +198,9 @@ model Push {
   createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
   updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
 
-  notification          Notification          @relation(fields: [notificationId], references: [id])
-  memberPushHistories   MemberPushHistory[]
-  memberNotifyHistories MemberNotifyHistory[]
+  notification  Notification         @relation(fields: [notificationId], references: [id])
+  logs          MemberPush[]
+  notifications MemberNotification[]
 
   @@index([status, retryCount])
   @@map("pushes")
@@ -228,6 +228,7 @@ model Permission {
   id        Int       @id @default(autoincrement())
   title     Json?
   context   String?
+  path      String?
   subject   String    @unique
   bitwise   Int?      @default(0)
   sorting   Int?      @default(0)
@@ -269,7 +270,7 @@ model User {
   name            String?
   avatar          String?
   address         String?
-  phoneCountry    String?
+  phoneRegion     String?
   phoneNumber     String?
   loginToken      String?
   loginDate       DateTime?
@@ -287,36 +288,36 @@ model User {
   createdBy       Int?
   updatedBy       Int?
 
-  createdUserTwoFactor   UserTwoFactor[]        @relation("createdByUser")
-  updatedUserTwoFactor   UserTwoFactor[]        @relation("updatedByUser")
-  createdMemberTwoFactor MemberTwoFactor[]      @relation("createdByUser")
-  updatedMemberTwoFactor MemberTwoFactor[]      @relation("updatedByUser")
-  createdPermissions     Permission[]           @relation("createdByUser")
-  updatedPermissions     Permission[]           @relation("updatedByUser")
-  createdNotifications   Notification[]         @relation("createdByUser")
-  updatedNotifications   Notification[]         @relation("updatedByUser")
-  createdPushes          Push[]                 @relation("createdByUser")
-  updatedPushes          Push[]                 @relation("updatedByUser")
-  createdPages           Page[]                 @relation("createdByUser")
-  updatedPages           Page[]                 @relation("updatedByUser")
-  createdMembers         Member[]               @relation("createdByUser")
-  updatedMembers         Member[]               @relation("updatedByUser")
-  deletedMembers         Member[]               @relation("deletedByUser")
-  createdProducts        Product[]              @relation("createdByUser")
-  updatedProducts        Product[]              @relation("updatedByUser")
-  deletedProducts        Product[]              @relation("deletedByUser")
-  createdPoints          MemberPointHistory[]   @relation("createdByUser")
-  updatedPoints          MemberPointHistory[]   @relation("updatedByUser")
-  createdRedeems         MemberProductHistory[] @relation("createdByUser")
-  updatedRedeems         MemberProductHistory[] @relation("updatedByUser")
-  createdPromotions      Promotion[]            @relation("createdByUser")
-  updatedPromotions      Promotion[]            @relation("updatedByUser")
+  createdUserTwoFactor   UserTwoFactor[]    @relation("createdByUser")
+  updatedUserTwoFactor   UserTwoFactor[]    @relation("updatedByUser")
+  createdMemberTwoFactor MemberTwoFactor[]  @relation("createdByUser")
+  updatedMemberTwoFactor MemberTwoFactor[]  @relation("updatedByUser")
+  createdPermissions     Permission[]       @relation("createdByUser")
+  updatedPermissions     Permission[]       @relation("updatedByUser")
+  createdNotifications   Notification[]     @relation("createdByUser")
+  updatedNotifications   Notification[]     @relation("updatedByUser")
+  createdPushes          Push[]             @relation("createdByUser")
+  updatedPushes          Push[]             @relation("updatedByUser")
+  createdPages           Page[]             @relation("createdByUser")
+  updatedPages           Page[]             @relation("updatedByUser")
+  createdMembers         Member[]           @relation("createdByUser")
+  updatedMembers         Member[]           @relation("updatedByUser")
+  deletedMembers         Member[]           @relation("deletedByUser")
+  createdProducts        Product[]          @relation("createdByUser")
+  updatedProducts        Product[]          @relation("updatedByUser")
+  deletedProducts        Product[]          @relation("deletedByUser")
+  createdPoints          MemberPoint[]      @relation("createdByUser")
+  updatedPoints          MemberPoint[]      @relation("updatedByUser")
+  createdRedemptions     MemberRedemption[] @relation("createdByUser")
+  updatedRedemptions     MemberRedemption[] @relation("updatedByUser")
+  createdPromotions      Promotion[]        @relation("createdByUser")
+  updatedPromotions      Promotion[]        @relation("updatedByUser")
 
-  twoFactor       UserTwoFactor?
-  loginHistories  UserLoginHistory[]
-  tokenHistories  UserTokenHistory[]
-  verifyHistories UserVerifyHistory[]
-  pivotRoles      UsersRoles[]
+  twoFactor     UserTwoFactor?
+  logs          UserLoginLog[]
+  sessions      UserSession[]
+  verifications UserVerification[]
+  pivotRoles    UsersRoles[]
 
   @@map("users")
 }
@@ -345,7 +346,7 @@ model UserTwoFactor {
   @@map("user_two_factors")
 }
 
-model UserTokenHistory {
+model UserSession {
   id             Int       @id @default(autoincrement())
   userId         Int
   userToken      String
@@ -359,10 +360,10 @@ model UserTokenHistory {
   user User @relation(fields: [userId], references: [id])
 
   @@index([userId, userToken])
-  @@map("user_token_histories")
+  @@map("user_sessions")
 }
 
-model UserLoginHistory {
+model UserLoginLog {
   id              Int       @id @default(autoincrement())
   userId          Int
   ip              String?
@@ -380,10 +381,10 @@ model UserLoginHistory {
 
   user User @relation(fields: [userId], references: [id])
 
-  @@map("user_login_histories")
+  @@map("user_login_logs")
 }
 
-model UserVerifyHistory {
+model UserVerification {
   id         Int                     @id @default(autoincrement())
   channel    EnumVerificationChannel
   type       EnumVerificationMethod
@@ -402,7 +403,7 @@ model UserVerifyHistory {
 
   user User? @relation(fields: [userId], references: [id])
 
-  @@map("user_verify_histories")
+  @@map("user_verifications")
 }
 
 model UsersRoles {
@@ -419,90 +420,92 @@ model UsersRoles {
 }
 
 model Member {
-  id                       Int             @id @default(autoincrement())
-  code                     String?
-  tierId                   Int?
-  minTierId                Int?
-  countryId                Int?
-  districtId               Int?
-  referralCode             String?         @unique
-  invitedCode              String?
-  type                     EnumMemberType? @default(NORMAL)
-  email                    String?
-  name                     String?
-  refId                    String?
-  cardId                   String?
-  appleId                  String?
-  facebookId               String?
-  facebookToken            String?
-  phone                    String?
-  locale                   String?
-  gender                   String?
-  address                  String?
-  avatar                   String?
-  birthDate                DateTime?
-  expiryDate               DateTime?
-  pointBalance             Int?            @default(0)
-  personalSpending         Float?          @default(0)
-  referralSpending         Float?          @default(0)
-  maximumSpending          Float?          @default(0)
-  phoneCountry             String?
-  phoneNumber              String?
-  birthYear                Int?
-  birthMonth               Int?
-  birthDay                 Int?
-  loginToken               String?
-  loginDate                DateTime?
-  password                 String?
-  passwordAttempt          Int?            @default(0)
-  passwordExpired          DateTime?
-  isActive                 Boolean?        @default(true)
-  isVisible                Boolean?        @default(true)
-  isDeleted                Boolean?        @default(false)
-  isNotifiable             Boolean?        @default(true)
-  isPromotable             Boolean?        @default(true)
-  isEmailVerified          Boolean?        @default(false)
-  isPhoneVerified          Boolean?        @default(false)
-  receivePromotionViaApp   Boolean?        @default(false)
-  receivePromotionViaEmail Boolean?        @default(false)
-  hasFirstPurchased        Boolean?        @default(false)
-  hasBirthPurchased        Boolean?        @default(false)
-  hasDiamondAchieved       Boolean?        @default(false)
-  hasFirstPurchasedAt      DateTime?
-  hasBirthPurchasedAt      DateTime?
-  hasDiamondAchievedAt     DateTime?
-  startedAt                DateTime?
-  deletedAt                DateTime?
-  createdAt                DateTime?       @default(now())
-  updatedAt                DateTime?       @updatedAt
-  deletedBy                Int?
-  createdBy                Int?
-  updatedBy                Int?
+  id                  Int             @id @default(autoincrement())
+  refId               String? // ID to integrate with other system
+  code                String?
+  tierId              Int?
+  minTierId           Int?
+  countryId           Int?
+  districtId          Int?
+  referralCode        String?         @unique
+  friendCode          String?
+  type                EnumMemberType? @default(NORMAL)
+  email               String?
+  name                String?
+  citizenId           String?
+  appleId             String?
+  facebookId          String?
+  facebookToken       String?
+  phone               String?
+  locale              String?
+  gender              String?
+  address             String?
+  avatar              String?
+  birthDate           DateTime?
+  expiryDate          DateTime?
+  pointBalance        Int?            @default(0)
+  personalAmount      Float?          @default(0)
+  referralAmount      Float?          @default(0)
+  phoneRegion         String?
+  phoneNumber         String?
+  birthYear           Int?
+  birthMonth          Int?
+  birthDay            Int?
+  loginToken          String?
+  loginDate           DateTime?
+  password            String?
+  passwordAttempt     Int?            @default(0)
+  passwordExpired     DateTime?
+  isActive            Boolean?        @default(true)
+  isVisible           Boolean?        @default(true)
+  isDeleted           Boolean?        @default(false)
+  isPushable          Boolean?        @default(true)
+  isNotifiable        Boolean?        @default(true)
+  isPromotable        Boolean?        @default(true)
+  isEmailVerified     Boolean?        @default(false)
+  isPhoneVerified     Boolean?        @default(false)
+  promoViaApp         Boolean?        @default(false)
+  promoViaEmail       Boolean?        @default(false)
+  hasFirstOfficial    Boolean?        @default(false)
+  hasFirstPurchased   Boolean?        @default(false)
+  hasBirthPurchased   Boolean?        @default(false)
+  hasFirstOfficialAt  DateTime?
+  hasFirstPurchasedAt DateTime?
+  hasBirthPurchasedAt DateTime?
+  startedAt           DateTime?
+  deletedAt           DateTime?
+  createdAt           DateTime?       @default(now())
+  updatedAt           DateTime?       @updatedAt
+  deletedBy           Int?
+  createdBy           Int?
+  updatedBy           Int?
 
   createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
   updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
   deletedByUser User? @relation("deletedByUser", fields: [deletedBy], references: [id])
 
+  twoFactor MemberTwoFactor?
   tier      Tier?            @relation(fields: [tierId], references: [id])
   district  District?        @relation(fields: [districtId], references: [id])
   country   Country?         @relation(fields: [countryId], references: [id])
-  twoFactor MemberTwoFactor?
   cart      Cart?
 
-  deleteReasons    MemberDeleteReason[]
-  deviceHistories  MemberDeviceHistory[]
-  verifyHistories  MemberVerifyHistory[]
-  notifyHistories  MemberNotifyHistory[]
-  pushHistories    MemberPushHistory[]
-  tierHistories    MemberTierHistory[]
-  productHistories MemberProductHistory[]
-  pointHistories   MemberPointHistory[]   @relation(name: "member")
-  referralPoints   MemberPointHistory[]   @relation(name: "referee")
-  orders           Order[]
-  invoices         Invoice[]
-  wishlist         Wishlist[]
+  deletions     MemberDeletion[]
+  sessions      MemberSession[]
+  devices       MemberDevice[]
+  verifications MemberVerification[]
+  notifications MemberNotification[]
+  pushes        MemberPush[]
+  redemptions   MemberRedemption[]
+  tiers         MemberTier[]
+  points        MemberPoint[]        @relation(name: "member")
+  rewardPoints  MemberPoint[]        @relation(name: "referee")
+  orders        Order[]
+  invoices      Invoice[]
+  wishlist      Wishlist[]
 
-  @@index([isActive, isPhoneVerified, id])
+  @@index([isActive, email])
+  @@index([isActive, phone])
   @@map("members")
 }
 
@@ -530,7 +533,7 @@ model MemberTwoFactor {
   @@map("member_two_factors")
 }
 
-model MemberDeleteReason {
+model MemberDeletion {
   id        Int       @id @default(autoincrement())
   memberId  Int
   title     String?
@@ -538,10 +541,10 @@ model MemberDeleteReason {
 
   member Member @relation(fields: [memberId], references: [id])
 
-  @@map("member_delete_reasons")
+  @@map("member_deletions")
 }
 
-model MemberTokenHistory {
+model MemberSession {
   id             Int       @id @default(autoincrement())
   memberId       Int
   memberToken    String
@@ -551,14 +554,15 @@ model MemberTokenHistory {
   isActive       Boolean?  @default(true)
   createdAt      DateTime? @default(now())
   updatedAt      DateTime? @updatedAt
+  member         Member    @relation(fields: [memberId], references: [id])
 
   @@index([memberId])
-  @@map("member_token_histories")
+  @@map("member_sessions")
 }
 
-model MemberDeviceHistory {
+model MemberDevice {
   id        Int       @id @default(autoincrement())
-  memberId  Int?
+  memberId  Int
   type      String?
   model     String?
   version   String?
@@ -567,14 +571,14 @@ model MemberDeviceHistory {
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
 
-  member Member? @relation(fields: [memberId], references: [id])
+  member Member @relation(fields: [memberId], references: [id])
 
   @@unique([memberId, token])
   @@index([memberId])
-  @@map("member_device_histories")
+  @@map("member_devices")
 }
 
-model MemberVerifyHistory {
+model MemberVerification {
   id         Int                     @id @default(autoincrement())
   channel    EnumVerificationChannel
   type       EnumVerificationMethod
@@ -594,10 +598,35 @@ model MemberVerifyHistory {
   member Member? @relation(fields: [memberId], references: [id])
 
   @@index([memberId])
-  @@map("member_verify_histories")
+  @@map("member_verifications")
 }
 
-model MemberPushHistory {
+model MemberNotification {
+  id             Int       @id @default(autoincrement())
+  memberId       Int
+  notificationId Int?
+  pushId         Int?
+  title          String?
+  body           String
+  data           Json?
+  refId          Int?
+  refType        String?
+  isRead         Boolean?  @default(false)
+  pushedAt       DateTime?
+  seenAt         DateTime?
+  readAt         DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime? @default(now())
+
+  member       Member        @relation(fields: [memberId], references: [id])
+  notification Notification? @relation(fields: [notificationId], references: [id])
+  push         Push?         @relation(fields: [pushId], references: [id])
+
+  @@index([memberId, pushedAt, isRead])
+  @@map("member_notifications")
+}
+
+model MemberPush {
   id          Int            @id @default(autoincrement())
   memberId    Int
   pushId      Int
@@ -613,86 +642,57 @@ model MemberPushHistory {
 
   @@index([memberId, createdAt])
   @@index([memberId, pushId])
-  @@map("member_push_histories")
+  @@map("member_push_logs")
 }
 
-model MemberNotifyHistory {
-  id             Int       @id @default(autoincrement())
-  memberId       Int
-  notificationId Int?
-  pushId         Int?
-  title          String?
-  body           String
-  data           Json?
-  refId          Int?
-  refType        String?
-  pushedAt       DateTime?
-  seenAt         DateTime?
-  readAt         DateTime?
-  deletedAt      DateTime?
-  createdAt      DateTime? @default(now())
+model MemberTier {
+  id              Int            @id @default(autoincrement())
+  memberId        Int
+  tierId          Int
+  invoiceId       Int?
+  source          EnumTierSource @default(SYSTEM)
+  action          EnumTierAction @default(INITIAL)
+  personalAmount  Float?         @default(0)
+  referralAmount  Float?         @default(0)
+  qualifiedAmount Float?         @default(0)
+  isActive        Boolean?       @default(true)
+  expiryDate      DateTime?
+  deletedAt       DateTime?
+  createdAt       DateTime?      @default(now())
+  updatedAt       DateTime       @updatedAt
 
-  member       Member        @relation(fields: [memberId], references: [id])
-  notification Notification? @relation(fields: [notificationId], references: [id])
-  push         Push?         @relation(fields: [pushId], references: [id])
+  tier    Tier     @relation(fields: [tierId], references: [id])
+  member  Member   @relation(fields: [memberId], references: [id])
+  invoice Invoice? @relation(fields: [invoiceId], references: [id])
 
-  @@index([memberId, pushedAt])
-  @@map("member_notify_histories")
+  @@index([memberId, isActive])
+  @@map("member_tiers")
 }
 
-model MemberTierHistory {
-  id               Int                   @id @default(autoincrement())
-  memberId         Int
-  prevTierId       Int
-  currTierId       Int
-  minTierId        Int?
-  invoiceId        Int?
-  type             EnumTierHistoryMethod @default(INITIAL)
-  personalSpending Float?                @default(0)
-  referralSpending Float?                @default(0)
-  excessSpending   Float?                @default(0)
-  renewalSpending  Float?                @default(0)
-  upgradeSpending  Float?                @default(0)
-  isActive         Boolean?              @default(true)
-  isVisible        Boolean?              @default(true)
-  isDeleted        Boolean?              @default(false)
-  expiryDate       DateTime?
-  deletedAt        DateTime?
-  createdAt        DateTime?             @default(now())
-  updatedAt        DateTime              @updatedAt
-
-  prevTier Tier     @relation(name: "prevMemberTier", fields: [prevTierId], references: [id])
-  currTier Tier     @relation(name: "currMemberTier", fields: [currTierId], references: [id])
-  member   Member   @relation(fields: [memberId], references: [id])
-  invoice  Invoice? @relation(fields: [invoiceId], references: [id])
-
-  @@index([memberId])
-  @@map("member_tier_histories")
-}
-
-model MemberPointHistory {
-  id            Int                  @id @default(autoincrement())
+model MemberPoint {
+  id            Int             @id @default(autoincrement())
   memberId      Int
   refereeId     Int?
   tierId        Int?
   invoiceId     Int?
   invoiceAmount Float?
-  type          EnumPointHistoryType @default(INITIAL)
+  source        EnumPointSource @default(SYSTEM)
+  action        EnumPointAction @default(INITIAL)
   multipleRatio Float?
   ratioNote     Json?
-  point         Int?                 @default(0)
-  pointBalance  Int?                 @default(0)
+  point         Int?            @default(0)
+  pointBalance  Int?            @default(0)
   remark        String?
-  isBirth       Boolean?             @default(false)
-  isFirst       Boolean?             @default(false)
-  isActive      Boolean?             @default(true)
-  isVisible     Boolean?             @default(true)
-  isPending     Boolean?             @default(false)
-  isDeleted     Boolean?             @default(false)
+  isBirth       Boolean?        @default(false)
+  isFirst       Boolean?        @default(false)
+  isActive      Boolean?        @default(true)
+  isVisible     Boolean?        @default(true)
+  isPending     Boolean?        @default(false)
+  isDeleted     Boolean?        @default(false)
   expiryDate    DateTime?
   releaseDate   DateTime?
-  createdAt     DateTime?            @default(now())
-  updatedAt     DateTime             @updatedAt
+  createdAt     DateTime?       @default(now())
+  updatedAt     DateTime        @updatedAt
   createdBy     Int?
   updatedBy     Int?
 
@@ -705,10 +705,10 @@ model MemberPointHistory {
   invoice Invoice? @relation(fields: [invoiceId], references: [id])
 
   @@index([memberId])
-  @@map("member_point_histories")
+  @@map("member_points")
 }
 
-model MemberProductHistory {
+model MemberRedemption {
   id          Int                   @id @default(autoincrement())
   memberId    Int
   productId   Int
@@ -738,7 +738,7 @@ model MemberProductHistory {
   promotion Promotion? @relation(fields: [promotionId], references: [id])
 
   @@index([memberId, productId])
-  @@map("member_product_histories")
+  @@map("member_redemptions")
 }
 
 model Tier {
@@ -748,7 +748,7 @@ model Tier {
   level         Int?      @unique
   alive         Boolean?  @default(true)
   rewardPoint   Int?      @default(0)
-  limitSpending Float?    @default(0)
+  limitAmount   Float?    @default(0)
   initialRate   Float?    @default(0)
   personalRate  Float?    @default(0)
   referralRate  Float?    @default(0)
@@ -761,13 +761,12 @@ model Tier {
   createdAt     DateTime? @default(now())
   updatedAt     DateTime  @updatedAt
 
-  members         Member[]
-  languages       TierLanguage[]
-  charts          TierChart[]          @relation(name: "currTier")
-  nexts           TierChart[]          @relation(name: "nextTier")
-  prevMemberTiers MemberTierHistory[]  @relation(name: "prevMemberTier")
-  currMemberTiers MemberTierHistory[]  @relation(name: "currMemberTier")
-  points          MemberPointHistory[]
+  members     Member[]
+  languages   TierLanguage[]
+  charts      TierChart[]    @relation(name: "currTier")
+  nexts       TierChart[]    @relation(name: "nextTier")
+  memberTiers MemberTier[]
+  points      MemberPoint[]
 
   @@map("tiers")
 }
@@ -785,11 +784,11 @@ model TierLanguage {
 }
 
 model TierChart {
-  id              Int      @id @default(autoincrement())
-  currId          Int
-  nextId          Int
-  requireSpending Float?   @default(0)
-  isActive        Boolean? @default(false)
+  id            Int      @id @default(autoincrement())
+  currId        Int
+  nextId        Int
+  requireAmount Float?   @default(0)
+  isActive      Boolean? @default(false)
 
   currTier Tier @relation(name: "currTier", fields: [currId], references: [id], onDelete: Cascade)
   nextTier Tier @relation(name: "nextTier", fields: [nextId], references: [id], onDelete: Cascade)
@@ -851,7 +850,7 @@ model Promotion {
   createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
   updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
 
-  redeems MemberProductHistory[]
+  redemptions MemberRedemption[]
 
   @@map("promotions")
 }
@@ -875,11 +874,11 @@ model Order {
   createdAt   DateTime?       @default(now())
   updatedAt   DateTime        @updatedAt
 
-  member   Member                 @relation(fields: [memberId], references: [id])
-  invoice  Invoice?
-  shipment Shipment?
-  items    OrderItem[]
-  redeems  MemberProductHistory[]
+  member      Member             @relation(fields: [memberId], references: [id])
+  invoice     Invoice?
+  shipment    Shipment?
+  items       OrderItem[]
+  redemptions MemberRedemption[]
 
   @@index([memberId])
   @@map("orders")
@@ -943,43 +942,53 @@ model Invoice {
   createdAt      DateTime?          @default(now())
   updatedAt      DateTime?          @updatedAt
 
-  member   Member               @relation(fields: [memberId], references: [id])
-  order    Order                @relation(fields: [orderId], references: [id])
-  payments InvoicePayment[]
-  points   MemberPointHistory[]
-  tiers    MemberTierHistory[]
+  member   Member        @relation(fields: [memberId], references: [id])
+  order    Order         @relation(fields: [orderId], references: [id])
+  payments Payment[]
+  points   MemberPoint[]
+  tiers    MemberTier[]
 
   @@index([status, isEarned, issuedAt, createdAt])
   @@index([memberId, orderId, issuedAt])
   @@map("invoices")
 }
 
-model InvoicePayment {
-  id        Int                @id @default(autoincrement())
+model Payment {
+  id        Int                 @id @default(autoincrement())
   invoiceId Int
-  amount    Float?
-  method    EnumPaymentMethod? @default(CASH)
-  status    EnumPaymentStatus? @default(PAID)
+  amount    Float
+  method    EnumPaymentMethod
+  status    EnumPaymentStatus
+  provider  EnumPaymentProvider
   issuedAt  DateTime?
-  createdAt DateTime?          @default(now())
-  updatedAt DateTime           @updatedAt
+  createdAt DateTime?           @default(now())
+  updatedAt DateTime            @updatedAt
 
   invoice Invoice @relation(fields: [invoiceId], references: [id])
 
-  @@map("invoice_payments")
+  @@index([invoiceId])
+  @@map("payments")
 }
 
-model Payment {
-  id        Int       @id @default(autoincrement())
-  code      String?
-  name      Json?
-  thumbnail String?
-  sorting   Int?      @default(0)
-  isActive  Boolean?  @default(true)
-  createdAt DateTime? @default(now())
-  updatedAt DateTime  @updatedAt
+model PaymentMethod {
+  code     EnumPaymentMethod @unique
+  isActive Boolean?          @default(true)
 
-  @@map("payments")
+  @@map("payment_methods")
+}
+
+model PaymentProvider {
+  id        Int                 @id @default(autoincrement())
+  method    EnumPaymentMethod
+  provider  EnumPaymentProvider
+  name      String?
+  isActive  Boolean             @default(true)
+  sorting   Int?                @default(0)
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  @@unique([method, provider])
+  @@map("payment_providers")
 }
 
 model Page {
@@ -1003,43 +1012,43 @@ model Page {
 }
 
 model Product {
-  id                Int                    @id @default(autoincrement())
+  id                Int              @id @default(autoincrement())
   brandId           Int?
   categoryId        Int?
-  type              EnumProductType?       @default(SIMPLE)
+  type              EnumProductType? @default(SIMPLE)
   sku               String?
   name              Json?
   thumbnail         String?
-  salePoint         Float?                 @default(0)
-  salePrice         Float?                 @default(0)
-  costPrice         Float?                 @default(0)
-  stockQty          Int?                   @default(0)
-  unpaidQty         Int?                   @default(0)
-  paidQty           Int?                   @default(0)
-  sorting           Int?                   @default(0)
+  salePoint         Float?           @default(0)
+  salePrice         Float?           @default(0)
+  costPrice         Float?           @default(0)
+  stockQty          Int?             @default(0)
+  unpaidQty         Int?             @default(0)
+  paidQty           Int?             @default(0)
+  sorting           Int?             @default(0)
   salePerPerson     Int?
-  duePaidDays       Int?                   @default(0)
-  expiryType        EnumProductExpiryType? @default(DYNAMIC)
-  dynamicExpiryDays Int?                   @default(0)
+  duePaidDays       Int?             @default(0)
+  expiryType        EnumExpiryType?  @default(DYNAMIC)
+  dynamicExpiryDays Int?             @default(0)
   staticExpiryDate  DateTime?
-  hasShipment       Boolean?               @default(true)
-  hasInventory      Boolean?               @default(true)
-  hasExpiration     Boolean?               @default(true)
-  hasDuePayment     Boolean?               @default(true)
-  hasLimitPerson    Boolean?               @default(true)
-  isPopular         Boolean?               @default(false)
-  isBestSale        Boolean?               @default(false)
-  isFlashSale       Boolean?               @default(false)
-  isComingSoon      Boolean?               @default(false)
-  isNewArrival      Boolean?               @default(false)
-  isActive          Boolean?               @default(true)
-  isDeleted         Boolean                @default(false)
+  hasShipment       Boolean?         @default(true)
+  hasInventory      Boolean?         @default(true)
+  hasExpiration     Boolean?         @default(true)
+  hasDuePayment     Boolean?         @default(true)
+  hasLimitPerson    Boolean?         @default(true)
+  isPopular         Boolean?         @default(false)
+  isBestSale        Boolean?         @default(false)
+  isFlashSale       Boolean?         @default(false)
+  isComingSoon      Boolean?         @default(false)
+  isNewArrival      Boolean?         @default(false)
+  isActive          Boolean?         @default(true)
+  isDeleted         Boolean          @default(false)
   deletedBy         Int?
   createdBy         Int?
   updatedBy         Int?
   deletedAt         DateTime?
-  createdAt         DateTime?              @default(now())
-  updatedAt         DateTime?              @updatedAt
+  createdAt         DateTime?        @default(now())
+  updatedAt         DateTime?        @updatedAt
 
   createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
   updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
@@ -1048,13 +1057,13 @@ model Product {
   brand    ProductBrand?    @relation(fields: [brandId], references: [id])
   category ProductCategory? @relation(fields: [categoryId], references: [id])
 
-  languages  ProductLanguage[]
-  medias     ProductMedia[]
-  reviews    ProductReview[]
-  cartItems  CartItem[]
-  orderItems OrderItem[]
-  redeems    MemberProductHistory[]
-  wishlist   Wishlist[]
+  languages   ProductLanguage[]
+  medias      ProductMedia[]
+  reviews     ProductReview[]
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
+  redemptions MemberRedemption[]
+  wishlist    Wishlist[]
 
   @@map("products")
 }
@@ -1199,7 +1208,7 @@ enum EnumApiKeyType {
   DEFAULT
 }
 
-enum EnumAppVersionPlatform {
+enum EnumPlatformType {
   IOS
   AOS
   WEB
@@ -1229,8 +1238,7 @@ enum EnumNotificationMethod {
 }
 
 enum EnumPushType {
-  INSTANT
-  DATETIME
+  ONCE
   DAILY
   WEEKLY
   MONTHLY
@@ -1239,7 +1247,7 @@ enum EnumPushType {
 
 enum EnumPushStatus {
   PENDING
-  PUSHING
+  RUNNING
   COMPLETED
   CANCELED
 }
@@ -1251,16 +1259,24 @@ enum EnumPushResult {
 }
 
 enum EnumMemberType {
+  VIP
   STAFF
   NORMAL
-  MASTER
+  PARTNER
 }
 
-enum EnumTierHistoryMethod {
+enum EnumTierSource {
+  IMPORT
+  SYSTEM
+  REFER
+  PURCHASE
+}
+
+enum EnumTierAction {
   INITIAL
-  UPGRADE
-  RENEWAL
-  DOWNGRADE
+  EARN
+  ADJUST
+  EXPIRE
 }
 
 enum EnumRedemptionSource {
@@ -1280,20 +1296,25 @@ enum EnumRedemptionStatus {
   FAILED
 }
 
-enum EnumPointHistoryType {
-  INITIAL
-  IMPORT
+enum EnumPointSource {
   SYSTEM
-  EXPIRY
-  REFUND
-  UPGRADE
-  RENEWAL
-  SHARE
+  IMPORT
   PURCHASE
-  REWARD
   REFER
+  SHARE
+  REWARD
   WELCOME
   REGISTER
+  UPGRADE
+  RENEWAL
+}
+
+enum EnumPointAction {
+  INITIAL
+  EARN
+  DEDUCT
+  EXPIRE
+  ADJUST
 }
 
 enum EnumProductType {
@@ -1305,7 +1326,7 @@ enum EnumProductType {
   DOWNLOADABLE
 }
 
-enum EnumProductExpiryType {
+enum EnumExpiryType {
   STATIC
   DYNAMIC
 }
@@ -1325,7 +1346,7 @@ enum EnumPromotionMethod {
   BUY_X_PERCENT_Y
 }
 
-enum EnumPointSchemaType {
+enum EnumSchemaType {
   BRAND
   SHOP
   PRODUCT
@@ -1337,16 +1358,22 @@ enum EnumPointSchemaType {
   BIRTH_MONTH
 }
 
-enum EnumPaymentStatus {
-  PAID
-  CANCELED
+enum EnumPaymentProvider {
+  PAYPAL
+  STRIPE
+  VNPAY
+  MOMO
 }
 
 enum EnumPaymentMethod {
   CASH
-  CREDIT
-  PAYPAL
-  DEBIT
+  CARD
+  WALLET
+}
+
+enum EnumPaymentStatus {
+  PAID
+  CANCELED
 }
 
 enum EnumOrderSource {

@@ -1,68 +1,45 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Expose, Transform, Type } from 'class-transformer'
+import { Expose, Transform } from 'class-transformer'
 import { EnumAuthLoginFrom, EnumAuthScopeType } from 'lib/nest-auth'
-import { ResponseUtil } from '../utils'
-
-class UserBelongInfo {
-  @ApiProperty({
-    description: 'Id that representative with your target data',
-    example: 2,
-  })
-  @Type(() => Number)
-  @Expose()
-  id: number
-
-  @ApiProperty({
-    description: 'Name that representative with your target data',
-    example: 'nestjs_demo',
-  })
-  @Type(() => String)
-  @Expose()
-  name: string
-}
 
 export class ResponseUserBelongDto {
-  @ApiProperty({ type: UserBelongInfo })
+  @ApiProperty({ type: String })
   @Transform(({ obj, value: id }) => {
-    if (id === undefined) return id
-    return ResponseUtil.mapToInstance(obj?.createdByUser ?? { id, name: '' }, {
-      type: UserBelongInfo,
-      transform: {},
-    })
+    if (obj?.createdByUser) {
+      return obj?.createdByUser?.name ?? ''
+    }
+    return id ? `${id}` : undefined
   })
   @Expose({ groups: [EnumAuthLoginFrom.CMS, EnumAuthScopeType.USER] })
-  createdBy: UserBelongInfo
+  createdBy: string
 
-  @ApiProperty({ type: UserBelongInfo })
+  @ApiProperty({ type: String })
   @Transform(({ obj, value: id }) => {
-    if (id === undefined) return id
-    return ResponseUtil.mapToInstance(obj?.updatedByUser ?? { id, name: '' }, {
-      type: UserBelongInfo,
-      transform: {},
-    })
+    if (obj?.updatedByUser) {
+      return obj?.createdByUser?.name ?? ''
+    }
+    return id ? `${id}` : undefined
   })
   @Expose({ groups: [EnumAuthLoginFrom.CMS, EnumAuthScopeType.USER] })
-  updatedBy: number | UserBelongInfo
+  updatedBy: string
 
-  @ApiProperty({ type: UserBelongInfo })
+  @ApiProperty({ type: String })
   @Transform(({ obj, value: id }) => {
-    if (id === undefined) return id
-    return ResponseUtil.mapToInstance(obj?.deletedByUser ?? { id, name: '' }, {
-      type: UserBelongInfo,
-      transform: {},
-    })
+    if (obj?.updatedByUser) {
+      return obj?.deletedByUser?.name ?? ''
+    }
+    return id ? `${id}` : undefined
   })
   @Expose({ groups: [EnumAuthLoginFrom.CMS, EnumAuthScopeType.USER] })
-  deletedBy: UserBelongInfo
+  deletedBy: string
 
-  @ApiProperty({ type: UserBelongInfo })
+  @ApiProperty({ type: String })
   @Transform(({ obj, value: id }) => {
-    if (id === undefined) return id
-    return ResponseUtil.mapToInstance(obj?.assignedByUser ?? { id, name: '' }, {
-      type: UserBelongInfo,
-      transform: {},
-    })
+    if (obj?.updatedByUser) {
+      return obj?.assignedByUser?.name ?? ''
+    }
+    return id ? `${id}` : undefined
   })
   @Expose({ groups: [EnumAuthLoginFrom.CMS, EnumAuthScopeType.USER] })
-  assignedBy: UserBelongInfo
+  assignedBy: string
 }

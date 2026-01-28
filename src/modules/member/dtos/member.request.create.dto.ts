@@ -59,7 +59,12 @@ export class MemberRequestCreateDto {
   @IsOptional()
   @IsEnum(EnumAppLanguage)
   @ToString()
-  @ApiProperty({ required: false, enum: EnumAppLanguage, example: EnumAppLanguage.EN })
+  @ApiProperty({
+    required: false,
+    enum: EnumAppLanguage,
+    enumName: 'EnumAppLanguage',
+    example: EnumAppLanguage.EN,
+  })
   locale: string
 
   @IsOptional()

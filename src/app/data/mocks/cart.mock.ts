@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { EnumOrderSource, EnumPointHistoryType, Prisma } from '@runtime/prisma-client'
+import { EnumOrderSource, EnumPointAction, EnumPointSource, Prisma } from '@runtime/prisma-client'
 import { HelperService, ScheduleMockupBase } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { CartService } from 'modules/cart'
@@ -41,9 +41,10 @@ export class CartMock extends ScheduleMockupBase {
         data: {
           pointBalance,
           updatedAt: issuedAt,
-          pointHistories: {
+          points: {
             create: {
-              type: EnumPointHistoryType.SYSTEM,
+              source: EnumPointSource.SYSTEM,
+              action: EnumPointAction.INITIAL,
               point: pointBalance,
               pointBalance: pointBalance,
               expiryDate: this.memberUtil.getPointExpirationDate(issuedAt),

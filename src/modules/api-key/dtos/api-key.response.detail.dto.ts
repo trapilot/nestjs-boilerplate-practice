@@ -11,9 +11,9 @@ class ResponseDataDetailDto {
   id: number
 
   @ApiProperty({
-    description: 'Type of api key',
     example: EnumApiKeyType.CLIENT,
     enum: EnumApiKeyType,
+    enumName: 'EnumApiKeyType',
     required: true,
   })
   @Type(() => String)

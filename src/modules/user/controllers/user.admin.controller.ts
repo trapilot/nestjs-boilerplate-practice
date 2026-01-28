@@ -200,7 +200,7 @@ export class UserAdminController {
     const reqDate = this.helperService.dateSet(nowDate, { year, month })
     const dateRange = this.helperService.dateRange(reqDate)
 
-    const _where: Prisma.UserLoginHistoryWhereInput = {
+    const _where: Prisma.UserLoginLogWhereInput = {
       ..._search,
       userId: id,
       loginDate: {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { EnumProductExpiryType } from '@runtime/prisma-client'
+import { EnumExpiryType } from '@runtime/prisma-client'
 import { EnumAppLanguage, HelperService, ScheduleMockupBase, StrUtil } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { TProductBrand } from 'modules/product-brand'
@@ -55,11 +55,11 @@ export class ProductMock extends ScheduleMockupBase {
       const hasDuePayment = !this.helperService.randomNumber({ min: 0, max: 1 })
       const hasLimitPerson = !this.helperService.randomNumber({ min: 0, max: 1 })
 
-      let expiryType: EnumProductExpiryType = EnumProductExpiryType.DYNAMIC
+      let expiryType: EnumExpiryType = EnumExpiryType.DYNAMIC
       let staticExpiryDate = undefined
       let dynamicExpiryDays = this.helperService.randomNumber({ min: 7, max: 30 })
       if (Math.floor(Math.random() * 2)) {
-        expiryType = EnumProductExpiryType.STATIC
+        expiryType = EnumExpiryType.STATIC
         staticExpiryDate = this.helperService.dateCreate(new Date(Date.now() + 30000 * 3600), {
           endOfDay: true,
         })

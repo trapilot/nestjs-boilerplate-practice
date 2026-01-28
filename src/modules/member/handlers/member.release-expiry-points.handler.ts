@@ -35,7 +35,7 @@ export class MemberReleaseExpiryPointHandler implements IQueueHandler {
     const state = await this.scanner.scan<QueueCursor>(this.topic, this.version)
     const nowDate = this.helperService.dateNow()
 
-    const memberPoints = await this.prisma.memberPointHistory.findMany({
+    const memberPoints = await this.prisma.memberPoint.findMany({
       where: {
         isPending: true,
         isDeleted: false,

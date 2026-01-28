@@ -1,4 +1,4 @@
-import { BadRequestException, Controller, Get, HttpStatus, Put } from '@nestjs/common'
+import { BadRequestException, Controller, Get, HttpStatus, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma, Setting } from '@runtime/prisma-client'
 import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
@@ -26,6 +26,7 @@ import { GetSetting, SettingAdminUpdateGuard } from '../decorators'
 import {
   SettingCoreResponseDto,
   SettingFileResponseDto,
+  SettingRequestCreateDto,
   SettingRequestDto,
   SettingRequestUpdateDto,
   SettingResponseDetailDto,
@@ -154,6 +155,44 @@ export class SettingAdminController {
   @RequestParamGuard(SettingRequestDto)
   @Get(':id')
   async get(@GetSetting() setting: Setting): Promise<IResponseData> {
+    return { data: setting }
+  }
+
+  @ApiRequestData({
+    summary: SETTING_DOC_OPERATION,
+    params: SETTING_DOC_REQUEST_PARAMS,
+    docExclude: false,
+    docExpansion: false,
+    jwtAccessToken: {
+      scope: EnumAuthScopeType.USER,
+      user: {
+        synchronize: true,
+        require: true,
+        active: true,
+        abilities: [
+          {
+            subject: EnumAuthAbilitySubject.SETTING,
+            actions: [EnumAuthAbilityAction.CREATE],
+          },
+        ],
+      },
+    },
+    response: {
+      dto: SettingResponseDetailDto,
+    },
+  })
+  @Post('/')
+  async create(@RequestBody() body: SettingRequestCreateDto): Promise<IResponseData> {
+    const check = this.settingService.checkValue(body.value, body.type)
+    if (!check) {
+      throw new BadRequestException({
+        statusCode: HttpStatus.NOT_ACCEPTABLE,
+        message: 'module.setting.valueNotAllowed',
+      })
+    }
+
+    const setting = await this.settingService.create(body)
+
     return { data: setting }
   }
 
