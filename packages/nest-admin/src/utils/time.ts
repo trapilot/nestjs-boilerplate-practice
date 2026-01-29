@@ -12,7 +12,10 @@ export function getTimezone() {
 
 export function isValidDate(str: string): [boolean, Date] {
   const date = new Date(str)
-  return [!isNaN(date.getTime()), date]
+  if (str) {
+    return [!isNaN(date.getTime()), date]
+  }
+  return [false, date]
 }
 
 export function getShortDate(value: any) {

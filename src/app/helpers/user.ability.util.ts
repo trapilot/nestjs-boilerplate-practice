@@ -1,7 +1,7 @@
 import { Prisma } from '@runtime/prisma-client'
 import { EnumAuthAbilityAction, EnumAuthAbilityContext, EnumAuthAbilitySubject } from 'app/enums'
-import { IAuthAbilityDataContext, IAuthAbilityDataSubject } from 'lib/nest-auth'
-import { AppUtil, EnumAppLanguage, IMessageField, ScopeContext } from 'lib/nest-core'
+import { IAuthAbilityDataContext, IAuthAbilityDataTitle } from 'lib/nest-auth'
+import { AppUtil, EnumAppLanguage, IMessageField, ScopeContext, StrUtil } from 'lib/nest-core'
 
 // cspell:disable
 export class UserAbilityUtil {
@@ -102,210 +102,123 @@ export class UserAbilityUtil {
     }
   }
 
-  static get subjects(): { [subject: string]: IAuthAbilityDataSubject } {
+  static get subjects(): { [subject: string]: IAuthAbilityDataTitle } {
     return {
       [EnumAuthAbilitySubject.DASHBOARD]: {
-        path: 'dashboard',
-        title: {
-          [EnumAppLanguage.EN]: 'Dashboard',
-          [EnumAppLanguage.VI]: 'Bảng điều khiển',
-        },
+        [EnumAppLanguage.EN]: 'Dashboard',
+        [EnumAppLanguage.VI]: 'Bảng điều khiển',
       },
       [EnumAuthAbilitySubject.SETTING]: {
-        path: 'settings',
-        title: {
-          [EnumAppLanguage.EN]: 'Settings',
-          [EnumAppLanguage.VI]: 'Cài đặt',
-        },
+        [EnumAppLanguage.EN]: 'Settings',
+        [EnumAppLanguage.VI]: 'Cài đặt',
       },
       [EnumAuthAbilitySubject.MEDIA]: {
-        path: 'medias',
-        title: {
-          [EnumAppLanguage.EN]: 'Media',
-          [EnumAppLanguage.VI]: 'Hình Ảnh',
-        },
+        [EnumAppLanguage.EN]: 'Media',
+        [EnumAppLanguage.VI]: 'Hình Ảnh',
       },
       [EnumAuthAbilitySubject.API_KEY]: {
-        path: 'api-keys',
-        title: {
-          [EnumAppLanguage.EN]: 'Api Keys',
-          [EnumAppLanguage.VI]: 'Api Keys',
-        },
+        [EnumAppLanguage.EN]: 'Api Keys',
+        [EnumAppLanguage.VI]: 'Api Keys',
       },
       [EnumAuthAbilitySubject.APP_VERSION]: {
-        path: 'app-versions',
-        title: {
-          [EnumAppLanguage.EN]: 'App Versions',
-          [EnumAppLanguage.VI]: 'Phiên bản',
-        },
+        [EnumAppLanguage.EN]: 'App Versions',
+        [EnumAppLanguage.VI]: 'Phiên bản',
       },
       [EnumAuthAbilitySubject.USER]: {
-        path: 'users',
-        title: {
-          [EnumAppLanguage.EN]: 'Users',
-          [EnumAppLanguage.VI]: 'Người dùng',
-        },
+        [EnumAppLanguage.EN]: 'Users',
+        [EnumAppLanguage.VI]: 'Người dùng',
       },
       [EnumAuthAbilitySubject.ROLE]: {
-        path: 'roles',
-        title: {
-          [EnumAppLanguage.EN]: 'Roles',
-          [EnumAppLanguage.VI]: 'Vai trò',
-        },
+        [EnumAppLanguage.EN]: 'Roles',
+        [EnumAppLanguage.VI]: 'Vai trò',
       },
       [EnumAuthAbilitySubject.PERMISSION]: {
-        path: 'permissions',
-        title: {
-          [EnumAppLanguage.EN]: 'Permissions',
-          [EnumAppLanguage.VI]: 'Quyền hạn',
-        },
+        [EnumAppLanguage.EN]: 'Permissions',
+        [EnumAppLanguage.VI]: 'Quyền hạn',
       },
       [EnumAuthAbilitySubject.PAGE]: {
-        path: 'pages',
-        title: {
-          [EnumAppLanguage.EN]: 'Information & Policies',
-          [EnumAppLanguage.VI]: 'Thông tin & Chính sách',
-        },
+        [EnumAppLanguage.EN]: 'Information & Policies',
+        [EnumAppLanguage.VI]: 'Thông tin & Chính sách',
       },
       [EnumAuthAbilitySubject.COUNTRY]: {
-        path: 'countries',
-        title: {
-          [EnumAppLanguage.EN]: 'Countries',
-          [EnumAppLanguage.VI]: 'Quốc gia',
-        },
+        [EnumAppLanguage.EN]: 'Countries',
+        [EnumAppLanguage.VI]: 'Quốc gia',
       },
       [EnumAuthAbilitySubject.DISTRICT]: {
-        path: 'districts',
-        title: {
-          [EnumAppLanguage.EN]: 'Districts',
-          [EnumAppLanguage.VI]: 'Quận/Huyện',
-        },
+        [EnumAppLanguage.EN]: 'Districts',
+        [EnumAppLanguage.VI]: 'Quận/Huyện',
       },
       [EnumAuthAbilitySubject.NOTIFICATION]: {
-        path: 'campaigns',
-        title: {
-          [EnumAppLanguage.EN]: 'Campaigns',
-          [EnumAppLanguage.VI]: 'Chiến dịch',
-        },
+        [EnumAppLanguage.EN]: 'Campaigns',
+        [EnumAppLanguage.VI]: 'Chiến dịch',
       },
       [EnumAuthAbilitySubject.PUSH]: {
-        path: 'pushes',
-        title: {
-          [EnumAppLanguage.EN]: 'Pushes',
-          [EnumAppLanguage.VI]: 'Gửi thông báo',
-        },
+        [EnumAppLanguage.EN]: 'Pushes',
+        [EnumAppLanguage.VI]: 'Gửi thông báo',
       },
       [EnumAuthAbilitySubject.PUSH_GROUP]: {
-        path: 'push-groups',
-        title: {
-          [EnumAppLanguage.EN]: 'Push Groups',
-          [EnumAppLanguage.VI]: 'Nhóm thông báo',
-        },
+        [EnumAppLanguage.EN]: 'Push Groups',
+        [EnumAppLanguage.VI]: 'Nhóm thông báo',
       },
       [EnumAuthAbilitySubject.MEMBER]: {
-        path: 'members',
-        title: {
-          [EnumAppLanguage.EN]: 'Members',
-          [EnumAppLanguage.VI]: 'Thành viên',
-        },
+        [EnumAppLanguage.EN]: 'Members',
+        [EnumAppLanguage.VI]: 'Thành viên',
       },
       [EnumAuthAbilitySubject.MEMBER_TIER]: {
-        path: 'member-tiers',
-        title: {
-          [EnumAppLanguage.EN]: 'Member Tiers',
-          [EnumAppLanguage.VI]: 'Cấp độ thành viên',
-        },
+        [EnumAppLanguage.EN]: 'Member Tiers',
+        [EnumAppLanguage.VI]: 'Cấp độ thành viên',
       },
       [EnumAuthAbilitySubject.MEMBER_POINT]: {
-        path: 'member-points',
-        title: {
-          [EnumAppLanguage.EN]: 'Member Points',
-          [EnumAppLanguage.VI]: 'Điểm thành viên',
-        },
+        [EnumAppLanguage.EN]: 'Member Points',
+        [EnumAppLanguage.VI]: 'Điểm thành viên',
       },
       [EnumAuthAbilitySubject.MEMBER_NOTIFICATION]: {
-        path: 'member-notifications',
-        title: {
-          [EnumAppLanguage.EN]: 'Member Notifications',
-          [EnumAppLanguage.VI]: 'Thông báo thành viên',
-        },
+        [EnumAppLanguage.EN]: 'Member Notifications',
+        [EnumAppLanguage.VI]: 'Thông báo thành viên',
       },
       [EnumAuthAbilitySubject.MEMBER_REDEMPTION]: {
-        path: 'member-redemptions',
-        title: {
-          [EnumAppLanguage.EN]: 'Member Redemptions',
-          [EnumAppLanguage.VI]: 'Lịch sử đổi quà',
-        },
+        [EnumAppLanguage.EN]: 'Member Redemptions',
+        [EnumAppLanguage.VI]: 'Lịch sử đổi quà',
       },
       [EnumAuthAbilitySubject.MEMBER_PUSH]: {
-        path: 'member-pushes',
-        title: {
-          [EnumAppLanguage.EN]: 'Member Pushes',
-          [EnumAppLanguage.VI]: 'Lịch sử gửi tin',
-        },
+        [EnumAppLanguage.EN]: 'Member Pushes',
+        [EnumAppLanguage.VI]: 'Lịch sử gửi tin',
       },
       [EnumAuthAbilitySubject.PRODUCT]: {
-        path: 'products',
-        title: {
-          [EnumAppLanguage.EN]: 'Products',
-          [EnumAppLanguage.VI]: 'Sản phẩm',
-        },
+        [EnumAppLanguage.EN]: 'Products',
+        [EnumAppLanguage.VI]: 'Sản phẩm',
       },
       [EnumAuthAbilitySubject.PRODUCT_BRAND]: {
-        path: 'product-brands',
-        title: {
-          [EnumAppLanguage.EN]: 'Brands',
-          [EnumAppLanguage.VI]: 'Thương hiệu',
-        },
+        [EnumAppLanguage.EN]: 'Brands',
+        [EnumAppLanguage.VI]: 'Thương hiệu',
       },
       [EnumAuthAbilitySubject.PRODUCT_CATEGORY]: {
-        path: 'product-categories',
-        title: {
-          [EnumAppLanguage.EN]: 'Categories',
-          [EnumAppLanguage.VI]: 'Danh mục',
-        },
+        [EnumAppLanguage.EN]: 'Categories',
+        [EnumAppLanguage.VI]: 'Danh mục',
       },
       [EnumAuthAbilitySubject.PRODUCT_REVIEW]: {
-        path: 'product-reviews',
-        title: {
-          [EnumAppLanguage.EN]: 'Reviews',
-          [EnumAppLanguage.VI]: 'Đánh giá',
-        },
+        [EnumAppLanguage.EN]: 'Reviews',
+        [EnumAppLanguage.VI]: 'Đánh giá',
       },
       [EnumAuthAbilitySubject.CART]: {
-        path: 'carts',
-        title: {
-          [EnumAppLanguage.EN]: 'Carts',
-          [EnumAppLanguage.VI]: 'Giỏ hàng',
-        },
+        [EnumAppLanguage.EN]: 'Carts',
+        [EnumAppLanguage.VI]: 'Giỏ hàng',
       },
       [EnumAuthAbilitySubject.ORDER]: {
-        path: 'orders',
-        title: {
-          [EnumAppLanguage.EN]: 'Orders',
-          [EnumAppLanguage.VI]: 'Đơn hàng',
-        },
+        [EnumAppLanguage.EN]: 'Orders',
+        [EnumAppLanguage.VI]: 'Đơn hàng',
       },
       [EnumAuthAbilitySubject.INVOICE]: {
-        path: 'invoices',
-        title: {
-          [EnumAppLanguage.EN]: 'Invoices',
-          [EnumAppLanguage.VI]: 'Hóa đơn',
-        },
+        [EnumAppLanguage.EN]: 'Invoices',
+        [EnumAppLanguage.VI]: 'Hóa đơn',
       },
       [EnumAuthAbilitySubject.PAYMENT]: {
-        path: 'payments',
-        title: {
-          [EnumAppLanguage.EN]: 'Payments',
-          [EnumAppLanguage.VI]: 'Thanh toán',
-        },
+        [EnumAppLanguage.EN]: 'Payments',
+        [EnumAppLanguage.VI]: 'Thanh toán',
       },
       [EnumAuthAbilitySubject.TIER]: {
-        path: 'tiers',
-        title: {
-          [EnumAppLanguage.EN]: 'Tiers',
-          [EnumAppLanguage.VI]: 'Cấp bậc',
-        },
+        [EnumAppLanguage.EN]: 'Tiers',
+        [EnumAppLanguage.VI]: 'Cấp bậc',
       },
     }
   }
@@ -396,6 +309,10 @@ export class UserAbilityUtil {
     return null
   }
 
+  private static getSubjectPath(subject: EnumAuthAbilitySubject): string {
+    return StrUtil.kebabCase(subject)
+  }
+
   static getFullPermData(): Prisma.PermissionUncheckedCreateInput[] {
     const _disables = UserAbilityUtil.getDisablePerms()
     const _invisibles = UserAbilityUtil.getInvisiblePerms()
@@ -405,8 +322,8 @@ export class UserAbilityUtil {
       const actions = UserAbilityUtil.getSubjectActions(subject)
       permissions.push({
         subject,
-        path: this.subjects[subject].path,
-        title: this.subjects[subject].title,
+        path: UserAbilityUtil.getSubjectPath(subject),
+        title: this.subjects[subject],
         context: UserAbilityUtil.getSubjectContext(subject),
         bitwise: UserAbilityUtil.map2Bitwise(actions),
         isActive: !_disables.includes(subject),

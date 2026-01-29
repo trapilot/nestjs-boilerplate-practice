@@ -158,17 +158,12 @@ pnpm app:env create
 pnpm app:env generate
 
 # Run the main seeding scripts
-pnpm start:cli api-key:seed
-pnpm start:cli app-version:seed
+pnpm start:cli seed:api-key
+pnpm start:cli seed:app-version
 
 # Apply new settings for roles & permissions
-pnpm migrate:role
-pnpm migrate:permission
-
-# Seed example products and members
-pnpm start:cli product:seed -i 1000
-pnpm start:cli member:seed -i 1000
-pnpm start:cli cart:seed
+pnpm start:cli seed:permission
+pnpm start:cli seed:role
 
 # Run the project
 pnpm start:dev              # development mode
@@ -178,8 +173,9 @@ pnpm start:cli [command]    # run a specific CLI command
 # Generate a new module
 pnpm schematics:generate
 
-# Build & generate an internal admin portal
+# Build & generate & move built to static root an internal admin portal
 pnpm admin:generate
+pnpm admin:migrate
 
 # Run Prisma Studio to explore and edit data
 pnpm db:studio

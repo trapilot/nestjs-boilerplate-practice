@@ -12,7 +12,7 @@ import {
   ValidateIf,
 } from 'class-validator'
 import { ToBoolean, ToNumber, ToObject, ToString, TransformIf } from 'lib/nest-core'
-import { RequestParagraphDto, RequestSentenceDto } from 'lib/nest-web'
+import { EnumRequestFormatType, RequestParagraphDto, RequestSentenceDto } from 'lib/nest-web'
 import { ToDynamicExpiryDays, ToStaticExpiryDate } from '../transforms'
 
 export class ProductRequestCreateDto {
@@ -37,19 +37,30 @@ export class ProductRequestCreateDto {
   @IsNotEmpty()
   @IsObject()
   @ToObject({ type: RequestSentenceDto })
-  @ApiProperty({ required: true, type: RequestSentenceDto })
+  @ApiProperty({
+    required: true,
+    type: RequestSentenceDto,
+  })
   name: object
 
   @IsNotEmpty()
   @IsObject()
   @ToObject({ type: RequestParagraphDto })
-  @ApiProperty({ required: true, type: RequestParagraphDto })
+  @ApiProperty({
+    required: true,
+    type: RequestParagraphDto,
+    format: EnumRequestFormatType.HTML,
+  })
   termAndCond: object
 
   @IsNotEmpty()
   @IsObject()
   @ToObject({ type: RequestParagraphDto })
-  @ApiProperty({ required: true, type: RequestParagraphDto })
+  @ApiProperty({
+    type: RequestParagraphDto,
+    required: true,
+    format: EnumRequestFormatType.HTML,
+  })
   content: object
 
   @IsNotEmpty()
@@ -126,7 +137,7 @@ export class ProductRequestCreateDto {
   @ToStaticExpiryDate({ endOfDay: true })
   @ValidateIf(dto => dto.hasExpiration && dto.expiryType === EnumExpiryType.STATIC)
   @TransformIf((dto: ProductRequestCreateDto) => dto.hasExpiration === true)
-  @ApiProperty({ required: false, example: new Date(Date.now() + 30000 * 3600) })
+  @ApiProperty({ required: false, type: Date })
   staticExpiryDate: Date
 
   @IsNotEmpty()

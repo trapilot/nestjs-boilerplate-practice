@@ -10,3 +10,11 @@ export enum EnumRequestSortDirection {
   ASC = 'asc',
   DESC = 'desc',
 }
+
+export enum EnumRequestFormatType {
+  HTML = 'html',
+  TEXT = 'text',
+  DATE = 'date',
+  DATETIME = 'date-time',
+  NUMBER = 'number',
+}

@@ -86,6 +86,36 @@ export class StrUtil {
     return values.includes(normalized) ? normalized : options.fallback
   }
 
+  static safe(value: string): string {
+    return value.replace(/[^a-zA-Z0-9_]/g, '_')
+  }
+
+  static pascalCase(value: string): string {
+    return value
+      .replace(/[^a-zA-Z0-9]+/g, ' ')
+      .split(' ')
+      .filter(Boolean)
+      .map(s => s.charAt(0).toUpperCase() + s.slice(1))
+      .join('')
+  }
+
+  static camelCase(value: string): string {
+    const pas = this.pascalCase(value)
+    return pas.charAt(0).toLowerCase() + pas.slice(1)
+  }
+
+  static kebabCase(value: string): string {
+    const spaced = value
+      .replace(/[^a-zA-Z0-9]+/g, ' ')
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .trim()
+    return spaced
+      .split(/\s+/)
+      .filter(Boolean)
+      .map(s => s.toLowerCase())
+      .join('-')
+  }
+
   static split(value: string, options: IStringSplitOptions): string[] {
     if (!value) return []
 

@@ -1,0 +1,23 @@
+/* AUTO-GENERATED FILE. DO NOT EDIT. */
+
+import { FormSchema } from '../types/form'
+
+const schema: FormSchema = {
+  "title": "MemberTierRequestUpdateDto",
+  "fields": {
+    "memberId": {
+      "type": "number",
+      "format": "number",
+      "placeholder": "",
+      "required": true
+    },
+    "tierId": {
+      "type": "number",
+      "format": "number",
+      "placeholder": "",
+      "required": true
+    }
+  }
+}
+
+export default schema

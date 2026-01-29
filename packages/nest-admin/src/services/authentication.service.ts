@@ -1,12 +1,12 @@
+/* AUTO-GENERATED FILE. DO NOT EDIT. */
+
 import { _privateAxios, _publicAxios } from '../lib/httpClient'
-import type { components } from '../types/api'
-// @ts-ignore
-type schemas = components['schemas']
+import type { components as _components } from '../types/api'
 
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const authenticationService = {
-  signUp: async <T = schemas['UserProfileResponseDto']>(body?: schemas['UserRequestSignUpDto'], options?: RequestOptions): Promise<T> => {
+  signUp: async <T = _components['schemas']['UserProfileResponseDto']>(body?: _components['schemas']['UserRequestSignUpDto'], options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -22,7 +22,7 @@ const qs = search.toString()
     const data = await client.post(url, body, config)
     return data as T
   },
-  loginWithCredential: async <T = schemas['UserResponseLoginDto']>(body?: schemas['UserRequestSignInDto'], options?: RequestOptions): Promise<T> => {
+  loginWithCredential: async <T = _components['schemas']['UserResponseLoginDto']>(body?: _components['schemas']['UserRequestSignInDto'], options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -38,7 +38,7 @@ const qs = search.toString()
     const data = await client.post(url, body, config)
     return data as T
   },
-  loginWithGoogle: async <T = schemas['AuthTokenResponseDto']>(body?: unknown, options?: RequestOptions): Promise<T> => {
+  loginWithGoogle: async <T = _components['schemas']['AuthTokenResponseDto']>(body?: unknown, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -54,7 +54,7 @@ const qs = search.toString()
     const data = await client.post(url, body, config)
     return data as T
   },
-  loginWithApple: async <T = schemas['AuthTokenResponseDto']>(body?: unknown, options?: RequestOptions): Promise<T> => {
+  loginWithApple: async <T = _components['schemas']['AuthTokenResponseDto']>(body?: unknown, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -70,7 +70,7 @@ const qs = search.toString()
     const data = await client.post(url, body, config)
     return data as T
   },
-  me: async <T = schemas['UserProfileResponseDto']>(options?: RequestOptions): Promise<T> => {
+  me: async <T = _components['schemas']['UserProfileResponseDto']>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -86,7 +86,23 @@ const qs = search.toString()
     const data = await client.get(url, config)
     return data as T
   },
-  editProfile: async <T = schemas['UserProfileResponseDto']>(body?: schemas['UserEditProfileRequestDto'], options?: RequestOptions): Promise<T> => {
+  route: async <T = _components['schemas']['UserProfileResponseDto']>(options?: RequestOptions): Promise<T> => {
+    const query = options?.query || {}
+const search = new URLSearchParams()
+Object.entries(query).forEach(([k, v]) => {
+  if (v === undefined || v === null) return
+  if (Array.isArray(v)) v.forEach((vv) => search.append(k, String(vv)))
+  else search.append(k, String(v))
+})
+const qs = search.toString()
+    const baseUrl = "/auth/_route"
+    const url = qs ? baseUrl + '?' + qs : baseUrl
+    const client = _publicAxios
+    const config = options?.config || {}
+    const data = await client.get(url, config)
+    return data as T
+  },
+  editProfile: async <T = _components['schemas']['UserProfileResponseDto']>(body?: _components['schemas']['UserEditProfileRequestDto'], options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -102,7 +118,7 @@ const qs = search.toString()
     const data = await client.put(url, body, config)
     return data as T
   },
-  refresh: async <T = schemas['AuthTokenResponseDto']>(body?: unknown, options?: RequestOptions): Promise<T> => {
+  refresh: async <T = _components['schemas']['AuthTokenResponseDto']>(body?: unknown, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -118,7 +134,7 @@ const qs = search.toString()
     const data = await client.post(url, body, config)
     return data as T
   },
-  changePassword: async <T = schemas['UserProfileResponseDto']>(body?: schemas['UserRequestChangePasswordDto'], options?: RequestOptions): Promise<T> => {
+  changePassword: async <T = _components['schemas']['UserProfileResponseDto']>(body?: _components['schemas']['UserRequestChangePasswordDto'], options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -134,7 +150,7 @@ const qs = search.toString()
     const data = await client.put(url, body, config)
     return data as T
   },
-  changeAvatar: async <T = schemas['UserProfileResponseDto']>(body?: unknown, options?: RequestOptions): Promise<T> => {
+  changeAvatar: async <T = _components['schemas']['UserProfileResponseDto']>(body?: unknown, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -150,7 +166,7 @@ const qs = search.toString()
     const data = await client.put(url, body, config)
     return data as T
   },
-  confirmPassword: async <T = any>(body?: schemas['UserVerifyPasswordRequestDto'], options?: RequestOptions): Promise<T> => {
+  confirmPassword: async <T = any>(body?: _components['schemas']['UserVerifyPasswordRequestDto'], options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -166,7 +182,7 @@ const qs = search.toString()
     const data = await client.post(url, body, config)
     return data as T
   },
-  changeConfirmPassword: async <T = any>(body?: schemas['UserRequestChangeConfirmPasswordDto'], options?: RequestOptions): Promise<T> => {
+  changeConfirmPassword: async <T = any>(body?: _components['schemas']['UserRequestChangeConfirmPasswordDto'], options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {

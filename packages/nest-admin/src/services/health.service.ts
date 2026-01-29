@@ -1,7 +1,7 @@
+/* AUTO-GENERATED FILE. DO NOT EDIT. */
+
 import { _privateAxios, _publicAxios } from '../lib/httpClient'
-import type { components } from '../types/api'
-// @ts-ignore
-type schemas = components['schemas']
+import type { components as _components } from '../types/api'
 
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 

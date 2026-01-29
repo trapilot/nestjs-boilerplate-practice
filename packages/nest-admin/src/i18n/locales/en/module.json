@@ -26,8 +26,8 @@
       "isActive": "Active",
       "createdAt": "Created At",
       "updatedAt": "Updated At",
-      "createdBy": "Owner",
-      "updatedBy": "Modifier"
+      "createdBy": "User Created",
+      "updatedBy": "Last Updated"
     }
   },
   "invoice": {
@@ -52,8 +52,8 @@
       "issuedAt": "Issued At",
       "createdAt": "Created At",
       "updatedAt": "Updated At",
-      "createdBy": "Owner",
-      "updatedBy": "Modifier"
+      "createdBy": "User Created",
+      "updatedBy": "Last Updated"
     }
   },
   "media": {
@@ -62,7 +62,7 @@
       "id": "ID"
     }
   },
-  "member_notification": {
+  "member-notification": {
     "title": "Member Notifications",
     "fields": {
       "id": "ID",
@@ -70,7 +70,7 @@
       "updatedAt": "Updated At"
     }
   },
-  "member_point": {
+  "member-point": {
     "title": "Member Points",
     "fields": {
       "id": "ID",
@@ -92,11 +92,11 @@
       "createdDate": "Created Date",
       "createdAt": "Created At",
       "updatedAt": "Updated At",
-      "createdBy": "Owner",
-      "updatedBy": "Modifier"
+      "createdBy": "User Created",
+      "updatedBy": "Last Updated"
     }
   },
-  "member_redemption": {
+  "member-redemption": {
     "title": "Member Redemptions",
     "fields": {
       "id": "ID",
@@ -115,8 +115,8 @@
       "usedAt": "Used At",
       "createdAt": "Created At",
       "updatedAt": "Updated At",
-      "createdBy": "Owner",
-      "updatedBy": "Modifier"
+      "createdBy": "User Created",
+      "updatedBy": "Last Updated"
     }
   },
   "member": {
@@ -135,8 +135,8 @@
       "birthDate": "Birth Date",
       "expiryDate": "Expiry Date",
       "pointBalance": "Point Balance",
-      "personalSpending": "Personal Spending",
-      "referralSpending": "Referral Spending",
+      "personalAmount": "Personal Amount",
+      "referralAmount": "Referral Amount",
       "hasFirstPurchased": "Has First Purchased",
       "hasDiamondAchieved": "Has Diamond Achieved",
       "isActive": "Active",
@@ -144,21 +144,16 @@
       "updatedAt": "Updated At"
     }
   },
-  "member_tier": {
+  "member-tier": {
     "title": "Member Tiers",
     "fields": {
       "id": "ID",
       "memberId": "Member ID",
+      "tierId": "Tier ID",
       "invoiceId": "Invoice ID",
-      "prevTierId": "Previous Tier ID",
-      "currTierId": "Current Tier ID",
-      "minTierId": "Minimum Tier ID",
-      "type": "Type",
-      "personalSpending": "Personal Spending",
-      "referralSpending": "Referral Spending",
-      "excessSpending": "Excess Spending",
-      "renewalSpending": "Renewal Spending",
-      "upgradeSpending": "Upgrade Spending",
+      "action": "Type",
+      "personalAmount": "Personal Amount",
+      "referralAmount": "Referral Amount",
       "expiryDate": "Expiry Date",
       "isActive": "Active",
       "createdAt": "Created At",
@@ -195,7 +190,7 @@
       "updatedAt": "Updated At"
     }
   },
-  "product_brand": {
+  "product-brand": {
     "title": "Brands",
     "fields": {
       "id": "ID",
@@ -209,7 +204,7 @@
       "updatedAt": "Updated At"
     }
   },
-  "product_category": {
+  "product-category": {
     "title": "Categories",
     "fields": {
       "id": "ID",
@@ -219,7 +214,7 @@
       "updatedAt": "Updated At"
     }
   },
-  "product_review": {
+  "product-review": {
     "title": "Reviews",
     "fields": {
       "id": "ID",
@@ -262,9 +257,9 @@
       "isDeleted": "Is Deleted",
       "createdAt": "Created At",
       "updatedAt": "Updated At",
-      "createdBy": "Owner",
-      "updatedBy": "Modifier",
-      "deletedBy": "Deleted By"
+      "createdBy": "User Created",
+      "updatedBy": "Last Updated",
+      "deletedBy": "User Deleted"
     }
   },
   "role": {
@@ -276,8 +271,8 @@
       "isActive": "Active",
       "createdAt": "Created At",
       "updatedAt": "Updated At",
-      "createdBy": "Owner",
-      "updatedBy": "Modifier"
+      "createdBy": "User Created",
+      "updatedBy": "Last Updated"
     }
   },
   "tier": {
@@ -287,7 +282,7 @@
       "code": "Code",
       "name": "Name",
       "rewardPoint": "Reward Point",
-      "limitSpending": "Limit Spending",
+      "limitAmount": "Limit Amount",
       "personalRate": "Personal Convention Rate",
       "referralRate": "Referral Convention Rate",
       "initialRate": "Initial Convention Rate",
@@ -308,8 +303,8 @@
       "isActive": "Active",
       "createdAt": "Created At",
       "updatedAt": "Updated At",
-      "createdBy": "Owner",
-      "updatedBy": "Modifier"
+      "createdBy": "User Created",
+      "updatedBy": "Last Updated"
     }
   }
 }

@@ -1,12 +1,12 @@
+/* AUTO-GENERATED FILE. DO NOT EDIT. */
+
 import { _privateAxios, _publicAxios } from '../lib/httpClient'
-import type { components } from '../types/api'
-// @ts-ignore
-type schemas = components['schemas']
+import type { components as _components } from '../types/api'
 
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const dashboardService = {
-  get: async <T = schemas['DashboardSummaryResponseDto']>(options?: RequestOptions): Promise<T> => {
+  get: async <T = _components['schemas']['DashboardSummaryResponseDto']>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -22,7 +22,7 @@ const qs = search.toString()
     const data = await client.get(url, config)
     return data as T
   },
-  refresh: async <T = schemas['DashboardSummaryResponseDto']>(options?: RequestOptions): Promise<T> => {
+  refresh: async <T = _components['schemas']['DashboardSummaryResponseDto']>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -38,7 +38,7 @@ const qs = search.toString()
     const data = await client.get(url, config)
     return data as T
   },
-  viewDataList: async <T = schemas['DashboardDataResponseDto']>(options?: RequestOptions): Promise<T> => {
+  viewDataList: async <T = _components['schemas']['DashboardDataResponseDto']>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {

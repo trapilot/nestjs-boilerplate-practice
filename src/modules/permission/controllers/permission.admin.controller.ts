@@ -81,6 +81,34 @@ export class PermissionAdminController {
     jwtAccessToken: {
       scope: EnumAuthScopeType.USER,
       user: {
+        synchronize: false,
+        require: true,
+        active: true,
+        abilities: [
+          {
+            subject: EnumAuthAbilitySubject.PERMISSION,
+            actions: [EnumAuthAbilityAction.READ],
+          },
+        ],
+      },
+    },
+    response: {
+      dto: PermissionResponseDetailDto,
+    },
+  })
+  @Get('/:id')
+  async get(@RequestParam('id') id: number): Promise<IResponseData> {
+    const permission = await this.permissionService.findOrFail(id)
+    return { data: permission }
+  }
+
+  @ApiRequestData({
+    summary: PERMISSION_DOC_OPERATION,
+    docExclude: true,
+    docExpansion: false,
+    jwtAccessToken: {
+      scope: EnumAuthScopeType.USER,
+      user: {
         synchronize: true,
         require: true,
         active: true,

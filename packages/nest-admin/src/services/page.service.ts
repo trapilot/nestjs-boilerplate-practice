@@ -1,12 +1,12 @@
+/* AUTO-GENERATED FILE. DO NOT EDIT. */
+
 import { _privateAxios, _publicAxios } from '../lib/httpClient'
-import type { components } from '../types/api'
-// @ts-ignore
-type schemas = components['schemas']
+import type { components as _components } from '../types/api'
 
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
 export const pageService = {
-  list: async <T = schemas['PageResponseListDto'][]>(options?: RequestOptions): Promise<T> => {
+  list: async <T = _components['schemas']['PageResponseListDto'][]>(options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -22,7 +22,7 @@ const qs = search.toString()
     const data = await client.get(url, config)
     return data as T
   },
-  create: async <T = schemas['PageResponseDetailDto']>(body?: schemas['PageRequestCreateDto'], options?: RequestOptions): Promise<T> => {
+  create: async <T = _components['schemas']['PageResponseDetailDto']>(body?: _components['schemas']['PageRequestCreateDto'], options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -38,7 +38,7 @@ const qs = search.toString()
     const data = await client.post(url, body, config)
     return data as T
   },
-  get: async <T = schemas['PageResponseDetailDto']>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
+  get: async <T = _components['schemas']['PageResponseDetailDto']>(params: { id: string | number }, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -47,14 +47,14 @@ Object.entries(query).forEach(([k, v]) => {
   else search.append(k, String(v))
 })
 const qs = search.toString()
-    const baseUrl = "/pages/" + String(params .id)
+    const baseUrl = "/pages/" + String(params.id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.get(url, config)
     return data as T
   },
-  update: async <T = schemas['PageResponseDetailDto']>(params: { id: string | number }, body?: schemas['PageRequestUpdateDto'], options?: RequestOptions): Promise<T> => {
+  update: async <T = _components['schemas']['PageResponseDetailDto']>(params: { id: string | number }, body?: _components['schemas']['PageRequestUpdateDto'], options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -63,7 +63,7 @@ Object.entries(query).forEach(([k, v]) => {
   else search.append(k, String(v))
 })
 const qs = search.toString()
-    const baseUrl = "/pages/" + String(params .id)
+    const baseUrl = "/pages/" + String(params.id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
@@ -79,14 +79,14 @@ Object.entries(query).forEach(([k, v]) => {
   else search.append(k, String(v))
 })
 const qs = search.toString()
-    const baseUrl = "/pages/" + String(params .id)
+    const baseUrl = "/pages/" + String(params.id)
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.delete(url, config)
     return data as T
   },
-  active: async <T = schemas['PageResponseDetailDto']>(params: { id: string | number }, body?: unknown, options?: RequestOptions): Promise<T> => {
+  active: async <T = _components['schemas']['PageResponseDetailDto']>(params: { id: string | number }, body?: unknown, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -95,14 +95,14 @@ Object.entries(query).forEach(([k, v]) => {
   else search.append(k, String(v))
 })
 const qs = search.toString()
-    const baseUrl = "/pages/" + String(params .id) + "/active"
+    const baseUrl = "/pages/" + String(params.id) + "/active"
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}
     const data = await client.put(url, body, config)
     return data as T
   },
-  inactive: async <T = schemas['PageResponseDetailDto']>(params: { id: string | number }, body?: unknown, options?: RequestOptions): Promise<T> => {
+  inactive: async <T = _components['schemas']['PageResponseDetailDto']>(params: { id: string | number }, body?: unknown, options?: RequestOptions): Promise<T> => {
     const query = options?.query || {}
 const search = new URLSearchParams()
 Object.entries(query).forEach(([k, v]) => {
@@ -111,7 +111,7 @@ Object.entries(query).forEach(([k, v]) => {
   else search.append(k, String(v))
 })
 const qs = search.toString()
-    const baseUrl = "/pages/" + String(params .id) + "/inactive"
+    const baseUrl = "/pages/" + String(params.id) + "/inactive"
     const url = qs ? baseUrl + '?' + qs : baseUrl
     const client = _privateAxios
     const config = options?.config || {}

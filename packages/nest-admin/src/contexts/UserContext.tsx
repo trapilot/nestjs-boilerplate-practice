@@ -6,34 +6,10 @@ import {
   setRefreshToken,
 } from '../hooks/useAuthToken'
 import { authenticationService } from '../services'
+import type { components } from '../types/api'
 import { getErrorMsg } from '../utils/error'
 
-export interface Permission {
-  group: boolean
-  title: string
-  context: string
-  subjects: Array<{
-    title: string
-    context: string
-    subject: string
-    isVisible: boolean
-    actions: string[]
-  }>
-}
-
-export interface UserProfile {
-  id: number
-  email: string
-  phone: string | null
-  name: string | null
-  address: string | null
-  avatar: string | null
-  loginDate: string
-  createdAt: string
-  roleId: number
-  roleLv: number
-  permissions: Permission[]
-}
+export type UserProfile = components['schemas']['UserProfileResponseDto']
 
 interface UserContextType {
   user: UserProfile | null
@@ -138,7 +114,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   )
 }
 
-export function useUser() {
+export function useUser(): UserContextType {
   const context = useContext(UserContext)
   if (context === undefined) {
     throw new Error('useUser must be used within a UserProvider')

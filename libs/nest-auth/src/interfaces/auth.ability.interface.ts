@@ -26,7 +26,6 @@ export interface IAuthAbilityDataTitle {
 }
 
 export interface IAuthAbilityDataSubject {
-  path: string
   title: IAuthAbilityDataTitle
 }
 
