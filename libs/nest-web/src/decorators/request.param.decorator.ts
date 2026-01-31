@@ -1,6 +1,12 @@
 import { createParamDecorator, ExecutionContext, Ip } from '@nestjs/common'
 import { EnumAuthLoginFrom } from 'lib/nest-auth'
-import { EnumFileExtensionDocument, EnumUserType, EnumUtil, IRequestApp } from 'lib/nest-core'
+import {
+  AppUtil,
+  EnumFileExtensionDocument,
+  EnumUserType,
+  EnumUtil,
+  IRequestApp,
+} from 'lib/nest-core'
 import { IResult, UAParser } from 'ua-parser-js'
 
 export const RequestBookType = createParamDecorator(
@@ -25,29 +31,15 @@ export const RequestUserAgent: () => ParameterDecorator = createParamDecorator(
     try {
       const userAgent: IResult = JSON.parse(req.headers['x-user-agent'] as string)
       return userAgent
-    } catch (_err: unknown) {}
-
-    const userAgentString = req.get('User-Agent') || req.headers['user-agent']
-    const parserUserAgent = new UAParser(userAgentString)
-    const userAgent: IResult = parserUserAgent.getResult()
-    return userAgent
+    } catch {}
+    return new UAParser(req.get('User-Agent') || req.headers['user-agent']).getResult()
   },
 )
 
 export const RequestUserFrom: () => ParameterDecorator = createParamDecorator(
   (_data: string, ctx: ExecutionContext): EnumAuthLoginFrom => {
     const req = ctx.switchToHttp().getRequest<IRequestApp>()
-    try {
-      const originalUrl = req?.originalUrl ?? ''
-      if (originalUrl.includes('/admin/')) {
-        return EnumAuthLoginFrom.CMS
-      } else if (originalUrl.includes('/app/')) {
-        return EnumAuthLoginFrom.APP
-      } else if (originalUrl.includes('/web/')) {
-        return EnumAuthLoginFrom.WEB
-      }
-    } catch (_err: unknown) {}
-    return null
+    return AppUtil.getLoginFrom(req?.originalUrl ?? '')
   },
 )
 
@@ -80,20 +72,19 @@ export const RequestUserLang: () => ParameterDecorator = createParamDecorator(
 )
 
 export const RequestUserType: () => ParameterDecorator = createParamDecorator(
-  (data: string, ctx: ExecutionContext): string => {
+  (_data: string, ctx: ExecutionContext): string => {
     const req = ctx.switchToHttp().getRequest<IRequestApp>()
     const userType = (req.headers['x-user-type'] as string) ?? undefined
     return EnumUtil.findKey<string>(userType?.toLowerCase(), {
       enum: EnumUserType,
-      fallback: data,
     })
   },
 )
 
-export const RequestCartVersion: () => ParameterDecorator = createParamDecorator(
-  (_data: string, ctx: ExecutionContext): number => {
+export const RequestUserVersion: () => ParameterDecorator = createParamDecorator(
+  (_data: string, ctx: ExecutionContext): string => {
     const req = ctx.switchToHttp().getRequest<IRequestApp>()
-    const cartVersion = (req.headers['x-cart-version'] as string) ?? 0
-    return Number(cartVersion)
+    const userVersion = req.headers['x-user-version'] as string
+    return userVersion
   },
 )

@@ -2,8 +2,8 @@ import { Controller, Get, HttpStatus, Inject, Post, Put, UploadedFile } from '@n
 import { ApiTags } from '@nestjs/swagger'
 import {
   AuthJwtPayload,
-  AuthJwtRefreshPayloadDto,
   AuthJwtToken,
+  AuthResponseLoginDto,
   AuthSocialAppleProtected,
   AuthSocialGoogleProtected,
   AuthTokenResponseDto,
@@ -12,17 +12,10 @@ import {
   EnumAuthLoginWith,
   EnumAuthScopeType,
 } from 'lib/nest-auth'
-import {
-  EnumFileExtensionImage,
-  FILE_SIZE_IN_BYTES,
-  FileExtensionPipe,
-  IFile,
-  IRequestApp,
-} from 'lib/nest-core'
+import { EnumFileExtensionImage, FILE_SIZE_IN_BYTES, FileExtensionPipe, IFile } from 'lib/nest-core'
 import {
   ApiRequestData,
   IResponseData,
-  RequestApp,
   RequestBody,
   RequestRequiredPipe,
   RequestUserAgent,
@@ -40,7 +33,6 @@ import {
   UserRequestChangePasswordDto,
   UserRequestSignInDto,
   UserRequestSignUpDto,
-  UserResponseLoginDto,
   UserVerifyPasswordRequestDto,
 } from '../dtos'
 import { UserIsSuperAdmin } from '../guards'
@@ -78,7 +70,7 @@ export class UserAuthController {
       medium: { limit: 10, seconds: 60 },
     },
     response: {
-      dto: UserResponseLoginDto,
+      dto: AuthResponseLoginDto,
       statusCode: HttpStatus.OK,
     },
   })
@@ -88,17 +80,20 @@ export class UserAuthController {
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: EnumAuthLoginFrom,
-    @RequestApp() userRequest: IRequestApp,
     @RequestBody() body: UserRequestSignInDto,
   ): Promise<IResponseData> {
-    const user = await this.userAuth.validateCredentials(body)
-    const auth = await this.userAuth.login(user, userIp, userAgent, userRequest, {
-      scopeType: EnumAuthScopeType.USER,
-      loginType: EnumAuthLoginType.CREDENTIAL,
-      loginWith: EnumAuthLoginWith.PHONE,
-      loginFrom: userFrom,
-      loginToken: userToken,
-      loginRotate: body.rememberMe !== false,
+    const user = await this.userAuth.validateCredential(body)
+    const auth = await this.userAuth.login(user, {
+      userIp,
+      userAgent,
+      userToken,
+      userSession: {
+        scopeType: EnumAuthScopeType.USER,
+        loginType: EnumAuthLoginType.CREDENTIAL,
+        loginWith: EnumAuthLoginWith.PHONE,
+        loginFrom: userFrom,
+        loginRotate: body.rememberMe !== false,
+      },
     })
     return { data: auth }
   }
@@ -123,16 +118,19 @@ export class UserAuthController {
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: EnumAuthLoginFrom,
-    @RequestApp() userRequest: IRequestApp,
     @AuthJwtPayload('user.email') email: string,
   ): Promise<IResponseData> {
     const user = await this.userAuth.validateOAuthEmail({ email })
-    const auth = await this.userAuth.login(user, userIp, userAgent, userRequest, {
-      scopeType: EnumAuthScopeType.USER,
-      loginType: EnumAuthLoginType.SOCIAL_GOOGLE,
-      loginWith: EnumAuthLoginWith.EMAIL,
-      loginFrom: userFrom,
-      loginToken: userToken,
+    const auth = await this.userAuth.login(user, {
+      userIp,
+      userAgent,
+      userToken,
+      userSession: {
+        scopeType: EnumAuthScopeType.USER,
+        loginType: EnumAuthLoginType.SOCIAL_GOOGLE,
+        loginWith: EnumAuthLoginWith.EMAIL,
+        loginFrom: userFrom,
+      },
     })
     return { data: auth }
   }
@@ -157,16 +155,19 @@ export class UserAuthController {
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: EnumAuthLoginFrom,
-    @RequestApp() userRequest: IRequestApp,
     @AuthJwtPayload('user.email') email: string,
   ): Promise<IResponseData> {
     const user = await this.userAuth.validateOAuthEmail({ email })
-    const auth = await this.userAuth.login(user, userIp, userAgent, userRequest, {
-      scopeType: EnumAuthScopeType.USER,
-      loginType: EnumAuthLoginType.SOCIAL_APPLE,
-      loginWith: EnumAuthLoginWith.EMAIL,
-      loginFrom: userFrom,
-      loginToken: userToken,
+    const auth = await this.userAuth.login(user, {
+      userIp,
+      userAgent,
+      userToken,
+      userSession: {
+        scopeType: EnumAuthScopeType.USER,
+        loginType: EnumAuthLoginType.SOCIAL_APPLE,
+        loginWith: EnumAuthLoginWith.EMAIL,
+        loginFrom: userFrom,
+      },
     })
     return { data: auth }
   }
@@ -270,12 +271,16 @@ export class UserAuthController {
   })
   @Post('/refresh')
   async refresh(
+    @RequestUserIp() userIp: string,
+    @RequestUserAgent() userAgent: IResult,
     @AuthJwtToken() refreshToken: string,
-    @AuthJwtPayload() refreshPayload: AuthJwtRefreshPayloadDto,
     @AuthJwtPayload('user.id') userId: number,
   ): Promise<IResponseData> {
     const user = await this.userAuth.getUserData(userId)
-    const auth = await this.userAuth.refresh(user, refreshToken, refreshPayload)
+    const auth = await this.userAuth.refresh(user, refreshToken, {
+      userIp,
+      userAgent,
+    })
 
     return { data: auth }
   }

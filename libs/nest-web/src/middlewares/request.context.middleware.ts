@@ -81,7 +81,7 @@ export class RequestContextMiddleware implements NestMiddleware {
           return reqLanguage
         }
       }
-    } catch (_err: unknown) {}
+    } catch {}
     return language
   }
 
@@ -91,7 +91,7 @@ export class RequestContextMiddleware implements NestMiddleware {
       if (userTz && this.helperService.dateCheckZone(userTz)) {
         return userTz
       }
-    } catch (_err: unknown) {}
+    } catch {}
     return APP_TIMEZONE
   }
 

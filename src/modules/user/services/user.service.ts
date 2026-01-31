@@ -192,11 +192,11 @@ export class UserService implements OnModuleInit {
     })
   }
 
-  async getLoginHistories(
-    where?: Prisma.UserLoginLogWhereInput,
+  async getActivities(
+    where?: Prisma.UserActivityWhereInput,
     params?: IPrismaParams,
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.userLoginLog.list(where, params, options)
+    return await this.prisma.userActivity.list(where, params, options)
   }
 }

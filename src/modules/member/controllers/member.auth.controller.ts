@@ -3,8 +3,8 @@ import { ApiTags } from '@nestjs/swagger'
 import { EnumVerificationChannel, EnumVerificationMethod } from '@runtime/prisma-client'
 import {
   AuthJwtPayload,
-  AuthJwtRefreshPayloadDto,
   AuthJwtToken,
+  AuthResponseLoginDto,
   AuthSocialAppleProtected,
   AuthSocialGoogleProtected,
   AuthTokenResponseDto,
@@ -13,11 +13,9 @@ import {
   EnumAuthLoginWith,
   EnumAuthScopeType,
 } from 'lib/nest-auth'
-import { IRequestApp } from 'lib/nest-core'
 import {
   ApiRequestData,
   IResponseData,
-  RequestApp,
   RequestBody,
   RequestUserAgent,
   RequestUserFrom,
@@ -34,7 +32,6 @@ import {
   MemberRequestSignUpDto,
   MemberRequestTokenDto,
   MemberResetPasswordRequestDto,
-  MemberResponseLoginDto,
   MemberSignInRequestDto,
 } from '../dtos'
 import { MemberAuth } from '../helpers'
@@ -83,7 +80,7 @@ export class MemberAuthController {
       medium: { limit: 10, seconds: 60 },
     },
     response: {
-      dto: MemberResponseLoginDto,
+      dto: AuthResponseLoginDto,
       statusCode: HttpStatus.OK,
     },
   })
@@ -93,17 +90,20 @@ export class MemberAuthController {
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: EnumAuthLoginFrom,
-    @RequestApp() userRequest: IRequestApp,
     @RequestBody() body: MemberSignInRequestDto,
   ): Promise<IResponseData> {
-    const member = await this.memberAuth.validateCredentials(body)
-    const auth = await this.memberAuth.login(member, userIp, userAgent, userRequest, {
-      scopeType: EnumAuthScopeType.MEMBER,
-      loginType: EnumAuthLoginType.CREDENTIAL,
-      loginWith: EnumAuthLoginWith.PHONE,
-      loginFrom: userFrom,
-      loginToken: userToken,
-      loginRotate: false,
+    const member = await this.memberAuth.validateCredential(body)
+    const auth = await this.memberAuth.login(member, {
+      userIp,
+      userAgent,
+      userToken,
+      userSession: {
+        scopeType: EnumAuthScopeType.MEMBER,
+        loginType: EnumAuthLoginType.CREDENTIAL,
+        loginWith: EnumAuthLoginWith.PHONE,
+        loginFrom: userFrom,
+        loginRotate: false,
+      },
     })
     return { data: auth }
   }
@@ -113,6 +113,8 @@ export class MemberAuthController {
     docExclude: true,
     docExpansion: false,
     google: true,
+    userAgent: true,
+    userToken: true,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
       medium: { limit: 10, seconds: 60 },
@@ -128,16 +130,19 @@ export class MemberAuthController {
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: EnumAuthLoginFrom,
-    @RequestApp() userRequest: IRequestApp,
     @AuthJwtPayload<string>('user.email') email: string,
   ): Promise<IResponseData> {
     const member = await this.memberAuth.validateOAuthEmail({ email })
-    const auth = await this.memberAuth.login(member, userIp, userAgent, userRequest, {
-      scopeType: EnumAuthScopeType.MEMBER,
-      loginType: EnumAuthLoginType.SOCIAL_GOOGLE,
-      loginWith: EnumAuthLoginWith.EMAIL,
-      loginFrom: userFrom,
-      loginToken: userToken,
+    const auth = await this.memberAuth.login(member, {
+      userIp,
+      userAgent,
+      userToken,
+      userSession: {
+        scopeType: EnumAuthScopeType.MEMBER,
+        loginType: EnumAuthLoginType.SOCIAL_GOOGLE,
+        loginWith: EnumAuthLoginWith.EMAIL,
+        loginFrom: userFrom,
+      },
     })
     return { data: auth }
   }
@@ -147,6 +152,8 @@ export class MemberAuthController {
     docExclude: true,
     docExpansion: false,
     apple: true,
+    userAgent: true,
+    userToken: true,
     rateLimit: {
       short: { limit: 3, seconds: 1 },
       medium: { limit: 10, seconds: 60 },
@@ -162,16 +169,19 @@ export class MemberAuthController {
     @RequestUserAgent() userAgent: IResult,
     @RequestUserToken() userToken: string,
     @RequestUserFrom() userFrom: EnumAuthLoginFrom,
-    @RequestApp() userRequest: IRequestApp,
     @AuthJwtPayload('user.email') email: string,
   ): Promise<IResponseData> {
     const member = await this.memberAuth.validateOAuthEmail({ email })
-    const auth = await this.memberAuth.login(member, userIp, userAgent, userRequest, {
-      scopeType: EnumAuthScopeType.MEMBER,
-      loginType: EnumAuthLoginType.SOCIAL_APPLE,
-      loginWith: EnumAuthLoginWith.EMAIL,
-      loginFrom: userFrom,
-      loginToken: userToken,
+    const auth = await this.memberAuth.login(member, {
+      userIp,
+      userAgent,
+      userToken,
+      userSession: {
+        scopeType: EnumAuthScopeType.MEMBER,
+        loginType: EnumAuthLoginType.SOCIAL_APPLE,
+        loginWith: EnumAuthLoginWith.EMAIL,
+        loginFrom: userFrom,
+      },
     })
     return { data: auth }
   }
@@ -192,12 +202,16 @@ export class MemberAuthController {
   })
   @Post('/refresh')
   async refresh(
+    @RequestUserIp() userIp: string,
+    @RequestUserAgent() userAgent: IResult,
     @AuthJwtToken() refreshToken: string,
-    @AuthJwtPayload() refreshPayload: AuthJwtRefreshPayloadDto,
     @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
     const member = await this.memberAuth.getUserData(memberId)
-    const auth = await this.memberAuth.refresh(member, refreshToken, refreshPayload)
+    const auth = await this.memberAuth.refresh(member, refreshToken, {
+      userIp,
+      userAgent,
+    })
 
     return { data: auth }
   }

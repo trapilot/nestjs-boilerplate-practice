@@ -6,3 +6,10 @@ export enum EnumMemberQueue {
   RESET_EXPIRY_POINTS = 'member:reset_expiry_points',
   RESET_EXPIRY_TIERS = 'member:reset_expiry_tiers',
 }
+
+export enum EnumMemberActivityAction {
+  USER_LOGIN_CREDENTIAL = 'USER_LOGIN_CREDENTIAL',
+  USER_LOGIN_GOOGLE = 'USER_LOGIN_GOOGLE',
+  USER_LOGIN_APPLE = 'USER_LOGIN_APPLE',
+  USER_REFRESH_TOKEN = 'USER_REFRESH_TOKEN',
+}

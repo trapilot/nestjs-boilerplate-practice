@@ -38,7 +38,7 @@ export class AppVersionCheckMiddleware implements NestMiddleware {
         version: appVersion.version,
         url: appVersion.url,
       }
-    } catch (_err: unknown) {}
+    } catch {}
 
     if (noLongerSupported === true) {
       throw new HttpVersionNotSupportedException({

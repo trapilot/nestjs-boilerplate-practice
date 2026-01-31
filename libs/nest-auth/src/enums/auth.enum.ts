@@ -31,3 +31,8 @@ export enum EnumAuthScopeType {
   CLIENT = 'client',
   CUSTOMER = 'customer',
 }
+
+export enum EnumAuthTwoFactorMethod {
+  code = 'code',
+  backupCodes = 'backupCodes',
+}

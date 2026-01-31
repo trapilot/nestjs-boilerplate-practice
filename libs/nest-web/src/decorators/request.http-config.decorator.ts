@@ -349,9 +349,7 @@ function DocAuth(options?: IRequestAuthOptions & { docExpansion?: boolean }) {
         ApiHeader({
           name: 'x-user-hmac',
           required: true,
-          // cspell:disable
           schema: { type: 'string', example: 'asdjakjsndjbasjkd' },
-          // cspell:enable
         }),
       )
     }
@@ -393,35 +391,35 @@ function DocAuth(options?: IRequestAuthOptions & { docExpansion?: boolean }) {
       {
         allOf: [{ $ref: getSchemaPath(ResponseDataDto) }],
         properties: {
-          message: { example: 'apiKey.error.required' },
+          message: { example: 'request.apikey.required' },
           statusCode: { type: 'number', example: HttpStatus.UNAUTHORIZED },
         },
       },
       {
         allOf: [{ $ref: getSchemaPath(ResponseDataDto) }],
         properties: {
-          message: { example: 'apiKey.error.notFound' },
+          message: { example: 'request.apikey.notFound' },
           statusCode: { type: 'number', example: HttpStatus.UNAUTHORIZED },
         },
       },
       {
         allOf: [{ $ref: getSchemaPath(ResponseDataDto) }],
         properties: {
-          message: { example: 'apiKey.error.expired' },
+          message: { example: 'request.apikey.expired' },
           statusCode: { type: 'number', example: HttpStatus.UNAUTHORIZED },
         },
       },
       {
         allOf: [{ $ref: getSchemaPath(ResponseDataDto) }],
         properties: {
-          message: { example: 'apiKey.error.invalid' },
+          message: { example: 'request.apikey.invalid' },
           statusCode: { type: 'number', example: HttpStatus.UNAUTHORIZED },
         },
       },
       {
         allOf: [{ $ref: getSchemaPath(ResponseDataDto) }],
         properties: {
-          message: { example: 'apiKey.error.forbidden' },
+          message: { example: 'request.apikey.forbidden' },
           statusCode: { type: 'number', example: HttpStatus.UNAUTHORIZED },
         },
       },
@@ -527,10 +525,10 @@ function DocGuard(options?: IRequestGuardOptions & { docExpansion?: boolean }) {
     )
   }
 
-  if (options?.cartVersion) {
+  if (options?.userVersion) {
     decorators.push(
       ApiHeader({
-        name: 'x-cart-version',
+        name: 'x-user-version',
         required: true,
         schema: { type: 'string', example: '1' },
       }),

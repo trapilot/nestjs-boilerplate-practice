@@ -9,7 +9,7 @@ import {
 import { AuthJwtAccessStrategy, AuthJwtRefreshStrategy } from './guards'
 import { AuthContext } from './helpers'
 import { AuthModuleOptions, IAuthAbilityConfig } from './interfaces'
-import { AuthUtil } from './services'
+import { AuthTwoFactorUtil, AuthUtil } from './services'
 
 @Module({})
 export class NestAuthModule {
@@ -19,6 +19,7 @@ export class NestAuthModule {
       module: NestAuthModule,
       providers: [
         AuthUtil,
+        AuthTwoFactorUtil,
         AuthJwtAccessStrategy,
         AuthJwtRefreshStrategy,
         {
@@ -41,7 +42,7 @@ export class NestAuthModule {
           },
         },
       ],
-      exports: [AuthUtil, AUTH_ABILITY_CONFIG_TOKEN, AUTH_ABILITY_FACTORY_TOKEN],
+      exports: [AuthUtil, AuthTwoFactorUtil, AUTH_ABILITY_CONFIG_TOKEN, AUTH_ABILITY_FACTORY_TOKEN],
       imports: [
         JwtModule.registerAsync({
           inject: [ConfigService],

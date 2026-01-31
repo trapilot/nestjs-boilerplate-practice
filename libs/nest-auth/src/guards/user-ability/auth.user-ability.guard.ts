@@ -8,15 +8,14 @@ import {
   Injectable,
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
+import { IRequestApp } from 'lib/nest-core'
 import {
   AUTH_ABILITY_FACTORY_TOKEN,
   AUTH_ABILITY_META_KEY,
   AUTH_ACCESS_REQUIRE_METADATA,
-  AuthFactory,
-  AuthJwtAccessPayloadDto,
-  IAuthAbility,
-} from 'lib/nest-auth'
-import { IRequestApp } from 'lib/nest-core'
+} from '../../constants'
+import { AuthFactory } from '../../helpers'
+import { IAuthAbility, IAuthJwtPayload } from '../../interfaces'
 
 @Injectable()
 export class AuthUserAbilityGuard implements CanActivate {
@@ -26,7 +25,7 @@ export class AuthUserAbilityGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest<IRequestApp<AuthJwtAccessPayloadDto>>()
+    const request = context.switchToHttp().getRequest<IRequestApp<IAuthJwtPayload>>()
     const { user: payload } = request
 
     const isAuthenticated = !!payload

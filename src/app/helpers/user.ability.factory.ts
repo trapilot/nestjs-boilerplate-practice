@@ -3,9 +3,9 @@ import { createPrismaAbility } from '@casl/prisma'
 import {
   AuthContext,
   AuthFactory,
-  AuthJwtAccessPayloadDto,
   IAuthAbility,
   IAuthAbilityRule,
+  IAuthJwtPayload,
   IAuthPayloadPermission,
 } from 'lib/nest-auth'
 
@@ -26,7 +26,7 @@ export class UserAbilityFactory extends AuthFactory {
     return this._actions
   }
 
-  defineFromRequest(payload: AuthJwtAccessPayloadDto): IAuthAbilityRule {
+  defineFromRequest(payload: IAuthJwtPayload): IAuthAbilityRule {
     const userPermissions = this.parseFromRequest(payload)
 
     const { can, build } = new AbilityBuilder<IAuthAbilityRule>(createPrismaAbility)
@@ -41,7 +41,7 @@ export class UserAbilityFactory extends AuthFactory {
     return build()
   }
 
-  parseFromRequest(payload: AuthJwtAccessPayloadDto): IAuthAbility[] {
+  parseFromRequest(payload: IAuthJwtPayload): IAuthAbility[] {
     const abilities: IAuthAbility[] = []
     const permissions: IAuthPayloadPermission[] = payload.user?.permissions || []
 

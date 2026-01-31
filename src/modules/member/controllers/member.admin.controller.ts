@@ -235,7 +235,7 @@ export class MemberAdminController {
     )
     file: IFile,
   ): Promise<IResponseData> {
-    const passwordHash = this.authUtil.createPassword(body.password)
+    const passwordHash = this.authUtil.passwordCreate(body.password)
     const member = await this.memberService.create(
       { ...body, avatar: file?.path ?? undefined, createdBy },
       passwordHash,
@@ -276,7 +276,7 @@ export class MemberAdminController {
   ): Promise<IResponseData> {
     let password = undefined
     if (body?.password) {
-      const { passwordHash } = this.authUtil.createPassword(body.password)
+      const { passwordHash } = this.authUtil.passwordCreate(body.password)
       password = passwordHash
     }
 

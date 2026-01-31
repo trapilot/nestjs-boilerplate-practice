@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
 import { AuthJwtPayload, AuthUtil, EnumAuthScopeType } from 'lib/nest-auth'
 import {
   EnumFileExtensionDocument,
@@ -39,7 +40,6 @@ import {
   RequestRequiredPipe,
   RequestRequiredYearPipe,
 } from 'lib/nest-web'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
 import { USER_DOC_ADMIN_QUERY_LIST, USER_DOC_OPERATION, USER_UPLOAD_IMAGE_PATH } from '../constants'
 import {
   UserRequestChangeAvatarDto,
@@ -49,6 +49,7 @@ import {
   UserResponseListDto,
   UserResponseLoginHistoryDto,
 } from '../dtos'
+import { EnumUserActivityAction } from '../enums'
 import { UserService } from '../services'
 
 @ApiTags(USER_DOC_OPERATION)
@@ -200,16 +201,17 @@ export class UserAdminController {
     const reqDate = this.helperService.dateSet(nowDate, { year, month })
     const dateRange = this.helperService.dateRange(reqDate)
 
-    const _where: Prisma.UserLoginLogWhereInput = {
+    const _where: Prisma.UserActivityWhereInput = {
       ..._search,
       userId: id,
-      loginDate: {
+      action: EnumUserActivityAction.USER_LOGIN_CREDENTIAL,
+      createdAt: {
         gte: dateRange.startOfMonth,
         lte: dateRange.endOfMonth,
       },
     }
 
-    const listing = await this.userService.getLoginHistories(_where, _params, {
+    const listing = await this.userService.getActivities(_where, _params, {
       document: bookType,
     })
     return listing
@@ -257,7 +259,7 @@ export class UserAdminController {
     file: IFile,
   ): Promise<IResponseData> {
     const { roleId, ...data } = body
-    const authPassword = this.authUtil.createPassword(body.password)
+    const authPassword = this.authUtil.passwordCreate(body.password)
     const created = await this.userService.create(
       { ...data, avatar: file?.path ?? undefined },
       authPassword,
@@ -321,7 +323,7 @@ export class UserAdminController {
     }
 
     if (data?.password) {
-      const authPassword = this.authUtil.createPassword(data.password)
+      const authPassword = this.authUtil.passwordCreate(data.password)
       data.password = authPassword.passwordHash
     }
 

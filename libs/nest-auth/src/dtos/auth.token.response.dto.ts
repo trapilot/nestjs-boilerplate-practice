@@ -12,6 +12,11 @@ export class AuthTokenResponseDto {
   @Expose()
   expiresIn: number
 
+  @ApiProperty({ example: 1660190937231, description: 'Expire in timestamp' })
+  @Type(() => Number)
+  @Expose()
+  refreshIn: number
+
   @ApiProperty({
     example: 'asjdgh124123jl213aazs',
     description: 'Will be valid JWT Encode string',

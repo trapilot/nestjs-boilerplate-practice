@@ -1,9 +1,9 @@
 import { HttpStatus } from '@nestjs/common'
 import { NextFunction, Request, Response } from 'express'
-import { AuthJwtAccessPayloadDto } from 'lib/nest-auth'
+import { IAuthJwtPayload } from 'lib/nest-auth'
 import { IMessageProperties } from './message.interface'
 
-export interface IRequestApp<T = AuthJwtAccessPayloadDto> extends Request {
+export interface IRequestApp<T = IAuthJwtPayload> extends Request {
   user?: T
 
   __timezone: string

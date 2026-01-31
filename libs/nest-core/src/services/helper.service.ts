@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { compareSync, genSaltSync, hashSync } from 'bcrypt'
+import ObjectID from 'bson-objectid'
 import {
   createCipheriv,
   createDecipheriv,
@@ -7,6 +8,7 @@ import {
   createHmac,
   createSign,
   createVerify,
+  randomBytes,
 } from 'crypto'
 import { DateObjectUnits, DateTime, Duration, DurationLikeObject } from 'luxon'
 import RandExp from 'randexp'
@@ -36,6 +38,14 @@ export class HelperService {
     16: '0123456789ABCDEF',
     36: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ',
     62: '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+  }
+
+  checkIdIsValid(id: string): boolean {
+    return ObjectID.isValid(id)
+  }
+
+  createId(): string {
+    return ObjectID().toHexString()
   }
 
   arrayReverse<T>(array: T[]): T[] {
@@ -328,7 +338,7 @@ export class HelperService {
     return DateUtil.create(date, options)
   }
 
-  dateCreateFromGeneric(date: string | Date, options?: IDateCreateOptions): Date {
+  dateCreateFromGeneric(date: string | number | Date, options?: IDateCreateOptions): Date {
     return DateUtil.asDate(date, options)
   }
 
@@ -365,6 +375,13 @@ export class HelperService {
 
   dateRange(date: Date): IDateRange {
     return DateUtil.rangeDate(date)
+  }
+
+  dateDiff(dateOne: Date, dateTwo: Date): Duration {
+    const mOne = DateTime.fromJSDate(dateOne).setZone(ScopeContext.getReqZone())
+    const mTwo = DateTime.fromJSDate(dateTwo).setZone(ScopeContext.getReqZone())
+
+    return mOne.diff(mTwo)
   }
 
   dateExtract(date: Date): IDateExtractData {
@@ -499,6 +516,10 @@ export class HelperService {
     const decipher = createDecipheriv('aes-256-cbc', keyBuffer, ivBuffer)
 
     return decipher.update(encrypted, 'base64', 'utf8') + decipher.final('utf8')
+  }
+
+  randomBytes(size: number): Buffer<ArrayBuffer> {
+    return randomBytes(size)
   }
 
   randomSalt(length: number): string {

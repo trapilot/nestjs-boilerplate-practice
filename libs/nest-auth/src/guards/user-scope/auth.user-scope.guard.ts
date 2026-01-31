@@ -6,6 +6,7 @@ import {
   Injectable,
 } from '@nestjs/common'
 import { ModuleRef, Reflector } from '@nestjs/core'
+import { IRequestApp } from 'lib/nest-core'
 import {
   AUTH_ACCESS_REQUIRE_METADATA,
   AUTH_ACCESS_SYNCHRONIZE_METADATA,
@@ -13,10 +14,9 @@ import {
   AUTH_ACCESS_USER_HMAC_METADATA,
   AUTH_ACCESS_USER_UNIQUE_METADATA,
   AUTH_SCOPE_META_KEY,
-  EnumAuthScopeType,
-  IAuthValidator,
-} from 'lib/nest-auth'
-import { IRequestApp } from 'lib/nest-core'
+} from '../../constants'
+import { EnumAuthScopeType } from '../../enums'
+import { IAuthValidator } from '../../interfaces'
 
 @Injectable()
 export class AuthUserScopeGuard implements CanActivate {

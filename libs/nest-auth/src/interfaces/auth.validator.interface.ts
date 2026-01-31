@@ -1,5 +1,5 @@
 import { IRequestApp } from 'lib/nest-core'
-import { AuthJwtAccessPayloadDto } from '../dtos'
+import { IAuthJwtPayload } from './auth.interface'
 
 export class IAuthUserValidatorDto<U = any, P = any> {
   userData: U
@@ -12,7 +12,7 @@ export interface IAuthValidatorOptions {
 
 export interface IAuthValidator<T = any> {
   validatePayload(
-    payload: AuthJwtAccessPayloadDto,
+    payload: IAuthJwtPayload,
     request: IRequestApp,
     options: IAuthValidatorOptions,
   ): Promise<IAuthUserValidatorDto>

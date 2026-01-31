@@ -11,8 +11,6 @@ import {
   EnumPointAction,
   EnumPointSource,
   EnumSlipType,
-  EnumTierAction,
-  EnumTierSource,
   Member,
   Prisma,
 } from '@runtime/prisma-client'
@@ -32,7 +30,6 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { InvoiceUtil } from 'modules/invoice'
 import { TierService, TierUtil } from 'modules/tier'
 import { MEMBER_AUTH_TOKEN } from '../constants'
 import { MemberChangePasswordRequestDto } from '../dtos'
@@ -42,7 +39,6 @@ import { ISlipCounterOptions, TMember, TMemberMetadata } from '../interfaces'
 @Injectable()
 export class MemberService implements OnModuleInit {
   private memberAuth: MemberAuth
-  private invoiceUtil!: InvoiceUtil
 
   constructor(
     private readonly ref: ModuleRef,
@@ -55,7 +51,6 @@ export class MemberService implements OnModuleInit {
 
   onModuleInit(): void {
     this.memberAuth = this.ref.get(MEMBER_AUTH_TOKEN, { strict: true })
-    this.invoiceUtil = this.ref.get(InvoiceUtil, { strict: false })
   }
 
   async findOne(kwargs?: Prisma.MemberFindUniqueArgs): Promise<TMember> {
@@ -166,7 +161,7 @@ export class MemberService implements OnModuleInit {
     const { region, phone } = this.helperService.parsePhone(data.phone)
     const { id: tierId } = this.tierService.getChart().getNormalTier()
 
-    const member = await this.prisma.member.create({
+    return await this.prisma.member.create({
       data: {
         tierId: tierId,
         minTierId: tierId,
@@ -182,25 +177,8 @@ export class MemberService implements OnModuleInit {
         createdAt: nowDate,
         updatedAt: nowDate,
         ...data,
-        tiers: {
-          createMany: {
-            data: [
-              {
-                tierId: tierId,
-                isActive: true,
-                source: EnumTierSource.SYSTEM,
-                action: EnumTierAction.INITIAL,
-                expiryDate: endOfYear,
-                createdAt: nowDate,
-                updatedAt: nowDate,
-              },
-            ],
-            skipDuplicates: true,
-          },
-        },
       },
     })
-    return await this.handleCreated(member)
   }
 
   async update(id: number, data: Prisma.MemberUncheckedUpdateInput): Promise<TMember> {
@@ -331,35 +309,6 @@ export class MemberService implements OnModuleInit {
     })
     const profile = await this.getProfile(updated.id)
     return profile
-  }
-
-  async handleCreated(member: TMember): Promise<TMember> {
-    const expiryDate = this.memberUtil.getTierExpirationDate(member.createdAt)
-
-    return await this.prisma.member.update({
-      where: { id: member.id },
-      data: {
-        code: this.memberUtil.generateCode(member.id),
-        expiryDate: expiryDate,
-        updatedAt: member.updatedAt,
-        tiers: {
-          createMany: {
-            data: [
-              {
-                tierId: member.tierId,
-                isActive: true,
-                source: EnumTierSource.SYSTEM,
-                action: EnumTierAction.INITIAL,
-                expiryDate: expiryDate,
-                createdAt: member.createdAt,
-                updatedAt: member.updatedAt,
-              },
-            ],
-            skipDuplicates: true,
-          },
-        },
-      },
-    })
   }
 
   private async getMetadata(member: TMember): Promise<TMemberMetadata> {

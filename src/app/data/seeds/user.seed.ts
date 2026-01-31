@@ -21,7 +21,7 @@ export class UserSeed extends CommandMigrateBase {
         continue
       }
 
-      const { passwordHash } = this.authUtil.createPassword(user.password)
+      const { passwordHash } = this.authUtil.passwordCreate(user.password)
 
       await this.prisma.user.upsert({
         where: { email: user.email },

@@ -115,17 +115,27 @@ model AppVersion {
 }
 
 model Country {
-  id        Int       @id @default(autoincrement())
-  name      Json?
-  flag      String?
-  isActive  Boolean?  @default(true)
-  isVisible Boolean?  @default(true)
-  createdAt DateTime? @default(now())
-  updatedAt DateTime  @updatedAt
+  id         Int       @id @default(autoincrement())
+  name       String
+  alpha2Code String
+  alpha3Code String
+  phoneCode  Json
+  continent  String
+  timezone   String
+  isActive   Boolean?  @default(true)
+  isVisible  Boolean?  @default(true)
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+  createdBy  Int?
+  updatedBy  Int?
 
   members   Member[]
   districts District[]
 
+  @@unique(fields: [alpha2Code])
+  @@unique(fields: [alpha3Code])
+  @@index(fields: [name, alpha2Code, alpha3Code, continent, createdAt])
+  @@index(fields: [createdAt])
   @@map("countries")
 }
 
@@ -283,6 +293,7 @@ model User {
   isDeleted       Boolean?  @default(false)
   isEmailVerified Boolean?  @default(true)
   isPhoneVerified Boolean?  @default(true)
+  deletedAt       DateTime?
   createdAt       DateTime? @default(now())
   updatedAt       DateTime? @updatedAt
   createdBy       Int?
@@ -314,7 +325,7 @@ model User {
   updatedPromotions      Promotion[]        @relation("updatedByUser")
 
   twoFactor     UserTwoFactor?
-  logs          UserLoginLog[]
+  activities    UserActivity[]
   sessions      UserSession[]
   verifications UserVerification[]
   pivotRoles    UsersRoles[]
@@ -346,42 +357,45 @@ model UserTwoFactor {
   @@map("user_two_factors")
 }
 
-model UserSession {
-  id             Int       @id @default(autoincrement())
-  userId         Int
-  userToken      String
-  refreshToken   String    @db.Text
-  refreshAttempt Int?      @default(1)
-  refreshExpired DateTime?
-  isActive       Boolean?  @default(true)
-  createdAt      DateTime? @default(now())
-  updatedAt      DateTime? @updatedAt
+model UserActivity {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  action    String
+  ipAddress String
+  userAgent Json?
+  metadata  Json?
+  createdAt DateTime? @default(now())
+  createdBy Int?
 
-  user User @relation(fields: [userId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
 
-  @@index([userId, userToken])
-  @@map("user_sessions")
+  @@index(fields: [userId])
+  @@index(fields: [createdAt])
+  @@map("user_activities")
 }
 
-model UserLoginLog {
-  id              Int       @id @default(autoincrement())
-  userId          Int
-  ip              String?
-  hostname        String?
-  protocol        String?
-  originalUrl     String?
-  method          String?
-  userAgent       String?
-  xForwardedFor   String?
-  xForwardedHost  String?
-  xForwardedPorto String?
-  loginDate       DateTime?
-  createdAt       DateTime? @default(now())
-  updatedAt       DateTime? @updatedAt
+model UserSession {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  jti       String
+  ipAddress String
+  userToken String    @unique()
+  userAgent Json
+  expiredAt DateTime
+  revokedAt DateTime?
+  isRevoked Boolean   @default(false)
+  createdAt DateTime? @default(now())
+  createdBy Int?
+  updatedAt DateTime? @updatedAt
+  updatedBy Int?
 
   user User @relation(fields: [userId], references: [id])
 
-  @@map("user_login_logs")
+  @@index(fields: [userId])
+  @@index(fields: [userId, isRevoked, expiredAt])
+  @@index(fields: [createdAt])
+  @@index(fields: [updatedAt])
+  @@map("user_sessions")
 }
 
 model UserVerification {
@@ -492,6 +506,7 @@ model Member {
 
   deletions     MemberDeletion[]
   sessions      MemberSession[]
+  activities    MemberActivity[]
   devices       MemberDevice[]
   verifications MemberVerification[]
   notifications MemberNotification[]
@@ -533,6 +548,23 @@ model MemberTwoFactor {
   @@map("member_two_factors")
 }
 
+model MemberActivity {
+  id        Int       @id @default(autoincrement())
+  memberId  Int
+  action    String
+  ipAddress String
+  userAgent Json?
+  metadata  Json?
+  createdAt DateTime? @default(now())
+  createdBy Int?
+
+  member Member? @relation(fields: [memberId], references: [id])
+
+  @@index(fields: [memberId])
+  @@index(fields: [createdAt])
+  @@map("member_activities")
+}
+
 model MemberDeletion {
   id        Int       @id @default(autoincrement())
   memberId  Int
@@ -545,18 +577,26 @@ model MemberDeletion {
 }
 
 model MemberSession {
-  id             Int       @id @default(autoincrement())
-  memberId       Int
-  memberToken    String
-  refreshToken   String    @db.Text
-  refreshAttempt Int?      @default(1)
-  refreshExpired DateTime?
-  isActive       Boolean?  @default(true)
-  createdAt      DateTime? @default(now())
-  updatedAt      DateTime? @updatedAt
-  member         Member    @relation(fields: [memberId], references: [id])
+  id        Int       @id @default(autoincrement())
+  memberId  Int
+  jti       String
+  ipAddress String
+  userToken String    @unique()
+  userAgent Json
+  expiredAt DateTime
+  revokedAt DateTime?
+  isRevoked Boolean   @default(false)
+  createdAt DateTime? @default(now())
+  createdBy Int?
+  updatedAt DateTime? @updatedAt
+  updatedBy Int?
 
-  @@index([memberId])
+  member Member @relation(fields: [memberId], references: [id])
+
+  @@index(fields: [memberId])
+  @@index(fields: [memberId, isRevoked, expiredAt])
+  @@index(fields: [createdAt])
+  @@index(fields: [updatedAt])
   @@map("member_sessions")
 }
 

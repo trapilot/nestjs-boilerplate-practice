@@ -31,7 +31,7 @@ export class MessageService {
   getTranslations(): I18nTranslation {
     try {
       return this.i18n.getTranslations()
-    } catch (_err: unknown) {}
+    } catch {}
     return {}
   }
 

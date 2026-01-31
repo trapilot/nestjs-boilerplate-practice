@@ -1,3 +1,5 @@
+import { EnumAuthLoginType } from 'lib/nest-auth'
+import { EnumUserActivityAction } from '../enums'
 import { IUserDataRole, IUserTransformData } from '../interfaces'
 
 export class UserUtil {
@@ -9,5 +11,15 @@ export class UserUtil {
 
   static parseRoleIds(user: IUserTransformData): number[] {
     return this.parseRoles(user).map(role => role.id)
+  }
+
+  static getActivityLogin(loginType: EnumAuthLoginType): EnumUserActivityAction {
+    let action: EnumUserActivityAction = undefined
+    switch (loginType) {
+      case EnumAuthLoginType.CREDENTIAL:
+        action = EnumUserActivityAction.USER_LOGIN_CREDENTIAL
+        break
+    }
+    return action
   }
 }

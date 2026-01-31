@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { EnumAuthLoginType } from 'lib/nest-auth'
 import { HelperService } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
+import { EnumMemberActivityAction } from '../enums'
 
 @Injectable()
 export class MemberUtil {
@@ -129,5 +131,21 @@ export class MemberUtil {
       },
     })
     return pointBalance._sum.point || 0
+  }
+
+  static getActivityLogin(loginType: EnumAuthLoginType): EnumMemberActivityAction {
+    let action: EnumMemberActivityAction = undefined
+    switch (loginType) {
+      case EnumAuthLoginType.CREDENTIAL:
+        action = EnumMemberActivityAction.USER_LOGIN_CREDENTIAL
+        break
+      case EnumAuthLoginType.SOCIAL_GOOGLE:
+        action = EnumMemberActivityAction.USER_LOGIN_GOOGLE
+        break
+      case EnumAuthLoginType.SOCIAL_APPLE:
+        action = EnumMemberActivityAction.USER_LOGIN_APPLE
+        break
+    }
+    return action
   }
 }

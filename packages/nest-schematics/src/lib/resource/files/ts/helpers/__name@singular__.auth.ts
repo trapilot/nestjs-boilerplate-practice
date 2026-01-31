@@ -61,7 +61,7 @@ export class { <%= singular(classify(name)) %>Auth implements IAuthValidator<T<%
     options: IAuthValidatorOptions,
   ): Promise<IAuthUserValidatorDto> {
     const userData = await this.getUserData(data.user.id)
-    const userPayload = await this.serializeUserData(userData)
+    const userPayload = this.serializeUserData(userData)
     if (Object.keys(this.authRelation).length) {
       for (const relation in this.authRelation) {
         delete userData[relation]
@@ -82,7 +82,7 @@ export class { <%= singular(classify(name)) %>Auth implements IAuthValidator<T<%
     return userData
   }
 
-  private async serializeUserData(data: T<%= singular(classify(name)) %>): Promise<<%= singular(classify(name)) %>ResponsePayloadDto> {
+  private serializeUserData(data: T<%= singular(classify(name)) %>): <%= singular(classify(name)) %>ResponsePayloadDto {
     return plainToInstance(<%= singular(classify(name)) %>ResponsePayloadDto, data, {
       excludeExtraneousValues: true,
     })
@@ -208,7 +208,7 @@ export class { <%= singular(classify(name)) %>Auth implements IAuthValidator<T<%
       })
     }
 
-    const payload = await this.serializeUserData(<%= singular(lowercased(name)) %>)
+    const payload = this.serializeUserData(<%= singular(lowercased(name)) %>)
     const payloadAccessToken = await this.authUtil.createPayloadAccessToken(payload, {
       scopeType: options.scopeType,
       loginFrom: options.loginFrom,
@@ -273,7 +273,7 @@ export class { <%= singular(classify(name)) %>Auth implements IAuthValidator<T<%
 
     await this.checkRefreshTokenExpirationTime(refreshToken, refreshPayload)
 
-    const payload = await this.serializeUserData(<%= singular(lowercased(name)) %>)
+    const payload = this.serializeUserData(<%= singular(lowercased(name)) %>)
     const payloadAccessToken = await this.authUtil.createPayloadAccessToken(payload, {
       scopeType: refreshPayload?.scopeType,
       loginType: refreshPayload?.loginType,

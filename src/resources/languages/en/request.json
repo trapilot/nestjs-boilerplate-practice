@@ -68,6 +68,17 @@
     "invalidExtension": "{property} should be a valid phone number extension."
   },
 
+  "apikey": {
+    "isActiveInvalid": "API Key is active invalid",
+    "expired": "API Key expired",
+    "notFound": "API Key not found",
+    "keyNeeded": "Api Key is missing",
+    "inactive": "Auth API Inactive",
+    "notActiveYet": "Api Key not active yet",
+    "invalid": "Invalid API Key",
+    "typeInvalid": "Api Key type invalid"
+  },
+
   "error": {
     "paramRequired": "Required parameter is missing",
     "userAgentInvalid": "Request user agent not acceptable",

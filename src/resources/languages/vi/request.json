@@ -52,6 +52,17 @@
   "isFileMime": "Định dạng tệp không hợp lệ. Phải là {constraints.mimetypeAllowed}",
   "isFileRequire": "Chưa tải lên {property}",
 
+  "apikey": {
+    "isActiveInvalid": "Trạng thái kích hoạt của API Key không hợp lệ",
+    "expired": "API Key đã hết hạn",
+    "notFound": "Không tìm thấy API Key",
+    "keyNeeded": "Thiếu API Key",
+    "inactive": "API xác thực đang bị vô hiệu hóa",
+    "notActiveYet": "API Key chưa được kích hoạt",
+    "invalid": "API Key không hợp lệ",
+    "typeInvalid": "Loại API Key không hợp lệ"
+  },
+
   "error": {
     "paramRequired": "Thiếu tham số bắt buộc",
     "userAgentInvalid": "User-Agent của yêu cầu không được chấp nhận",

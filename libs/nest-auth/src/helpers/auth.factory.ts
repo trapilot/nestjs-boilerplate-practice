@@ -1,18 +1,18 @@
-import { AuthJwtAccessPayloadDto } from '../dtos'
 import {
   IAuthAbility,
   IAuthAbilityFlat,
   IAuthAbilityHandlerCallback,
   IAuthAbilityRule,
+  IAuthJwtPayload,
 } from '../interfaces'
 
 export abstract class AuthFactory {
   protected _subjects?: string[]
   protected _actions?: string[]
 
-  abstract defineFromRequest(payload: AuthJwtAccessPayloadDto): IAuthAbilityRule
+  abstract defineFromRequest(payload: IAuthJwtPayload): IAuthAbilityRule
 
-  abstract parseFromRequest(payload: AuthJwtAccessPayloadDto): IAuthAbility[]
+  abstract parseFromRequest(payload: IAuthJwtPayload): IAuthAbility[]
 
   mappingFromRequest({ subject, actions }: IAuthAbility): IAuthAbilityFlat[] {
     return actions.map((action: string) => ({

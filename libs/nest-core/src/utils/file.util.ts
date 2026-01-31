@@ -120,7 +120,7 @@ export class FileUtil {
       try {
         const stats = await stat(filePath)
         totalSize += stats.size
-      } catch (_err: unknown) {
+      } catch {
         console.warn(`File not found for size calculation: ${filePath}`)
       }
     }

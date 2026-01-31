@@ -6,8 +6,8 @@ import {
   ApiRequestData,
   IResponseData,
   RequestBody,
-  RequestCartVersion,
   RequestParam,
+  RequestUserVersion,
 } from 'lib/nest-web'
 import { CART_DOC_OPERATION } from '../constants'
 import {
@@ -48,7 +48,7 @@ export class CartAppController {
     summary: CART_DOC_OPERATION,
     docExclude: false,
     docExpansion: false,
-    cartVersion: true,
+    userVersion: true,
     jwtAccessToken: {
       scope: EnumAuthScopeType.MEMBER,
       user: {
@@ -63,7 +63,7 @@ export class CartAppController {
   @Post('/checkout')
   async checkout(
     @RequestBody() body: CartRequestCheckoutDto,
-    @RequestCartVersion() cartVersion: number,
+    @RequestUserVersion() cartVersion: number,
     @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
     const cartData = await this.cartService.validate(memberId, cartVersion)
@@ -82,7 +82,7 @@ export class CartAppController {
     summary: CART_DOC_OPERATION,
     docExclude: false,
     docExpansion: false,
-    cartVersion: true,
+    userVersion: true,
     jwtAccessToken: {
       scope: EnumAuthScopeType.MEMBER,
       user: {
@@ -114,7 +114,7 @@ export class CartAppController {
     summary: CART_DOC_OPERATION,
     docExclude: false,
     docExpansion: false,
-    cartVersion: true,
+    userVersion: true,
     jwtAccessToken: {
       scope: EnumAuthScopeType.MEMBER,
       user: {
@@ -129,7 +129,7 @@ export class CartAppController {
   @Put('/items/:itemId')
   async updateItem(
     @RequestBody() body: CartRequestUpdateItemDto,
-    @RequestCartVersion() cartVersion: number,
+    @RequestUserVersion() cartVersion: number,
     @RequestParam('itemId') itemId: number,
     @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
@@ -143,7 +143,7 @@ export class CartAppController {
     summary: CART_DOC_OPERATION,
     docExclude: false,
     docExpansion: false,
-    cartVersion: true,
+    userVersion: true,
     jwtAccessToken: {
       scope: EnumAuthScopeType.MEMBER,
       user: {
@@ -157,7 +157,7 @@ export class CartAppController {
   })
   @Delete('/items/:itemId')
   async deleteItem(
-    @RequestCartVersion() cartVersion: number,
+    @RequestUserVersion() cartVersion: number,
     @RequestParam('itemId') itemId: number,
     @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {

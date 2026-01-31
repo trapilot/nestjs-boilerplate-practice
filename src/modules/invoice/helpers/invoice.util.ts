@@ -46,12 +46,11 @@ export class InvoiceUtil {
   }
 
   async getFirstInvoice(issuedAt: Date): Promise<TInvoice> {
-    const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
     return await this.prisma.invoice.findFirst({
       where: {
         isEarned: false,
-        issuedAt: { lte: startOfDay },
-        createdAt: { lte: startOfDay },
+        issuedAt: { lte: issuedAt },
+        createdAt: { lte: issuedAt },
       },
       orderBy: [{ issuedAt: 'asc' }],
     })

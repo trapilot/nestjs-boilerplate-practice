@@ -6,19 +6,12 @@ import { AppUtil, IDatabaseProvider, IMessageAttributes } from 'lib/nest-core'
 import { IPrismaAdapterCreateOptions, IPrismaLanguageBuildOptions } from '../interfaces'
 
 export class PrismaUtil {
-  static isUniqueError(error: unknown): boolean {
-    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002'
-  }
-  static isNoRequiredRecord(error: unknown): boolean {
-    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025'
+  static toPlainObject<T, N = Prisma.JsonObject>(data: T): N {
+    return structuredClone(data as unknown) as N
   }
 
-  static isTimeoutError(error: unknown): boolean {
-    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2034'
-  }
-
-  static isDeadlockError(error: unknown): boolean {
-    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2034'
+  static toPlainArray<T, N = Prisma.JsonObject>(data: T): N[] {
+    return structuredClone(data) as N[]
   }
 
   static buildQuery(rawQuery: string, options: { params: string }): string {
@@ -77,5 +70,20 @@ export class PrismaUtil {
     }
 
     throw new Error(`Unsupported provider: ${provider}`)
+  }
+
+  static isUniqueError(error: unknown): boolean {
+    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002'
+  }
+  static isNoRequiredRecord(error: unknown): boolean {
+    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025'
+  }
+
+  static isTimeoutError(error: unknown): boolean {
+    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2034'
+  }
+
+  static isDeadlockError(error: unknown): boolean {
+    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2034'
   }
 }

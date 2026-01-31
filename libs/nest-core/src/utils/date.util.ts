@@ -26,6 +26,12 @@ export class DateUtil {
     return this._create(mDate, options)
   }
 
+  static createFromMilis(timestamp: number, options?: IDateCreateOptions): DateTime {
+    const timezone = options?.timezone ?? ScopeContext.getReqZone()
+    const mDate = DateTime.fromMillis(timestamp).setZone(timezone)
+    return this._create(mDate, options)
+  }
+
   static current(): DateTime {
     return DateTime.now().setZone(ScopeContext.getReqZone())
   }
@@ -39,9 +45,12 @@ export class DateUtil {
     return this.current().toJSDate()
   }
 
-  static asDate(date: Date | string, options?: IDateCreateOptions): Date {
+  static asDate(date: Date | number | string, options?: IDateCreateOptions): Date {
     if (typeof date === 'string') {
       return this.createFromIso(date, options).toJSDate()
+    }
+    if (typeof date === 'number') {
+      return this.createFromMilis(date, options).toJSDate()
     }
     return this.create(date, options).toJSDate()
   }

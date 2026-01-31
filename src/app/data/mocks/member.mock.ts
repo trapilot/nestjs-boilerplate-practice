@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { EnumMemberType, EnumTierAction, EnumTierSource } from '@runtime/prisma-client'
+import { EnumMemberType } from '@runtime/prisma-client'
 import { AuthUtil } from 'lib/nest-auth'
 import {
   APP_COUNTRY_LIST,
@@ -59,7 +59,7 @@ export class MemberMock extends ScheduleMockupBase {
     const tierChart = this.tierService.getChart()
     const dateRange = this.helperService.dateRange(dateExecute)
     const staffDate = this.helperService.dateForward(this.startDate, { years: 100 })
-    const { passwordHash } = this.authUtil.createPassword(process.env.MOCK_MEMBER_PASS)
+    const { passwordHash } = this.authUtil.passwordCreate(process.env.MOCK_MEMBER_PASS)
 
     const referralCodes = []
     const startNumber = lastMember?.id ?? 0
@@ -68,7 +68,6 @@ export class MemberMock extends ScheduleMockupBase {
       const isStaff = this.helperService.randomBoolean(5)
       const isFemale = !this.helperService.randomNumber({ min: 0, max: 1 })
       const memberTier = isStaff ? tierChart.getStaffTier() : tierChart.getNormalTier()
-      const tierData = tierChart.getStats(memberTier.id)
 
       const randCountry = this.helperService.arrayRandom(APP_COUNTRY_LIST)
       const fullPhone = this.helperService.randomDigits(10 - randCountry.length, {
@@ -154,18 +153,7 @@ export class MemberMock extends ScheduleMockupBase {
               token: this.helperService.randomString(16),
               isActive: this.helperService.randomBoolean(5)
             }
-          },
-          tiers: {
-            create: {
-              tierId: memberTier.id,
-              source: EnumTierSource.SYSTEM,
-              action: EnumTierAction.INITIAL,
-              expiryDate,
-              isActive: true,
-              createdAt: dateExecute,
-              updatedAt: dateExecute,
-            },
-          },
+          }
         },
       })
     }

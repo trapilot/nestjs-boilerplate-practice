@@ -1,11 +1,12 @@
 import { ValidationError } from '@nestjs/common'
 import { ClassConstructor, plainToInstance } from 'class-transformer'
 import { validate, ValidatorOptions } from 'class-validator'
+import { EnumAuthLoginFrom } from 'lib/nest-auth'
 import ms from 'ms'
 import { hostname } from 'os'
 import { APP_ENV, APP_LANGUAGE_LIST, APP_URL } from '../constants'
 import { ScopeContext } from '../contexts'
-import { EnumAppEnvironment, EnumRouteType } from '../enums'
+import { EnumAppEnvironment, EnumRoutePath, EnumRouteType } from '../enums'
 import { IAppRule, IMessageAttributes, IMessageField, IMessageRow } from '../interfaces'
 import { FileUtil } from './file.util'
 
@@ -42,13 +43,23 @@ export class AppUtil {
     console.error(exception)
   }
 
-  static catchMessage(err: unknown): string {
-    console.error({ catchMessage: err })
-    return err instanceof Error ? err.message : 'Unknown error'
+  static catchMessage(err: unknown, errAs: string = 'Unknown error'): string {
+    return err instanceof Error ? err.message : errAs
   }
 
   static getHostname(): string {
     return hostname()
+  }
+
+  static getLoginFrom(url: string): EnumAuthLoginFrom {
+    if (url.includes(EnumRoutePath.CMS)) {
+      return EnumAuthLoginFrom.CMS
+    } else if (url.includes(EnumRoutePath.APP)) {
+      return EnumAuthLoginFrom.APP
+    } else if (url.includes(EnumRoutePath.WEB)) {
+      return EnumAuthLoginFrom.WEB
+    }
+    return null
   }
 
   static getBaseUrl(): string {

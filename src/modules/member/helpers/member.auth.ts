@@ -2,22 +2,23 @@ import {
   BadRequestException,
   ForbiddenException,
   HttpStatus,
-  Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
-  forwardRef,
+  OnModuleInit,
+  UnauthorizedException,
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Cron, CronExpression } from '@nestjs/schedule'
+import { ModuleRef } from '@nestjs/core'
 import { EnumMemberType, EnumVerificationChannel, Prisma } from '@runtime/prisma-client'
 import { plainToInstance } from 'class-transformer'
 import {
-  AuthJwtAccessPayloadDto,
-  AuthJwtRefreshPayloadDto,
+  AuthResponseLoginDto,
   AuthTokenResponseDto,
+  AuthTwoFactorUtil,
   AuthUtil,
-  IAuthPayloadOptions,
-  IAuthRefetchOptions,
+  IAuthJwtPayload,
+  IAuthLoginOptions,
   IAuthUserValidatorDto,
   IAuthValidator,
   IAuthValidatorOptions,
@@ -31,16 +32,15 @@ import {
   ScopeContext,
   SmsFactory,
 } from 'lib/nest-core'
-import { PrismaService } from 'lib/nest-prisma'
-import { IResult } from 'ua-parser-js'
+import { PrismaService, PrismaUtil } from 'lib/nest-prisma'
 import {
   MemberChangePasswordRequestDto,
-  MemberPayloadResponseDto,
   MemberRequestSignUpDto,
   MemberResetPasswordRequestDto,
-  MemberResponseLoginDto,
+  MemberResponsePayloadDto,
   MemberSignInRequestDto,
 } from '../dtos'
+import { EnumMemberActivityAction } from '../enums'
 import {
   IMemberVerifyApproveOptions,
   IMemberVerifyCheckOptions,
@@ -49,10 +49,19 @@ import {
   TMember,
 } from '../interfaces'
 import { MemberService, VerificationService } from '../services'
+import { MemberUtil } from './member.util'
 
 @Injectable()
-export class MemberAuth implements IAuthValidator<TMember> {
+export class MemberAuth implements IAuthValidator<TMember>, OnModuleInit {
+  private readonly authRelation: Prisma.MemberInclude = {
+    twoFactor: true,
+  }
+
+  private memberService!: MemberService
+  private verificationService!: VerificationService
+
   constructor(
+    private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly mailer: MailerService,
@@ -60,34 +69,27 @@ export class MemberAuth implements IAuthValidator<TMember> {
     private readonly helperService: HelperService,
     private readonly smsFactory: SmsFactory,
     private readonly authUtil: AuthUtil,
-    @Inject(forwardRef(() => MemberService))
-    private readonly memberService: MemberService,
-    @Inject(forwardRef(() => VerificationService))
-    private readonly verificationService: VerificationService,
+    private readonly authTwoFactorUtil: AuthTwoFactorUtil,
   ) {}
 
-  @Cron(CronExpression.EVERY_2_HOURS)
-  async cleanUpRefreshTokens(): Promise<Date> {
-    const nowDate = this.helperService.dateNow()
-    await this.prisma.memberSession.deleteMany({
-      where: { refreshExpired: { lte: nowDate } },
-    })
-    return nowDate
+  onModuleInit(): void {
+    this.memberService = this.ref.get(MemberService, { strict: true })
+    this.verificationService = this.ref.get(VerificationService, { strict: true })
   }
 
   async validatePayload(
-    payload: AuthJwtAccessPayloadDto,
+    payload: IAuthJwtPayload,
     _request: IRequestApp,
     _options: IAuthValidatorOptions,
   ): Promise<IAuthUserValidatorDto> {
     const userData = await this.getUserData(payload.user.id)
-    const userPayload = await this.serializeUserData(userData)
+    const userPayload = this.serializeUserData(userData)
     return { userData, userPayload }
   }
 
   async getUserData(userId: number): Promise<TMember> {
     const userData = await this.prisma.member
-      .findUniqueOrThrow({ where: { id: userId } })
+      .findUniqueOrThrow({ include: this.authRelation, where: { id: userId } })
       .catch((_err: unknown) => {
         throw new ForbiddenException({
           statusCode: HttpStatus.FORBIDDEN,
@@ -97,62 +99,18 @@ export class MemberAuth implements IAuthValidator<TMember> {
     return userData
   }
 
-  private async serializeUserData(data: TMember): Promise<MemberPayloadResponseDto> {
-    return plainToInstance(MemberPayloadResponseDto, data, {
+  private serializeUserData(data: TMember): MemberResponsePayloadDto {
+    return plainToInstance(MemberResponsePayloadDto, data, {
       excludeExtraneousValues: true,
     })
   }
 
-  private async checkRefreshTokenExpirationTime(
-    refreshToken: string,
-    refreshPayload: AuthJwtRefreshPayloadDto,
-  ): Promise<boolean> {
-    const userToken = await this.prisma.memberSession.findFirst({
-      where: { refreshToken },
-    })
-
-    if (!userToken) {
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: 'auth.error.refreshTokenUnauthorized',
-      })
-    }
-
-    if (!userToken.isActive || this.helperService.dateIsAfter(userToken.refreshExpired)) {
-      // tracking spam refresh token
-      await this.prisma.memberSession.update({
-        where: { id: userToken.id },
-        data: { refreshAttempt: { increment: 1 } },
-      })
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: 'auth.error.refreshTokenExpired',
-      })
-    }
-
-    if (
-      userToken.memberToken !== refreshPayload.loginToken ||
-      userToken.memberId !== refreshPayload.user.id
-    ) {
-      // kick users that logged in. user must login again
-      await this.prisma.memberSession.updateMany({
-        where: { memberId: userToken.memberId },
-        data: { isActive: false },
-      })
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: 'auth.error.refreshTokenLeaked',
-      })
-    }
-    return true
-  }
-
   async matchOrFail(
     where: Prisma.MemberWhereInput,
-    include?: Prisma.MemberInclude,
+    kwargs?: Omit<Prisma.MemberFindFirstOrThrowArgs, 'where'>,
   ): Promise<TMember> {
     const member = await this.prisma.member
-      .findFirstOrThrow({ where, include })
+      .findFirstOrThrow({ ...kwargs, where })
       .catch((_err: unknown) => {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
@@ -162,8 +120,13 @@ export class MemberAuth implements IAuthValidator<TMember> {
     return member
   }
 
-  async validateCredentials(dto: MemberSignInRequestDto): Promise<TMember> {
-    const member = await this.matchOrFail({ phone: dto.phone })
+  async validateCredential(dto: MemberSignInRequestDto): Promise<TMember> {
+    const member = await this.matchOrFail(
+      { phone: dto.phone },
+      {
+        include: this.authRelation,
+      },
+    )
 
     if (!member.isEmailVerified && !member.isPhoneVerified) {
       throw new BadRequestException({
@@ -172,7 +135,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
       })
     }
 
-    const validate = await this.authUtil.verify(dto.password, member.password)
+    const validate = await this.authUtil.passwordVerify(dto.password, member.password)
     if (!validate) {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
@@ -183,17 +146,16 @@ export class MemberAuth implements IAuthValidator<TMember> {
   }
 
   async validateOAuthEmail(dto: { email: string }): Promise<TMember> {
-    const member = await this.matchOrFail({ email: dto.email })
+    const member = await this.matchOrFail(
+      { email: dto.email },
+      {
+        include: this.authRelation,
+      },
+    )
     return member
   }
 
-  async login(
-    member: TMember,
-    userIp: string,
-    userAgent: IResult,
-    userRequest: IRequestApp,
-    options: Partial<IAuthPayloadOptions>,
-  ): Promise<MemberResponseLoginDto> {
+  async login(member: TMember, options: IAuthLoginOptions): Promise<AuthResponseLoginDto> {
     if (!member.isActive) {
       throw new BadRequestException({
         statusCode: HttpStatus.FORBIDDEN,
@@ -201,55 +163,84 @@ export class MemberAuth implements IAuthValidator<TMember> {
       })
     }
 
-    const checkPasswordExpired = this.authUtil.checkPasswordExpired(member.passwordExpired)
-    if (checkPasswordExpired) {
+    if (this.authUtil.passwordCheckExpired(member.passwordExpired)) {
       throw new BadRequestException({
         statusCode: HttpStatus.FORBIDDEN,
         message: 'auth.error.passwordExpired',
       })
     }
 
-    const payload = await this.serializeUserData(member)
-    const payloadAccessToken = this.authUtil.createPayloadAccessToken(payload, {
-      scopeType: options.scopeType,
-      loginType: options.loginType,
-      loginFrom: options.loginFrom,
-      loginWith: options.loginWith,
-      loginDate: options?.loginDate ?? this.authUtil.getLoginDate(),
-      loginToken: options?.loginToken ?? this.authUtil.createUserToken(userIp, userAgent),
-      loginRotate: options?.loginRotate === true,
-    })
-    const payloadRefreshToken = this.authUtil.createPayloadRefreshToken(
-      payload.id,
-      payloadAccessToken,
-    )
+    if (!member.twoFactor?.enabled) {
+      const payload = this.serializeUserData(member)
+      const session = this.authUtil.createSession(payload, options.userSession)
 
-    const [expiresIn, refreshIn] =
-      options?.loginRotate === true
-        ? [
-            this.authUtil.getAccessTokenExpirationTime(),
-            this.authUtil.getRefreshTokenExpirationTime(),
-          ]
-        : [this.authUtil.getRemainingExpirationTime(), 0]
+      const expiredAt = this.helperService.dateForward(this.helperService.dateNow(), {
+        seconds: session.tokens.refreshIn,
+      })
 
-    const tokenType = this.authUtil.getTokenType()
-    const accessToken = this.authUtil.createAccessToken(member.id, payloadAccessToken, expiresIn)
-    const refreshToken = this.authUtil.createRefreshToken(member.id, payloadRefreshToken, refreshIn)
+      await Promise.all([
+        this.authUtil.setLogin(options.userSession.scopeType, {
+          userId: member.id.toString(),
+          userToken: session.loginToken,
+          jti: session.jti,
+          expiredAt,
+        }),
+        this.prisma.member.update({
+          where: { id: member.id, deletedAt: null },
+          data: {
+            loginDate: session.loginDate,
+            loginToken: session.loginToken,
+            passwordExpired: expiredAt,
+            sessions: {
+              create: {
+                jti: session.jti,
+                expiredAt,
+                userToken: session.loginToken,
+                isRevoked: false,
+                ipAddress: options.userIp,
+                userAgent: PrismaUtil.toPlainObject(options.userAgent),
+              },
+            },
+            activities: {
+              create: {
+                action: MemberUtil.getActivityLogin(options.userSession.loginType),
+                ipAddress: options.userIp,
+                userAgent: PrismaUtil.toPlainObject(options.userAgent),
+              },
+            },
+            devices: {
+              create: {
+                type: options.userAgent?.device?.type ?? null,
+                model: options.userAgent?.device?.model ?? null,
+                version: options.userAgent?.os?.version ?? null,
+                createdAt: session.loginDate,
+                updatedAt: session.loginDate,
+                token: options.userToken,
+                isActive: true,
+              },
+            },
+          },
+        }),
+      ])
 
-    await this.handleLoggedIn(member, {
-      payload: payloadAccessToken,
-      userToken: { refreshToken, refreshIn },
-      userAgent,
-      userRequest,
+      return {
+        isTwoFactorEnable: false,
+        token: session.tokens,
+      }
+    }
+
+    const { challengeToken, expiresInMs } = await this.authTwoFactorUtil.createChallenge({
+      userId: member.id,
+      userSession: options.userSession,
     })
 
     return {
-      isTwoFactorEnable: false,
-      token: {
-        tokenType,
-        expiresIn,
-        accessToken,
-        refreshToken,
+      isTwoFactorEnable: true,
+      twoFactor: {
+        isRequiredSetup: false,
+        challengeToken,
+        challengeExpiresInMs: expiresInMs,
+        backupCodesRemaining: PrismaUtil.toPlainArray(member.twoFactor.backupCodes).length ?? 0,
       },
     }
   }
@@ -257,108 +248,76 @@ export class MemberAuth implements IAuthValidator<TMember> {
   async refresh(
     member: TMember,
     refreshToken: string,
-    refreshPayload: AuthJwtRefreshPayloadDto,
+    options: Omit<IAuthLoginOptions, 'userSession'>,
   ): Promise<AuthTokenResponseDto> {
-    if (!refreshPayload?.loginRotate) {
+    const refreshPayload = this.authUtil.payloadToken<MemberResponsePayloadDto>(refreshToken)
+
+    if (!refreshPayload.loginRotate) {
       throw new ForbiddenException({
         statusCode: HttpStatus.FORBIDDEN,
         message: 'auth.error.refreshTokenUnauthorized',
       })
     }
 
-    await this.checkRefreshTokenExpirationTime(refreshToken, refreshPayload)
-
-    const payload = await this.serializeUserData(member)
-    const payloadAccessToken = this.authUtil.createPayloadAccessToken(payload, {
-      scopeType: refreshPayload?.scopeType,
-      loginType: refreshPayload?.loginType,
-      loginFrom: refreshPayload?.loginFrom,
-      loginWith: refreshPayload?.loginWith,
-      loginDate: refreshPayload?.loginDate,
-      loginToken: refreshPayload?.loginToken,
-      loginRotate: refreshPayload?.loginRotate,
+    const cacheSession = await this.authUtil.getLogin(refreshPayload.scopeType, {
+      userId: refreshPayload.user.id.toString(),
+      userToken: refreshPayload.loginToken,
     })
-
-    const tokenType = this.authUtil.getTokenType()
-    const expiresIn = this.authUtil.getAccessTokenExpirationTime()
-    const accessToken = this.authUtil.createAccessToken(member.id, payloadAccessToken, expiresIn)
-    const refreshIn = this.authUtil.getRefreshTokenExpirationTime()
-    const payloadRefreshToken = this.authUtil.createPayloadRefreshToken(
-      payload.id,
-      payloadAccessToken,
-    )
-
-    refreshToken = this.authUtil.createRefreshToken(member.id, payloadRefreshToken, refreshIn)
-
-    await this.handleLoggedIn(member, {
-      payload: payloadAccessToken,
-      userToken: { refreshToken, refreshIn },
-    })
-
-    return { tokenType, expiresIn, accessToken, refreshToken }
-  }
-
-  async handleLoggedIn(member: TMember, options: IAuthRefetchOptions): Promise<boolean> {
-    const { payload, userToken, userAgent, userRequest: _userRequest } = options
-
-    try {
-      // update member login time
-      await this.prisma.member.update({
-        data: { loginDate: payload.loginDate, loginToken: payload.loginToken, passwordAttempt: 0 },
-        where: { id: member.id },
-      })
-
-      if (userToken) {
-        // disabled old online refresh tokens
-        await this.prisma.memberSession.updateMany({
-          data: { isActive: false, updatedAt: payload.loginDate },
-          where: { memberId: member.id, isActive: true, memberToken: payload.loginToken },
-        })
-        await this.prisma.memberSession.create({
-          data: {
-            isActive: true,
-            memberId: member.id,
-            memberToken: payload.loginToken,
-            createdAt: payload.loginDate,
-            updatedAt: payload.loginDate,
-            refreshToken: userToken.refreshToken,
-            refreshExpired: this.helperService.dateForward(new Date(payload.loginDate), {
-              seconds: userToken.refreshIn,
-            }),
-          },
-        })
-      }
-
-      if (userAgent) {
-        // disabled online devices
-        await this.prisma.memberDevice.updateMany({
-          data: { isActive: false, updatedAt: payload.loginDate },
-          where: { token: payload.loginToken },
-        })
-
-        const userData: Prisma.MemberDeviceUncheckedCreateInput = {
-          type: userAgent?.device?.type ?? null,
-          model: userAgent?.device?.model ?? null,
-          version: userAgent?.os?.version ?? null,
-          createdAt: payload.loginDate,
-          updatedAt: payload.loginDate,
-          token: payload.loginToken,
-          isActive: true,
-          memberId: member.id,
-        }
-        await this.prisma.memberDevice.upsert({
-          where: { memberId_token: { memberId: userData.memberId, token: userData.token } },
-          update: userData,
-          create: userData,
-        })
-      }
-    } catch {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'auth.error.hanleLoginData',
+    if (cacheSession.jti !== refreshPayload.jti) {
+      throw new UnauthorizedException({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'auth.error.refreshTokenInvalid',
       })
     }
-    return true
+
+    try {
+      const payload = this.serializeUserData(member)
+      const session = this.authUtil.createSession(payload, refreshPayload)
+
+      await Promise.all([
+        this.authUtil.updateLogin(
+          refreshPayload.scopeType,
+          cacheSession,
+          {
+            jti: session.jti,
+            userToken: session.loginToken,
+          },
+          session.tokens.expiresIn,
+        ),
+        this.prisma.member.update({
+          where: { id: member.id, deletedAt: null },
+          data: {
+            loginDate: session.loginDate,
+            loginToken: session.loginToken,
+            sessions: {
+              update: {
+                where: {
+                  userToken: session.loginToken,
+                },
+                data: {
+                  jti: session.jti,
+                },
+              },
+            },
+            activities: {
+              create: {
+                action: EnumMemberActivityAction.USER_REFRESH_TOKEN,
+                ipAddress: options.userIp,
+                userAgent: PrismaUtil.toPlainObject(options.userAgent),
+              },
+            },
+          },
+        }),
+      ])
+
+      return session.tokens
+    } catch (err: unknown) {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'http.serverError.internalServerError',
+        _error: err,
+      })
+    }
   }
 
   private async increasePasswordAttempt(user: TMember): Promise<void> {
@@ -378,7 +337,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
       })
     }
 
-    const matchPassword: boolean = await this.authUtil.verify(dto.oldPassword, member.password)
+    const matchPassword = await this.authUtil.passwordVerify(dto.oldPassword, member.password)
     if (!matchPassword) {
       await this.increasePasswordAttempt(member)
       throw new BadRequestException({
@@ -387,7 +346,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
       })
     }
 
-    const newMatchPassword = this.authUtil.verify(dto.newPassword, member.password)
+    const newMatchPassword = this.authUtil.passwordVerify(dto.newPassword, member.password)
     if (newMatchPassword) {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
@@ -395,7 +354,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
       })
     }
 
-    const { passwordHash } = this.authUtil.createPassword(dto.newPassword)
+    const { passwordHash } = this.authUtil.passwordCreate(dto.newPassword)
     return await this.prisma.member.update({
       data: { password: passwordHash, passwordAttempt: 0 },
       where: { id: member.id },
@@ -405,7 +364,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
   async resetPassword(dto: MemberResetPasswordRequestDto): Promise<TMember> {
     const member = await this.matchOrFail({ phone: dto.phone })
 
-    const { passwordHash } = this.authUtil.createPassword(dto.password)
+    const { passwordHash } = this.authUtil.passwordCreate(dto.password)
     return await this.prisma.member.update({
       data: { password: passwordHash, passwordAttempt: 0 },
       where: { id: member.id },
@@ -427,7 +386,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
         type: EnumMemberType.NORMAL,
         isPhoneVerified: true,
       },
-      this.authUtil.createPassword(dto.password),
+      this.authUtil.passwordCreate(dto.password),
     )
 
     return member

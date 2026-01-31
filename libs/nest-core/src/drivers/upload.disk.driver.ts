@@ -264,7 +264,7 @@ export class UploadDiskDriver implements StorageEngine {
       const dimension = imageSize(buffer)
       imgWidth = dimension?.width
       imgHeight = dimension?.height
-    } catch (_err: unknown) {
+    } catch {
       // Ignore errors, this file might not be an image
     }
 

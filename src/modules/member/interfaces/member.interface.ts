@@ -7,6 +7,7 @@ import {
   MemberPoint,
   MemberSession,
   MemberTier,
+  MemberTwoFactor,
   MemberVerification,
   Prisma,
   Tier,
@@ -17,6 +18,7 @@ export type TMemberVerification = MemberVerification
 
 export type TMember = Member & {
   tier?: Tier
+  twoFactor?: MemberTwoFactor
   devices?: MemberDevice[]
   sessions?: MemberSession[]
   tiers?: MemberTier[]

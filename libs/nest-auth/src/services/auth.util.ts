@@ -1,25 +1,31 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { ModuleRef } from '@nestjs/core'
 import { JwtService } from '@nestjs/jwt'
 import { OAuth2Client, TokenInfo } from 'google-auth-library'
-import { HelperService, IStringRandomOptions } from 'lib/nest-core'
+import { CacheService, HelperService, IStringRandomOptions } from 'lib/nest-core'
 import { IResult } from 'ua-parser-js'
 import verifyAppleToken from 'verify-apple-id-token'
 import {
-  AuthJwtAccessPayloadDto,
-  AuthJwtRefreshPayloadDto,
   AuthSocialApplePayloadDto,
   AuthSocialGooglePayloadDto,
+  AuthTokenResponseDto,
 } from '../dtos'
+import { EnumAuthScopeType } from '../enums'
 import {
+  IAuthJwtPayload,
   IAuthPassword,
   IAuthPasswordOptions,
-  IAuthPayloadOptions,
-  IAuthRefetchOptions,
+  IAuthSignOptions,
+  IAuthTokenGenerate,
+  IAuthUserData,
+  IAuthUserSession,
+  IAuthUserSessionCache,
+  IAuthVerifyOptions,
 } from '../interfaces'
 
 @Injectable()
-export class AuthUtil {
+export class AuthUtil implements OnModuleInit {
   // jwt
   private readonly jwtAccessTokenSecretKey: string
   private readonly jwtAccessTokenExpirationTime: number
@@ -46,10 +52,15 @@ export class AuthUtil {
   // google
   private readonly googleClient: OAuth2Client
 
+  private readonly keyPattern: string = 'online:{userScope}:{userId}:{userToken}'
+
+  private cache!: CacheService
+  private helperService!: HelperService
+
   constructor(
+    private readonly ref: ModuleRef,
     private readonly config: ConfigService,
     private readonly jwtService: JwtService,
-    private readonly helperService: HelperService,
   ) {
     // jwt
     this.jwtAccessTokenSecretKey = this.config.get<string>('auth.jwt.accessToken.secretKey')
@@ -85,31 +96,33 @@ export class AuthUtil {
     )
   }
 
-  protected async handleLoggedIn(_user: any, _options: IAuthRefetchOptions): Promise<boolean> {
-    return true
+  onModuleInit() {
+    this.cache = this.ref.get(CacheService, { strict: false })
+    this.helperService = this.ref.get(HelperService, { strict: false })
   }
 
-  createAccessToken(
-    subject: string | number,
-    payload: AuthJwtAccessPayloadDto,
-    expiredIn: number,
-  ): string {
+  payloadToken<T>(token: string): Required<IAuthJwtPayload<T>> {
+    return this.jwtService.decode<Required<IAuthJwtPayload<T>>>(token)
+  }
+
+  createToken(payload: IAuthJwtPayload, options: IAuthSignOptions): string {
     return this.jwtService.sign(payload, {
-      secret: this.jwtAccessTokenSecretKey,
-      expiresIn: expiredIn,
-      audience: this.jwtAudience,
       issuer: this.jwtIssuer,
-      subject: `${subject}`,
+      audience: this.jwtAudience,
+      secret: options.secret,
+      subject: options.subject,
+      expiresIn: options.expiresIn,
+      jwtid: options.jti,
     })
   }
 
-  validateAccessToken(subject: string, token: string): boolean {
+  validateToken(token: string, options: IAuthVerifyOptions): boolean {
     try {
       this.jwtService.verify(token, {
-        secret: this.jwtAccessTokenSecretKey,
-        audience: this.jwtAudience,
         issuer: this.jwtIssuer,
-        subject,
+        audience: this.jwtAudience,
+        secret: options.secret,
+        subject: options.subject,
         ignoreExpiration: false,
       })
 
@@ -119,66 +132,67 @@ export class AuthUtil {
     }
   }
 
-  payloadAccessToken(token: string): AuthJwtAccessPayloadDto {
-    return this.jwtService.decode<AuthJwtAccessPayloadDto>(token)
+  generateJti(): string {
+    return this.helperService.randomString(32)
   }
 
-  createRefreshToken(
-    subject: string | number,
-    payload: AuthJwtRefreshPayloadDto,
-    expiredIn: number,
-  ): string {
-    return this.jwtService.sign(payload, {
-      secret: this.jwtRefreshTokenSecretKey,
-      audience: this.jwtAudience,
-      issuer: this.jwtIssuer,
-      subject: `${subject}`,
-      expiresIn: expiredIn,
-    })
-  }
+  createSession(userData: IAuthUserData, options: IAuthUserSession): IAuthTokenGenerate {
+    const jti = this.generateJti()
+    const subject = `${userData.id}`
 
-  validateRefreshToken(subject: string, token: string): boolean {
-    try {
-      this.jwtService.verify(token, {
-        secret: this.jwtRefreshTokenSecretKey,
-        audience: this.jwtAudience,
-        issuer: this.jwtIssuer,
-        subject,
-        ignoreExpiration: false,
-      })
-      return true
-    } catch (_err: unknown) {
-      return false
-    }
-  }
-
-  payloadRefreshToken(token: string): AuthJwtRefreshPayloadDto {
-    return this.jwtService.decode<AuthJwtRefreshPayloadDto>(token)
-  }
-
-  async verify(passwordString: string, passwordHash: string): Promise<boolean> {
-    return this.helperService.bcryptCompare(passwordString, passwordHash)
-  }
-
-  createPayloadAccessToken<UserData = Record<string, any>>(
-    data: UserData,
-    options: IAuthPayloadOptions,
-  ): AuthJwtAccessPayloadDto<UserData> {
-    return {
-      user: data,
+    const payloadOptions: Required<IAuthUserSession> = {
       scopeType: options.scopeType,
       loginType: options.loginType,
       loginFrom: options.loginFrom,
       loginWith: options.loginWith,
-      loginDate: options.loginDate,
-      loginToken: options.loginToken,
-      loginRotate: options.loginRotate,
+      loginDate: options?.loginDate ?? this.helperService.dateNow(),
+      loginToken: options?.loginToken ?? this.helperService.createId(),
+      loginRotate: !!options?.loginRotate,
+    }
+
+    const payloadAccessToken = this.createPayload(userData, payloadOptions)
+    const payloadRefreshToken = this.createPayload({ id: userData.id }, payloadOptions)
+
+    const [accessIn, refreshIn] = !!options.loginRotate
+      ? [this.getAccessTokenExpirationTime(), this.getRefreshTokenExpirationTime()]
+      : [this.getRemainingExpirationTime(), 0]
+
+    const accessToken = this.createToken(payloadAccessToken, {
+      jti,
+      subject,
+      expiresIn: accessIn,
+      secret: this.jwtAccessTokenSecretKey,
+    })
+
+    const refreshToken = this.createToken(payloadRefreshToken, {
+      jti,
+      subject,
+      expiresIn: refreshIn,
+      secret: this.jwtRefreshTokenSecretKey,
+    })
+
+    const tokens: AuthTokenResponseDto = {
+      tokenType: this.jwtPrefix,
+      expiresIn: accessIn,
+      refreshIn,
+      accessToken,
+      refreshToken,
+    }
+
+    return {
+      jti,
+      tokens,
+      loginDate: payloadOptions.loginDate,
+      loginToken: payloadOptions.loginToken,
     }
   }
 
-  createPayloadRefreshToken(id: number, options: IAuthPayloadOptions): AuthJwtRefreshPayloadDto {
+  createPayload(
+    data: IAuthUserData,
+    options: Required<IAuthUserSession>,
+  ): IAuthJwtPayload<IAuthUserData> {
     return {
-      user: { id },
+      user: data,
       scopeType: options.scopeType,
       loginType: options.loginType,
       loginFrom: options.loginFrom,
@@ -193,7 +207,11 @@ export class AuthUtil {
     return this.helperService.randomSalt(length)
   }
 
-  createPassword(password: string, options?: IAuthPasswordOptions): IAuthPassword {
+  async passwordVerify(passwordRaw: string, passwordHash: string): Promise<boolean> {
+    return this.helperService.bcryptCompare(passwordRaw, passwordHash)
+  }
+
+  passwordCreate(password: string, options?: IAuthPasswordOptions): IAuthPassword {
     const salt = this.createSalt(this.passwordSaltLength)
     const passwordHash = this.helperService.bcryptCreate(password, salt)
 
@@ -210,18 +228,18 @@ export class AuthUtil {
     }
   }
 
-  createPasswordRandom(length: number = 15, options?: IStringRandomOptions): string {
+  passwordCheckExpired(passwordExpired: Date): boolean {
+    const nowDate = this.helperService.dateNow()
+    const passwordExpiredConvert = this.helperService.dateCreate(passwordExpired)
+    return nowDate > passwordExpiredConvert
+  }
+
+  passwordRandom(length: number = 15, options?: IStringRandomOptions): string {
     return this.helperService.randomString(length, options)
   }
 
   createUserToken(userIp: string, userAgent: IResult): string {
     return this.helperService.createUserToken(userIp, userAgent)
-  }
-
-  checkPasswordExpired(passwordExpired: Date): boolean {
-    const nowDate = this.helperService.dateNow()
-    const passwordExpiredConvert = this.helperService.dateCreate(passwordExpired)
-    return nowDate > passwordExpiredConvert
   }
 
   getLoginDate(): Date {
@@ -232,12 +250,16 @@ export class AuthUtil {
     return this.jwtPrefix
   }
 
-  getRemainingExpirationTime(): number {
-    const nowDate = this.helperService.dateNow()
-    const sinceDate = this.helperService.dateInstance(nowDate)
-    const untilDate = this.helperService.dateInstance(nowDate, { endOfDay: true })
+  getRemainingExpirationTime(exp: number = null): number {
+    const sinceDate = this.helperService.dateNow()
+    const untilDate =
+      exp !== null
+        ? this.helperService.dateCreateFromGeneric(exp * 1000)
+        : this.helperService.dateCreate(sinceDate, { endOfDay: true })
 
-    return Math.floor(untilDate.diff(sinceDate, 'seconds').seconds)
+    const diffDate = this.helperService.dateDiff(untilDate, sinceDate)
+
+    return diffDate.seconds ? diffDate.seconds : Math.floor(diffDate.milliseconds / 1000)
   }
 
   getAccessTokenExpirationTime(): number {
@@ -246,14 +268,6 @@ export class AuthUtil {
 
   getRefreshTokenExpirationTime(): number {
     return this.jwtRefreshTokenExpirationTime
-  }
-
-  getIssuer(): string {
-    return this.jwtIssuer
-  }
-
-  getAudience(): string {
-    return this.jwtAudience
   }
 
   async getPasswordAttempt(): Promise<boolean> {
@@ -286,5 +300,71 @@ export class AuthUtil {
     } catch (err) {
       throw err
     }
+  }
+
+  private getLoginKey(userScope: EnumAuthScopeType, userId: string, userToken: string): string {
+    return this.keyPattern
+      .replace('{userScope}', userScope)
+      .replace('{userId}', userId)
+      .replace('{userToken}', userToken)
+  }
+
+  async getLogin(
+    userScope: EnumAuthScopeType,
+    session: Pick<IAuthUserSessionCache, 'userId' | 'userToken'>,
+  ): Promise<IAuthUserSessionCache | null> {
+    const key = this.getLoginKey(userScope, session.userId, session.userToken)
+    const cached = await this.cache.get<IAuthUserSessionCache>(key)
+
+    return cached ?? null
+  }
+
+  async setLogin(userScope: EnumAuthScopeType, session: IAuthUserSessionCache): Promise<void> {
+    const key = this.getLoginKey(userScope, session.userId, session.userToken)
+    const ttl = Math.floor(session.expiredAt.getTime() - this.helperService.dateNow().getTime())
+
+    await this.cache.set<IAuthUserSessionCache>(key, session, ttl)
+
+    return
+  }
+
+  async updateLogin(
+    userScope: EnumAuthScopeType,
+    session: IAuthUserSessionCache,
+    updation: Pick<IAuthUserSessionCache, 'jti' | 'userToken'>,
+    expiredInMs: number,
+  ): Promise<void> {
+    const key = this.getLoginKey(userScope, session.userId, session.userToken)
+    await this.cache.set<IAuthUserSessionCache>(key, { ...session, jti: updation.jti }, expiredInMs)
+
+    return
+  }
+
+  async deleteOneLogin(
+    userScope: EnumAuthScopeType,
+    session: Pick<IAuthUserSessionCache, 'userId' | 'userToken'>,
+  ): Promise<void> {
+    const key = this.getLoginKey(userScope, session.userId, session.userToken)
+    await this.cache.del(key)
+
+    return
+  }
+
+  async deleteAllLogins(
+    userScope: EnumAuthScopeType,
+    userId: string,
+    userTokens: string[],
+  ): Promise<void> {
+    if (userTokens.length > 0) {
+      const keys = userTokens.map(userToken => this.getLoginKey(userScope, userId, userToken))
+      await this.cache.mdel(keys)
+    }
+
+    return
+  }
+
+  async flushAll(): Promise<void> {
+    await this.cache.clear()
+    return
   }
 }

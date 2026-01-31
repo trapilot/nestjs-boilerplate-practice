@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { PassportStrategy } from '@nestjs/passport'
-import { AuthJwtRefreshPayloadDto } from 'lib/nest-auth/dtos'
 import { ExtractJwt, Strategy } from 'passport-jwt'
+import { IAuthJwtPayload } from '../../interfaces'
 
 @Injectable()
 export class AuthJwtRefreshStrategy extends PassportStrategy(Strategy, 'jwtRefresh') {
@@ -19,7 +19,7 @@ export class AuthJwtRefreshStrategy extends PassportStrategy(Strategy, 'jwtRefre
     })
   }
 
-  async validate(data: AuthJwtRefreshPayloadDto): Promise<AuthJwtRefreshPayloadDto> {
+  async validate(data: IAuthJwtPayload): Promise<IAuthJwtPayload> {
     return data
   }
 }

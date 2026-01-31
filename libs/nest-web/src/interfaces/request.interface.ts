@@ -109,7 +109,7 @@ export interface IRequestGuardOptions {
   userType?: boolean
   userAgent?: boolean
   userToken?: boolean
-  cartVersion?: boolean
+  userVersion?: boolean
   language?: boolean
   timezone?: boolean
   timestamp?: boolean
