@@ -1,6 +1,5 @@
-import { Injectable, OnModuleInit } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { ModuleRef } from '@nestjs/core'
 import { CacheService, HelperService } from 'lib/nest-core'
 import { OTP } from 'otplib'
 import { EnumAuthTwoFactorMethod } from '../enums'
@@ -17,7 +16,7 @@ import {
 } from '../interfaces'
 
 @Injectable()
-export class AuthTwoFactorUtil implements OnModuleInit {
+export class AuthTwoFactorUtil {
   private readonly issuer: string
   private readonly digits: number
   private readonly step: number
@@ -32,12 +31,10 @@ export class AuthTwoFactorUtil implements OnModuleInit {
   private readonly lockAttemptDuration: number
   private readonly authenticator: OTP
 
-  private cache!: CacheService
-  private helperService!: HelperService
-
   constructor(
-    private readonly ref: ModuleRef,
+    private readonly cache: CacheService,
     private readonly config: ConfigService,
+    private readonly helperService: HelperService,
   ) {
     this.issuer = this.config.get<string>('auth.twoFactor.issuer')
     this.digits = this.config.get<number>('auth.twoFactor.digits')
@@ -53,11 +50,6 @@ export class AuthTwoFactorUtil implements OnModuleInit {
     this.lockAttemptDuration = this.config.get<number>('auth.twoFactor.lockAttemptDuration')
 
     this.authenticator = new OTP()
-  }
-
-  onModuleInit() {
-    this.cache = this.ref.get(CacheService, { strict: false })
-    this.helperService = this.ref.get(HelperService, { strict: false })
   }
 
   /**

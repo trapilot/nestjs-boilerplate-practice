@@ -5,12 +5,10 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
-  OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { ModuleRef } from '@nestjs/core'
-import { EnumMemberType, EnumVerificationChannel, Prisma } from '@runtime/prisma-client'
+import { EnumVerificationChannel, Prisma } from '@runtime/prisma-client'
 import { plainToInstance } from 'class-transformer'
 import {
   AuthResponseLoginDto,
@@ -19,6 +17,7 @@ import {
   AuthUtil,
   IAuthJwtPayload,
   IAuthLoginOptions,
+  IAuthPassword,
   IAuthUserValidatorDto,
   IAuthValidator,
   IAuthValidatorOptions,
@@ -35,7 +34,6 @@ import {
 import { PrismaService, PrismaUtil } from 'lib/nest-prisma'
 import {
   MemberChangePasswordRequestDto,
-  MemberRequestSignUpDto,
   MemberResetPasswordRequestDto,
   MemberResponsePayloadDto,
   MemberSignInRequestDto,
@@ -48,20 +46,15 @@ import {
   IMemberVerifySendPOTPOptions,
   TMember,
 } from '../interfaces'
-import { MemberService, VerificationService } from '../services'
 import { MemberUtil } from './member.util'
 
 @Injectable()
-export class MemberAuth implements IAuthValidator<TMember>, OnModuleInit {
+export class MemberAuth implements IAuthValidator<TMember> {
   private readonly authRelation: Prisma.MemberInclude = {
     twoFactor: true,
   }
 
-  private memberService!: MemberService
-  private verificationService!: VerificationService
-
   constructor(
-    private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly mailer: MailerService,
@@ -70,12 +63,8 @@ export class MemberAuth implements IAuthValidator<TMember>, OnModuleInit {
     private readonly smsFactory: SmsFactory,
     private readonly authUtil: AuthUtil,
     private readonly authTwoFactorUtil: AuthTwoFactorUtil,
+    private readonly memberUtil: MemberUtil,
   ) {}
-
-  onModuleInit(): void {
-    this.memberService = this.ref.get(MemberService, { strict: true })
-    this.verificationService = this.ref.get(VerificationService, { strict: true })
-  }
 
   async validatePayload(
     payload: IAuthJwtPayload,
@@ -327,6 +316,10 @@ export class MemberAuth implements IAuthValidator<TMember>, OnModuleInit {
     })
   }
 
+  createPassword(password: string): IAuthPassword {
+    return this.authUtil.passwordCreate(password)
+  }
+
   async changePassword(member: TMember, dto: MemberChangePasswordRequestDto): Promise<TMember> {
     const passwordAttempt = await this.authUtil.getPasswordAttempt()
     const maxPasswordAttempt = await this.authUtil.getMaxPasswordAttempt()
@@ -371,29 +364,8 @@ export class MemberAuth implements IAuthValidator<TMember>, OnModuleInit {
     })
   }
 
-  async signUp(dto: MemberRequestSignUpDto): Promise<TMember> {
-    const phoneExists = await this.prisma.member.exists({ phone: dto.phone })
-    if (phoneExists) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.CONFLICT,
-        message: 'auth.error.phoneExist',
-      })
-    }
-
-    const member = await this.memberService.create(
-      {
-        ...dto,
-        type: EnumMemberType.NORMAL,
-        isPhoneVerified: true,
-      },
-      this.authUtil.passwordCreate(dto.password),
-    )
-
-    return member
-  }
-
   async sendPOPT(phone: string, options: IMemberVerifySendPOTPOptions): Promise<string> {
-    const verifyData = await this.verificationService.randomToken(EnumVerificationChannel.SMS, {
+    const verifyData = await this.memberUtil.randomToken(EnumVerificationChannel.SMS, {
       memberData: { phone },
       method: options.method,
       numeric: true,
@@ -420,7 +392,7 @@ export class MemberAuth implements IAuthValidator<TMember>, OnModuleInit {
   }
 
   async sendEOPT(email: string, options: IMemberVerifySendEOTPOptions): Promise<string> {
-    const verifyData = await this.verificationService.randomToken(EnumVerificationChannel.EMAIL, {
+    const verifyData = await this.memberUtil.randomToken(EnumVerificationChannel.EMAIL, {
       memberData: { email },
       method: options.method,
       hashed: true,
@@ -449,12 +421,12 @@ export class MemberAuth implements IAuthValidator<TMember>, OnModuleInit {
   }
 
   async approveToken(token: string, options: IMemberVerifyApproveOptions): Promise<boolean> {
-    const approved = await this.verificationService.approveToken(token, options)
+    const approved = await this.memberUtil.approveToken(token, options)
     return approved
   }
 
   async verifyToken(token: string, options: IMemberVerifyCheckOptions): Promise<boolean> {
-    const verified = await this.verificationService.checkToken(token, options)
+    const verified = await this.memberUtil.checkToken(token, options)
     if (!verified) {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common'
 import { TierModule } from 'modules/tier'
 import { MEMBER_AUTH_TOKEN } from './constants'
 import { MemberAuth, MemberUtil } from './helpers'
-import { MemberService, VerificationService } from './services'
+import { MemberService } from './services'
 
 @Module({
   providers: [
@@ -11,10 +11,9 @@ import { MemberService, VerificationService } from './services'
       useClass: MemberAuth,
     },
     MemberService,
-    VerificationService,
     MemberUtil,
   ],
-  exports: [MEMBER_AUTH_TOKEN, MemberService, VerificationService, MemberUtil],
+  exports: [MEMBER_AUTH_TOKEN, MemberService, MemberUtil],
   imports: [TierModule],
 })
 export class MemberModule {}

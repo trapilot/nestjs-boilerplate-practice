@@ -1,6 +1,5 @@
-import { Injectable, OnModuleInit } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { ModuleRef } from '@nestjs/core'
 import { JwtService } from '@nestjs/jwt'
 import { OAuth2Client, TokenInfo } from 'google-auth-library'
 import { CacheService, HelperService, IStringRandomOptions } from 'lib/nest-core'
@@ -25,7 +24,7 @@ import {
 } from '../interfaces'
 
 @Injectable()
-export class AuthUtil implements OnModuleInit {
+export class AuthUtil {
   // jwt
   private readonly jwtAccessTokenSecretKey: string
   private readonly jwtAccessTokenExpirationTime: number
@@ -54,13 +53,11 @@ export class AuthUtil implements OnModuleInit {
 
   private readonly keyPattern: string = 'online:{userScope}:{userId}:{userToken}'
 
-  private cache!: CacheService
-  private helperService!: HelperService
-
   constructor(
-    private readonly ref: ModuleRef,
+    private readonly cache: CacheService,
     private readonly config: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly helperService: HelperService,
   ) {
     // jwt
     this.jwtAccessTokenSecretKey = this.config.get<string>('auth.jwt.accessToken.secretKey')
@@ -94,11 +91,6 @@ export class AuthUtil implements OnModuleInit {
       this.config.get<string>('auth.google.clientId'),
       this.config.get<string>('auth.google.clientSecret'),
     )
-  }
-
-  onModuleInit() {
-    this.cache = this.ref.get(CacheService, { strict: false })
-    this.helperService = this.ref.get(HelperService, { strict: false })
   }
 
   payloadToken<T>(token: string): Required<IAuthJwtPayload<T>> {

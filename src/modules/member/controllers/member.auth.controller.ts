@@ -25,7 +25,7 @@ import {
   RequestUserToken,
 } from 'lib/nest-web'
 import { IResult } from 'ua-parser-js'
-import { MEMBER_DOC_AUTH_OPERATION } from '../constants'
+import { MEMBER_AUTH_TOKEN, MEMBER_DOC_AUTH_OPERATION } from '../constants'
 import {
   MemberProfileResponseDto,
   MemberRequestOTPDto,
@@ -35,11 +35,15 @@ import {
   MemberSignInRequestDto,
 } from '../dtos'
 import { MemberAuth } from '../helpers'
+import { MemberService } from '../services'
 
 @ApiTags(MEMBER_DOC_AUTH_OPERATION)
 @Controller({ version: '1', path: '/auth' })
 export class MemberAuthController {
-  constructor(@Inject(EnumAuthScopeType.MEMBER) protected readonly memberAuth: MemberAuth) {}
+  constructor(
+    @Inject(MEMBER_AUTH_TOKEN) protected readonly memberAuth: MemberAuth,
+    protected readonly memberService: MemberService,
+  ) {}
 
   @ApiRequestData({
     summary: MEMBER_DOC_AUTH_OPERATION,
@@ -65,8 +69,16 @@ export class MemberAuthController {
       phone: body.phone,
     })
 
-    await this.memberAuth.signUp(body)
-    return { data: { status: true } }
+    const { password, ...data } = body
+    const member = await this.memberService.create(
+      {
+        ...data,
+        isPhoneVerified: true,
+      },
+      this.memberAuth.createPassword(password),
+    )
+
+    return { data: member }
   }
 
   @ApiRequestData({

@@ -21,7 +21,7 @@ export class MemberEarnPointFromPurchaseHandler implements IQueueHandler {
   async handle(): Promise<void> {
     this.logger.log(`${this.topic}:v${this.version} is handling...`)
 
-    // const nowDate = this.helperService.dateNow()
+    const nowDate = this.helperService.dateNow()
 
     // TODO
     // await this.memberService.earnPointFromInvoices(nowDate)
