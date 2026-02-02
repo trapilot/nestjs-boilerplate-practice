@@ -16,8 +16,8 @@ import {
   PushFactory,
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
-import { NotificationPushDto } from '../dtos'
-import { TPush } from '../interfaces'
+import { TPush } from '../interfaces/notification.interface'
+import { NotificationPushDto } from '../dtos/notification.request.create.dto'
 
 @Injectable()
 export class NotificationUtil {

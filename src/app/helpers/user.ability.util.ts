@@ -1,5 +1,9 @@
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilityContext, EnumAuthAbilitySubject } from 'app/enums'
+import {
+  EnumAuthAbilityAction,
+  EnumAuthAbilityContext,
+  EnumAuthAbilitySubject,
+} from 'app/enums/user.enum'
 import { IAuthAbilityDataContext, IAuthAbilityDataTitle } from 'lib/nest-auth'
 import { AppUtil, EnumAppLanguage, IMessageField, ScopeContext, StrUtil } from 'lib/nest-core'
 

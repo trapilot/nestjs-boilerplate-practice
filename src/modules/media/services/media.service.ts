@@ -7,7 +7,7 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TMedia } from '../interfaces'
+import { TMedia } from '../interfaces/media.interface'
 
 @Injectable()
 export class MediaService {

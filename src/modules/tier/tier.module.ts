@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { TierService } from './services'
+import { TierService } from './services/tier.service'
 
 @Module({
   providers: [TierService],

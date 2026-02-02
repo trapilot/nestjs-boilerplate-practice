@@ -1,5 +1,5 @@
 import { DateUtil } from 'lib/nest-core'
-import { TInvoice } from '../interfaces'
+import { TInvoice } from '../interfaces/invoice.interface'
 
 export class InvoiceData {
   public ids: number[] = []

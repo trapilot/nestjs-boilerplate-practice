@@ -3,9 +3,10 @@ import { EnumExpiryType } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
 import { EnumDateFormat, ToDecimal, ToLocaleField, ToUrl } from 'lib/nest-core'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
-import { ProductBrandResponseBelongDto } from 'modules/product-brand'
-import { ProductCategoryResponseBelongDto } from 'modules/product-category'
-import { ToDynamicExpiryDate, ToInWishList, ToStaticExpiryDate } from '../transforms'
+import { ProductBrandResponseBelongDto } from 'modules/product-brand/dtos/product-brand.response.detail.dto'
+import { ProductCategoryResponseBelongDto } from 'modules/product-category/dtos/product-category.response.detail.dto'
+import { ToDynamicExpiryDate, ToStaticExpiryDate } from '../transforms/product.expiry.transform'
+import { ToInWishList } from '../transforms/product.wishlist.transform'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: 1 })

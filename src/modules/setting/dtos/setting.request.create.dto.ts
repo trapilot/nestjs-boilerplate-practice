@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator'
 import { ToString } from 'lib/nest-core'
 import { SafeString } from 'lib/nest-web'
-import { EnumSettingGroup, EnumSettingType } from '../enums'
+import { EnumSettingGroup, EnumSettingType } from '../enums/setting.enum'
 
 export class SettingRequestCreateDto {
   @IsNotEmpty()

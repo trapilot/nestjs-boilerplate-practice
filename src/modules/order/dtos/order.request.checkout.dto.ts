@@ -3,7 +3,7 @@ import { IsOptional, IsString } from 'class-validator'
 import { ToPhone, ToString } from 'lib/nest-core'
 import { IsPhone } from 'lib/nest-web'
 
-export class CartRequestCheckoutDto {
+export class OrderRequestCheckoutDto {
   @IsOptional()
   @IsString()
   @ToString()

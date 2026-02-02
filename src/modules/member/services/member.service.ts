@@ -1,11 +1,4 @@
-import {
-  ConflictException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-  OnModuleInit,
-} from '@nestjs/common'
-import { ModuleRef } from '@nestjs/core'
+import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import {
   EnumMemberType,
   EnumPointAction,
@@ -30,28 +23,22 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TierService, TierUtil } from 'modules/tier'
-import { MEMBER_AUTH_TOKEN } from '../constants'
-import { MemberChangePasswordRequestDto } from '../dtos'
-import { MemberAuth, MemberUtil } from '../helpers'
-import { ISlipCounterOptions, TMember, TMemberMetadata } from '../interfaces'
+import { MemberPointService } from 'modules/member-point/services/member-point.service'
+import { MemberTierService } from 'modules/member-tier/services/member-tier.service'
+import { TierUtil } from 'modules/tier/helpers/tier.util'
+import { TierService } from 'modules/tier/services/tier.service'
+import { ISlipCounterOptions, TMember, TMemberMetadata } from '../interfaces/member.interface'
 
 @Injectable()
-export class MemberService implements OnModuleInit {
-  private memberAuth: MemberAuth
-
+export class MemberService {
   constructor(
-    private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
     private readonly message: MessageService,
     private readonly helperService: HelperService,
-    private readonly memberUtil: MemberUtil,
     private readonly tierService: TierService,
+    private readonly memberPointService: MemberPointService,
+    private readonly memberTierService: MemberTierService,
   ) {}
-
-  onModuleInit(): void {
-    this.memberAuth = this.ref.get(MEMBER_AUTH_TOKEN, { strict: true })
-  }
 
   async findOne(kwargs?: Prisma.MemberFindUniqueArgs): Promise<TMember> {
     return await this.prisma.member.findUnique(kwargs)
@@ -217,31 +204,11 @@ export class MemberService implements OnModuleInit {
     })
   }
 
-  async turnOffNotify(id: number): Promise<TMember> {
-    const member = await this.findOrFail(id)
-    return await this.prisma.member.update({
-      data: { isNotifiable: false },
-      where: { id: member.id },
-    })
-  }
-
-  async turnOnNotify(id: number): Promise<TMember> {
-    const member = await this.findOrFail(id)
-    return await this.prisma.member.update({
-      data: { isNotifiable: true },
-      where: { id: member.id },
-    })
-  }
-
   async changeAvatar(member: TMember, data: Prisma.MemberUncheckedUpdateInput): Promise<TMember> {
     return await this.prisma.member.update({
       data,
       where: { id: member.id },
     })
-  }
-
-  async changePassword(member: TMember, dto: MemberChangePasswordRequestDto): Promise<TMember> {
-    return await this.memberAuth.changePassword(member, dto)
   }
 
   async addPoint(id: number, data: { point: number; createdBy: number }): Promise<Member> {
@@ -329,7 +296,7 @@ export class MemberService implements OnModuleInit {
     }
 
     const nowDate = this.helperService.dateNow()
-    const recentPoints = await this.memberUtil.getPointRecent(member.id, nowDate)
+    const recentPoints = await this.getPointRecents(member.id, { untilDate: nowDate })
     if (recentPoints.length) {
       const recentExpiryDate = recentPoints[0].date
       const totalExpiredPoints = await this.prisma.memberPoint.aggregate({
@@ -373,6 +340,17 @@ export class MemberService implements OnModuleInit {
     const metadata = await this.getMetadata(member)
 
     return { ...member, ...metadata }
+  }
+
+  async getPointBalance(id: number, issuedAt: Date): Promise<number> {
+    return await this.memberPointService.sumMemberActivePoints(id, issuedAt)
+  }
+
+  async getPointRecents(
+    id: number,
+    options: { pointRequire?: number; untilDate: Date },
+  ): Promise<{ date: Date; point: number }[]> {
+    return await this.memberPointService.getMemberRecentPoints(id, options)
   }
 
   async getOrderNumber(issuedAt: Date): Promise<string> {
@@ -423,45 +401,45 @@ export class MemberService implements OnModuleInit {
 
   async releaseMemberPoints(memberPointIds: number[]): Promise<Date> {
     const nowDate = this.helperService.dateNow()
-
-    const releasePoints = await this.prisma.memberPoint.findMany({
-      where: { id: { in: memberPointIds } },
-      orderBy: [{ releaseDate: 'asc' }],
-    })
-
-    for (const pointHistory of releasePoints) {
-      const { id: _id, memberId, ...data } = pointHistory
-      const aggregate = await this.prisma.memberPoint.aggregate({
-        _sum: { point: true },
-        where: { memberId, isActive: true, isDeleted: false },
-      })
-
-      await this.prisma.member.update({
-        where: { id: memberId },
-        data: {
-          pointBalance: { increment: pointHistory.point },
-          updatedAt: nowDate,
-          points: {
-            createMany: {
-              data: [
-                {
-                  ...data,
-                  isActive: true,
-                  isVisible: true,
-                  isPending: false,
-                  pointBalance: pointHistory.point + aggregate._sum.point,
-                  expiryDate: this.memberUtil.getPointExpirationDate(nowDate),
-                  createdAt: nowDate,
-                  updatedAt: nowDate,
-                },
-              ],
-              skipDuplicates: true,
-            },
-          },
-        },
-      })
-    }
     return nowDate
+    // const releasePoints = await this.prisma.memberPoint.findMany({
+    //   where: { id: { in: memberPointIds } },
+    //   orderBy: [{ releaseDate: 'asc' }],
+    // })
+
+    // for (const pointHistory of releasePoints) {
+    //   const { id: _id, memberId, ...data } = pointHistory
+    //   const aggregate = await this.prisma.memberPoint.aggregate({
+    //     _sum: { point: true },
+    //     where: { memberId, isActive: true, isDeleted: false },
+    //   })
+
+    //   await this.prisma.member.update({
+    //     where: { id: memberId },
+    //     data: {
+    //       pointBalance: { increment: pointHistory.point },
+    //       updatedAt: nowDate,
+    //       points: {
+    //         createMany: {
+    //           data: [
+    //             {
+    //               ...data,
+    //               isActive: true,
+    //               isVisible: true,
+    //               isPending: false,
+    //               pointBalance: pointHistory.point + aggregate._sum.point,
+    //               expiryDate: this.memberUtil.getPointExpirationDate(nowDate),
+    //               createdAt: nowDate,
+    //               updatedAt: nowDate,
+    //             },
+    //           ],
+    //           skipDuplicates: true,
+    //         },
+    //       },
+    //     },
+    //   })
+    // }
+    // return nowDate
   }
 
   async resetMemberPoints(issuedAt: Date, memberIds: number[]): Promise<Date> {

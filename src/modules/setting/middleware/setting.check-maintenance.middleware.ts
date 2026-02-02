@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable, NestMiddleware, ServiceUnavailableException } from '@nestjs/common'
 import { INextFunction, IRequestApp, IResponseApp } from 'lib/nest-core'
-import { SettingService } from '../services'
+import { SettingService } from '../services/setting.service'
 
 @Injectable()
 export class SettingCheckMaintenanceMiddleware implements NestMiddleware {

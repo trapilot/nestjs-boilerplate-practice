@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -17,14 +17,17 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { PRODUCT_REVIEW_DOC_ADMIN_QUERY_LIST, PRODUCT_REVIEW_DOC_OPERATION } from '../constants'
 import {
-  ProductReviewRequestCreateDto,
-  ProductReviewRequestUpdateDto,
+  PRODUCT_REVIEW_DOC_ADMIN_QUERY_LIST,
+  PRODUCT_REVIEW_DOC_OPERATION,
+} from '../constants/product-review.doc.constant'
+import { ProductReviewRequestCreateDto } from '../dtos/product-review.request.create.dto'
+import { ProductReviewRequestUpdateDto } from '../dtos/product-review.request.update.dto'
+import {
   ProductReviewResponseDetailDto,
   ProductReviewResponseListDto,
-} from '../dtos'
-import { ProductReviewService } from '../services'
+} from '../dtos/product-review.response.detail.dto'
+import { ProductReviewService } from '../services/product-review.service'
 
 @ApiTags(PRODUCT_REVIEW_DOC_OPERATION)
 @Controller({ path: '/product-reviews' })

@@ -1,13 +1,14 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { EnumAuthScopeType } from 'lib/nest-auth'
 import { HelperService } from 'lib/nest-core'
 import { ApiRequestData, IResponseData } from 'lib/nest-web'
-import { DASHBOARD_DOC_OPERATION } from '../constants'
-import { DashboardDataResponseDto, DashboardSummaryResponseDto } from '../dtos'
-import { IDashboardDateRange } from '../interfaces'
-import { DashboardService } from '../services'
+import { DASHBOARD_DOC_OPERATION } from '../constants/dashboard.doc.constant'
+import { DashboardDataResponseDto } from '../dtos/dashboard.view-data.response.dto'
+import { DashboardSummaryResponseDto } from '../dtos/dashboard.view-summary.response.dto'
+import { IDashboardDateRange } from '../interfaces/dashboard.interface'
+import { DashboardService } from '../services/dashboard.service'
 
 @ApiTags(DASHBOARD_DOC_OPERATION)
 @Controller({ path: '/dashboard' })

@@ -9,8 +9,8 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { EnumSettingType } from '../enums'
-import { SettingUtil } from '../helpers'
+import { EnumSettingType } from '../enums/setting.enum'
+import { SettingUtil } from '../helpers/setting.util'
 
 @Injectable()
 export class SettingService {

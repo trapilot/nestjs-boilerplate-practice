@@ -4,9 +4,7 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
-  OnModuleInit,
 } from '@nestjs/common'
-import { ModuleRef } from '@nestjs/core'
 import {
   EnumInvoiceStatus,
   EnumOrderStatus,
@@ -14,9 +12,10 @@ import {
   EnumPointSource,
   EnumRedemptionSource,
   EnumRedemptionStatus,
+  EnumSlipType,
   Prisma,
 } from '@runtime/prisma-client'
-import { HelperService } from 'lib/nest-core'
+import { EnumDateFormat, HelperService } from 'lib/nest-core'
 import {
   IPrismaOptions,
   IPrismaParams,
@@ -24,28 +23,21 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TCart } from 'modules/cart'
-import { InvoiceUtil } from 'modules/invoice'
-import { MemberUtil } from 'modules/member'
-import { OrderUtil } from '../helpers'
-import { IOrderPlaceOptions, TOrder } from '../interfaces'
+import { TCart } from 'modules/cart/interfaces/cart.interface'
+import { CartService } from 'modules/cart/services/cart.service'
+import { InvoiceService } from 'modules/invoice/services/invoice.service'
+import { MemberService } from 'modules/member/services/member.service'
+import { IOrderPlaceOptions, TOrder } from '../interfaces/order.interface'
 
 @Injectable()
-export class OrderService implements OnModuleInit {
-  private invoiceUtil!: InvoiceUtil
-  private memberUtil!: MemberUtil
-
+export class OrderService {
   constructor(
-    private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
     private readonly helperService: HelperService,
-    private readonly orderUtil: OrderUtil,
+    private readonly cartService: CartService,
+    private readonly memberService: MemberService,
+    private readonly invoiceService: InvoiceService,
   ) {}
-
-  onModuleInit(): void {
-    this.invoiceUtil = this.ref.get(InvoiceUtil, { strict: false })
-    this.memberUtil = this.ref.get(MemberUtil, { strict: false })
-  }
 
   async findOne(kwargs?: Prisma.OrderFindUniqueArgs): Promise<TOrder> {
     return await this.prisma.order.findUnique(kwargs)
@@ -159,26 +151,50 @@ export class OrderService implements OnModuleInit {
     }
   }
 
-  async createOrder(cart: TCart, options: IOrderPlaceOptions): Promise<TOrder> {
+  private calculateTotals(cart: TCart): { finalPrice: number; finalPoint: number } {
     let finalPrice = 0
     let finalPoint = 0
+
     for (const item of cart.items) {
       finalPrice += item.product.salePrice * item.quantity
       finalPoint += item.product.salePoint * item.quantity
     }
 
-    let pointBalance = await this.memberUtil.getPointBalance(cart.memberId, options.issuedAt)
-    if (finalPoint > pointBalance) {
+    return { finalPrice, finalPoint }
+  }
+
+  private async validateMemberPoint(
+    memberId: number,
+    requirePoint: number,
+    issuedAt: Date,
+  ): Promise<number> {
+    const pointBalance = await this.memberService.getPointBalance(memberId, issuedAt)
+    if (requirePoint > pointBalance) {
       throw new BadRequestException({
         statusCode: HttpStatus.CONFLICT,
         message: 'module.member.notEnoughPoint',
       })
     }
 
-    const endOfDay = this.helperService.dateCreate(options.issuedAt, { endOfDay: true })
-    const orderNumber = await this.orderUtil.getOrderNumber(options.issuedAt)
-    const invoiceNumber = await this.invoiceUtil.getInvoiceNumber(options.issuedAt)
-    const recentPoints = await this.memberUtil.getPointRecents(cart.memberId, finalPoint)
+    return pointBalance
+  }
+
+  async createFromCart(cartId: number, options: IOrderPlaceOptions): Promise<TOrder> {
+    const nowDate = this.helperService.dateNow()
+    const endOfDay = this.helperService.dateCreate(nowDate, { endOfDay: true })
+
+    const cart = await this.cartService.validateForCheckout(cartId)
+
+    const { finalPrice, finalPoint } = this.calculateTotals(cart)
+
+    await this.validateMemberPoint(cart.memberId, finalPoint, nowDate)
+
+    const orderNumber = await this.generateOrderNumber(nowDate)
+    const invoiceNumber = await this.invoiceService.generateInvoiceNumber(nowDate)
+    const recentPoints = await this.memberService.getPointRecents(cart.memberId, {
+      pointRequire: finalPoint,
+      untilDate: nowDate,
+    })
 
     const hasShipment = !!cart.items.find(item => item.product.hasShipment)
     const duePaidDays = cart.items
@@ -198,9 +214,9 @@ export class OrderService implements OnModuleInit {
           code: orderNumber,
           source: options.source,
           status: EnumOrderStatus.PENDING,
-          issuedAt: options.issuedAt,
-          createdAt: options.issuedAt,
-          updatedAt: options.issuedAt,
+          issuedAt: nowDate,
+          createdAt: nowDate,
+          updatedAt: nowDate,
           shipment: {
             create: hasShipment
               ? {
@@ -220,24 +236,22 @@ export class OrderService implements OnModuleInit {
               finalPoint: finalPoint,
               status: EnumInvoiceStatus.PARTIALLY_PAID,
               dueDate: dueDate,
-              issuedAt: options.issuedAt,
-              createdAt: options.issuedAt,
-              updatedAt: options.issuedAt,
+              issuedAt: nowDate,
+              createdAt: nowDate,
+              updatedAt: nowDate,
               points: {
                 createMany: {
                   data: recentPoints.map(recentPoint => {
-                    pointBalance -= recentPoint.point
                     return {
                       memberId: cart.memberId,
                       tierId: cart.member.tierId,
                       invoiceAmount: finalPrice,
                       source: EnumPointSource.PURCHASE,
                       action: EnumPointAction.DEDUCT,
-                      pointBalance,
                       point: recentPoint.point * -1,
                       expiryDate: recentPoint.date,
-                      createdAt: options.issuedAt,
-                      updatedAt: options.issuedAt,
+                      createdAt: nowDate,
+                      updatedAt: nowDate,
                     }
                   }),
                 },
@@ -253,8 +267,8 @@ export class OrderService implements OnModuleInit {
                 unitPoint: item.product.salePoint,
                 finalPrice: item.quantity * item.product.salePrice,
                 finalPoint: item.quantity * item.product.salePoint,
-                createdAt: options.issuedAt,
-                updatedAt: options.issuedAt,
+                createdAt: nowDate,
+                updatedAt: nowDate,
               })),
               skipDuplicates: true,
             },
@@ -269,9 +283,9 @@ export class OrderService implements OnModuleInit {
                   redeemPoint: item.product.salePoint,
                   source: EnumRedemptionSource.ORDER,
                   status: EnumRedemptionStatus.PENDING,
-                  issuedAt: options.issuedAt,
-                  createdAt: options.issuedAt,
-                  updatedAt: options.issuedAt,
+                  issuedAt: nowDate,
+                  createdAt: nowDate,
+                  updatedAt: nowDate,
                 })),
               ),
               skipDuplicates: true,
@@ -283,15 +297,15 @@ export class OrderService implements OnModuleInit {
         where: { id: cart.id },
         data: {
           version: 1,
-          createdAt: options.issuedAt,
-          updatedAt: options.issuedAt,
+          createdAt: nowDate,
+          updatedAt: nowDate,
           items: {
             deleteMany: {},
           },
           member: {
             update: {
               pointBalance: { decrement: finalPoint },
-              updatedAt: options.issuedAt,
+              updatedAt: nowDate,
             },
           },
         },
@@ -304,61 +318,26 @@ export class OrderService implements OnModuleInit {
       ),
     ])
     return order
-    //   return await this.create({
-    //     memberId: cart.memberId,
-    //     finalPrice,
-    //     finalPoint,
-    //     code: orderNumber,
-    //     source: options.source,
-    //     status: EnumOrderStatus.PENDING,
-    //     issuedAt: issuedAt,
-    //     createdAt: issuedAt,
-    //     updatedAt: issuedAt,
-    //     invoice: {
-    //       create: {
-    //         code: invoiceNumber,
-    //         memberId: cart.memberId,
-    //         paidPrice: 0,
-    //         paidPoint: finalPoint,
-    //         finalPrice: finalPrice,
-    //         finalPoint: finalPoint,
-    //         status: EnumInvoiceStatus.PENDING,
-    //         issuedAt: issuedAt,
-    //         createdAt: issuedAt,
-    //         updatedAt: issuedAt,
-    //         points: {
-    //           create: finalPoint
-    //             ? {
-    //                 memberId: cart.memberId,
-    //                 tierId: cart.member.tierId,
-    //                 invoiceAmount: finalPrice,
-    //                 type: EnumMemberPointType.PURCHASE,
-    //                 point: finalPoint * -1,
-    //                 pointBalance: pointBalance - finalPoint,
-    //                 expiryDate: this.memberService.getPointExpirationDate(issuedAt),
-    //                 createdAt: issuedAt,
-    //                 updatedAt: issuedAt,
-    //               }
-    //             : undefined,
-    //         },
-    //       },
-    //     },
-    //     items: {
-    //       createMany: {
-    //         data: cart.items.map((item) => ({
-    //           productId: item.productId,
-    //           quantity: item.quantity,
-    //           unitPrice: item.product.salePrice,
-    //           unitPoint: item.product.salePoint,
-    //           finalPrice: item.quantity * item.product.salePrice,
-    //           finalPoint: item.quantity * item.product.salePoint,
-    //           createdAt: issuedAt,
-    //           updatedAt: issuedAt,
-    //         })),
-    //         skipDuplicates: true,
-    //       },
-    //     },
-    //   })
+  }
+
+  async generateOrderNumber(issuedAt: Date): Promise<string> {
+    const key = this.helperService.dateFormat(issuedAt, EnumDateFormat.DATE_REFERENCE)
+    const type = EnumSlipType.ORDER
+    const slip = await this.prisma.slipCounter.upsert({
+      where: { type_key: { key, type } },
+      create: { type, key, sequence: 1 },
+      update: { sequence: { increment: 1 } },
+    })
+
+    const raw = `${process.env.APP_SECRET_KEY}:${type}:${key}:${slip.sequence}`
+    const hash = this.helperService.hashCreate(raw, { algorithm: 'sha256' })
+    const code = this.helperService.baseEncode(hash, 36)
+
+    return this.helperService.stringFormat(code, {
+      length: 16,
+      format: 'uppercase',
+      slices: { delimiter: '-', parts: [4, 4, 4, 4] },
+    })
   }
 
   async onCreated(_order: TOrder): Promise<void> {}

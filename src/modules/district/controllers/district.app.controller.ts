@@ -2,9 +2,9 @@ import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
 import { ApiRequestList, IResponseList, RequestListDto, RequestQueryList } from 'lib/nest-web'
-import { DISTRICT_DOC_OPERATION } from '../constants'
-import { DistrictResponseListDto } from '../dtos'
-import { DistrictService } from '../services'
+import { DISTRICT_DOC_OPERATION } from '../constants/district.doc.constant'
+import { DistrictResponseListDto } from '../dtos/district.response.detail.dto'
+import { DistrictService } from '../services/district.service'
 
 @ApiTags(DISTRICT_DOC_OPERATION)
 @Controller({ version: '1', path: '/districts' })

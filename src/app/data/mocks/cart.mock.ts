@@ -2,15 +2,15 @@ import { Injectable } from '@nestjs/common'
 import { EnumOrderSource, EnumPointAction, EnumPointSource, Prisma } from '@runtime/prisma-client'
 import { HelperService, ScheduleMockupBase } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
-import { CartService } from 'modules/cart'
-import { MemberUtil } from 'modules/member'
+import { MemberUtil } from 'modules/member/helpers/member.util'
+import { OrderService } from 'modules/order/services/order.service'
 
 @Injectable()
 export class CartMock extends ScheduleMockupBase {
   constructor(
     private readonly prisma: PrismaService,
     private readonly helperService: HelperService,
-    private readonly cartService: CartService,
+    // private readonly orderService: OrderService,
     private readonly memberUtil: MemberUtil,
   ) {
     super()
@@ -88,18 +88,17 @@ export class CartMock extends ScheduleMockupBase {
         },
       })
 
-      try {
-        await this.cartService.checkout(cart.id, {
-          dateDebug: member.updatedAt,
-          source: EnumOrderSource.SYSTEM,
-          shipment: {
-            address: 'home #01',
-            phone: member.phone,
-          },
-        })
-      } catch (err: unknown) {
-        this.logger.error(err)
-      }
+      // try {
+      //   await this.orderService.createFromCart(cart.id, {
+      //     source: EnumOrderSource.SYSTEM,
+      //     shipment: {
+      //       address: 'home #01',
+      //       phone: member.phone,
+      //     },
+      //   })
+      // } catch (err: unknown) {
+      //   this.logger.error(err)
+      // }
     }
 
     return

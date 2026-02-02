@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, AuthUtil, EnumAuthScopeType } from 'lib/nest-auth'
 import {
   EnumFileExtensionDocument,
@@ -40,17 +40,15 @@ import {
   RequestRequiredPipe,
   RequestRequiredYearPipe,
 } from 'lib/nest-web'
-import { USER_DOC_ADMIN_QUERY_LIST, USER_DOC_OPERATION, USER_UPLOAD_IMAGE_PATH } from '../constants'
-import {
-  UserRequestChangeAvatarDto,
-  UserRequestCreateDto,
-  UserRequestUpdateDto,
-  UserResponseDetailDto,
-  UserResponseListDto,
-  UserResponseLoginHistoryDto,
-} from '../dtos'
-import { EnumUserActivityAction } from '../enums'
-import { UserService } from '../services'
+import { USER_UPLOAD_IMAGE_PATH } from '../constants/users.constant'
+import { USER_DOC_ADMIN_QUERY_LIST, USER_DOC_OPERATION } from '../constants/users.doc.constant'
+import { UserRequestChangeAvatarDto } from '../dtos/user.request.change-avatar.dto'
+import { UserRequestCreateDto } from '../dtos/user.request.create.dto'
+import { UserRequestUpdateDto } from '../dtos/user.request.update.dto'
+import { UserResponseDetailDto, UserResponseListDto } from '../dtos/user.response.detail.dto'
+import { UserResponseLoginHistoryDto } from '../dtos/user.response.login-history.dto'
+import { EnumUserActivityAction } from '../enums/user.enum'
+import { UserService } from '../services/user.service'
 
 @ApiTags(USER_DOC_OPERATION)
 @Controller({ path: '/users' })

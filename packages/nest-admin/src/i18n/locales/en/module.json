@@ -306,5 +306,37 @@
       "createdBy": "User Created",
       "updatedBy": "Last Updated"
     }
+  },
+  "api-key": {
+    "title": "Api Keys",
+    "fields": {
+      "id": "ID",
+      "type": "Type",
+      "name": "Name",
+      "key": "Key",
+      "hash": "Hash",
+      "isDeprecated": "Deprecated",
+      "isActive": "Active",
+      "startDate": "Start Date",
+      "untilDate": "Until Date",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    }
+  },
+  "app-version": {
+    "title": "Api Keys",
+    "fields": {
+      "id": "ID",
+      "type": "Type",
+      "name": "Name",
+      "version": "Version",
+      "url": "Url",
+      "isForce": "Forced",
+      "isActive": "Active",
+      "startDate": "Start Date",
+      "untilDate": "Until Date",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
+    }
   }
 }

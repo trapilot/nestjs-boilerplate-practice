@@ -1,7 +1,7 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
 import { IPrismaOptions, IPrismaParams, IPrismaReturnList, PrismaService } from 'lib/nest-prisma'
-import { TPermission } from '../interfaces'
+import { TPermission } from '../interfaces/permission.interface'
 
 @Injectable()
 export class PermissionService {

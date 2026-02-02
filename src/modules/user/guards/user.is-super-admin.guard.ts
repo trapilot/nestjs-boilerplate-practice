@@ -6,7 +6,7 @@ import {
   Injectable,
 } from '@nestjs/common'
 import { IRequestFile } from 'lib/nest-core'
-import { UserService } from '../services'
+import { UserService } from '../services/user.service'
 
 @Injectable()
 export class UserIsSuperAdmin implements CanActivate {

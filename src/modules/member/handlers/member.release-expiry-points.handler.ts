@@ -11,8 +11,8 @@ import {
   QueueScanner,
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
-import { EnumMemberQueue } from '../enums'
-import { MemberService } from '../services'
+import { EnumMemberQueue } from '../enums/member.enum'
+import { MemberService } from '../services/member.service'
 
 @Injectable()
 export class MemberReleaseExpiryPointHandler implements IQueueHandler {

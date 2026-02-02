@@ -1,7 +1,7 @@
 import { IntersectionType, PickType } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
 import { IAuthPayloadPermission } from 'lib/nest-auth'
-import { ToUserPayloadPermissions, ToUserPayloadRoles } from '../transforms'
+import { ToUserPayloadPermissions, ToUserPayloadRoles } from '../transforms/user.payload.transform'
 import { UserProfileResponseDto } from './user.response.profile.dto'
 
 export class ResponseUserPayloadDto extends PickType(UserProfileResponseDto, [

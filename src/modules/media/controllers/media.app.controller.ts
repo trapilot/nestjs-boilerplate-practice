@@ -3,9 +3,9 @@ import { ApiTags } from '@nestjs/swagger'
 import { EnumMediaType, Prisma } from '@runtime/prisma-client'
 import { EnumAuthScopeType } from 'lib/nest-auth'
 import { ApiRequestList, IResponseList, RequestListDto, RequestQueryList } from 'lib/nest-web'
-import { MEDIA_DOC_APP_QUERY_LIST, MEDIA_DOC_OPERATION } from '../constants'
-import { MediaResponseListDto } from '../dtos'
-import { MediaService } from '../services'
+import { MEDIA_DOC_APP_QUERY_LIST, MEDIA_DOC_OPERATION } from '../constants/media.doc.constant'
+import { MediaResponseListDto } from '../dtos/media.response.detail.dto'
+import { MediaService } from '../services/media.service'
 
 @ApiTags(MEDIA_DOC_OPERATION)
 @Controller({ version: '1', path: '/media' })

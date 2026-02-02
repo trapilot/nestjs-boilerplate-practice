@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { CacheService, EnumAppEnvironment, StrUtil } from 'lib/nest-core'
-import { EnumSettingType } from '../enums'
+import { EnumSettingType } from '../enums/setting.enum'
 
 interface IValueData {
   value: string

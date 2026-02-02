@@ -1,6 +1,6 @@
 import { Transform } from 'class-transformer'
 import { NumberUtil } from 'lib/nest-core'
-import { TCart, TCartItem } from '../interfaces'
+import { TCart, TCartItem } from '../interfaces/cart.interface'
 
 export function ToOutOfStockStatus(): (target: object, key: string) => void {
   return Transform(({ obj }: { obj: TCartItem }) => {

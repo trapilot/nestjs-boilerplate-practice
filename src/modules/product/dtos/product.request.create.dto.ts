@@ -13,7 +13,7 @@ import {
 } from 'class-validator'
 import { ToBoolean, ToNumber, ToObject, ToString, TransformIf } from 'lib/nest-core'
 import { EnumRequestFormatType, RequestParagraphDto, RequestSentenceDto } from 'lib/nest-web'
-import { ToDynamicExpiryDays, ToStaticExpiryDate } from '../transforms'
+import { ToDynamicExpiryDays, ToStaticExpiryDate } from '../transforms/product.expiry.transform'
 
 export class ProductRequestCreateDto {
   @IsNotEmpty()

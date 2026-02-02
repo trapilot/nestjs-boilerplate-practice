@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { EnumInvoiceStatus } from '@runtime/prisma-client'
 import { HelperService } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
-import { TDashboard } from '../interfaces'
+import { TDashboard } from '../interfaces/dashboard.interface'
 
 @Injectable()
 export class DashboardService {

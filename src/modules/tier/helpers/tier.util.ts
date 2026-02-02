@@ -1,5 +1,5 @@
-import { TierValue } from '.'
-import { TTier } from '../interfaces'
+import { TTier } from '../interfaces/tier.interface'
+import { TierValue } from './tier.data'
 
 export class TierUtil {
   static ratio(rate: number): number {

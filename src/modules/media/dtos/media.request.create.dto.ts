@@ -11,7 +11,7 @@ import {
 } from 'class-validator'
 import { ToBoolean, ToNumber, ToObject, ToString } from 'lib/nest-core'
 import { RequestSentenceDto } from 'lib/nest-web'
-import { EnumMediaRefType } from '../enums'
+import { EnumMediaRefType } from '../enums/media.enum'
 
 export class MediaRequestCreateDto {
   @IsNotEmpty()

@@ -2,10 +2,10 @@ import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { EnumAuthScopeType } from 'lib/nest-auth'
 import { ApiRequestData, IResponseData } from 'lib/nest-web'
-import { PAGE_DOC_OPERATION } from '../constants'
-import { PageResponseDetailDto } from '../dtos'
-import { EnumPageType } from '../enums'
-import { PageService } from '../services'
+import { PAGE_DOC_OPERATION } from '../constants/page.doc.constant'
+import { PageResponseDetailDto } from '../dtos/page.response.detail.dto'
+import { EnumPageType } from '../enums/page.enum'
+import { PageService } from '../services/page.service'
 
 @ApiTags(PAGE_DOC_OPERATION)
 @Controller({ version: '1', path: '/pages' })

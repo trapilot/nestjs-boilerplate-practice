@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common'
 import { EnumInvoiceStatus, EnumPaymentMethod } from '@runtime/prisma-client'
 import { HelperService, ScheduleMockupBase } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
-import { InvoiceService } from 'modules/invoice'
+import { InvoiceService } from 'modules/invoice/services/invoice.service'
 
 @Injectable()
 export class InvoiceMock extends ScheduleMockupBase {

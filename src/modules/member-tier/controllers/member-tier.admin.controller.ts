@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -17,14 +17,17 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { MEMBER_TIER_DOC_ADMIN_QUERY_LIST, MEMBER_TIER_DOC_OPERATION } from '../constants'
 import {
-  MemberTierRequestCreateDto,
-  MemberTierRequestUpdateDto,
+  MEMBER_TIER_DOC_ADMIN_QUERY_LIST,
+  MEMBER_TIER_DOC_OPERATION,
+} from '../constants/member-tier.doc.constant'
+import { MemberTierRequestCreateDto } from '../dtos/member-tier.request.create.dto'
+import { MemberTierRequestUpdateDto } from '../dtos/member-tier.request.update.dto'
+import {
   MemberTierResponseDetailDto,
   MemberTierResponseListDto,
-} from '../dtos'
-import { MemberTierService } from '../services'
+} from '../dtos/member-tier.response.detail.dto'
+import { MemberTierService } from '../services/member-tier.service'
 
 @ApiTags(MEMBER_TIER_DOC_OPERATION)
 @Controller({ path: '/member-tiers' })

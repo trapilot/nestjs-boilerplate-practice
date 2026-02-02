@@ -11,9 +11,15 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { MEMBER_REDEMPTION_DOC_APP_QUERY_LIST, MEMBER_REDEMPTION_DOC_OPERATION } from '../constants'
-import { MemberRedemptionResponseDetailDto, MemberRedemptionResponseListDto } from '../dtos'
-import { MemberRedemptionService } from '../services'
+import {
+  MEMBER_REDEMPTION_DOC_APP_QUERY_LIST,
+  MEMBER_REDEMPTION_DOC_OPERATION,
+} from '../constants/member-redemption.doc.constant'
+import {
+  MemberRedemptionResponseDetailDto,
+  MemberRedemptionResponseListDto,
+} from '../dtos/member-redemption.response.detail.dto'
+import { MemberRedemptionService } from '../services/member-redemption.service'
 
 @ApiTags(MEMBER_REDEMPTION_DOC_OPERATION)
 @Controller({ version: '1', path: '/member-redemptions' })

@@ -1,4 +1,4 @@
-import { EnumSettingGroup } from '../enums'
+import { EnumSettingGroup } from '../enums/setting.enum'
 
 export const SETTING_DOC_OPERATION = 'Setting'
 

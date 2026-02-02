@@ -7,8 +7,8 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { EnumPageType } from '../enums'
-import { TPage } from '../interfaces'
+import { EnumPageType } from '../enums/page.enum'
+import { TPage } from '../interfaces/page.interface'
 
 @Injectable()
 export class PageService {

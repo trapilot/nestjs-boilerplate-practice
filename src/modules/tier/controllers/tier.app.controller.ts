@@ -3,9 +3,9 @@ import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
 import { EnumAuthScopeType } from 'lib/nest-auth'
 import { ApiRequestList, IResponseList, RequestListDto, RequestQueryList } from 'lib/nest-web'
-import { TIER_DOC_ADMIN_QUERY_LIST, TIER_DOC_OPERATION } from '../constants'
-import { TierResponseListDto } from '../dtos'
-import { TierService } from '../services'
+import { TIER_DOC_ADMIN_QUERY_LIST, TIER_DOC_OPERATION } from '../constants/tier.doc.constant'
+import { TierResponseListDto } from '../dtos/tier.response.detail.dto'
+import { TierService } from '../services/tier.service'
 
 @ApiTags(TIER_DOC_OPERATION)
 @Controller({ version: '1', path: '/tiers' })

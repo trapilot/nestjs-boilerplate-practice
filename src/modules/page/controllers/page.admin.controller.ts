@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -17,14 +17,11 @@ import {
   RequestQueryFilterEqual,
   RequestQueryList,
 } from 'lib/nest-web'
-import { PAGE_DOC_ADMIN_QUERY_LIST, PAGE_DOC_OPERATION } from '../constants'
-import {
-  PageRequestCreateDto,
-  PageRequestUpdateDto,
-  PageResponseDetailDto,
-  PageResponseListDto,
-} from '../dtos'
-import { PageService } from '../services'
+import { PAGE_DOC_ADMIN_QUERY_LIST, PAGE_DOC_OPERATION } from '../constants/page.doc.constant'
+import { PageRequestCreateDto } from '../dtos/page.request.create.dto'
+import { PageRequestUpdateDto } from '../dtos/page.request.update.dto'
+import { PageResponseDetailDto, PageResponseListDto } from '../dtos/page.response.detail.dto'
+import { PageService } from '../services/page.service'
 
 @ApiTags(PAGE_DOC_OPERATION)
 @Controller({ path: '/pages' })

@@ -1,9 +1,9 @@
 import { Controller, Post, VERSION_NEUTRAL } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { ApiRequestData, IResponseData, RequestBody } from 'lib/nest-web'
-import { AUDIT_DOC_OPERATION } from '../constants'
-import { AuditRequestEntryDto } from '../dtos'
-import { AuditService } from '../services'
+import { AUDIT_DOC_OPERATION } from '../constants/audit.doc.constant'
+import { AuditRequestEntryDto } from '../dtos/audit.request.entry.dto'
+import { AuditService } from '../services/audit.service'
 
 @ApiTags(AUDIT_DOC_OPERATION)
 @Controller({ version: VERSION_NEUTRAL, path: '/audit' })

@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { PRODUCT_REVIEW_DOC_OPERATION } from '../constants'
-import { ProductReviewService } from '../services'
+import { PRODUCT_REVIEW_DOC_OPERATION } from '../constants/product-review.doc.constant'
+import { ProductReviewService } from '../services/product-review.service'
 
 @ApiTags(PRODUCT_REVIEW_DOC_OPERATION)
 @Controller({ version: '1', path: '/product-reviews' })

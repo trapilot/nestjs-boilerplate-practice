@@ -1,6 +1,6 @@
 import { Injectable, PipeTransform } from '@nestjs/common'
-import { TUser } from '../interfaces'
-import { UserService } from '../services'
+import { TUser } from '../interfaces/user.interface'
+import { UserService } from '../services/user.service'
 
 @Injectable()
 export class UserParsePipe implements PipeTransform {

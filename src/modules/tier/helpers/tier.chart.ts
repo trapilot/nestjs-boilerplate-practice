@@ -1,7 +1,7 @@
 import { EnumTierCode } from 'lib/nest-core'
-import { InvoiceData } from 'modules/invoice'
-import { MemberData } from 'modules/member'
-import { TTier, TTierChart } from '../interfaces'
+import { InvoiceData } from 'modules/invoice/helpers/invoice.data'
+import { MemberData } from 'modules/member/helpers/member.data'
+import { TTier, TTierChart } from '../interfaces/tier.interface'
 import { TierData, TierValue } from './tier.data'
 
 export class TierChart {

@@ -2,8 +2,8 @@ import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagg
 import { Expose, Type } from 'class-transformer'
 import { ToUrl } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { RoleResponseBelongDto } from 'modules/role'
-import { ToUserRoles } from '../transforms'
+import { RoleResponseBelongDto } from 'modules/role/dtos/role.response.detail.dto'
+import { ToUserRoles } from '../transforms/user.roles.transform'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: 1 })

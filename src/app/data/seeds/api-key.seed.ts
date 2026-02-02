@@ -1,6 +1,6 @@
 import { EnumApiKeyType } from '@runtime/prisma-client'
 import { CommandMigrateBase } from 'lib/nest-core'
-import { ApiKeyService } from 'modules/api-key'
+import { ApiKeyService } from 'modules/api-key/services/api-key.service'
 import { Command } from 'nest-commander'
 
 @Command({

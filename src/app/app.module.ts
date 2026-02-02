@@ -1,8 +1,4 @@
 import { HttpStatus, MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common'
-import { DataMockModule } from 'app/data'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
-import { UserAbilityFactory } from 'app/helpers'
-import { RoutesAdminModule, RoutesAppModule, RoutesPublicModule, RoutesWebModule } from 'app/routes'
 import { ValidationError } from 'class-validator'
 import { NestAuthModule } from 'lib/nest-auth'
 import {
@@ -20,26 +16,33 @@ import {
   PrismaQueueScanner,
 } from 'lib/nest-prisma'
 import { NestWebModule, ValidateException } from 'lib/nest-web'
-import { AppVersionCheckMiddleware, AppVersionModule } from 'modules/app-version'
-import { InvoiceModule, InvoiceRejectOverDueHandler, InvoiceScheduler } from 'modules/invoice'
-import {
-  MemberEarnHighestPurchaseHandler,
-  MemberEarnPointFromPurchaseHandler,
-  MemberModule,
-  MemberReleaseExpiryPointHandler,
-  MemberResetBirthPurchaseHandler,
-  MemberResetExpiryPointHandler,
-  MemberResetExpiryTierHandler,
-  MemberScheduler,
-} from 'modules/member'
-import {
-  NotificationDispatchPushHandler,
-  NotificationModule,
-  NotificationScheduler,
-  NotificationSendPushHandler,
-} from 'modules/notification'
-import { SettingCheckMaintenanceMiddleware, SettingModule } from 'modules/setting'
+import { AppVersionModule } from 'modules/app-version/app-version.module'
+import { AppVersionCheckMiddleware } from 'modules/app-version/middleware/app-version.check.middleware'
+import { InvoiceRejectOverDueHandler } from 'modules/invoice/handlers/invoice.handler'
+import { InvoiceModule } from 'modules/invoice/invoice.module'
+import { InvoiceScheduler } from 'modules/invoice/schedulers/invoice.scheduler'
+import { MemberEarnHighestPurchaseHandler } from 'modules/member/handlers/member.earn-highest-purchase-in-birth.handler'
+import { MemberEarnPointFromPurchaseHandler } from 'modules/member/handlers/member.earn-point-from-purchases.handler'
+import { MemberReleaseExpiryPointHandler } from 'modules/member/handlers/member.release-expiry-points.handler'
+import { MemberResetBirthPurchaseHandler } from 'modules/member/handlers/member.reset-birth-puchase.handler'
+import { MemberResetExpiryPointHandler } from 'modules/member/handlers/member.reset-expiry-point.handler'
+import { MemberResetExpiryTierHandler } from 'modules/member/handlers/member.reset-expiry-tiers.handler'
+import { MemberModule } from 'modules/member/member.module'
+import { MemberScheduler } from 'modules/member/schedulers/member.scheduler'
+import { NotificationDispatchPushHandler } from 'modules/notification/handlers/notification.dispatch-push.handler'
+import { NotificationSendPushHandler } from 'modules/notification/handlers/notification.send-notification.handler'
+import { NotificationModule } from 'modules/notification/notification.module'
+import { NotificationScheduler } from 'modules/notification/schedulers/notification.scheduler'
+import { SettingCheckMaintenanceMiddleware } from 'modules/setting/middleware/setting.check-maintenance.middleware'
+import { SettingModule } from 'modules/setting/setting.module'
 import configs from '../configs'
+import { DataMockModule } from './data/data.mock.module'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from './enums/user.enum'
+import { UserAbilityFactory } from './helpers/user.ability.factory'
+import { RoutesAdminModule } from './routes/routes.admin.module'
+import { RoutesAppModule } from './routes/routes.app.module'
+import { RoutesPublicModule } from './routes/routes.public.module'
+import { RoutesWebModule } from './routes/routes.web.module'
 
 @Module({
   imports: [
@@ -54,9 +57,9 @@ import configs from '../configs'
       actions: EnumAuthAbilityAction,
     }),
     NestPrismaModule.forRoot({
-      multiTenant: StrUtil.isTrue(process.env.APP_TENANT),
-      replication: false,
-      debug: StrUtil.isTrue(process.env.DATABASE_DEBUG),
+      multiTenant: StrUtil.isTrue(process.env.APP_TENANT, false),
+      replication: StrUtil.isTrue(process.env.DATABASE_REPLICATION, false),
+      debug: StrUtil.isTrue(process.env.DATABASE_DEBUG, false),
     }),
     NestWebModule.forRoot({
       metrics: {

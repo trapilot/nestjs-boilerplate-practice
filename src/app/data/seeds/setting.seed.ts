@@ -1,7 +1,8 @@
 import { Prisma } from '@runtime/prisma-client'
 import { CommandMigrateBase } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
-import { EnumSettingGroup, EnumSettingType, SettingService } from 'modules/setting'
+import { EnumSettingGroup, EnumSettingType } from 'modules/setting/enums/setting.enum'
+import { SettingService } from 'modules/setting/services/setting.service'
 import { Command } from 'nest-commander'
 
 @Command({

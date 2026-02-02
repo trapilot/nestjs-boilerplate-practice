@@ -1,6 +1,6 @@
-import { UserAbilityUtil } from 'app/helpers'
+import { UserAbilityUtil } from 'app/helpers/user.ability.util'
 import { Transform } from 'class-transformer'
-import { IRoleResponseTransform, TRole } from '../interfaces'
+import { IRoleResponseTransform, TRole } from '../interfaces/role.interface'
 
 export function ToRolePermissions(): (target: object, key: string) => void {
   return Transform(({ obj: role }: { obj: TRole }): IRoleResponseTransform[] => {

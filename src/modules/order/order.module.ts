@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common'
-import { OrderUtil } from './helpers'
-import { OrderService } from './services'
+import { CartModule } from 'modules/cart/cart.module'
+import { InvoiceModule } from 'modules/invoice/invoice.module'
+import { MemberModule } from 'modules/member/member.module'
+import { OrderService } from './services/order.service'
 
 @Module({
-  providers: [OrderService, OrderUtil],
-  exports: [OrderService, OrderUtil],
-  imports: [],
+  providers: [OrderService],
+  exports: [OrderService],
+  imports: [CartModule, InvoiceModule, MemberModule],
 })
 export class OrderModule {}

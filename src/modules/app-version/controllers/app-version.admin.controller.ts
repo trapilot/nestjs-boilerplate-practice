@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -17,14 +17,17 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { APP_VERSION_DOC_ADMIN_QUERY_LIST, APP_VERSION_DOC_OPERATION } from '../constants'
 import {
-  AppVersionRequestCreateDto,
-  AppVersionRequestUpdateDto,
+  APP_VERSION_DOC_ADMIN_QUERY_LIST,
+  APP_VERSION_DOC_OPERATION,
+} from '../constants/app-version.doc.constant'
+import { AppVersionRequestCreateDto } from '../dtos/app-version.request.create.dto'
+import { AppVersionRequestUpdateDto } from '../dtos/app-version.request.update.dto'
+import {
   AppVersionResponseDetailDto,
   AppVersionResponseListDto,
-} from '../dtos'
-import { AppVersionService } from '../services'
+} from '../dtos/app-version.response.detail.dto'
+import { AppVersionService } from '../services/app-version.service'
 
 @ApiTags(APP_VERSION_DOC_OPERATION)
 @Controller({ path: '/app-versions' })

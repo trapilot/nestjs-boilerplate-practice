@@ -11,7 +11,7 @@ import {
   IResponseApp,
   ScopeContext,
 } from 'lib/nest-core'
-import { AppVersionService } from '../services'
+import { AppVersionService } from '../services/app-version.service'
 
 @Injectable()
 export class AppVersionCheckMiddleware implements NestMiddleware {

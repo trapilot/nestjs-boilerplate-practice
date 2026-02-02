@@ -1,4 +1,4 @@
-import { EnumPageType } from '../enums'
+import { EnumPageType } from '../enums/page.enum'
 
 export const PAGE_DOC_OPERATION = 'Page'
 

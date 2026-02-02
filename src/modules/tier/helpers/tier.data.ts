@@ -1,4 +1,4 @@
-import { TTier } from '../interfaces'
+import { TTier } from '../interfaces/tier.interface'
 
 export interface TierValue {
   currAmount: number

@@ -1,11 +1,4 @@
-import {
-  ConflictException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-  OnModuleInit,
-} from '@nestjs/common'
-import { ModuleRef } from '@nestjs/core'
+import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
 import { EnumAuthSignUpFrom, IAuthPassword } from 'lib/nest-auth'
 import { FileUtil, HelperService } from 'lib/nest-core'
@@ -16,22 +9,16 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { RoleService } from 'modules/role'
-import { IUserCreatedOptions, IUserUpdateOptions, TUser } from '../interfaces'
+import { RoleService } from 'modules/role/services/role.service'
+import { IUserCreatedOptions, IUserUpdateOptions, TUser } from '../interfaces/user.interface'
 
 @Injectable()
-export class UserService implements OnModuleInit {
-  private roleService: RoleService
-
+export class UserService {
   constructor(
-    private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
     private readonly helperService: HelperService,
+    private readonly roleService: RoleService,
   ) {}
-
-  onModuleInit(): void {
-    this.roleService = this.ref.get(RoleService, { strict: false })
-  }
 
   async findOne(kwargs?: Prisma.UserFindUniqueArgs): Promise<TUser> {
     return await this.prisma.user.findUnique(kwargs)

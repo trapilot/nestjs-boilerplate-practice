@@ -24,19 +24,18 @@ import {
   RequestUserToken,
 } from 'lib/nest-web'
 import { IResult } from 'ua-parser-js'
-import { USER_DOC_AUTH_OPERATION, USER_UPLOAD_IMAGE_PATH } from '../constants'
-import {
-  UserEditProfileRequestDto,
-  UserProfileResponseDto,
-  UserRequestChangeAvatarDto,
-  UserRequestChangeConfirmPasswordDto,
-  UserRequestChangePasswordDto,
-  UserRequestSignInDto,
-  UserRequestSignUpDto,
-  UserVerifyPasswordRequestDto,
-} from '../dtos'
-import { UserIsSuperAdmin } from '../guards'
-import { UserAuth } from '../helpers'
+import { USER_UPLOAD_IMAGE_PATH } from '../constants/users.constant'
+import { USER_DOC_AUTH_OPERATION } from '../constants/users.doc.constant'
+import { UserRequestChangeAvatarDto } from '../dtos/user.request.change-avatar.dto'
+import { UserRequestChangeConfirmPasswordDto } from '../dtos/user.request.change-confirm-password.dto'
+import { UserRequestChangePasswordDto } from '../dtos/user.request.change-password.dto'
+import { UserEditProfileRequestDto } from '../dtos/user.request.edit-profile.dto'
+import { UserRequestSignInDto } from '../dtos/user.request.sign-in.dto'
+import { UserRequestSignUpDto } from '../dtos/user.request.sign-up.dto'
+import { UserVerifyPasswordRequestDto } from '../dtos/user.request.verify-password.dto'
+import { UserProfileResponseDto } from '../dtos/user.response.profile.dto'
+import { UserIsSuperAdmin } from '../guards/user.is-super-admin.guard'
+import { UserAuth } from '../helpers/user.auth'
 
 @ApiTags(USER_DOC_AUTH_OPERATION)
 @Controller({ path: '/auth' })

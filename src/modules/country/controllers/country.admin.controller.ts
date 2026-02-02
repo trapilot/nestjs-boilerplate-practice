@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -17,14 +17,17 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { COUNTRY_DOC_ADMIN_QUERY_LIST, COUNTRY_DOC_OPERATION } from '../constants'
 import {
-  CountryRequestCreateDto,
-  CountryRequestUpdateDto,
+  COUNTRY_DOC_ADMIN_QUERY_LIST,
+  COUNTRY_DOC_OPERATION,
+} from '../constants/country.doc.constant'
+import { CountryRequestCreateDto } from '../dtos/country.request.create.dto'
+import { CountryRequestUpdateDto } from '../dtos/country.request.update.dto'
+import {
   CountryResponseDetailDto,
   CountryResponseListDto,
-} from '../dtos'
-import { CountryService } from '../services'
+} from '../dtos/country.response.detail.dto'
+import { CountryService } from '../services/country.service'
 
 @ApiTags(COUNTRY_DOC_OPERATION)
 @Controller({ path: '/countries' })

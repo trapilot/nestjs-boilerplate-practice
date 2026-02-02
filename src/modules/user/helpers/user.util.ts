@@ -1,6 +1,6 @@
 import { EnumAuthLoginType } from 'lib/nest-auth'
-import { EnumUserActivityAction } from '../enums'
-import { IUserDataRole, IUserTransformData } from '../interfaces'
+import { EnumUserActivityAction } from '../enums/user.enum'
+import { IUserDataRole, IUserTransformData } from '../interfaces/user.auth.interface'
 
 export class UserUtil {
   static parseRoles(user: IUserTransformData): IUserDataRole[] {

@@ -9,8 +9,8 @@ import {
   QueueScanner,
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
-import { EnumInvoiceQueue } from '../enums'
-import { InvoiceService } from '../services'
+import { EnumInvoiceQueue } from '../enums/invoice.enum'
+import { InvoiceService } from '../services/invoice.service'
 
 @Injectable()
 export class InvoiceRejectOverDueHandler implements IQueueHandler {

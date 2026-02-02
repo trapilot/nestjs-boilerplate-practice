@@ -8,7 +8,7 @@ import {
 import { Expose, Type } from 'class-transformer'
 import { EnumDateFormat, ToDate, ToDuration, ToNestedArray } from 'lib/nest-core'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
-import { EnumNotificationRefType } from '../enums'
+import { EnumNotificationRefType } from '../enums/notification.enum'
 
 class ResponsePushDetailDto {
   @ApiProperty({ example: 1 })

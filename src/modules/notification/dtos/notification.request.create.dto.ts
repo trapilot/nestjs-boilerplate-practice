@@ -31,8 +31,8 @@ import {
   RequestParagraphDto,
   RequestSentenceDto,
 } from 'lib/nest-web'
-import { EnumNotificationRefType } from '../enums'
-import { NotificationUtil } from '../helpers'
+import { EnumNotificationRefType } from '../enums/notification.enum'
+import { NotificationUtil } from '../helpers/notification.util'
 
 export class NotificationPushDto {
   @IsNotEmpty()

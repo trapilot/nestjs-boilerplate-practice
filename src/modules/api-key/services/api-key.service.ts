@@ -9,8 +9,8 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { ApiKeyUtil } from '../helpers'
-import { TApiKey } from '../interfaces'
+import { ApiKeyUtil } from '../helpers/api-key.util'
+import { TApiKey } from '../interfaces/api-key.interface'
 
 @Injectable()
 export class ApiKeyService {

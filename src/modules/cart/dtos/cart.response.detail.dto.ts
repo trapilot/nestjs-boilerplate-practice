@@ -2,8 +2,8 @@ import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagg
 import { Expose, Type } from 'class-transformer'
 import { ToDate } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { MemberResponseBelongDto } from 'modules/member'
-import { ToCartPoint, ToCartPrice, ToShipment } from '../transforms'
+import { MemberResponseBelongDto } from 'modules/member/dtos/member.response.detail.dto'
+import { ToCartPoint, ToCartPrice, ToShipment } from '../transforms/cart.transform'
 import { CartItemResponseDetailDto } from './cart.response.item.dto'
 
 class ResponseDataDetailDto {

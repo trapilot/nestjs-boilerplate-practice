@@ -1,4 +1,4 @@
-import { UserAbilityUtil } from 'app/helpers'
+import { UserAbilityUtil } from 'app/helpers/user.ability.util'
 import { CommandMigrateBase, HelperService } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command } from 'nest-commander'

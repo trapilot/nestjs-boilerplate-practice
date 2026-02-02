@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import { PrismaUtil } from 'lib/nest-prisma'
@@ -18,14 +18,11 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { TIER_DOC_ADMIN_QUERY_LIST, TIER_DOC_OPERATION } from '../constants'
-import {
-  TierRequestCreateDto,
-  TierRequestUpdateDto,
-  TierResponseDetailDto,
-  TierResponseListDto,
-} from '../dtos'
-import { TierService } from '../services'
+import { TIER_DOC_ADMIN_QUERY_LIST, TIER_DOC_OPERATION } from '../constants/tier.doc.constant'
+import { TierRequestCreateDto } from '../dtos/tier.request.create.dto'
+import { TierRequestUpdateDto } from '../dtos/tier.request.update.dto'
+import { TierResponseDetailDto, TierResponseListDto } from '../dtos/tier.response.detail.dto'
+import { TierService } from '../services/tier.service'
 
 @ApiTags(TIER_DOC_OPERATION)
 @Controller({ path: '/tiers' })

@@ -1,6 +1,5 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { EnumOrderSource } from '@runtime/prisma-client'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import {
   ApiRequestData,
@@ -9,14 +8,11 @@ import {
   RequestParam,
   RequestUserVersion,
 } from 'lib/nest-web'
-import { CART_DOC_OPERATION } from '../constants'
-import {
-  CartRequestCheckoutDto,
-  CartRequestCreateItemDto,
-  CartRequestUpdateItemDto,
-  CartResponseDetailDto,
-} from '../dtos'
-import { CartService } from '../services'
+import { CART_DOC_OPERATION } from '../constants/cart.doc.constant'
+import { CartRequestCreateItemDto } from '../dtos/cart.request.create-item.dto'
+import { CartRequestUpdateItemDto } from '../dtos/cart.request.update-item.dto'
+import { CartResponseDetailDto } from '../dtos/cart.response.detail.dto'
+import { CartService } from '../services/cart.service'
 
 @ApiTags(CART_DOC_OPERATION)
 @Controller({ version: '1', path: '/carts' })
@@ -42,40 +38,6 @@ export class CartAppController {
   async get(@AuthJwtPayload('user.id') memberId: number): Promise<IResponseData> {
     const cartItems = await this.cartService.getOrCreate(memberId)
     return { data: cartItems }
-  }
-
-  @ApiRequestData({
-    summary: CART_DOC_OPERATION,
-    docExclude: false,
-    docExpansion: false,
-    userVersion: true,
-    jwtAccessToken: {
-      scope: EnumAuthScopeType.MEMBER,
-      user: {
-        synchronize: false,
-        require: true,
-      },
-    },
-    response: {
-      dto: CartResponseDetailDto,
-    },
-  })
-  @Post('/checkout')
-  async checkout(
-    @RequestBody() body: CartRequestCheckoutDto,
-    @RequestUserVersion() cartVersion: number,
-    @AuthJwtPayload('user.id') memberId: number,
-  ): Promise<IResponseData> {
-    const cartData = await this.cartService.validate(memberId, cartVersion)
-    const cartReset = await this.cartService.checkout(cartData.id, {
-      source: EnumOrderSource.APP,
-      shipment: {
-        address: body?.address,
-        phone: body?.phone,
-        note: body?.note,
-      },
-    })
-    return { data: cartReset }
   }
 
   @ApiRequestData({

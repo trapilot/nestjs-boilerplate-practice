@@ -4,7 +4,7 @@ import { Expose, Type } from 'class-transformer'
 import { EnumAuthLoginFrom } from 'lib/nest-auth'
 import { APP_LANGUAGE, EnumDateFormat, ToDate, ToDecimal, ToUrl } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { TierResponseBelongDto } from 'modules/tier'
+import { TierResponseBelongDto } from 'modules/tier/dtos/tier.response.detail.dto'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: 1 })

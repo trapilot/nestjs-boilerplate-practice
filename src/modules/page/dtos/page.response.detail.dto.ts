@@ -3,7 +3,7 @@ import { Expose, Type } from 'class-transformer'
 import { EnumAuthLoginFrom } from 'lib/nest-auth'
 import { ToUrl } from 'lib/nest-core'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
-import { EnumPageType } from '../enums'
+import { EnumPageType } from '../enums/page.enum'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: 1 })

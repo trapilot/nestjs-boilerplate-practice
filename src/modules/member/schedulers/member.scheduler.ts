@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { Cron, CronExpression } from '@nestjs/schedule'
 import { EnumQueuePriority, HelperService, QueueProducer } from 'lib/nest-core'
-import { EnumMemberQueue } from '../enums'
+import { EnumMemberQueue } from '../enums/member.enum'
 
 @Injectable()
 export class MemberScheduler {

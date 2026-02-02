@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common'
 import { IAppRule } from 'lib/nest-core'
-import { TCartItem } from '../interfaces'
+import { TCartItem } from '../interfaces/cart.interface'
 
 export class CartItemInStockRule implements IAppRule<TCartItem> {
   constructor(private readonly newQty: number = 0) {}

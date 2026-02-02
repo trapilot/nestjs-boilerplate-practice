@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -17,14 +17,17 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { PRODUCT_BRAND_DOC_ADMIN_QUERY_LIST, PRODUCT_BRAND_DOC_OPERATION } from '../constants'
 import {
-  ProductBrandRequestCreateDto,
-  ProductBrandRequestUpdateDto,
+  PRODUCT_BRAND_DOC_ADMIN_QUERY_LIST,
+  PRODUCT_BRAND_DOC_OPERATION,
+} from '../constants/product-brand.doc.constant'
+import { ProductBrandRequestCreateDto } from '../dtos/product-brand.request.create.dto'
+import { ProductBrandRequestUpdateDto } from '../dtos/product-brand.request.update.dto'
+import {
   ProductBrandResponseDetailDto,
   ProductBrandResponseListDto,
-} from '../dtos'
-import { ProductBrandService } from '../services'
+} from '../dtos/product-brand.response.detail.dto'
+import { ProductBrandService } from '../services/product-brand.service'
 
 @ApiTags(PRODUCT_BRAND_DOC_OPERATION)
 @Controller({ path: '/product-brands' })

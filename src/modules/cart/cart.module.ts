@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common'
-import { CartListener } from './listeners'
-import { CartService } from './services'
+import { ProductModule } from 'modules/product/product.module'
+import { CartService } from './services/cart.service'
 
 @Module({
-  providers: [CartService, CartListener],
+  providers: [CartService],
   exports: [CartService],
-  imports: [],
+  imports: [ProductModule],
 })
 export class CartModule {}

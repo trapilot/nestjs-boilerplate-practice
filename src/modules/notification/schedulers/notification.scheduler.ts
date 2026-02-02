@@ -8,9 +8,9 @@ import {
   QueueProducer,
   StrUtil,
 } from 'lib/nest-core'
-import { EnumNotificationQueue } from '../enums'
-import { NotificationUtil } from '../helpers'
-import { INotificationDispatchPushPayload } from '../interfaces'
+import { EnumNotificationQueue } from '../enums/notification.enum'
+import { NotificationUtil } from '../helpers/notification.util'
+import { INotificationDispatchPushPayload } from '../interfaces/notification.queue.interface'
 
 @Injectable()
 export class NotificationScheduler {

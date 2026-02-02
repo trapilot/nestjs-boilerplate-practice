@@ -7,11 +7,15 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TMemberTier } from '../interfaces'
+import { TierService } from 'modules/tier/services/tier.service'
+import { TMemberTier } from '../interfaces/member-tier.interface'
 
 @Injectable()
 export class MemberTierService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly tierService: TierService,
+  ) {}
 
   async findOne(kwargs?: Prisma.MemberTierFindUniqueArgs): Promise<TMemberTier> {
     return await this.prisma.memberTier.findUnique(kwargs)

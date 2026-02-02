@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common'
-import { MemberTierService } from './services'
+import { TierModule } from 'modules/tier/tier.module'
+import { MemberTierService } from './services/member-tier.service'
 
 @Module({
   providers: [MemberTierService],
   exports: [MemberTierService],
-  imports: [],
+  imports: [TierModule],
 })
 export class MemberTierModule {}

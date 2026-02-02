@@ -7,7 +7,7 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TDistrict } from '../interfaces'
+import { TDistrict } from '../interfaces/district.interface'
 
 @Injectable()
 export class DistrictService {

@@ -3,8 +3,8 @@ import { EnumInvoiceStatus } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
 import { EnumDateFormat, ToDate, ToDecimal } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { MemberResponseBelongDto } from 'modules/member'
-import { OrderResponseDetailDto } from 'modules/order'
+import { MemberResponseBelongDto } from 'modules/member/dtos/member.response.detail.dto'
+import { OrderResponseDetailDto } from 'modules/order/dtos/order.response.detail.dto'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: 1 })

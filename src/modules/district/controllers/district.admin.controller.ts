@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -17,14 +17,17 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { DISTRICT_DOC_ADMIN_QUERY_LIST, DISTRICT_DOC_OPERATION } from '../constants'
 import {
-  DistrictRequestCreateDto,
-  DistrictRequestUpdateDto,
+  DISTRICT_DOC_ADMIN_QUERY_LIST,
+  DISTRICT_DOC_OPERATION,
+} from '../constants/district.doc.constant'
+import { DistrictRequestCreateDto } from '../dtos/district.request.create.dto'
+import { DistrictRequestUpdateDto } from '../dtos/district.request.update.dto'
+import {
   DistrictResponseDetailDto,
   DistrictResponseListDto,
-} from '../dtos'
-import { DistrictService } from '../services'
+} from '../dtos/district.response.detail.dto'
+import { DistrictService } from '../services/district.service'
 
 @ApiTags(DISTRICT_DOC_OPERATION)
 @Controller({ path: '/districts' })

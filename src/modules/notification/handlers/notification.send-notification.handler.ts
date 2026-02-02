@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { IQueueHandler, LoggerService } from 'lib/nest-core'
-import { EnumNotificationQueue } from '../enums'
-import { NotificationUtil } from '../helpers'
-import { INotificationSendPushPayload } from '../interfaces'
+import { EnumNotificationQueue } from '../enums/notification.enum'
+import { NotificationUtil } from '../helpers/notification.util'
+import { INotificationSendPushPayload } from '../interfaces/notification.queue.interface'
 
 @Injectable()
 export class NotificationSendPushHandler implements IQueueHandler {

@@ -1,7 +1,7 @@
 import { Transform, plainToInstance } from 'class-transformer'
-import { RoleResponseBelongDto } from 'modules/role'
-import { UserUtil } from '../helpers'
-import { IUserRoleTransformOptions, IUserTransformOptions } from '../interfaces'
+import { RoleResponseBelongDto } from 'modules/role/dtos/role.response.detail.dto'
+import { UserUtil } from '../helpers/user.util'
+import { IUserRoleTransformOptions, IUserTransformOptions } from '../interfaces/user.auth.interface'
 
 export function ToUserRoles(
   options?: IUserRoleTransformOptions,

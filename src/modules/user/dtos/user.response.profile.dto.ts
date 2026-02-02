@@ -1,8 +1,10 @@
 import { ApiProperty, IntersectionType } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
 import { ToUrl } from 'lib/nest-core'
-import { IUserProfilePermission } from '../interfaces'
-import { ToUserPermissions, ToUserRoles } from '../transforms'
+import { IUserProfilePermission } from '../interfaces/user.auth.interface'
+import { ToUserPermissions } from '../transforms/user.permissions.transform'
+import { ToUserRoles } from '../transforms/user.roles.transform'
+
 class ResponseUserPermissionSubject {
   @ApiProperty({ example: '' })
   @Type(() => String)

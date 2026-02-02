@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
-import { SettingUtil } from './helpers'
-import { SettingService } from './services'
+import { SettingUtil } from './helpers/setting.util'
+import { SettingService } from './services/setting.service'
 
 @Module({
   providers: [SettingService, SettingUtil],

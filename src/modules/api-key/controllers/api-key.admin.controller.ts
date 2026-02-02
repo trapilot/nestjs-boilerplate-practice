@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Patch, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { EnumApiKeyType, Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -20,15 +20,15 @@ import {
   RequestQueryFilterInEnum,
   RequestQueryList,
 } from 'lib/nest-web'
-import { API_KEY_DOC_ADMIN_QUERY_LIST, API_KEY_DOC_OPERATION } from '../constants'
 import {
-  ApiKeyRequestCreateDto,
-  ApiKeyRequestRenewDto,
-  ApiKeyRequestUpdateDto,
-  ApiKeyResponseDetailDto,
-  ApiKeyResponseListDto,
-} from '../dtos'
-import { ApiKeyService } from '../services'
+  API_KEY_DOC_ADMIN_QUERY_LIST,
+  API_KEY_DOC_OPERATION,
+} from '../constants/api-key.doc.constant'
+import { ApiKeyRequestCreateDto } from '../dtos/api-key.request.create.dto'
+import { ApiKeyRequestRenewDto } from '../dtos/api-key.request.renew.dto'
+import { ApiKeyRequestUpdateDto } from '../dtos/api-key.request.update.dto'
+import { ApiKeyResponseDetailDto, ApiKeyResponseListDto } from '../dtos/api-key.response.detail.dto'
+import { ApiKeyService } from '../services/api-key.service'
 
 @ApiTags(API_KEY_DOC_OPERATION)
 @Controller({ path: '/api-keys' })

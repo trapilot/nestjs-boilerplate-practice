@@ -3,9 +3,12 @@ import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
 import { EnumAuthScopeType } from 'lib/nest-auth'
 import { ApiRequestList, IResponseList, RequestListDto, RequestQueryList } from 'lib/nest-web'
-import { PRODUCT_BRAND_DOC_APP_QUERY_LIST, PRODUCT_BRAND_DOC_OPERATION } from '../constants'
-import { ProductBrandResponseListDto } from '../dtos'
-import { ProductBrandService } from '../services'
+import {
+  PRODUCT_BRAND_DOC_APP_QUERY_LIST,
+  PRODUCT_BRAND_DOC_OPERATION,
+} from '../constants/product-brand.doc.constant'
+import { ProductBrandResponseListDto } from '../dtos/product-brand.response.detail.dto'
+import { ProductBrandService } from '../services/product-brand.service'
 
 @ApiTags(PRODUCT_BRAND_DOC_OPERATION)
 @Controller({ version: '1', path: '/product-brands' })

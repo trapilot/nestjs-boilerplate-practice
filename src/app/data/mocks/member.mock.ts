@@ -11,8 +11,8 @@ import {
   StrUtil
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
-import { MemberUtil } from 'modules/member'
-import { TierService } from 'modules/tier'
+import { MemberUtil } from 'modules/member/helpers/member.util'
+import { TierService } from 'modules/tier/services/tier.service'
 
 @Injectable()
 export class MemberMock extends ScheduleMockupBase {

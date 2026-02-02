@@ -13,7 +13,7 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TMemberRedemption } from '../interfaces'
+import { TMemberRedemption } from '../interfaces/member-redemption.interface'
 
 @Injectable()
 export class MemberRedemptionService {

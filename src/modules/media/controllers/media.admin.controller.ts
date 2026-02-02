@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import {
   EnumFileExtensionDocument,
@@ -23,18 +23,12 @@ import {
   RequestQueryList,
   RequestRequiredPipe,
 } from 'lib/nest-web'
-import {
-  MEDIA_DOC_ADMIN_QUERY_LIST,
-  MEDIA_DOC_OPERATION,
-  MEDIA_UPLOAD_IMAGE_PATH,
-} from '../constants'
-import {
-  MediaRequestCreateDto,
-  MediaRequestUpdateDto,
-  MediaResponseDetailDto,
-  MediaResponseListDto,
-} from '../dtos'
-import { MediaService } from '../services'
+import { MEDIA_UPLOAD_IMAGE_PATH } from '../constants/media.constant'
+import { MEDIA_DOC_ADMIN_QUERY_LIST, MEDIA_DOC_OPERATION } from '../constants/media.doc.constant'
+import { MediaRequestCreateDto } from '../dtos/media.request.create.dto'
+import { MediaRequestUpdateDto } from '../dtos/media.request.update.dto'
+import { MediaResponseDetailDto, MediaResponseListDto } from '../dtos/media.response.detail.dto'
+import { MediaService } from '../services/media.service'
 
 @ApiTags(MEDIA_DOC_OPERATION)
 @Controller({ path: '/media' })

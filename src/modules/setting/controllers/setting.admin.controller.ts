@@ -1,7 +1,7 @@
 import { BadRequestException, Controller, Get, HttpStatus, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma, Setting } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { EnumAuthScopeType } from 'lib/nest-auth'
 import { FILE_SIZE_IN_BYTES, HelperService, MessageService } from 'lib/nest-core'
 import {
@@ -21,20 +21,19 @@ import {
   SETTING_DOC_OPERATION,
   SETTING_DOC_REQUEST_LIST,
   SETTING_DOC_REQUEST_PARAMS,
-} from '../constants'
-import { GetSetting, SettingAdminUpdateGuard } from '../decorators'
-import {
-  SettingCoreResponseDto,
-  SettingFileResponseDto,
-  SettingRequestCreateDto,
-  SettingRequestDto,
-  SettingRequestUpdateDto,
-  SettingResponseDetailDto,
-  SettingResponseListDto,
-  SettingTimezoneResponseDto,
-} from '../dtos'
-import { EnumSettingGroup } from '../enums'
-import { SettingService } from '../services'
+} from '../constants/setting.doc.constant'
+import { SettingAdminUpdateGuard } from '../decorators/setting.admin.decorator'
+import { GetSetting } from '../decorators/setting.decorator'
+import { SettingRequestCreateDto } from '../dtos/setting.request.create.dto'
+import { SettingRequestDto } from '../dtos/setting.request.dto'
+import { SettingRequestUpdateDto } from '../dtos/setting.request.update.dto'
+import { SettingCoreResponseDto } from '../dtos/setting.response.core.dto'
+import { SettingResponseDetailDto } from '../dtos/setting.response.detail.dto'
+import { SettingFileResponseDto } from '../dtos/setting.response.file.dto'
+import { SettingResponseListDto } from '../dtos/setting.response.list.dto'
+import { SettingTimezoneResponseDto } from '../dtos/setting.response.timezone.dto'
+import { EnumSettingGroup } from '../enums/setting.enum'
+import { SettingService } from '../services/setting.service'
 
 @ApiTags(SETTING_DOC_OPERATION)
 @Controller({ path: '/settings' })

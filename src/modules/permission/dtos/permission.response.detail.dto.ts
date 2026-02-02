@@ -1,8 +1,12 @@
 import { ApiProperty, IntersectionType, OmitType } from '@nestjs/swagger'
-import { EnumAuthAbilityAction, EnumAuthAbilityContext, EnumAuthAbilitySubject } from 'app/enums'
+import {
+  EnumAuthAbilityAction,
+  EnumAuthAbilityContext,
+  EnumAuthAbilitySubject,
+} from 'app/enums/user.enum'
 import { Expose, Type } from 'class-transformer'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
-import { ToPermissionActions } from '../transforms'
+import { ToPermissionActions } from '../transforms/permission.actions.transform'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: 1 })

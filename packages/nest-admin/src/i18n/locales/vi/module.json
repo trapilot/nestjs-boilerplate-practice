@@ -306,5 +306,37 @@
       "createdBy": "Người tạo",
       "updatedBy": "Người chỉnh sửa"
     }
+  },
+  "api-key": {
+    "title": "Khóa API",
+    "fields": {
+      "id": "ID",
+      "type": "Loại",
+      "name": "Tên",
+      "key": "Khóa",
+      "hash": "Mã băm",
+      "isDeprecated": "Ngừng sử dụng",
+      "isActive": "Đang hoạt động",
+      "startDate": "Ngày bắt đầu",
+      "untilDate": "Ngày hết hạn",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật"
+    }
+  },
+  "app-version": {
+    "title": "Phiên bản ứng dụng",
+    "fields": {
+      "id": "ID",
+      "type": "Loại",
+      "name": "Tên",
+      "version": "Phiên bản",
+      "url": "URL",
+      "isForce": "Bắt buộc",
+      "isActive": "Đang hoạt động",
+      "startDate": "Ngày bắt đầu",
+      "untilDate": "Ngày hết hạn",
+      "createdAt": "Ngày tạo",
+      "updatedAt": "Ngày cập nhật"
+    }
   }
 }

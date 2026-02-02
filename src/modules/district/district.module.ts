@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { DistrictService } from './services'
+import { DistrictService } from './services/district.service'
 
 @Module({
   providers: [DistrictService],

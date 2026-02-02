@@ -1,6 +1,6 @@
 import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
-import { UserAbilityUtil } from 'app/helpers'
+import { UserAbilityUtil } from 'app/helpers/user.ability.util'
 import {
   IPrismaOptions,
   IPrismaParams,
@@ -8,8 +8,9 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { PermissionService, TPermission } from 'modules/permission'
-import { IRoleCreateOptions, IRoleUpdateOptions, TRole } from '../interfaces'
+import { TPermission } from 'modules/permission/interfaces/permission.interface'
+import { PermissionService } from 'modules/permission/services/permission.service'
+import { IRoleCreateOptions, IRoleUpdateOptions, TRole } from '../interfaces/role.interface'
 
 @Injectable()
 export class RoleService {

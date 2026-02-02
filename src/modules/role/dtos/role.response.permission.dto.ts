@@ -1,4 +1,4 @@
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { Expose, Type } from 'class-transformer'
 
 export class RolePermissionResponseDto {

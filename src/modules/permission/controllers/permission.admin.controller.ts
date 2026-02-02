@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
-import { UserAbilityUtil } from 'app/helpers'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
+import { UserAbilityUtil } from 'app/helpers/user.ability.util'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import {
   ApiRequestData,
@@ -16,14 +16,17 @@ import {
   RequestQueryFilterInBoolean,
   RequestQueryList,
 } from 'lib/nest-web'
-import { PERMISSION_DOC_ADMIN_QUERY_LIST, PERMISSION_DOC_OPERATION } from '../constants'
 import {
-  PermissionRequestCreateDto,
-  PermissionRequestUpdateDto,
+  PERMISSION_DOC_ADMIN_QUERY_LIST,
+  PERMISSION_DOC_OPERATION,
+} from '../constants/permission.doc.constant'
+import { PermissionRequestCreateDto } from '../dtos/permission.request.create.dto'
+import { PermissionRequestUpdateDto } from '../dtos/permission.request.update.dto'
+import {
   PermissionResponseDetailDto,
   PermissionResponseListDto,
-} from '../dtos'
-import { PermissionService } from '../services'
+} from '../dtos/permission.response.detail.dto'
+import { PermissionService } from '../services/permission.service'
 
 @ApiTags(PERMISSION_DOC_OPERATION)
 @Controller({ path: '/permissions' })

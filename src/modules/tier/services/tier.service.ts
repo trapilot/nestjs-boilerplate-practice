@@ -13,8 +13,8 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TierChart } from '../helpers'
-import { TTier } from '../interfaces'
+import { TierChart } from '../helpers/tier.chart'
+import { TTier } from '../interfaces/tier.interface'
 
 @Injectable()
 export class TierService implements OnModuleInit {

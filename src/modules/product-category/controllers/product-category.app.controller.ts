@@ -10,9 +10,12 @@ import {
   RequestQueryFilterSome,
   RequestQueryList,
 } from 'lib/nest-web'
-import { PRODUCT_CATEGORY_DOC_APP_QUERY_LIST, PRODUCT_CATEGORY_DOC_OPERATION } from '../constants'
-import { ProductCategoryResponseListDto } from '../dtos'
-import { ProductCategoryService } from '../services'
+import {
+  PRODUCT_CATEGORY_DOC_APP_QUERY_LIST,
+  PRODUCT_CATEGORY_DOC_OPERATION,
+} from '../constants/product-category.doc.constant'
+import { ProductCategoryResponseListDto } from '../dtos/product-category.response.detail.dto'
+import { ProductCategoryService } from '../services/product-category.service'
 
 @ApiTags(PRODUCT_CATEGORY_DOC_OPERATION)
 @Controller({ version: '1', path: '/product-categories' })

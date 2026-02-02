@@ -7,8 +7,8 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TNotification, TPush } from '../interfaces'
-import { NotificationUtil } from '../helpers'
+import { NotificationUtil } from '../helpers/notification.util'
+import { TNotification, TPush } from '../interfaces/notification.interface'
 
 @Injectable()
 export class NotificationService {

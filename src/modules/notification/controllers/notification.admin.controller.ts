@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -17,15 +17,18 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { NOTIFICATION_DOC_ADMIN_QUERY_LIST, NOTIFICATION_DOC_OPERATION } from '../constants'
 import {
-  NotificationRequestCreateDto,
-  NotificationRequestUpdateDto,
+  NOTIFICATION_DOC_ADMIN_QUERY_LIST,
+  NOTIFICATION_DOC_OPERATION,
+} from '../constants/notification.doc.constant'
+import { NotificationRequestCreateDto } from '../dtos/notification.request.create.dto'
+import { NotificationRequestUpdateDto } from '../dtos/notification.request.update.dto'
+import {
   NotificationResponseDetailDto,
   NotificationResponseListDto,
-} from '../dtos'
-import { NotificationUtil } from '../helpers'
-import { NotificationService } from '../services'
+} from '../dtos/notification.response.detail.dto'
+import { NotificationUtil } from '../helpers/notification.util'
+import { NotificationService } from '../services/notification.service'
 
 @ApiTags(NOTIFICATION_DOC_OPERATION)
 @Controller({ path: '/notifications' })

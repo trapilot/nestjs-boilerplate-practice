@@ -3,14 +3,12 @@ import { ApiTags } from '@nestjs/swagger'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionImage, FileExtensionPipe, IFile } from 'lib/nest-core'
 import { ApiRequestData, IResponseData, RequestBody, RequestRequiredPipe } from 'lib/nest-web'
-import { MEMBER_DOC_OPERATION, MEMBER_UPLOAD_IMAGE_PATH } from '../constants'
-import {
-  MemberChangePasswordRequestDto,
-  MemberCloseProfileRequestDto,
-  MemberEditProfileRequestDto,
-  MemberProfileResponseDto,
-} from '../dtos'
-import { MemberService } from '../services'
+import { MEMBER_UPLOAD_IMAGE_PATH } from '../constants/member.constant'
+import { MEMBER_DOC_OPERATION } from '../constants/member.doc.constant'
+import { MemberCloseProfileRequestDto } from '../dtos/member.request.close-profile.dto'
+import { MemberEditProfileRequestDto } from '../dtos/member.request.edit-profile.dto'
+import { MemberProfileResponseDto } from '../dtos/member.response.profile.dto'
+import { MemberService } from '../services/member.service'
 
 @ApiTags(MEMBER_DOC_OPERATION)
 @Controller({ version: '1', path: '/member' })
@@ -134,34 +132,34 @@ export class MemberAppController {
     return { data: profile }
   }
 
-  @ApiRequestData({
-    summary: MEMBER_DOC_OPERATION,
-    docExclude: false,
-    docExpansion: false,
-    jwtAccessToken: {
-      scope: EnumAuthScopeType.MEMBER,
-      user: {
-        synchronize: true,
-        require: true,
-        active: true,
-        unique: false,
-      },
-    },
-    rateLimit: {
-      short: { limit: 3, seconds: 1 },
-      medium: { limit: 5, seconds: 60 },
-    },
-    response: {
-      dto: MemberProfileResponseDto,
-    },
-  })
-  @Put('/change-password')
-  async changePassword(
-    @RequestBody() body: MemberChangePasswordRequestDto,
-    @AuthJwtPayload('user.id') memberId: number,
-  ): Promise<IResponseData> {
-    const member = await this.memberService.findOrFail(memberId)
-    const updated = await this.memberService.changePassword(member, body)
-    return { data: updated }
-  }
+  // @ApiRequestData({
+  //   summary: MEMBER_DOC_OPERATION,
+  //   docExclude: false,
+  //   docExpansion: false,
+  //   jwtAccessToken: {
+  //     scope: EnumAuthScopeType.MEMBER,
+  //     user: {
+  //       synchronize: true,
+  //       require: true,
+  //       active: true,
+  //       unique: false,
+  //     },
+  //   },
+  //   rateLimit: {
+  //     short: { limit: 3, seconds: 1 },
+  //     medium: { limit: 5, seconds: 60 },
+  //   },
+  //   response: {
+  //     dto: MemberProfileResponseDto,
+  //   },
+  // })
+  // @Put('/change-password')
+  // async changePassword(
+  //   @RequestBody() body: MemberChangePasswordRequestDto,
+  //   @AuthJwtPayload('user.id') memberId: number,
+  // ): Promise<IResponseData> {
+  //   const member = await this.memberService.findOrFail(memberId)
+  //   const updated = await this.memberService.changePassword(member, body)
+  //   return { data: updated }
+  // }
 }

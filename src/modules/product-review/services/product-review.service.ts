@@ -7,7 +7,7 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TProductReview } from '../interfaces'
+import { TProductReview } from '../interfaces/product-review.interface'
 
 @Injectable()
 export class ProductReviewService {

@@ -3,9 +3,9 @@ import { EnumTierAction, EnumTierSource } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
 import { EnumDateFormat, ToDate, ToDecimal } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { InvoiceResponseBelongDto } from 'modules/invoice'
-import { MemberResponseBelongDto } from 'modules/member'
-import { TierResponseBelongDto } from 'modules/tier'
+import { InvoiceResponseBelongDto } from 'modules/invoice/dtos/invoice.response.detail.dto'
+import { MemberResponseBelongDto } from 'modules/member/dtos/member.response.detail.dto'
+import { TierResponseBelongDto } from 'modules/tier/dtos/tier.response.detail.dto'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: 1 })

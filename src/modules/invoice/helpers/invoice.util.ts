@@ -3,8 +3,8 @@ import { ConfigService } from '@nestjs/config'
 import { EnumInvoiceStatus, EnumOrderSource, EnumSlipType } from '@runtime/prisma-client'
 import { EnumDateFormat, HelperService } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
-import { InvoiceData } from '.'
-import { IInvoiceGroup, TInvoice } from '../interfaces'
+import { IInvoiceGroup, TInvoice } from '../interfaces/invoice.interface'
+import { InvoiceData } from './invoice.data'
 
 @Injectable()
 export class InvoiceUtil {

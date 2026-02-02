@@ -24,14 +24,12 @@ import {
 } from 'lib/nest-auth'
 import { FileUtil, HelperService, IRequestApp } from 'lib/nest-core'
 import { PrismaService, PrismaUtil } from 'lib/nest-prisma'
-import {
-  UserRequestChangePasswordDto,
-  UserRequestSignInDto,
-  UserRequestSignUpDto,
-  UserResponsePayloadDto,
-} from '../dtos'
-import { EnumUserActivityAction } from '../enums'
-import { TUser } from '../interfaces'
+import { UserRequestChangePasswordDto } from '../dtos/user.request.change-password.dto'
+import { UserRequestSignInDto } from '../dtos/user.request.sign-in.dto'
+import { UserRequestSignUpDto } from '../dtos/user.request.sign-up.dto'
+import { UserResponsePayloadDto } from '../dtos/user.response.payload.dto'
+import { EnumUserActivityAction } from '../enums/user.enum'
+import { TUser } from '../interfaces/user.interface'
 import { UserUtil } from './user.util'
 
 @Injectable()

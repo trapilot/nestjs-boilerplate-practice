@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument, IFile } from 'lib/nest-core'
 import { PrismaUtil } from 'lib/nest-prisma'
@@ -22,19 +22,19 @@ import {
   RequestQueryList,
   RequestRequiredPipe,
 } from 'lib/nest-web'
+import { PRODUCT_UPLOAD_IMAGE_PATH } from '../constants/product.constant'
 import {
   PRODUCT_DOC_ADMIN_PARAM_GET,
   PRODUCT_DOC_ADMIN_QUERY_LIST,
   PRODUCT_DOC_OPERATION,
-  PRODUCT_UPLOAD_IMAGE_PATH,
-} from '../constants'
+} from '../constants/product.doc.constant'
+import { ProductRequestCreateDto } from '../dtos/product.request.create.dto'
+import { ProductRequestUpdateDto } from '../dtos/product.request.update.dto'
 import {
-  ProductRequestCreateDto,
-  ProductRequestUpdateDto,
   ProductResponseDetailDto,
   ProductResponseListDto,
-} from '../dtos'
-import { ProductService } from '../services'
+} from '../dtos/product.response.detail.dto'
+import { ProductService } from '../services/product.service'
 
 @ApiTags(PRODUCT_DOC_OPERATION)
 @Controller({ path: '/products' })

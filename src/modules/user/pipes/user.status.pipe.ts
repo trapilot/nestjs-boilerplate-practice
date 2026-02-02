@@ -1,5 +1,5 @@
 import { BadRequestException, HttpStatus, Injectable, PipeTransform } from '@nestjs/common'
-import { TUser } from '../interfaces'
+import { TUser } from '../interfaces/user.interface'
 
 @Injectable()
 export class UserStatusPipe implements PipeTransform {

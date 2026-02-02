@@ -1,8 +1,11 @@
 import { Module } from '@nestjs/common'
-import { TierModule } from 'modules/tier'
-import { MEMBER_AUTH_TOKEN } from './constants'
-import { MemberAuth, MemberUtil } from './helpers'
-import { MemberService } from './services'
+import { MemberPointModule } from 'modules/member-point/member-point.module'
+import { MemberTierModule } from 'modules/member-tier/member-tier.module'
+import { TierModule } from 'modules/tier/tier.module'
+import { MEMBER_AUTH_TOKEN } from './constants/member.constant'
+import { MemberAuth } from './helpers/member.auth'
+import { MemberUtil } from './helpers/member.util'
+import { MemberService } from './services/member.service'
 
 @Module({
   providers: [
@@ -14,6 +17,6 @@ import { MemberService } from './services'
     MemberUtil,
   ],
   exports: [MEMBER_AUTH_TOKEN, MemberService, MemberUtil],
-  imports: [TierModule],
+  imports: [TierModule, MemberPointModule, MemberTierModule],
 })
 export class MemberModule {}

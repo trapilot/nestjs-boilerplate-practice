@@ -2,8 +2,8 @@ import { ApiProperty, IntersectionType } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
 import { ToDate, ToDecimal } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { ProductResponseBelongDto } from 'modules/product'
-import { ToOutOfStockSale, ToOutOfStockStatus } from '../transforms'
+import { ProductResponseBelongDto } from 'modules/product/dtos/product.response.detail.dto'
+import { ToOutOfStockSale, ToOutOfStockStatus } from '../transforms/cart.transform'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: 1 })

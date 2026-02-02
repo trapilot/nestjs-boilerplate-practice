@@ -1,7 +1,7 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { Setting } from '@runtime/prisma-client'
 import { IRequestApp } from 'lib/nest-core'
-import { SettingService } from '../services'
+import { SettingService } from '../services/setting.service'
 
 @Injectable()
 export class SettingPutToRequestGuard implements CanActivate {

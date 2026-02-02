@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { DashboardService } from './services'
+import { DashboardService } from './services/dashboard.service'
 
 @Module({
   providers: [DashboardService],

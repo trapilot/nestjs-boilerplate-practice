@@ -1,5 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { EnumAuthAbilityAction, EnumAuthAbilityContext, EnumAuthAbilitySubject } from 'app/enums'
+import {
+  EnumAuthAbilityAction,
+  EnumAuthAbilityContext,
+  EnumAuthAbilitySubject,
+} from 'app/enums/user.enum'
+
 import {
   ArrayNotEmpty,
   IsArray,

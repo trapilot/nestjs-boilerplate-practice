@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -19,14 +19,17 @@ import {
   RequestQueryFilterContain,
   RequestQueryList,
 } from 'lib/nest-web'
-import { MEMBER_POINT_DOC_ADMIN_QUERY_LIST, MEMBER_POINT_DOC_OPERATION } from '../constants'
 import {
-  MemberPointRequestCreateDto,
-  MemberPointRequestUpdateDto,
+  MEMBER_POINT_DOC_ADMIN_QUERY_LIST,
+  MEMBER_POINT_DOC_OPERATION,
+} from '../constants/member-point.doc.constant'
+import { MemberPointRequestCreateDto } from '../dtos/member-point.request.create.dto'
+import { MemberPointRequestUpdateDto } from '../dtos/member-point.request.update.dto'
+import {
   MemberPointResponseDetailDto,
   MemberPointResponseListDto,
-} from '../dtos'
-import { MemberPointService } from '../services'
+} from '../dtos/member-point.response.detail.dto'
+import { MemberPointService } from '../services/member-point.service'
 
 @ApiTags(MEMBER_POINT_DOC_OPERATION)
 @Controller({ path: '/member-points' })

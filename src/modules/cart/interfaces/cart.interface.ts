@@ -1,4 +1,4 @@
-import { Cart, CartItem, EnumOrderSource, Member, Product } from '@runtime/prisma-client'
+import { Cart, CartItem, Member, Product } from '@runtime/prisma-client'
 
 export type TCartItem = CartItem & {
   product?: Product
@@ -15,14 +15,4 @@ export interface ICartItemAddOptions {
   offerId: number
   bundleId: number
   promotionId: number
-}
-
-export interface ICartCheckoutOptions {
-  dateDebug?: Date
-  source: EnumOrderSource
-  shipment: {
-    address: string
-    phone: string
-    note?: string
-  }
 }

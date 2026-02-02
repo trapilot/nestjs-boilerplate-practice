@@ -1,6 +1,0 @@
-export * from './member.earn-highest-purchase-in-birth.handler'
-export * from './member.earn-point-from-purchases.handler'
-export * from './member.release-expiry-points.handler'
-export * from './member.reset-birth-puchase.handler'
-export * from './member.reset-expiry-point.handler'
-export * from './member.reset-expiry-tiers.handler'

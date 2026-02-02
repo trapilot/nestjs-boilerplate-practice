@@ -4,9 +4,7 @@ import {
   HttpStatus,
   Injectable,
   NotFoundException,
-  OnModuleInit,
 } from '@nestjs/common'
-import { ModuleRef } from '@nestjs/core'
 import { Prisma, Product } from '@runtime/prisma-client'
 import { AppUtil, HelperService } from 'lib/nest-core'
 import {
@@ -16,15 +14,14 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { MemberUtil } from 'modules/member'
-import { OrderService } from 'modules/order'
-import { ProductService } from 'modules/product'
-import { CartUtil } from '../helpers'
-import { ICartCheckoutOptions, ICartItemAddOptions, TCart, TCartItem } from '../interfaces'
-import { CartItemForMemberRule, CartItemInStockRule, CartItemIsActiveRule } from '../rules'
+import { ProductService } from 'modules/product/services/product.service'
+import { CartUtil } from '../helpers/cart.util'
+import { ICartItemAddOptions, TCart, TCartItem } from '../interfaces/cart.interface'
+import { CartItemInStockRule } from '../rules/cart.item-in-stock.rule'
+import { CartItemIsActiveRule } from '../rules/cart.item-is-active.rule'
 
 @Injectable()
-export class CartService implements OnModuleInit {
+export class CartService {
   private readonly cartRelation: Prisma.CartInclude = {
     items: {
       include: {
@@ -35,22 +32,11 @@ export class CartService implements OnModuleInit {
   private readonly cartUpVersion: Prisma.IntFieldUpdateOperationsInput = {
     increment: AppUtil.isLocal() ? 0 : 1,
   }
-
-  private memberUtil!: MemberUtil
-  private orderService!: OrderService
-  private productService!: ProductService
-
   constructor(
-    private readonly ref: ModuleRef,
     private readonly prisma: PrismaService,
     private readonly helperService: HelperService,
+    private readonly productService: ProductService,
   ) {}
-
-  onModuleInit(): void {
-    this.memberUtil = this.ref.get(MemberUtil, { strict: false })
-    this.orderService = this.ref.get(OrderService, { strict: false })
-    this.productService = this.ref.get(ProductService, { strict: false })
-  }
 
   async findOne(kwargs?: Prisma.CartFindUniqueArgs): Promise<TCart> {
     return await this.prisma.cart.findUnique(kwargs)
@@ -166,10 +152,11 @@ export class CartService implements OnModuleInit {
     }
   }
 
-  async checkout(id: number, options: ICartCheckoutOptions): Promise<TCart> {
-    const nowDate = this.helperService.dateNow()
-    const issuedAt = options?.dateDebug || nowDate
+  async checkout(id: number): Promise<TCart> {
+    return await this.validateForCheckout(id)
+  }
 
+  async validateForCheckout(id: number): Promise<TCart> {
     const cart = await this.findOrFail(id, {
       include: {
         member: true,
@@ -189,27 +176,13 @@ export class CartService implements OnModuleInit {
     const ruler = AppUtil.initializeRuler<TCartItem>([
       new CartItemIsActiveRule(),
       new CartItemInStockRule(),
-      new CartItemForMemberRule(this, cart.memberId, issuedAt),
     ])
 
     for (const item of cart.items) {
       await ruler.validate(item)
     }
 
-    await this.orderService.createOrder(cart, {
-      source: options.source,
-      issuedAt: issuedAt,
-      shipment: {
-        address: options.shipment.address,
-        phone: options.shipment.phone,
-        note: options.shipment?.note,
-      },
-    })
-
-    const cartReset = await this.findOrFail(id, {
-      include: this.cartRelation,
-    })
-    return cartReset
+    return cart
   }
 
   async handleCheckoutSuccess(_cart: TCart): Promise<void> {}
@@ -332,15 +305,6 @@ export class CartService implements OnModuleInit {
         },
       },
     })
-  }
-
-  async checkPointRequire(
-    memberId: number,
-    pointRequire: number,
-    issuedAt: Date,
-  ): Promise<boolean> {
-    const pointBalance = await this.memberUtil.getPointBalance(memberId, issuedAt)
-    return pointRequire <= pointBalance
   }
 
   async checkSalePerPerson(memberId: number, product: Product): Promise<boolean> {

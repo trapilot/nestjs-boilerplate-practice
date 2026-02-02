@@ -32,20 +32,18 @@ import {
   SmsFactory,
 } from 'lib/nest-core'
 import { PrismaService, PrismaUtil } from 'lib/nest-prisma'
-import {
-  MemberChangePasswordRequestDto,
-  MemberResetPasswordRequestDto,
-  MemberResponsePayloadDto,
-  MemberSignInRequestDto,
-} from '../dtos'
-import { EnumMemberActivityAction } from '../enums'
+import { MemberChangePasswordRequestDto } from '../dtos/member.request.change-password.dto'
+import { MemberResetPasswordRequestDto } from '../dtos/member.request.reset-password.dto'
+import { MemberSignInRequestDto } from '../dtos/member.request.sign-in.dto'
+import { MemberResponsePayloadDto } from '../dtos/member.response.payload.dto'
+import { EnumMemberActivityAction } from '../enums/member.enum'
 import {
   IMemberVerifyApproveOptions,
   IMemberVerifyCheckOptions,
   IMemberVerifySendEOTPOptions,
   IMemberVerifySendPOTPOptions,
   TMember,
-} from '../interfaces'
+} from '../interfaces/member.interface'
 import { MemberUtil } from './member.util'
 
 @Injectable()

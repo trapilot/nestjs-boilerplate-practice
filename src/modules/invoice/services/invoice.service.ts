@@ -4,9 +4,10 @@ import {
   EnumOrderStatus,
   EnumPaymentStatus,
   EnumRedemptionStatus,
+  EnumSlipType,
   Prisma,
 } from '@runtime/prisma-client'
-import { HelperService, LoggerService } from 'lib/nest-core'
+import { EnumDateFormat, HelperService, LoggerService } from 'lib/nest-core'
 import {
   IPrismaOptions,
   IPrismaParams,
@@ -14,7 +15,7 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { IInvoiceAddPaymentOptions, TInvoice } from '../interfaces'
+import { IInvoiceAddPaymentOptions, TInvoice } from '../interfaces/invoice.interface'
 
 @Injectable()
 export class InvoiceService {
@@ -244,5 +245,25 @@ export class InvoiceService {
     })
 
     return invoices.map(inv => inv.id)
+  }
+
+  async generateInvoiceNumber(issuedAt: Date): Promise<string> {
+    const key = this.helperService.dateFormat(issuedAt, EnumDateFormat.DATE_REFERENCE)
+    const type = EnumSlipType.INVOICE
+    const slip = await this.prisma.slipCounter.upsert({
+      where: { type_key: { key, type } },
+      create: { type, key, sequence: 1 },
+      update: { sequence: { increment: 1 } },
+    })
+
+    const raw = `${process.env.APP_SECRET_KEY}:${type}:${key}:${slip.sequence}`
+    const hash = this.helperService.hashCreate(raw, { algorithm: 'sha256' })
+    const code = this.helperService.baseEncode(hash, 36)
+
+    return this.helperService.stringFormat(code, {
+      length: 16,
+      format: 'uppercase',
+      slices: { delimiter: '-', parts: [4, 4, 4, 4] },
+    })
   }
 }

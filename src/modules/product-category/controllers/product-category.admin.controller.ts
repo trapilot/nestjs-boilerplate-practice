@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -17,14 +17,18 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { PRODUCT_CATEGORY_DOC_ADMIN_QUERY_LIST, PRODUCT_CATEGORY_DOC_OPERATION } from '../constants'
 import {
-  ProductCategoryRequestCreateDto,
-  ProductCategoryRequestUpdateDto,
+  PRODUCT_CATEGORY_DOC_ADMIN_QUERY_LIST,
+  PRODUCT_CATEGORY_DOC_OPERATION,
+} from '../constants/product-category.doc.constant'
+
+import { ProductCategoryRequestCreateDto } from '../dtos/product-category.request.create.dto'
+import { ProductCategoryRequestUpdateDto } from '../dtos/product-category.request.update.dto'
+import {
   ProductCategoryResponseDetailDto,
   ProductCategoryResponseListDto,
-} from '../dtos'
-import { ProductCategoryService } from '../services'
+} from '../dtos/product-category.response.detail.dto'
+import { ProductCategoryService } from '../services/product-category.service'
 
 @ApiTags(PRODUCT_CATEGORY_DOC_OPERATION)
 @Controller({ path: '/product-categories' })

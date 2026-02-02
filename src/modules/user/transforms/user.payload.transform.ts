@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer'
 import { AuthContext, IAuthPayloadPermission } from 'lib/nest-auth'
-import { UserUtil } from '../helpers'
-import { IUserTransformOptions } from '../interfaces'
+import { UserUtil } from '../helpers/user.util'
+import { IUserTransformOptions } from '../interfaces/user.auth.interface'
 
 export function ToUserPayloadRoles(): (target: object, key: string) => void {
   return Transform(({ obj: user }: IUserTransformOptions): number[] => {

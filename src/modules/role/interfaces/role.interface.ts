@@ -1,6 +1,6 @@
 import { Role, RolesPermissions } from '@runtime/prisma-client'
-import { TPermission } from 'modules/permission'
-import { RolePermissionRequestCreateDto } from '../dtos'
+import { TPermission } from 'modules/permission/interfaces/permission.interface'
+import { RolePermissionRequestCreateDto } from '../dtos/role-permission.request.create.dto'
 
 export type TRolePermission = RolesPermissions
 

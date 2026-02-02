@@ -12,9 +12,15 @@ import {
   RequestQuery,
   RequestQueryList,
 } from 'lib/nest-web'
-import { PRODUCT_DOC_APP_QUERY_LIST, PRODUCT_DOC_OPERATION } from '../constants'
-import { ProductResponseDetailDto, ProductResponseListDto } from '../dtos'
-import { ProductService } from '../services'
+import {
+  PRODUCT_DOC_APP_QUERY_LIST,
+  PRODUCT_DOC_OPERATION,
+} from '../constants/product.doc.constant'
+import {
+  ProductResponseDetailDto,
+  ProductResponseListDto,
+} from '../dtos/product.response.detail.dto'
+import { ProductService } from '../services/product.service'
 
 @ApiTags(PRODUCT_DOC_OPERATION)
 @Controller({ version: '1', path: '/products' })

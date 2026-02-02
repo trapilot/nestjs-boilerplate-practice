@@ -1,4 +1,4 @@
-import { TCart } from '../interfaces'
+import { TCart } from '../interfaces/cart.interface'
 
 export class CartCheckoutEvent {
   static eventPath = 'cart.event.checkout'

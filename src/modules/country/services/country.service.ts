@@ -7,7 +7,7 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TCountry } from '../interfaces'
+import { TCountry } from '../interfaces/country.interface'
 
 @Injectable()
 export class CountryService {

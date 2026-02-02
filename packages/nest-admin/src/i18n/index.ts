@@ -1,6 +1,5 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
-import LanguageDetector from 'i18next-browser-languagedetector'
 
 export const LANGUAGES = ['en', 'vi']
 const NAMESPACES = ['common', 'module']
@@ -20,11 +19,14 @@ function loadResources() {
   return resources
 }
 
+const savedLang = localStorage.getItem('language') || LANGUAGES[0]
+
 i18n
-  .use(LanguageDetector)
+  // .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     debug: false,
+    lng: savedLang,
     fallbackLng: LANGUAGES[0],
     supportedLngs: LANGUAGES,
     ns: NAMESPACES,

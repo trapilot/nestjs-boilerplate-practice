@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { NestApplication, NestFactory } from '@nestjs/core'
 import { IoAdapter } from '@nestjs/platform-socket.io'
 import { AppModule } from 'app/app.module'
-import { AppEnvDto } from 'app/dtos'
+import { AppEnvDto } from 'app/dtos/app.env.dto'
 import { useContainer } from 'class-validator'
 import compression from 'compression'
 import {

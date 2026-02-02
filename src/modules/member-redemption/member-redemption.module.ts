@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { MemberRedemptionService } from './services'
+import { MemberRedemptionService } from './services/member-redemption.service'
 
 @Module({
   providers: [MemberRedemptionService],

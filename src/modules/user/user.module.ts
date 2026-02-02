@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common'
-import { USER_AUTH_TOKEN } from './constants'
-import { UserAuth } from './helpers'
-import { UserService } from './services'
+import { RoleModule } from 'modules/role/role.module'
+import { USER_AUTH_TOKEN } from './constants/users.constant'
+import { UserAuth } from './helpers/user.auth'
+import { UserService } from './services/user.service'
 
 @Module({
   providers: [
@@ -12,6 +13,6 @@ import { UserService } from './services'
     UserService,
   ],
   exports: [USER_AUTH_TOKEN, UserService],
-  imports: [],
+  imports: [RoleModule],
 })
 export class UserModule {}

@@ -3,8 +3,8 @@ import { ConfigService } from '@nestjs/config'
 import { EnumExpiryType } from '@runtime/prisma-client'
 import { EnumAppLanguage, HelperService, ScheduleMockupBase, StrUtil } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
-import { TProductBrand } from 'modules/product-brand'
-import { TProductCategory } from 'modules/product-category'
+import { TProductBrand } from 'modules/product-brand/interfaces/product-brand.interface'
+import { TProductCategory } from 'modules/product-category/interfaces/product-category.interface'
 
 @Injectable()
 export class ProductMock extends ScheduleMockupBase {

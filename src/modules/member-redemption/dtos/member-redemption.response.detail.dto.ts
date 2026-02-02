@@ -3,9 +3,9 @@ import { EnumRedemptionSource, EnumRedemptionStatus } from '@runtime/prisma-clie
 import { Expose, Type } from 'class-transformer'
 import { EnumDateFormat, ToDate, ToDecimal } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
-import { MemberResponseBelongDto } from 'modules/member'
-import { OrderResponseBelongDto } from 'modules/order'
-import { ProductResponseBelongDto } from 'modules/product'
+import { MemberResponseBelongDto } from 'modules/member/dtos/member.response.detail.dto'
+import { OrderResponseBelongDto } from 'modules/order/dtos/order.response.detail.dto'
+import { ProductResponseBelongDto } from 'modules/product/dtos/product.response.detail.dto'
 
 class ResponseDataDetailDto {
   @ApiProperty({ example: 1 })

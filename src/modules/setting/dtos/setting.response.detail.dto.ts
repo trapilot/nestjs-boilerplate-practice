@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose, Transform, Type } from 'class-transformer'
-import { EnumSettingType } from '../enums'
-import { SettingUtil } from '../helpers'
+import { EnumSettingType } from '../enums/setting.enum'
+import { SettingUtil } from '../helpers/setting.util'
 
 export class SettingResponseDetailDto {
   @ApiProperty({ example: 1 })

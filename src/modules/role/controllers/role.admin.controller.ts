@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import {
   ApiRequestData,
@@ -17,16 +17,14 @@ import {
   RequestQueryFilterInBoolean,
   RequestQueryList,
 } from 'lib/nest-web'
-import { ROLE_DOC_ADMIN_QUERY_LIST, ROLE_DOC_OPERATION } from '../constants'
-import { RequestRoleLevel } from '../decorators'
-import {
-  RoleRequestCreateDto,
-  RoleRequestUpdateDto,
-  RoleResponseDetailDto,
-  RoleResponseListDto,
-} from '../dtos'
-import { RoleLimitedLevelPipe, RoleNotSelfPipe } from '../pipes'
-import { RoleService } from '../services'
+import { ROLE_DOC_ADMIN_QUERY_LIST, ROLE_DOC_OPERATION } from '../constants/role.doc.constant'
+import { RequestRoleLevel } from '../decorators/role.level.decorator'
+import { RoleRequestCreateDto } from '../dtos/role.request.create.dto'
+import { RoleRequestUpdateDto } from '../dtos/role.request.update.dto'
+import { RoleResponseDetailDto, RoleResponseListDto } from '../dtos/role.response.detail.dto'
+import { RoleLimitedLevelPipe } from '../pipes/role.limited-level.pipe'
+import { RoleNotSelfPipe } from '../pipes/role.not-self.pipe'
+import { RoleService } from '../services/role.service'
 
 @ApiTags(ROLE_DOC_OPERATION)
 @Controller({ path: '/roles' })

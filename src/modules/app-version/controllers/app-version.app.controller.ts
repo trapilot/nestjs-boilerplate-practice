@@ -3,9 +3,12 @@ import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
 import { EnumAuthScopeType } from 'lib/nest-auth'
 import { ApiRequestList, IResponseList, RequestListDto, RequestQueryList } from 'lib/nest-web'
-import { APP_VERSION_DOC_APP_QUERY_LIST, APP_VERSION_DOC_OPERATION } from '../constants'
-import { AppVersionResponseListDto } from '../dtos'
-import { AppVersionService } from '../services'
+import {
+  APP_VERSION_DOC_APP_QUERY_LIST,
+  APP_VERSION_DOC_OPERATION,
+} from '../constants/app-version.doc.constant'
+import { AppVersionResponseListDto } from '../dtos/app-version.response.detail.dto'
+import { AppVersionService } from '../services/app-version.service'
 
 @ApiTags(APP_VERSION_DOC_OPERATION)
 @Controller({ version: '1', path: '/app-versions' })

@@ -8,9 +8,12 @@ import {
   QueueProducer,
   QueueScanner,
 } from 'lib/nest-core'
-import { EnumNotificationQueue } from '../enums'
-import { NotificationUtil } from '../helpers'
-import { INotificationDispatchPushPayload, INotificationSendPushPayload } from '../interfaces'
+import { EnumNotificationQueue } from '../enums/notification.enum'
+import { NotificationUtil } from '../helpers/notification.util'
+import {
+  INotificationDispatchPushPayload,
+  INotificationSendPushPayload,
+} from '../interfaces/notification.queue.interface'
 
 @Injectable()
 export class NotificationDispatchPushHandler implements IQueueHandler {

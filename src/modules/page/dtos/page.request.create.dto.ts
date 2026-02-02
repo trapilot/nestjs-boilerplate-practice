@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger'
 import { IsEnum, IsNotEmpty, IsObject, IsOptional } from 'class-validator'
 import { ToObject, ToString } from 'lib/nest-core'
 import { RequestSentenceDto } from 'lib/nest-web'
-import { EnumPageType } from '../enums'
+import { EnumPageType } from '../enums/page.enum'
 
 export class PageRequestCreateDto {
   @IsNotEmpty()

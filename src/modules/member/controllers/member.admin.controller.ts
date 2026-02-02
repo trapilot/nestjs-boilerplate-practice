@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, UploadedFile } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, AuthUtil, EnumAuthScopeType } from 'lib/nest-auth'
 import {
   EnumFileExtensionDocument,
@@ -26,20 +26,14 @@ import {
   RequestQueryList,
   RequestRequiredPipe,
 } from 'lib/nest-web'
-import {
-  MEMBER_DOC_ADMIN_QUERY_LIST,
-  MEMBER_DOC_OPERATION,
-  MEMBER_UPLOAD_IMAGE_PATH,
-} from '../constants'
-import {
-  MemberAddPointRequestDto,
-  MemberChangeAvatarRequestDto,
-  MemberRequestCreateDto,
-  MemberRequestUpdateDto,
-  MemberResponseDetailDto,
-  MemberResponseListDto,
-} from '../dtos'
-import { MemberService } from '../services'
+import { MEMBER_UPLOAD_IMAGE_PATH } from '../constants/member.constant'
+import { MEMBER_DOC_ADMIN_QUERY_LIST, MEMBER_DOC_OPERATION } from '../constants/member.doc.constant'
+import { MemberAddPointRequestDto } from '../dtos/member.request.add-point.dto'
+import { MemberChangeAvatarRequestDto } from '../dtos/member.request.change-avatar.dto'
+import { MemberRequestCreateDto } from '../dtos/member.request.create.dto'
+import { MemberRequestUpdateDto } from '../dtos/member.request.update.dto'
+import { MemberResponseDetailDto, MemberResponseListDto } from '../dtos/member.response.detail.dto'
+import { MemberService } from '../services/member.service'
 
 @ApiTags(MEMBER_DOC_OPERATION)
 @Controller({ path: '/members' })

@@ -7,7 +7,7 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TAppVersion } from '../interfaces'
+import { TAppVersion } from '../interfaces/app-version.interface'
 
 @Injectable()
 export class AppVersionService {

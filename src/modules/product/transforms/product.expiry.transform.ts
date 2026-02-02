@@ -1,7 +1,7 @@
 import { EnumExpiryType } from '@runtime/prisma-client'
 import { Transform } from 'class-transformer'
 import { DateUtil, IDateFormatOptions } from 'lib/nest-core'
-import { TProduct } from '../interfaces'
+import { TProduct } from '../interfaces/product.interface'
 
 export function ToDynamicExpiryDays(): (target: object, key: string) => void {
   return Transform(({ obj, value }: { obj: TProduct; value: Date }) => {

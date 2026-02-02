@@ -25,17 +25,15 @@ import {
   RequestUserToken,
 } from 'lib/nest-web'
 import { IResult } from 'ua-parser-js'
-import { MEMBER_AUTH_TOKEN, MEMBER_DOC_AUTH_OPERATION } from '../constants'
-import {
-  MemberProfileResponseDto,
-  MemberRequestOTPDto,
-  MemberRequestSignUpDto,
-  MemberRequestTokenDto,
-  MemberResetPasswordRequestDto,
-  MemberSignInRequestDto,
-} from '../dtos'
-import { MemberAuth } from '../helpers'
-import { MemberService } from '../services'
+import { MEMBER_AUTH_TOKEN } from '../constants/member.constant'
+import { MEMBER_DOC_AUTH_OPERATION } from '../constants/member.doc.constant'
+import { MemberResetPasswordRequestDto } from '../dtos/member.request.reset-password.dto'
+import { MemberSignInRequestDto } from '../dtos/member.request.sign-in.dto'
+import { MemberRequestSignUpDto } from '../dtos/member.request.sign-up.dto'
+import { MemberRequestOTPDto, MemberRequestTokenDto } from '../dtos/member.request.verify-profile'
+import { MemberProfileResponseDto } from '../dtos/member.response.profile.dto'
+import { MemberAuth } from '../helpers/member.auth'
+import { MemberService } from '../services/member.service'
 
 @ApiTags(MEMBER_DOC_AUTH_OPERATION)
 @Controller({ version: '1', path: '/auth' })

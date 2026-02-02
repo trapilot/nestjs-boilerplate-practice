@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { EnumScopeType, HelperService, IQueueHandler, LoggerService, OnScope } from 'lib/nest-core'
-import { EnumMemberQueue } from '../enums'
-import { MemberService } from '../services'
+import { EnumMemberQueue } from '../enums/member.enum'
+import { MemberService } from '../services/member.service'
 
 @Injectable()
 export class MemberEarnPointFromPurchaseHandler implements IQueueHandler {

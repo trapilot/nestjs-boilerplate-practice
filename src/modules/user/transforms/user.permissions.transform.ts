@@ -1,13 +1,13 @@
-import { UserAbilityUtil } from 'app/helpers'
+import { UserAbilityUtil } from 'app/helpers/user.ability.util'
 import { Transform } from 'class-transformer'
 import { ArrUtil } from 'lib/nest-core'
-import { UserUtil } from '../helpers'
+import { UserUtil } from '../helpers/user.util'
 import {
   IContextUserPermission,
   IUserDataPermission,
   IUserProfilePermission,
   IUserTransformOptions,
-} from '../interfaces'
+} from '../interfaces/user.auth.interface'
 
 export function ToUserPermissions(): (target: object, key: string) => void {
   return Transform(({ obj: user }: IUserTransformOptions): IUserProfilePermission[] => {

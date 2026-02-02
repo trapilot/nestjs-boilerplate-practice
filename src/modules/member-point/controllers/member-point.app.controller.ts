@@ -11,9 +11,15 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { MEMBER_POINT_DOC_APP_QUERY_LIST, MEMBER_POINT_DOC_OPERATION } from '../constants'
-import { MemberPointResponseDetailDto, MemberPointResponseListDto } from '../dtos'
-import { MemberPointService } from '../services'
+import {
+  MEMBER_POINT_DOC_APP_QUERY_LIST,
+  MEMBER_POINT_DOC_OPERATION,
+} from '../constants/member-point.doc.constant'
+import {
+  MemberPointResponseDetailDto,
+  MemberPointResponseListDto,
+} from '../dtos/member-point.response.detail.dto'
+import { MemberPointService } from '../services/member-point.service'
 
 @ApiTags(MEMBER_POINT_DOC_OPERATION)
 @Controller({ version: '1', path: '/member-points' })

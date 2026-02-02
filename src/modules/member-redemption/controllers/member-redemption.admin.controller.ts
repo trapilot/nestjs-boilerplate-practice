@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -20,14 +20,14 @@ import {
 import {
   MEMBER_REDEMPTION_DOC_ADMIN_QUERY_LIST,
   MEMBER_REDEMPTION_DOC_OPERATION,
-} from '../constants'
+} from '../constants/member-redemption.doc.constant'
+import { MemberRedemptionRequestCreateDto } from '../dtos/member-redemption.request.create.dto'
+import { MemberRedemptionRequestUpdateDto } from '../dtos/member-redemption.request.update.dto'
 import {
-  MemberRedemptionRequestCreateDto,
-  MemberRedemptionRequestUpdateDto,
   MemberRedemptionResponseDetailDto,
   MemberRedemptionResponseListDto,
-} from '../dtos'
-import { MemberRedemptionService } from '../services'
+} from '../dtos/member-redemption.response.detail.dto'
+import { MemberRedemptionService } from '../services/member-redemption.service'
 
 @ApiTags(MEMBER_REDEMPTION_DOC_OPERATION)
 @Controller({ path: '/member-redemptions' })
