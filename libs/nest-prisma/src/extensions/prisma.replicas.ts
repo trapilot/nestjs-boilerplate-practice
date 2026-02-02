@@ -1,5 +1,6 @@
 import { Prisma, PrismaClient } from '@prisma/client/extension'
 import { PRISMA_READ_OPERATIONS } from '../constants'
+import { PrismaContext } from '../contexts'
 
 export const useReplicas = (clients: PrismaClient[]) =>
   Prisma.defineExtension((client: PrismaClient) => {
@@ -7,24 +8,6 @@ export const useReplicas = (clients: PrismaClient[]) =>
 
     return client.$extends({
       client: {
-        $primary<T extends object>(this: T): Omit<T, '$primary' | '$replica'> {
-          const context = Prisma.getExtensionContext(this) as PrismaClient
-          // If we're in a transaction, the current client is connected to the primary.
-          if (!('$transaction' in context && typeof context.$transaction === 'function')) {
-            return context
-          }
-          return client as unknown as Omit<T, '$primary' | '$replica'>
-        },
-
-        $replica<T extends object>(this: T): Omit<T, '$primary' | '$replica'> {
-          const context = Prisma.getExtensionContext(this) as PrismaClient
-          // If we're in a transaction, the current client is connected to the primary.
-          if (!('$transaction' in context && typeof context.$transaction === 'function')) {
-            throw new Error(`Cannot use $replica inside of a transaction`)
-          }
-          return replicaManager.pick() as unknown as Omit<T, '$primary' | '$replica'>
-        },
-
         async $connect() {
           await Promise.all([(client as PrismaClient).$connect(), replicaManager.connect()])
         },
@@ -35,17 +18,33 @@ export const useReplicas = (clients: PrismaClient[]) =>
 
         async $transaction(args: any, options?: any) {
           const originalClient = client as any
+
+          // Interactive transaction
+          if (typeof args === 'function') {
+            return originalClient.$transaction(async (tx: PrismaClient) => {
+              return PrismaContext.run({ client: tx }, async () => {
+                return args(tx)
+              })
+            }, options)
+          }
+          // Batch transaction
           return originalClient.$transaction(args, options)
         },
       },
       query: {
         $allOperations({ args, model, operation, query, ...rest }) {
-          // Check if this query already runs within a transaction
+          // If this query already in a Prisma transaction (safety net)
           if ((rest as any).__internalParams.transaction) {
             return query(args)
           }
 
-          // read operation + default = replica
+          // If you have a CLS client, use it immediately
+          if (PrismaContext.hasClient()) {
+            const client = PrismaContext.getClientOrThrow() as any
+            return model ? client[model][operation](args) : client[operation](args)
+          }
+
+          // Read → replica
           if (PRISMA_READ_OPERATIONS.includes(operation)) {
             const replica = replicaManager.pick()
             if (replica) {
@@ -53,7 +52,7 @@ export const useReplicas = (clients: PrismaClient[]) =>
             }
           }
 
-          // fallback
+          // Fallback → default client
           return query(args)
         },
       },

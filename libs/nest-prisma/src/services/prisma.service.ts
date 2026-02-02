@@ -10,9 +10,9 @@ import { PrismaUtil } from '../utils'
 
 const PrismaExtensionService = class {
   constructor(client: PrismaClientExtension) {
-    return client.withExtensions()
+    return client.withFullExtensions()
   }
-} as Type<ReturnType<PrismaClientExtension['withExtensions']>>
+} as Type<ReturnType<PrismaClientExtension['withFullExtensions']>>
 
 @Injectable()
 export class PrismaService extends PrismaExtensionService {
@@ -147,7 +147,7 @@ class PrismaClientExtension extends PrismaClient implements OnModuleInit, OnModu
     this.logger.log(event, this.context)
   }
 
-  withExtensions() {
+  withFullExtensions() {
     return this.$extends(useUtilities).$extends(useReplicas(this.replicas))
   }
 }
