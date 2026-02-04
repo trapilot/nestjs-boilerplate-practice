@@ -5,6 +5,7 @@ import {
   APP_ENV,
   APP_NAME,
   ENV_CONFIG,
+  EnumAppEnvironment,
   EnumRoutePath,
   NestCoreModule,
   StrUtil,
@@ -57,9 +58,9 @@ import { RoutesWebModule } from './routes/routes.web.module'
       actions: EnumAuthAbilityAction,
     }),
     NestPrismaModule.forRoot({
-      multiTenant: StrUtil.isTrue(process.env.APP_TENANT, false),
-      replication: StrUtil.isTrue(process.env.DATABASE_REPLICATION, false),
-      debug: StrUtil.isTrue(process.env.DATABASE_DEBUG, false),
+      multiTenant: StrUtil.isTrue(process.env.APP_TENANT),
+      replication: StrUtil.isTrue(process.env.DATABASE_REPLICATION),
+      debug: StrUtil.isTrue(process.env.DATABASE_DEBUG),
     }),
     NestWebModule.forRoot({
       metrics: {
@@ -70,6 +71,7 @@ import { RoutesWebModule } from './routes/routes.web.module'
         },
       },
       router: {
+        enabled: StrUtil.isTrue(process.env.APP_ROUTER),
         admin: true,
         validator: {
           transform: true,
@@ -84,7 +86,7 @@ import { RoutesWebModule } from './routes/routes.web.module'
           exceptionFactory: async (errors: ValidationError[]) => new ValidateException(errors),
         },
         logger: {
-          autoLogging: StrUtil.isTrue(process.env.HTTP_DEBUG, true),
+          autoLogging: StrUtil.isNot(process.env.APP_ENV, EnumAppEnvironment.DEVELOPMENT),
           excludeRoutes: [
             { path: '*', method: RequestMethod.OPTIONS },
             { path: 'audit/*spat', method: RequestMethod.ALL },
@@ -117,8 +119,10 @@ import { RoutesWebModule } from './routes/routes.web.module'
           { path: EnumRoutePath.WEB, module: RoutesWebModule },
           { path: EnumRoutePath.PUB, module: RoutesPublicModule },
         ],
+        imports: [SettingModule, AppVersionModule],
       },
       worker: {
+        enabled: StrUtil.isTrue(process.env.APP_WORKER),
         producer: PrismaQueueProducer,
         consumer: PrismaQueueConsumer,
         scanner: PrismaQueueScanner,
@@ -134,8 +138,9 @@ import { RoutesWebModule } from './routes/routes.web.module'
           InvoiceRejectOverDueHandler,
         ],
         schedulers: [NotificationScheduler, MemberScheduler, InvoiceScheduler],
+        imports: [MemberModule, NotificationModule, InvoiceModule],
       },
-      imports: [SettingModule, AppVersionModule, MemberModule, NotificationModule, InvoiceModule],
+      imports: [],
     }),
 
     DataMockModule, // NOTE: remove before make a new build, it's used to fake user's behavior

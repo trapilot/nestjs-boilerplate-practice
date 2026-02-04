@@ -186,13 +186,19 @@ export class StrUtil {
     return false
   }
 
-  static isTrue(value: string, def: boolean = false): boolean {
-    if (value === undefined) return def
+  static isTrue(value: string): boolean {
     return value === 'true'
   }
 
-  static isNotTrue(value: string, def: boolean = false): boolean {
-    if (value === undefined) return def
-    return value !== 'true'
+  static isNot(value: string, valid: string): boolean {
+    return value !== valid
+  }
+
+  static isNotTrue(value: string): boolean {
+    return this.isNot(value, 'true')
+  }
+
+  static isNotFalse(value: string): boolean {
+    return this.isNot(value, 'false')
   }
 }

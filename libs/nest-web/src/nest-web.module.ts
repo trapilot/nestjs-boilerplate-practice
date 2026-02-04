@@ -88,27 +88,37 @@ export class NestWebModule
     @Optional() private readonly consumer?: QueueConsumer,
   ) {}
 
+  private static initialized: boolean = false
   private static routerMiddleware: (consumer: MiddlewareConsumer) => void
   private static workerHandlers: Type<IQueueHandler>[] = []
 
   static forRoot(options: {
     metrics: IRequestMetricsOptions
     router?: {
+      enabled: boolean
       admin: boolean
       logger: IRequestLoggerOptions
       validator: ValidationPipeOptions
       middleware: (consumer: MiddlewareConsumer) => void
       routes: Routes
+      imports: Type<any>[]
     }
     worker?: {
+      enabled: boolean
       producer?: Type<IQueueProducer>
       consumer?: Type<IQueueConsumer>
       scanner?: Type<IQueueScanner>
       schedulers: IModuleProvider[]
       handlers: Type<IQueueHandler>[]
+      imports: Type<any>[]
     }
     imports: Type<any>[]
   }): DynamicModule {
+    if (this.initialized) {
+      throw new Error('NestWebModule.forRoot() called multiple times')
+    }
+    this.initialized = true
+
     const imports: IModuleImport[] = options.imports
     const exports: IModuleExport[] = []
     const providers: IModuleProvider[] = []
@@ -151,8 +161,9 @@ export class NestWebModule
       }
     }
 
-    if (options.router) {
+    if (options.router && options.router.enabled) {
       NestWebModule.routerMiddleware = options.router.middleware
+
       providers.push(
         {
           provide: APP_PIPE,
@@ -163,10 +174,6 @@ export class NestWebModule
           useValue: options.router.logger,
         },
       )
-      imports.push(
-        ...options.router.routes.map(route => route.module),
-        RouterModule.register(options.router.routes),
-      )
 
       if (options.router.admin) {
         imports.push(
@@ -176,9 +183,15 @@ export class NestWebModule
           }),
         )
       }
+
+      imports.push(
+        ...options.router.imports,
+        ...options.router.routes.map(route => route.module),
+        RouterModule.register(options.router.routes),
+      )
     }
 
-    if (options.worker) {
+    if (options.worker && options.worker.enabled) {
       if (options.worker?.producer) {
         providers.push({
           provide: QueueProducer,
@@ -186,6 +199,7 @@ export class NestWebModule
         })
         exports.push(QueueProducer)
       }
+
       if (options.worker?.consumer) {
         providers.push({
           provide: QueueConsumer,
@@ -193,6 +207,7 @@ export class NestWebModule
         })
         exports.push(QueueConsumer)
       }
+
       if (options.worker?.scanner) {
         providers.push({
           provide: QueueScanner,
@@ -204,6 +219,7 @@ export class NestWebModule
       this.workerHandlers = options.worker.handlers
       providers.push(...options.worker.handlers)
       providers.push(...options.worker.schedulers)
+      imports.push(...options.worker.imports)
     }
 
     return {

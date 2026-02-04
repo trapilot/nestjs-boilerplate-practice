@@ -10,7 +10,7 @@ export abstract class ScheduleMockupBase {
 
   @Cron(CronExpression.EVERY_MINUTE, {
     timeZone: EnumAppTimezone.UTC,
-    disabled: StrUtil.isNotTrue(process.env.AUTO_GEN_MODE, true),
+    disabled: StrUtil.isNotTrue(process.env.AUTO_GEN_MODE),
   })
   async cron(): Promise<void> {
     this.logger.log(`${this.constructor.name} starting...`)

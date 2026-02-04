@@ -22,7 +22,7 @@ export default registerAs(
       host: process.env.HTTP_HOST ?? 'localhost',
       port: StrUtil.numeric(process.env.HTTP_PORT, 3000),
       prefix: process.env.HTTP_PREFIX ?? 'api',
-      compress: StrUtil.isTrue(process.env.HTTP_COMPRESS, true),
+      compress: StrUtil.isTrue(process.env.HTTP_COMPRESS),
     },
   }),
 )

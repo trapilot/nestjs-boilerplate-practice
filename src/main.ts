@@ -41,6 +41,18 @@ async function bootstrap(): Promise<void> {
   // Logger
   const logger = new Logger()
 
+  // Custom Validation
+  useContainer(app.select(AppModule), {
+    fallbackOnErrors: true,
+  })
+
+  // Starts listening for shutdown hooks
+  app.enableShutdownHooks()
+
+  // Static
+  app.useStaticAssets(FileUtil.joinRoot(['public']), { prefix: '/public/' })
+  app.useStaticAssets(FileUtil.joinRoot(['public', 'static']), { prefix: '/interact/' })
+
   // Global
   app.setGlobalPrefix(appPrefix, {
     exclude: [
@@ -49,18 +61,6 @@ async function bootstrap(): Promise<void> {
       { path: '^metrics/*splat', method: RequestMethod.ALL },
     ],
   })
-
-  // Custom Validation
-  useContainer(app.select(AppModule), {
-    fallbackOnErrors: true,
-  })
-
-  // Static
-  app.useStaticAssets(FileUtil.joinRoot(['public']), { prefix: '/public/' })
-  app.useStaticAssets(FileUtil.joinRoot(['public', 'static']), { prefix: '/interact/' })
-
-  // Starts listening for shutdown hooks
-  app.enableShutdownHooks()
 
   // Versioning
   app.enableVersioning({
