@@ -141,7 +141,6 @@ export class MemberData {
   addMemberPoint(pointHistory: Prisma.MemberPointUncheckedCreateWithoutMemberInput): MemberData {
     if (pointHistory && pointHistory.point !== 0) {
       this.pointBalance += pointHistory.point
-      pointHistory.pointBalance = this.pointBalance
 
       // const { memberId, ...data } = pointHistory
       this.points.push(pointHistory)
