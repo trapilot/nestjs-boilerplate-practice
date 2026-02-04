@@ -53,11 +53,6 @@ class ResponseDataDetailDto {
   @Expose()
   point: number
 
-  @ApiProperty({ example: 20000 })
-  @ToDecimal()
-  @Expose()
-  pointBalance: number
-
   @ApiProperty({ example: 1.6 })
   @Type(() => Number)
   @Expose()

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { EnumMemberType } from '@runtime/prisma-client'
+import { EnumMemberType, EnumPointAction, EnumPointSource } from '@runtime/prisma-client'
 import { AuthUtil } from 'lib/nest-auth'
 import {
   APP_COUNTRY_LIST,
@@ -90,6 +90,8 @@ export class MemberMock extends ScheduleMockupBase {
       const extractDate = this.helperService.dateExtract(dateOfBirth)
       const expiryDate = this.helperService.dateCreate(memberDate, { endOfDay: true })
 
+      const randomPoint = this.helperService.randomNumber({min: 50_000, max: 500_000, step: 10_000 })
+
       await this.prisma.member.create({
         data: {
           code: memberCode,
@@ -142,9 +144,20 @@ export class MemberMock extends ScheduleMockupBase {
           hasBirthPurchased: false,
           personalAmount: 0,
           referralAmount: 0,
+          pointBalance: randomPoint,
           startedAt: dateExecute,
           createdAt: dateExecute,
           updatedAt: dateExecute,
+          points: {
+            create: {
+              source: EnumPointSource.SYSTEM,
+              action: EnumPointAction.INITIAL,
+              point: randomPoint,
+              expiryDate: this.memberUtil.getPointExpirationDate(dateExecute),
+              createdAt: dateExecute,
+              updatedAt: dateExecute,
+            }
+          },
           devices: {
             create:{
               type: 'mobile',

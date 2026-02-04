@@ -502,7 +502,6 @@ model Member {
   tier      Tier?            @relation(fields: [tierId], references: [id])
   district  District?        @relation(fields: [districtId], references: [id])
   country   Country?         @relation(fields: [countryId], references: [id])
-  cart      Cart?
 
   deletions     MemberDeletion[]
   sessions      MemberSession[]
@@ -515,6 +514,7 @@ model Member {
   tiers         MemberTier[]
   points        MemberPoint[]        @relation(name: "member")
   rewardPoints  MemberPoint[]        @relation(name: "referee")
+  carts         Cart[]
   orders        Order[]
   invoices      Invoice[]
   wishlist      Wishlist[]
@@ -721,7 +721,6 @@ model MemberPoint {
   multipleRatio Float?
   ratioNote     Json?
   point         Int?            @default(0)
-  pointBalance  Int?            @default(0)
   remark        String?
   isBirth       Boolean?        @default(false)
   isFirst       Boolean?        @default(false)
@@ -838,36 +837,44 @@ model TierChart {
 }
 
 model Cart {
-  id        Int       @id @default(autoincrement())
-  memberId  Int       @unique
-  version   Int       @default(1)
-  createdAt DateTime? @default(now())
-  updatedAt DateTime  @updatedAt
+  id        Int            @id @default(autoincrement())
+  memberId  Int
+  version   Int            @default(1)
+  status    EnumCartStatus @default(ACTIVE)
+  price     Decimal        @default(0)
+  point     Decimal        @default(0)
+  shipping  Decimal        @default(0)
+  tax       Decimal        @default(0)
+  createdAt DateTime?      @default(now())
+  updatedAt DateTime       @updatedAt
 
   member Member @relation(fields: [memberId], references: [id])
 
   items CartItem[]
 
+  @@index([memberId])
   @@map("carts")
 }
 
 model CartItem {
-  id            Int       @id @default(autoincrement())
+  id            Int            @id @default(autoincrement())
   cartId        Int
   productId     Int
+  vendorId      Int?
   offerId       Int?
   bundleId      Int?
   promotionId   Int?
-  quantity      Int?      @default(1)
-  vatPercentage Float?    @default(0)
+  status        CartItemStatus @default(ACTIVE)
+  quantity      Int?           @default(1)
+  vatPercentage Float?         @default(0)
   unitPrice     Float?
   unitPoint     Int?
-  discPrice     Float?    @default(0)
-  discPoint     Int?      @default(0)
+  discPrice     Float?         @default(0)
+  discPoint     Int?           @default(0)
   finalPrice    Float?
   finalPoint    Int?
-  createdAt     DateTime? @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime?      @default(now())
+  updatedAt     DateTime       @updatedAt
 
   cart    Cart    @relation(fields: [cartId], references: [id])
   product Product @relation(fields: [productId], references: [id])
@@ -1053,6 +1060,7 @@ model Page {
 
 model Product {
   id                Int              @id @default(autoincrement())
+  vendorId          Int?
   brandId           Int?
   categoryId        Int?
   type              EnumProductType? @default(SIMPLE)
@@ -1414,6 +1422,19 @@ enum EnumPaymentMethod {
 enum EnumPaymentStatus {
   PAID
   CANCELED
+}
+
+enum EnumCartStatus {
+  ACTIVE
+  COMPLETED
+  ABANDONED
+  SAVED
+}
+
+enum CartItemStatus {
+  ACTIVE
+  OUT_OF_STOCK
+  DISABLED
 }
 
 enum EnumOrderSource {

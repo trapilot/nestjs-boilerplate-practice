@@ -1,11 +1,6 @@
+import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import {
-  BadRequestException,
-  ConflictException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common'
-import {
+  EnumCartStatus,
   EnumInvoiceStatus,
   EnumOrderStatus,
   EnumPointAction,
@@ -23,7 +18,6 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TCart } from 'modules/cart/interfaces/cart.interface'
 import { CartService } from 'modules/cart/services/cart.service'
 import { InvoiceService } from 'modules/invoice/services/invoice.service'
 import { MemberService } from 'modules/member/services/member.service'
@@ -151,49 +145,18 @@ export class OrderService {
     }
   }
 
-  private calculateTotals(cart: TCart): { finalPrice: number; finalPoint: number } {
-    let finalPrice = 0
-    let finalPoint = 0
-
-    for (const item of cart.items) {
-      finalPrice += item.product.salePrice * item.quantity
-      finalPoint += item.product.salePoint * item.quantity
-    }
-
-    return { finalPrice, finalPoint }
-  }
-
-  private async validateMemberPoint(
-    memberId: number,
-    requirePoint: number,
-    issuedAt: Date,
-  ): Promise<number> {
-    const pointBalance = await this.memberService.getPointBalance(memberId, issuedAt)
-    if (requirePoint > pointBalance) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.CONFLICT,
-        message: 'module.member.notEnoughPoint',
-      })
-    }
-
-    return pointBalance
-  }
-
   async createFromCart(cartId: number, options: IOrderPlaceOptions): Promise<TOrder> {
-    const nowDate = this.helperService.dateNow()
-    const endOfDay = this.helperService.dateCreate(nowDate, { endOfDay: true })
+    const issuedAt = options?.issuedAt ?? this.helperService.dateNow()
+    const endOfDay = this.helperService.dateCreate(issuedAt, { endOfDay: true })
 
-    const cart = await this.cartService.validateForCheckout(cartId)
+    // 1. Validate & Lock the Cart
+    const { cart, summary } = await this.cartService.getValidatedCart(cartId)
 
-    const { finalPrice, finalPoint } = this.calculateTotals(cart)
-
-    await this.validateMemberPoint(cart.memberId, finalPoint, nowDate)
-
-    const orderNumber = await this.generateOrderNumber(nowDate)
-    const invoiceNumber = await this.invoiceService.generateInvoiceNumber(nowDate)
+    const orderNumber = await this.generateOrderNumber(issuedAt)
+    const invoiceNumber = await this.invoiceService.generateInvoiceNumber(issuedAt)
     const recentPoints = await this.memberService.getPointRecents(cart.memberId, {
-      pointRequire: finalPoint,
-      untilDate: nowDate,
+      pointRequire: summary.point,
+      untilDate: issuedAt,
     })
 
     const hasShipment = !!cart.items.find(item => item.product.hasShipment)
@@ -209,14 +172,14 @@ export class OrderService {
       this.prisma.order.create({
         data: {
           memberId: cart.memberId,
-          finalPrice,
-          finalPoint,
+          finalPrice: summary.price,
+          finalPoint: summary.point,
           code: orderNumber,
           source: options.source,
           status: EnumOrderStatus.PENDING,
-          issuedAt: nowDate,
-          createdAt: nowDate,
-          updatedAt: nowDate,
+          issuedAt: issuedAt,
+          createdAt: issuedAt,
+          updatedAt: issuedAt,
           shipment: {
             create: hasShipment
               ? {
@@ -231,27 +194,27 @@ export class OrderService {
               code: invoiceNumber,
               memberId: cart.memberId,
               paidPrice: 0,
-              paidPoint: finalPoint,
-              finalPrice: finalPrice,
-              finalPoint: finalPoint,
+              paidPoint: summary.point,
+              finalPrice: summary.price,
+              finalPoint: summary.point,
               status: EnumInvoiceStatus.PARTIALLY_PAID,
               dueDate: dueDate,
-              issuedAt: nowDate,
-              createdAt: nowDate,
-              updatedAt: nowDate,
+              issuedAt: issuedAt,
+              createdAt: issuedAt,
+              updatedAt: issuedAt,
               points: {
                 createMany: {
                   data: recentPoints.map(recentPoint => {
                     return {
                       memberId: cart.memberId,
                       tierId: cart.member.tierId,
-                      invoiceAmount: finalPrice,
+                      invoiceAmount: summary.price,
                       source: EnumPointSource.PURCHASE,
                       action: EnumPointAction.DEDUCT,
                       point: recentPoint.point * -1,
                       expiryDate: recentPoint.date,
-                      createdAt: nowDate,
-                      updatedAt: nowDate,
+                      createdAt: issuedAt,
+                      updatedAt: issuedAt,
                     }
                   }),
                 },
@@ -267,8 +230,8 @@ export class OrderService {
                 unitPoint: item.product.salePoint,
                 finalPrice: item.quantity * item.product.salePrice,
                 finalPoint: item.quantity * item.product.salePoint,
-                createdAt: nowDate,
-                updatedAt: nowDate,
+                createdAt: issuedAt,
+                updatedAt: issuedAt,
               })),
               skipDuplicates: true,
             },
@@ -283,9 +246,9 @@ export class OrderService {
                   redeemPoint: item.product.salePoint,
                   source: EnumRedemptionSource.ORDER,
                   status: EnumRedemptionStatus.PENDING,
-                  issuedAt: nowDate,
-                  createdAt: nowDate,
-                  updatedAt: nowDate,
+                  issuedAt: issuedAt,
+                  createdAt: issuedAt,
+                  updatedAt: issuedAt,
                 })),
               ),
               skipDuplicates: true,
@@ -296,16 +259,13 @@ export class OrderService {
       this.prisma.cart.update({
         where: { id: cart.id },
         data: {
-          version: 1,
-          createdAt: nowDate,
-          updatedAt: nowDate,
-          items: {
-            deleteMany: {},
-          },
+          status: EnumCartStatus.COMPLETED,
+          createdAt: issuedAt,
+          updatedAt: issuedAt,
           member: {
             update: {
-              pointBalance: { decrement: finalPoint },
-              updatedAt: nowDate,
+              pointBalance: { decrement: summary.point },
+              updatedAt: issuedAt,
             },
           },
         },

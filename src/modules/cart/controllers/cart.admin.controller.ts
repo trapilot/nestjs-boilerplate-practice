@@ -1,8 +1,8 @@
-import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
+import { Controller, Get } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
 import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
-import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
+import { EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
   ApiRequestData,
@@ -11,15 +11,12 @@ import {
   IResponseData,
   IResponseList,
   IResponsePaging,
-  RequestBody,
   RequestBookType,
   RequestListDto,
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
 import { CART_DOC_ADMIN_QUERY_LIST, CART_DOC_OPERATION } from '../constants/cart.doc.constant'
-import { CartRequestCreateDto } from '../dtos/cart.request.create.dto'
-import { CartRequestUpdateDto } from '../dtos/cart.request.update.dto'
 import { CartResponseDetailDto, CartResponseListDto } from '../dtos/cart.response.detail.dto'
 import { CartService } from '../services/cart.service'
 
@@ -140,105 +137,6 @@ export class CartAdminController {
 
     return {
       data: cart,
-    }
-  }
-
-  @ApiRequestData({
-    summary: CART_DOC_OPERATION,
-    docExclude: false,
-    docExpansion: false,
-    jwtAccessToken: {
-      scope: EnumAuthScopeType.USER,
-      user: {
-        synchronize: true,
-        require: true,
-        active: true,
-        abilities: [
-          {
-            subject: EnumAuthAbilitySubject.CART,
-            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.CREATE],
-          },
-        ],
-      },
-    },
-    response: {
-      dto: CartResponseDetailDto,
-    },
-  })
-  @Post('/')
-  async create(@RequestBody() body: CartRequestCreateDto): Promise<IResponseData> {
-    const cart = await this.cartService.create(body)
-
-    return {
-      data: cart,
-    }
-  }
-
-  @ApiRequestData({
-    summary: CART_DOC_OPERATION,
-    docExclude: false,
-    docExpansion: false,
-    jwtAccessToken: {
-      scope: EnumAuthScopeType.USER,
-      user: {
-        synchronize: true,
-        require: true,
-        active: true,
-        abilities: [
-          {
-            subject: EnumAuthAbilitySubject.CART,
-            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
-          },
-        ],
-      },
-    },
-    response: {
-      dto: CartResponseDetailDto,
-    },
-  })
-  @Put('/:id')
-  async update(
-    @RequestBody() body: CartRequestUpdateDto,
-    @RequestParam('id') id: number,
-  ): Promise<IResponseData> {
-    const cart = await this.cartService.update(id, body)
-
-    return {
-      data: cart,
-    }
-  }
-
-  @ApiRequestData({
-    summary: CART_DOC_OPERATION,
-    docExclude: false,
-    docExpansion: false,
-    jwtAccessToken: {
-      scope: EnumAuthScopeType.USER,
-      user: {
-        synchronize: true,
-        require: true,
-        active: true,
-        abilities: [
-          {
-            subject: EnumAuthAbilitySubject.CART,
-            actions: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.DELETE],
-          },
-        ],
-      },
-    },
-  })
-  @Delete('/:id')
-  async delete(
-    @RequestParam('id') id: number,
-    @AuthJwtPayload('user.id') deletedBy: number,
-  ): Promise<IResponseData> {
-    const cart = await this.cartService.find(id)
-    if (cart) {
-      await this.cartService.delete(cart, deletedBy)
-    }
-
-    return {
-      data: { status: true },
     }
   }
 }

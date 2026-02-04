@@ -19,7 +19,7 @@
     "canNotDeleteOthers": "You cannot delete the resources belonging to other masters",
     "memberTierExpiresIn": "Membership are valid until {tierExpireDate}",
     "memberPointExpiresIn": "{pointExpireValue} points are valid until {pointExpireDate}",
-    "notEnoughPoint": "You haven't enough points to redeem"
+    "notEnoughPoint": "You #{memberId} have {pointBalance} point, haven't enough points {requirePoint} to redeem"
   },
   "page": {
     "notFound": "Page does not exist",

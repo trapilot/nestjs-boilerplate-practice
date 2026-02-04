@@ -425,6 +425,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
 
   async verifyToken(token: string, options: IMemberVerifyCheckOptions): Promise<boolean> {
     const verified = await this.memberUtil.checkToken(token, options)
+
     if (!verified) {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,

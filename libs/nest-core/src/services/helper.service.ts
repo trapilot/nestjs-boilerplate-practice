@@ -109,6 +109,12 @@ export class HelperService {
   randomNumber(options: INumberRandomOptions): number {
     const min = Math.ceil(options.min)
     const max = Math.floor(options.max)
+
+    if (options.step && options.step > 0 && options.step < max) {
+      const xStep = Math.floor(Math.random() * (Math.floor((max - min) / options.step) + 1))
+      return min + xStep * options.step
+    }
+
     return Math.floor(Math.random() * (max - min) + min)
   }
 

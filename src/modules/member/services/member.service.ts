@@ -1,4 +1,10 @@
-import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  ConflictException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common'
 import {
   EnumMemberType,
   EnumPointAction,
@@ -342,6 +348,22 @@ export class MemberService {
     return { ...member, ...metadata }
   }
 
+  async checkPointBalance(id: number, requirePoint: number, issuedAt: Date): Promise<number> {
+    const pointBalance = await this.getPointBalance(id, issuedAt)
+    if (requirePoint > pointBalance) {
+      throw new BadRequestException({
+        statusCode: HttpStatus.CONFLICT,
+        message: 'module.member.notEnoughPoint',
+        messageProperties: {
+          memberId: id,
+          pointBalance,
+          requirePoint,
+        },
+      })
+    }
+
+    return pointBalance
+  }
   async getPointBalance(id: number, issuedAt: Date): Promise<number> {
     return await this.memberPointService.sumMemberActivePoints(id, issuedAt)
   }
@@ -399,7 +421,7 @@ export class MemberService {
     return nowDate
   }
 
-  async releaseMemberPoints(memberPointIds: number[]): Promise<Date> {
+  async releaseMemberPoints(_memberPointIds: number[]): Promise<Date> {
     const nowDate = this.helperService.dateNow()
     return nowDate
     // const releasePoints = await this.prisma.memberPoint.findMany({
@@ -465,7 +487,7 @@ export class MemberService {
         await this.prisma.member.update({
           where: { id: member.id },
           data: {
-            pointBalance: { decrement: pointBalance },
+            pointBalance: 0,
             updatedAt: nowDate,
             points: {
               create: {
@@ -473,7 +495,6 @@ export class MemberService {
                 action: EnumPointAction.EXPIRE,
                 tierId: member.tierId,
                 point: pointBalance * -1,
-                pointBalance: 0,
                 expiryDate: nowDate,
                 createdAt: nowDate,
                 updatedAt: nowDate,
@@ -642,20 +663,17 @@ export class MemberService {
             hasBirthPurchasedAt: startOfDay,
             updatedAt: startOfDay,
             points: {
-              createMany: {
-                data: {
-                  invoiceId: birthPoint.invoiceId,
-                  invoiceAmount: birthPoint.invoiceAmount,
-                  source: EnumPointSource.SYSTEM,
-                  action: EnumPointAction.EARN,
-                  isBirth: true,
-                  tierId: memberTier.id,
-                  multipleRatio: memberTier.birthdayRatio,
-                  point: newPoint,
-                  pointBalance: member.pointBalance + newPoint,
-                  createdAt: startOfDay,
-                  updatedAt: startOfDay,
-                },
+              create: {
+                invoiceId: birthPoint.invoiceId,
+                invoiceAmount: birthPoint.invoiceAmount,
+                source: EnumPointSource.SYSTEM,
+                action: EnumPointAction.EARN,
+                isBirth: true,
+                tierId: memberTier.id,
+                multipleRatio: memberTier.birthdayRatio,
+                point: newPoint,
+                createdAt: startOfDay,
+                updatedAt: startOfDay,
               },
             },
           },

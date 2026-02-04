@@ -34,7 +34,7 @@ export class MemberRequestCreateDto {
   @IsString()
   @ToString()
   @ApiProperty({ required: false, example: process.env.MOCK_MEMBER_CARD })
-  cardId: string
+  citizenId: string
 
   @IsOptional()
   @IsString()

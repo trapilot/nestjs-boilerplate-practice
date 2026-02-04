@@ -79,7 +79,7 @@
       "refereeId": "ID người giới thiệu",
       "invoiceId": "ID hóa đơn",
       "invoiceAmount": "Số tiền hóa đơn",
-      "type": "Loại",
+      "action": "Loại",
       "point": "Điểm",
       "pointBalance": "Số dư điểm",
       "multipleRatio": "Hệ số nhân",

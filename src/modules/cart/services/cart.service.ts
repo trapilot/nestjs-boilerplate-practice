@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
-import { Prisma, Product } from '@runtime/prisma-client'
+import { EnumCartStatus, Prisma, Product } from '@runtime/prisma-client'
 import { AppUtil, HelperService } from 'lib/nest-core'
 import {
   IPrismaOptions,
@@ -14,9 +14,16 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
+import { MemberService } from 'modules/member/services/member.service'
 import { ProductService } from 'modules/product/services/product.service'
 import { CartUtil } from '../helpers/cart.util'
-import { ICartItemAddOptions, TCart, TCartItem } from '../interfaces/cart.interface'
+import {
+  ICartCheckoutResult,
+  ICartItemAddOptions,
+  ICartSnapshot,
+  TCart,
+  TCartItem,
+} from '../interfaces/cart.interface'
 import { CartItemInStockRule } from '../rules/cart.item-in-stock.rule'
 import { CartItemIsActiveRule } from '../rules/cart.item-is-active.rule'
 
@@ -29,26 +36,13 @@ export class CartService {
       },
     },
   }
-  private readonly cartUpVersion: Prisma.IntFieldUpdateOperationsInput = {
-    increment: AppUtil.isLocal() ? 0 : 1,
-  }
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly helperService: HelperService,
+    private readonly memberService: MemberService,
     private readonly productService: ProductService,
   ) {}
-
-  async findOne(kwargs?: Prisma.CartFindUniqueArgs): Promise<TCart> {
-    return await this.prisma.cart.findUnique(kwargs)
-  }
-
-  async findFirst(kwargs: Prisma.CartFindFirstArgs = {}): Promise<TCart> {
-    return await this.prisma.cart.findFirst(kwargs)
-  }
-
-  async findAll(kwargs: Prisma.CartFindManyArgs = {}): Promise<TCart[]> {
-    return await this.prisma.cart.findMany(kwargs)
-  }
 
   async findOrFail(
     id: number,
@@ -63,35 +57,6 @@ export class CartService {
         })
       })
     return cart
-  }
-
-  async matchOrFail(
-    where: Prisma.CartWhereInput,
-    kwargs: Omit<Prisma.CartFindFirstOrThrowArgs, 'where'> = {},
-  ): Promise<TCart> {
-    const cart = await this.prisma.cart
-      .findFirstOrThrow({ ...kwargs, where })
-      .catch((_err: unknown) => {
-        throw new NotFoundException({
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'module.cart.notFound',
-        })
-      })
-    return cart
-  }
-
-  async differOrFail(
-    where: Prisma.CartWhereInput,
-    options?: { limit?: number; message?: string },
-  ): Promise<void> {
-    const totalRecords = await this.count(where)
-    const limitRecords = options?.limit ?? 0
-    if (totalRecords > limitRecords) {
-      throw new ConflictException({
-        statusCode: HttpStatus.CONFLICT,
-        message: options?.message ?? 'module.cart.conflict',
-      })
-    }
   }
 
   async list(
@@ -110,68 +75,48 @@ export class CartService {
     return await this.prisma.cart.paginate(where, params, options)
   }
 
-  async count(where?: Prisma.CartWhereInput): Promise<number> {
-    return await this.prisma.cart.count({
-      where,
-    })
-  }
-
-  async find(id: number, kwargs: Omit<Prisma.CartFindUniqueArgs, 'where'> = {}): Promise<TCart> {
-    return await this.prisma.cart.findUnique({
-      ...kwargs,
-      where: { id },
-    })
-  }
-
-  async create(data: Prisma.CartUncheckedCreateInput): Promise<TCart> {
-    const cart = await this.prisma.cart.create({
-      data,
-      include: this.cartRelation,
-    })
-    return cart
-  }
-
-  async update(id: number, data: Prisma.CartUncheckedUpdateInput): Promise<TCart> {
-    const cart = await this.findOrFail(id)
-
+  async abandon(id: number): Promise<TCart> {
     return await this.prisma.cart.update({
-      data,
-      include: this.cartRelation,
-      where: { id: cart.id },
+      where: { id },
+      data: {
+        status: EnumCartStatus.ABANDONED,
+      },
     })
   }
 
-  async delete(cart: TCart, _deletedBy?: number): Promise<boolean> {
-    try {
-      await this.prisma.$transaction(async tx => {
-        await tx.cart.delete({ where: { id: cart.id } })
-      })
-      return true
-    } catch {
-      return false
-    }
-  }
+  async checkout(memberId: number, version: number): Promise<ICartCheckoutResult> {
+    const { cart, summary } = await this.validateForCheckout(memberId, version)
 
-  async checkout(id: number): Promise<TCart> {
-    return await this.validateForCheckout(id)
-  }
-
-  async validateForCheckout(id: number): Promise<TCart> {
-    const cart = await this.findOrFail(id, {
-      include: {
-        member: true,
-        items: {
-          include: { product: true },
-        },
+    // snapshot
+    await this.prisma.cart.update({
+      where: { id: cart.id },
+      data: {
+        status: EnumCartStatus.SAVED,
+        price: summary.price,
+        point: summary.point,
+        shipping: summary.shipping,
+        tax: summary.tax,
       },
     })
 
+    return {
+      cartId: cart.id,
+      items: cart.items,
+      summary,
+    }
+  }
+
+  async validateCart(cart: TCart): Promise<{ cart: TCart; summary: ICartSnapshot }> {
     if (cart.items.length === 0) {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'module.cart.isEmpty',
       })
     }
+
+    const summary = CartUtil.calculate(cart.items)
+
+    await this.memberService.checkPointBalance(cart.memberId, summary.point, cart.updatedAt)
 
     const ruler = AppUtil.initializeRuler<TCartItem>([
       new CartItemIsActiveRule(),
@@ -182,129 +127,109 @@ export class CartService {
       await ruler.validate(item)
     }
 
-    return cart
+    return { cart, summary }
   }
 
-  async handleCheckoutSuccess(_cart: TCart): Promise<void> {}
+  async validateForCheckout(
+    memberId: number,
+    version: number,
+  ): Promise<{ cart: TCart; summary: ICartSnapshot }> {
+    const cart = await this.validateActiveCart(memberId, version)
 
-  async reset(memberId: number): Promise<TCart> {
-    const exists = await this.count({ memberId })
-    if (exists > 0) {
-      return await this.prisma.cart.update({
-        where: { memberId },
-        data: { version: 1 },
-        include: this.cartRelation,
-      })
-    }
-    return await this.create({ memberId, version: 1 })
+    return await this.validateCart(cart)
   }
 
-  async getCartData(memberId: number): Promise<TCart> {
-    return await this.findOne({
-      where: { memberId },
+  async getValidatedCart(id: number): Promise<{ cart: TCart; summary: ICartSnapshot }> {
+    const cart = await this.prisma.cart.findUnique({
+      where: { id, status: EnumCartStatus.SAVED },
+      include: this.cartRelation,
+    })
+
+    return this.validateCart(cart)
+  }
+
+  async getOrCreateActiveCart(memberId: number): Promise<TCart> {
+    const cart = await this.prisma.cart.findFirst({
+      where: { memberId, status: EnumCartStatus.ACTIVE },
+      include: this.cartRelation,
+    })
+
+    if (cart) {return cart}
+
+    return this.prisma.cart.create({
+      data: { memberId, status: EnumCartStatus.ACTIVE },
       include: this.cartRelation,
     })
   }
 
-  async getCartItem(kwargs: Prisma.CartItemFindUniqueOrThrowArgs): Promise<TCartItem> {
-    const cartItem = await this.prisma.cartItem
-      .findUniqueOrThrow({ ...kwargs })
-      .catch((_err: unknown) => {
-        throw new NotFoundException({
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'module.cart.notFoundItem',
-        })
-      })
-    return cartItem
-  }
+  async validateActiveCart(memberId: number, version: number): Promise<TCart> {
+    const cart = await this.prisma.cart.findFirst({
+      where: { memberId, status: EnumCartStatus.ACTIVE, version },
+      include: this.cartRelation,
+    })
 
-  async getOrCreate(memberId: number): Promise<TCart> {
-    const exists = await this.count({ memberId })
-    if (exists > 0) {
-      return await this.getCartData(memberId)
-    }
-    return await this.create({ memberId, version: 1 })
-  }
-
-  async validate(memberId: number, version: number): Promise<TCart> {
-    const exists = await this.prisma.cart.count({ where: { memberId, version } })
-    if (exists === 0) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
+    if (!cart) {
+      // Logic: If version doesn't match, the cart state changed elsewhere.
+      throw new ConflictException({
+        statusCode: HttpStatus.CONFLICT,
         message: 'module.cart.versionChanged',
       })
     }
-    return await this.getCartData(memberId)
+    return cart
   }
 
-  async addItem(cart: TCart, item: ICartItemAddOptions): Promise<TCart> {
+  async addItem(memberId: number, item: ICartItemAddOptions): Promise<TCart> {
+    const cart = await this.getOrCreateActiveCart(memberId)
     const product = await this.productService.findOrFail(item.productId)
-    const cartItem = await this.prisma.cartItem.findUnique({
-      where: {
-        cartId_productId: {
-          cartId: cart.id,
-          productId: item.productId,
-        },
-      },
-    })
 
-    if (cartItem) {
-      return await this.adjustItem(cart, cartItem, cartItem.quantity + item.quantity)
-    }
-
-    return await this.prisma.cart.update({
-      where: { id: cart.id },
-      include: this.cartRelation,
-      data: {
-        version: this.cartUpVersion,
-        items: {
-          create: {
-            promotionId: item?.promotionId,
-            bundleId: item?.bundleId,
-            offerId: item?.offerId,
-            productId: item.productId,
-            quantity: item.quantity,
-            unitPrice: product.salePrice,
-            unitPoint: product.salePoint,
-            discPrice: 0,
-            discPoint: 0,
-            finalPrice: product.salePrice,
-            finalPoint: product.salePoint,
+    return this.prisma.$transaction(async tx => {
+      const existing = await tx.cartItem.findUnique({
+        where: {
+          cartId_productId: {
+            cartId: cart.id,
+            productId: product.id,
           },
         },
-      },
-    })
-  }
+      })
 
-  async removeItem(cart: TCart, cartItem: TCartItem): Promise<TCart> {
-    const [_, cartItems] = await this.prisma.$transaction([
-      this.prisma.cartItem.delete({
-        where: { cartId: cart.id, id: cartItem.id },
-      }),
-      this.prisma.cart.update({
+      if (existing) {
+        return this.applyQuantity(cart.id, existing.id, existing.quantity + item.quantity)
+      }
+
+      return tx.cart.update({
         where: { id: cart.id },
         include: this.cartRelation,
-        data: { version: this.cartUpVersion },
-      }),
-    ])
-    return cartItems
-  }
-
-  async adjustItem(cart: TCart, cartItem: TCartItem, quantity: number): Promise<TCart> {
-    const { id: _id, cartId: _cartId, ...data } = CartUtil.recalculate(cartItem, quantity)
-    return await this.prisma.cart.update({
-      where: { id: cart.id },
-      include: this.cartRelation,
-      data: {
-        version: this.cartUpVersion,
-        items: {
-          update: {
-            where: { id: cartItem.id },
-            data,
+        data: {
+          version: { increment: 1 },
+          items: {
+            create: {
+              promotionId: item?.promotionId,
+              bundleId: item?.bundleId,
+              vendorId: product.vendorId,
+              offerId: item?.offerId,
+              productId: item.productId,
+              quantity: item.quantity,
+              unitPrice: product.salePrice,
+              unitPoint: product.salePoint,
+              discPrice: 0,
+              discPoint: 0,
+              finalPrice: product.salePrice,
+              finalPoint: product.salePoint,
+            },
           },
         },
-      },
+      })
     })
+  }
+
+  async removeItem(memberId: number, itemId: number): Promise<TCart> {
+    const cart = await this.getOrCreateActiveCart(memberId)
+    return this.applyQuantity(cart.id, itemId, 0)
+  }
+
+  async adjustItem(memberId: number, itemId: number, quantity: number): Promise<TCart> {
+    const cart = await this.getOrCreateActiveCart(memberId)
+    return this.applyQuantity(cart.id, itemId, quantity)
   }
 
   async checkSalePerPerson(memberId: number, product: Product): Promise<boolean> {
@@ -313,5 +238,30 @@ export class CartService {
     }
     const salePerPerson = await this.productService.getSalePerPerson(product.id, memberId)
     return salePerPerson < product.salePerPerson
+  }
+
+  private async applyQuantity(cartId: number, itemId: number, quantity: number): Promise<TCart> {
+    if (quantity <= 0) {
+      return this.prisma.cart.update({
+        where: { id: cartId },
+        include: this.cartRelation,
+        data: {
+          version: { increment: 1 },
+          items: { delete: { id: itemId } },
+        },
+      })
+    }
+
+    const item = await this.prisma.cartItem.findFirstOrThrow({ where: { id: itemId, cartId } })
+    const recalculated = CartUtil.recalculate(item, quantity)
+
+    return this.prisma.cart.update({
+      where: { id: cartId },
+      include: this.cartRelation,
+      data: {
+        version: { increment: 1 },
+        items: { update: { where: { id: itemId }, data: recalculated } },
+      },
+    })
   }
 }

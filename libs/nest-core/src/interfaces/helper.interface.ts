@@ -17,6 +17,7 @@ export interface IArrayFindOptions<T> {
 export interface INumberRandomOptions {
   min: number
   max: number
+  step?: number
 }
 
 export interface INumberFormatOptions {

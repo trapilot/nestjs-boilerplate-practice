@@ -34,10 +34,10 @@ export class CartAppController {
       dto: CartResponseDetailDto,
     },
   })
-  @Get('/info')
+  @Get('/_me')
   async get(@AuthJwtPayload('user.id') memberId: number): Promise<IResponseData> {
-    const cartItems = await this.cartService.getOrCreate(memberId)
-    return { data: cartItems }
+    const data = await this.cartService.getOrCreateActiveCart(memberId)
+    return { data }
   }
 
   @ApiRequestData({
@@ -61,15 +61,8 @@ export class CartAppController {
     @RequestBody() body: CartRequestCreateItemDto,
     @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
-    const cartData = await this.cartService.getCartData(memberId)
-    const cartItems = await this.cartService.addItem(cartData, {
-      productId: body.productId,
-      quantity: body.quantity,
-      promotionId: body?.promotionId,
-      offerId: body?.offerId,
-      bundleId: body?.bundleId,
-    })
-    return { data: cartItems }
+    const cartData = await this.cartService.addItem(memberId, body)
+    return { data: cartData }
   }
 
   @ApiRequestData({
@@ -95,10 +88,9 @@ export class CartAppController {
     @RequestParam('itemId') itemId: number,
     @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
-    const cartData = await this.cartService.validate(memberId, cartVersion)
-    const cartItem = await this.cartService.getCartItem({ where: { id: itemId } })
-    const cartItems = await this.cartService.adjustItem(cartData, cartItem, body.quantity)
-    return { data: cartItems }
+    await this.cartService.validateActiveCart(memberId, cartVersion)
+    const cartData = await this.cartService.adjustItem(memberId, itemId, body.quantity)
+    return { data: cartData }
   }
 
   @ApiRequestData({
@@ -123,9 +115,8 @@ export class CartAppController {
     @RequestParam('itemId') itemId: number,
     @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
-    const cartData = await this.cartService.validate(memberId, cartVersion)
-    const cartItem = await this.cartService.getCartItem({ where: { id: itemId } })
-    const cartItems = await this.cartService.removeItem(cartData, cartItem)
-    return { data: cartItems }
+    await this.cartService.validateActiveCart(memberId, cartVersion)
+    const cartData = await this.cartService.removeItem(memberId, itemId)
+    return { data: cartData }
   }
 }

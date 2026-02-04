@@ -99,7 +99,6 @@ export class MemberUtil {
         memberId: options?.memberData?.memberId,
         code: verifyData.code,
         expiresAt: verifyData.expired,
-        isExpired: true,
       },
     })
   }
@@ -120,15 +119,14 @@ export class MemberUtil {
       memberId: options?.memberId,
       code: token,
       isActive: true,
-      isExpired: false,
       isVerified: true,
+      isExpired: false,
     })
   }
 
   async approveToken(token: string, options: IMemberVerifyApproveOptions): Promise<boolean> {
     const lastVerifyData = await this.prisma.memberVerification.findFirst({
       where: {
-        isActive: true,
         channel: options.channel,
         type: options.method,
         email: options?.email,
@@ -138,40 +136,27 @@ export class MemberUtil {
       orderBy: { id: 'desc' },
     })
 
-    if (!lastVerifyData || lastVerifyData.code !== token) {
+    if (!lastVerifyData || !lastVerifyData.isActive) {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
-        message: 'auth.error.tokenExpired',
-      })
-    }
-
-    if (lastVerifyData.isVerified) {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'auth.error.tokenUsed',
+        message: 'auth.error.tokenInvalid',
       })
     }
 
     const nowDate = this.helperService.dateNow()
-    if (nowDate >= lastVerifyData.expiresAt) {
+    if (lastVerifyData.code !== token || nowDate >= lastVerifyData.expiresAt) {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'auth.error.tokenExpired',
       })
     }
 
-    const { id: verifyId, memberId, phone, email } = lastVerifyData
-
-    await this.prisma.$transaction([
-      this.prisma.memberVerification.updateMany({
-        where: { memberId, phone, email, isActive: true, id: { lt: verifyId } },
-        data: { isActive: false },
-      }),
-      this.prisma.memberVerification.update({
-        where: { id: verifyId },
+    if (!lastVerifyData.isVerified) {
+      await this.prisma.memberVerification.update({
+        where: { id: lastVerifyData.id },
         data: { isActive: true, isVerified: true, verifiedAt: nowDate },
-      }),
-    ])
+      })
+    }
 
     return true
   }
@@ -200,7 +185,10 @@ export class MemberUtil {
 
     const code = options?.inspector
       ? digits.repeat(Math.ceil(length / digits.length)).slice(0, length)
-      : this.helperService.randomString(options.length, { numeric: options.numeric })
+      : this.helperService.randomString(options.length, {
+          numeric: options.numeric,
+          upperCase: true,
+        })
 
     if (options?.hashed) {
       const hashed = this.helperService.base64Encrypt(

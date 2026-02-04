@@ -43,6 +43,9 @@ export abstract class ScheduleMockupBase {
     this.logger.log(`${this.constructor.name} run successfully`)
   }
 
-  abstract mockable(): Promise<boolean>
+  protected async mockable(): Promise<boolean> {
+    return true
+  }
+
   abstract mockup(): Promise<void>
 }

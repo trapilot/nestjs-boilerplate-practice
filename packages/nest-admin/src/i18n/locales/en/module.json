@@ -79,7 +79,7 @@
       "refereeId": "Referee ID",
       "invoiceId": "Invoice ID",
       "invoiceAmount": "Invoice Amount",
-      "type": "Type",
+      "action": "Type",
       "point": "Point",
       "pointBalance": "Point Balance",
       "multipleRatio": "Multiple Ratio",

@@ -2,10 +2,10 @@ import { Controller, Post } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { EnumOrderSource } from '@runtime/prisma-client'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
-import { ApiRequestData, IResponseData, RequestBody, RequestUserVersion } from 'lib/nest-web'
+import { ApiRequestData, IResponseData, RequestBody } from 'lib/nest-web'
 import { CartService } from 'modules/cart/services/cart.service'
 import { ORDER_DOC_OPERATION } from '../constants/order.doc.constant'
-import { OrderRequestCheckoutDto } from '../dtos/order.request.checkout.dto'
+import { OrderRequestPlaceDto } from '../dtos/order.request.place.dto'
 import { OrderResponseDetailDto } from '../dtos/order.response.detail.dto'
 import { OrderService } from '../services/order.service'
 
@@ -33,14 +33,12 @@ export class OrderAppController {
       dto: OrderResponseDetailDto,
     },
   })
-  @Post('/checkout')
-  async checkout(
-    @RequestBody() body: OrderRequestCheckoutDto,
-    @RequestUserVersion() cartVersion: number,
+  @Post('/place')
+  async placeOrder(
+    @RequestBody() body: OrderRequestPlaceDto,
     @AuthJwtPayload('user.id') memberId: number,
   ): Promise<IResponseData> {
-    const cart = await this.cartService.validate(memberId, cartVersion)
-    const order = await this.orderService.createFromCart(cart.id, {
+    const order = await this.orderService.createFromCart(memberId, {
       source: EnumOrderSource.APP,
       shipment: {
         address: body?.address,

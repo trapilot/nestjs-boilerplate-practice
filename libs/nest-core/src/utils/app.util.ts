@@ -39,8 +39,10 @@ export class AppUtil {
     return Math.floor(ms(value) / 1000)
   }
 
-  static captureException(exception: any): void {
-    console.error(exception)
+  static captureException(exception: any, isConsole: boolean = false): void {
+    if (isConsole) {
+      console.error(exception)
+    }
   }
 
   static catchMessage(err: unknown, errAs: string = 'Unknown error'): string {
