@@ -39,7 +39,7 @@
     "admin:migrate": "rm -rf public/admin && mv ./packages/nest-admin/dist public/admin",
     "schematics:install": "pnpm install --filter nest-schematics",
     "schematics:build": "pnpm --filter nest-schematics build",
-    "schematics:generate": "pnpm --filter nest-schematics exec nest g -p modules res",
+    "schematics:generate": "nest g -c ./packages/nest-schematics/dist/collection.json -p modules res",
     "db:format": "npx prisma format",
     "db:studio": "npx prisma studio",
     "db:generate": "npx prisma generate",

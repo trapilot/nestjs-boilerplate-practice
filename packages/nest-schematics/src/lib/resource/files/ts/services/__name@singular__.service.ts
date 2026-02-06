@@ -1,4 +1,4 @@
-import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
 import {
   IPrismaOptions,
@@ -7,23 +7,11 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { T<%= singular(classify(name)) %> } from '../interfaces'
+import { T<%= singular(classify(name)) %> } from '../interfaces/<%= singular(lowercased(name)) %>.interface'
 
 @Injectable()
 export class <%= singular(classify(name)) %>Service {
   constructor(private readonly prisma: PrismaService) {}
-
-  async findOne(kwargs?: Prisma.<%= singular(classify(name)) %>FindUniqueArgs): Promise<T<%= singular(classify(name)) %>> {
-    return await this.prisma.<%= singular(lowercased(name)) %>.findUnique(kwargs)
-  }
-
-  async findFirst(kwargs: Prisma.<%= singular(classify(name)) %>FindFirstArgs = {}): Promise<T<%= singular(classify(name)) %>> {
-    return await this.prisma.<%= singular(lowercased(name)) %>.findFirst(kwargs)
-  }
-
-  async findAll(kwargs: Prisma.<%= singular(classify(name)) %>FindManyArgs = {}): Promise<T<%= singular(classify(name)) %>[]> {
-    return await this.prisma.<%= singular(lowercased(name)) %>.findMany(kwargs)
-  }
 
   async findOrFail(
     id: number,
@@ -55,20 +43,6 @@ export class <%= singular(classify(name)) %>Service {
     return <%= singular(lowercased(name)) %>
   }
 
-  async differOrFail(
-    where: Prisma.<%= singular(classify(name)) %>WhereInput,
-    options?: { limit?: number; message?: string },
-  ): Promise<void> {
-    const totalRecords = await this.count(where)
-    const limitRecords = options?.limit ?? 0
-    if (totalRecords > limitRecords) {
-      throw new ConflictException({
-        statusCode: HttpStatus.CONFLICT,
-        message: options?.message ?? 'module.<%= singular(lowercased(name)) %>.conflict',
-      })
-    }
-  }
-
   async list(
     where?: Prisma.<%= singular(classify(name)) %>WhereInput,
     params?: IPrismaParams,
@@ -83,19 +57,6 @@ export class <%= singular(classify(name)) %>Service {
     options?: IPrismaOptions,
   ): Promise<IPrismaReturnPaging> {
     return await this.prisma.<%= singular(lowercased(name)) %>.paginate(where, params, options)
-  }
-
-  async count(where?: Prisma.<%= singular(classify(name)) %>WhereInput): Promise<number> {
-    return await this.prisma.<%= singular(lowercased(name)) %>.count({
-      where,
-    })
-  }
-
-  async find(id: number, kwargs: Omit<Prisma.<%= singular(classify(name)) %>FindUniqueArgs, 'where'> = {}): Promise<T<%= singular(classify(name)) %>> {
-    return await this.prisma.<%= singular(lowercased(name)) %>.findUnique({
-      ...kwargs,
-      where: { id },
-    })
   }
 
   async create(data: Prisma.<%= singular(classify(name)) %>UncheckedCreateInput): Promise<T<%= singular(classify(name)) %>> {
@@ -114,10 +75,10 @@ export class <%= singular(classify(name)) %>Service {
     })
   }
 
-  async delete(<%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>, deletedBy?: number): Promise<boolean> {
+  async delete(id: number, deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
-        await tx.<%= singular(lowercased(name)) %>.delete({ where: { id: <%= singular(lowercased(name)) %>.id } })
+        await tx.<%= singular(lowercased(name)) %>.delete({ where: { id } })
       })
       return true
     } catch {

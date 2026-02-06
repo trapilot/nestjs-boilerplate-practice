@@ -3,64 +3,64 @@ import {
   ForbiddenException,
   HttpStatus,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
 import { plainToInstance } from 'class-transformer'
 import {
-  AuthJwtAccessPayloadDto,
-  AuthJwtRefreshPayloadDto,
-  AuthTokenResponseDto,
+  AuthResponseLoginDto,
+  AuthResponseTokenDto,
+  AuthTwoFactorUtil,
   AuthUtil,
-  IAuthPassword,
-  IAuthPayloadOptions,
-  IAuthRefetchOptions,
+  EnumAuthSignUpFrom,
+  IAuthJwtPayload,
+  IAuthLoginOptions,
   IAuthUserValidatorDto,
   IAuthValidator,
   IAuthValidatorOptions,
 } from 'lib/nest-auth'
-import { PrismaService } from 'lib/nest-prisma'
-import { APP_TIMEZONE, HelperService, IRequestApp } from 'lib/nest-core'
-import { IResult } from 'ua-parser-js'
-import {
-  <%= singular(classify(name)) %>RequestChangePasswordDto,
-  <%= singular(classify(name)) %>RequestSignInDto,
-  <%= singular(classify(name)) %>RequestSignUpDto,
-  <%= singular(classify(name)) %>ResponseLoginDto,
-  <%= singular(classify(name)) %>ResponsePayloadDto,
-} from '../dtos'
-import { T<%= singular(classify(name)) %> } from '../interfaces'
+import { HelperService, IRequestApp } from 'lib/nest-core'
+import { PrismaService, PrismaUtil } from 'lib/nest-prisma'
+import { <%= singular(classify(name)) %>RequestChangePasswordDto } from '../dtos/<%= singular(lowercased(name)) %>.request.change-password.dto'
+import { <%= singular(classify(name)) %>RequestSignInDto } from '../dtos/<%= singular(lowercased(name)) %>.request.sign-in.dto'
+import { <%= singular(classify(name)) %>RequestSignUpDto } from '../dtos/<%= singular(lowercased(name)) %>.request.sign-up.dto'
+import { <%= singular(classify(name)) %>ResponsePayloadDto } from '../dtos/<%= singular(lowercased(name)) %>.response.payload.dto'
+import { Enum<%= singular(classify(name)) %>ActivityAction } from '../enums/<%= singular(lowercased(name)) %>.enum'
+import { <%= singular(classify(name)) %>Util } from '../helpers/<%= singular(lowercased(name)) %>.util'
+import { T<%= singular(classify(name)) %> } from '../interfaces/<%= singular(lowercased(name)) %>.interface'
 
 @Injectable()
-export class { <%= singular(classify(name)) %>Auth implements IAuthValidator<T<%= singular(classify(name)) %>> {
+export class <%= singular(classify(name)) %>Auth implements IAuthValidator<T<%= singular(classify(name)) %>> {
   private readonly authRelation: Prisma.<%= singular(classify(name)) %>Include = {}
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly helperService: HelperService,
     private readonly authUtil: AuthUtil,
+    private readonly authTwoFactorUtil: AuthTwoFactorUtil,
   ) {}
 
-  async cleanUpRefreshTokens() {
-    const nowDate = this.helperService.dateNow()
-    await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.deleteMany({
-      where: { refreshExpired: { lte: nowDate } },
-    })
-  }
-
-  async cleanUpPasswordAttempts() {
-    await this.prisma.<%= singular(lowercased(name)) %>.updateMany({
-      data: { passwordAttempt: 0 },
-      where: { passwordAttempt: { gt: 0 }, isActive: true },
-    })
-  }
-
   async validatePayload(
-    data: AuthJwtAccessPayloadDto,
+    payload: IAuthJwtPayload,
     request: IRequestApp,
     options: IAuthValidatorOptions,
   ): Promise<IAuthUserValidatorDto> {
-    const userData = await this.getUserData(data.user.id)
+    const userData = await this.getUserData(payload.user.id)
+    if (options?.hmac) {
+      const verified = this.helperService.verifyUserHmac(userData.id, {
+        key: userData.password,
+        hmac: request.headers['x-user-hmac'] as string,
+      })
+      if (!verified) {
+        throw new BadRequestException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'auth.error.requestNotValidated',
+        })
+      }
+    }
+
     const userPayload = this.serializeUserData(userData)
     if (Object.keys(this.authRelation).length) {
       for (const relation in this.authRelation) {
@@ -86,52 +86,6 @@ export class { <%= singular(classify(name)) %>Auth implements IAuthValidator<T<%
     return plainToInstance(<%= singular(classify(name)) %>ResponsePayloadDto, data, {
       excludeExtraneousValues: true,
     })
-  }
-
-  private async checkRefreshTokenExpirationTime(
-    refreshToken: string,
-    refreshPayload: AuthJwtRefreshPayloadDto,
-  ) {
-    const userToken = await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.findFirst({
-      where: { refreshToken },
-      orderBy: [{ id: desc }],
-    })
-
-    if (!userToken) {
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: 'auth.error.refreshTokenUnauthorized',
-      })
-    }
-
-    if (!userToken.isActive || this.helperService.dateIsAfter(userToken.refreshExpired)) {
-      // tracking spam refresh token
-      await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.update({
-        where: { id: userToken.id },
-        data: { refreshAttempt: { increment: 1 } },
-      })
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: 'auth.error.refreshTokenExpired',
-      })
-    }
-
-    if (
-      userToken.<%= singular(lowercased(name)) %>Token !== refreshPayload.loginToken ||
-      userToken.<%= singular(lowercased(name)) %>Id !== refreshPayload.user.id
-    ) {
-      // kick users that logged in. user must login again
-      await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.updateMany({
-        where: { <%= singular(lowercased(name)) %>Id: userToken.<%= singular(lowercased(name)) %>Id },
-        data: { isActive: false },
-      })
-      throw new ForbiddenException({
-        statusCode: HttpStatus.FORBIDDEN,
-        message: 'auth.error.refreshTokenLeaked',
-      })
-    }
-
-    return true
   }
 
   async findOrFail(
@@ -162,45 +116,43 @@ export class { <%= singular(classify(name)) %>Auth implements IAuthValidator<T<%
       })
   }
 
-  async credential(dto: <%= singular(classify(name)) %>RequestSignInDto) {
-    const { country, phone } = this.helperService.parsePhone(dto.phone)
-    const <%= singular(lowercased(name)) %> = await this.matchOrFail(
-      { country, phone },
-      { include: this.authRelation },
+  async validateCredential(dto: <%= singular(classify(name)) %>RequestSignInDto): Promise<T<%= singular(classify(name)) %>> {
+    const user = await this.matchOrFail(
+      { email: dto.email },
+      {
+        include: this.authRelation,
+      },
     )
-    const validate: boolean = await this.authUtil.verify(dto.password, <%= singular(lowercased(name)) %>.password)
+
+    const validate = await this.authUtil.passwordVerify(dto.password, user.password)
     if (!validate) {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'auth.error.passwordNotMatch',
       })
     }
-    return <%= singular(lowercased(name)) %>
+    return user
   }
 
-  async certificate(dto: { email: string }): Promise<TUser> {
-    const <%= singular(lowercased(name)) %> = await this.matchOrFail(
+  async validateOAuthEmail(dto: { email: string }): Promise<T<%= singular(classify(name)) %>> {
+    const user = await this.matchOrFail(
       { email: dto.email },
-      { include: this.authRelation },
+      {
+        include: this.authRelation,
+      },
     )
-    return <%= singular(lowercased(name)) %>
+    return user
   }
 
-  async login(
-    <%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>,
-    userIp: string,
-    userAgent: IResult,
-    userRequest: IRequestApp,
-    options: Partial<IAuthPayloadOptions>,
-  ): Promise<<%= singular(classify(name)) %>ResponseLoginDto> {
-    if (!<%= singular(lowercased(name)) %>.isActive) {
+  async login(user: T<%= singular(classify(name)) %>, options: IAuthLoginOptions): Promise<AuthResponseLoginDto> {
+    if (!user.isActive) {
       throw new BadRequestException({
         statusCode: HttpStatus.FORBIDDEN,
         message: 'auth.error.inactive',
       })
     }
 
-    const checkPasswordExpired = await this.authUtil.checkPasswordExpired(<%= singular(lowercased(name)) %>.passwordExpired)
+    const checkPasswordExpired = this.authUtil.passwordCheckExpired(user.passwordExpired)
     if (checkPasswordExpired) {
       throw new BadRequestException({
         statusCode: HttpStatus.FORBIDDEN,
@@ -208,253 +160,200 @@ export class { <%= singular(classify(name)) %>Auth implements IAuthValidator<T<%
       })
     }
 
-    const payload = this.serializeUserData(<%= singular(lowercased(name)) %>)
-    const payloadAccessToken = await this.authUtil.createPayloadAccessToken(payload, {
-      scopeType: options.scopeType,
-      loginFrom: options.loginFrom,
-      loginWith: options.loginWith,
-      loginType: options.loginType,
-      loginDate: options?.loginDate ?? (await this.authUtil.getLoginDate()),
-      loginToken: options?.loginToken ?? this.authUtil.createUserToken(userIp, userAgent),
-      loginRotate: options?.loginRotate === true,
-    })
+    if (!user.twoFactor?.enabled) {
+      const payload = this.serializeUserData(user)
+      const session = this.authUtil.createSession(payload, options.userSession)
 
-    const payloadRefreshToken = await this.authUtil.createPayloadRefreshToken(
-      payload.id,
-      payloadAccessToken,
-    )
+      const expiredAt = this.helperService.dateForward(this.helperService.dateNow(), {
+        seconds: session.tokens.refreshIn,
+      })
 
-    const [expiresIn, refreshIn] = await Promise.all(
-      options?.loginRotate === true
-        ? [
-            this.authUtil.getAccessTokenExpirationTime(),
-            this.authUtil.getRefreshTokenExpirationTime(),
-          ]
-        : [this.authUtil.getRemainingExpirationTime(), 0],
-    )
+      await Promise.all([
+        this.authUtil.setLogin(options.userSession.scopeType, {
+          userId: user.id.toString(),
+          userToken: session.loginToken,
+          jti: session.jti,
+          expiredAt,
+        }),
+        this.prisma.<%= singular(lowercased(name)) %>.update({
+          where: { id: user.id, deletedAt: null },
+          data: {
+            loginDate: session.loginDate,
+            loginToken: session.loginToken,
+            sessions: {
+              create: {
+                jti: session.jti,
+                expiredAt,
+                userToken: session.loginToken,
+                isRevoked: false,
+                ipAddress: options.userIp,
+                userAgent: PrismaUtil.toPlainObject(options.userAgent),
+              },
+            },
+            activities: {
+              create: {
+                action: <%= singular(classify(name)) %>Util.getActivityLogin(options.userSession.loginType),
+                ipAddress: options.userIp,
+                userAgent: PrismaUtil.toPlainObject(options.userAgent),
+              },
+            },
+          },
+        }),
+      ])
 
-    const tokenType = await this.authUtil.getTokenType()
-    const accessToken = await this.authUtil.createAccessToken(
-      <%= singular(lowercased(name)) %>.id,
-      payloadAccessToken,
-      expiresIn,
-    )
+      return {
+        isTwoFactorEnable: false,
+        token: session.tokens,
+      }
+    }
 
-    const refreshToken = await this.authUtil.createRefreshToken(<%= singular(lowercased(name)) %>.id, payloadRefreshToken, refreshIn)
-
-    await this.handleLoggedIn(<%= singular(lowercased(name)) %>, {
-      payload: payloadAccessToken,
-      userToken: { refreshToken, refreshIn },
-      userRequest,
+    const { challengeToken, expiresInMs } = await this.authTwoFactorUtil.createChallenge({
+      userId: user.id,
+      userSession: options.userSession,
     })
 
     return {
-      isTwoFactorEnable: false,
-      token: {
-        tokenType,
-        expiresIn,
-        accessToken,
-        refreshToken,
+      isTwoFactorEnable: true,
+      twoFactor: {
+        isRequiredSetup: false,
+        challengeToken,
+        challengeExpiresInMs: expiresInMs,
+        backupCodesRemaining: PrismaUtil.toPlainArray(user.twoFactor.backupCodes).length ?? 0,
       },
     }
   }
 
   async refresh(
-    <%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>,
+    user: T<%= singular(classify(name)) %>,
     refreshToken: string,
-    refreshPayload: AuthJwtRefreshPayloadDto,
-  ): Promise<AuthTokenResponseDto> {
-    if (!refreshPayload?.loginRotate) {
+    options: Omit<IAuthLoginOptions, 'userSession'>,
+  ): Promise<AuthResponseTokenDto> {
+    const refreshPayload = this.authUtil.payloadToken<<%= singular(classify(name)) %>ResponsePayloadDto>(refreshToken)
+
+    if (!refreshPayload.loginRotate) {
       throw new ForbiddenException({
         statusCode: HttpStatus.FORBIDDEN,
         message: 'auth.error.refreshTokenUnauthorized',
       })
     }
 
-    await this.checkRefreshTokenExpirationTime(refreshToken, refreshPayload)
-
-    const payload = this.serializeUserData(<%= singular(lowercased(name)) %>)
-    const payloadAccessToken = await this.authUtil.createPayloadAccessToken(payload, {
-      scopeType: refreshPayload?.scopeType,
-      loginType: refreshPayload?.loginType,
-      loginFrom: refreshPayload?.loginFrom,
-      loginWith: refreshPayload?.loginWith,
-      loginDate: refreshPayload?.loginDate,
-      loginToken: refreshPayload?.loginToken,
-      loginRotate: refreshPayload?.loginRotate,
+    const cacheSession = await this.authUtil.getLogin(refreshPayload.scopeType, {
+      userId: refreshPayload.user.id.toString(),
+      userToken: refreshPayload.loginToken,
     })
-
-    const tokenType = await this.authUtil.getTokenType()
-    const expiresIn = await this.authUtil.getAccessTokenExpirationTime()
-    const accessToken = await this.authUtil.createAccessToken(
-      <%= singular(lowercased(name)) %>.id,
-      payloadAccessToken,
-      expiresIn,
-    )
-
-    const refreshIn = await this.authUtil.getRefreshTokenExpirationTime()
-    const payloadRefreshToken = await this.authUtil.createPayloadRefreshToken(
-      payload.id,
-      payloadAccessToken,
-    )
-
-    refreshToken = await this.authUtil.createRefreshToken(
-      <%= singular(lowercased(name)) %>.id,
-      payloadRefreshToken,
-      refreshIn,
-    )
-
-    await this.handleLoggedIn(<%= singular(lowercased(name)) %>, {
-      payload: payloadAccessToken,
-      userToken: { refreshToken, refreshIn },
-    })
-
-    return { tokenType, expiresIn, accessToken, refreshToken }
-  }
-
-  async handleLoggedIn(<%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>, options: IAuthRefetchOptions): Promise<boolean> {
-    const { payload, userToken, userAgent, userRequest } = options
+    if (cacheSession.jti !== refreshPayload.jti) {
+      throw new UnauthorizedException({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'auth.error.refreshTokenInvalid',
+      })
+    }
 
     try {
-      await this.prisma.<%= singular(lowercased(name)) %>.update({
-        data: { loginDate: payload.loginDate, loginToken: payload.loginToken, passwordAttempt: 0 },
-        where: { id: <%= singular(lowercased(name)) %>.id },
-      })
+      const payload = this.serializeUserData(user)
+      const session = this.authUtil.createSession(payload, refreshPayload)
 
-      if (userToken) {
-        // disabled old online refresh tokens
-        await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.updateMany({
-          data: { isActive: false, updatedAt: payload.loginDate },
-          where: { <%= singular(lowercased(name)) %>Id: <%= singular(lowercased(name)) %>.id, isActive: true, <%= singular(lowercased(name)) %>Token: payload.loginToken },
-        })
-        await this.prisma.<%= singular(lowercased(name)) %>TokenHistory.create({
-          data: {
-            isActive: true,
-            <%= singular(lowercased(name)) %>Id: <%= singular(lowercased(name)) %>.id,
-            <%= singular(lowercased(name)) %>Token: payload.loginToken,
-            createdAt: payload.loginDate,
-            updatedAt: payload.loginDate,
-            refreshToken: userToken.refreshToken,
-            refreshExpired: this.helperService.dateForward(payload.loginDate, {
-              seconds: userToken.refreshIn,
-            }),
+      await Promise.all([
+        this.authUtil.updateLogin(
+          refreshPayload.scopeType,
+          cacheSession,
+          {
+            jti: session.jti,
+            userToken: session.loginToken,
           },
-        })
-      }
-
-      /*if (userRequest) {
-        await this.prisma.<%= singular(lowercased(name)) %>LoginHistory.create({
+          session.tokens.expiresIn,
+        ),
+        this.prisma.<%= singular(lowercased(name)) %>.update({
+          where: { id: user.id, deletedAt: null },
           data: {
-            userId: <%= singular(lowercased(name)) %>.id,
-            hostname: userRequest?.hostname,
-            ip: userRequest?.ip,
-            protocol: userRequest?.protocol,
-            originalUrl: userRequest?.originalUrl,
-            method: userRequest?.method,
-            userAgent: userRequest?.headers?.['user-agent'] as string,
-            xForwardedFor: userRequest?.headers?.['x-forwarded-for'] as string,
-            xForwardedHost: userRequest?.headers?.['x-forwarded-host'] as string,
-            xForwardedPorto: userRequest?.headers?.['x-forwarded-porto'] as string,
-            loginDate: payload.loginDate,
+            loginDate: session.loginDate,
+            loginToken: session.loginToken,
+            sessions: {
+              update: {
+                where: {
+                  userToken: session.loginToken,
+                },
+                data: {
+                  jti: session.jti,
+                },
+              },
+            },
+            activities: {
+              create: {
+                action: Enum<%= singular(classify(name)) %>ActivityAction.REFRESH_TOKEN,
+                ipAddress: options.userIp,
+                userAgent: PrismaUtil.toPlainObject(options.userAgent),
+              },
+            },
           },
-        })
-      }*/
-      /*if (userAgent) {
-        // disabled online devices
-        await this.prisma.<%= singular(lowercased(name)) %>DeviceHistory.updateMany({
-          data: { isActive: false, updatedAt: payload.loginDate },
-          where: { token: payload.loginToken },
-        })
+        }),
+      ])
 
-        const <%= singular(lowercased(name)) %>Data: Prisma.<%= singular(classify(name)) %>DeviceHistoryUncheckedCreateInput = {
-          type: userAgent?.device?.type ?? null,
-          model: userAgent?.device?.model ?? null,
-          version: userAgent?.os?.version ?? null,
-          createdAt: payload.loginDate,
-          updatedAt: payload.loginDate,
-          token: payload.loginToken,
-          isActive: true,
-          <%= singular(lowercased(name)) %>Id: <%= singular(lowercased(name)) %>.id,
-        }
-        await this.prisma.<%= singular(lowercased(name)) %>DeviceHistory.upsert({
-          where: { <%= singular(lowercased(name)) %>Id_token: { <%= singular(lowercased(name)) %>Id: userData.<%= singular(lowercased(name)) %>Id, token: userData.token } },
-          update: userData,
-          create: userData,
-        })
-      }*/
-    } catch {
-      throw new BadRequestException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'auth.error.hanleLoginData',
+      return session.tokens
+    } catch (err: unknown) {
+      throw new InternalServerErrorException({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'http.serverError.internalServerError',
+        _error: err,
       })
     }
-    return true
   }
 
-  private async increasePasswordAttempt(<%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>): Promise<void> {
+  private async increasePasswordAttempt(user: T<%= singular(classify(name)) %>): Promise<void> {
     await this.prisma.<%= singular(lowercased(name)) %>.update({
       data: { passwordAttempt: { increment: 1 } },
-      where: { id: <%= singular(lowercased(name)) %>.id },
+      where: { id: user.id },
     })
   }
 
-  private async resetPasswordAttempt(<%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>): Promise<void> {
+  private async resetPasswordAttempt(user: T<%= singular(classify(name)) %>): Promise<void> {
     await this.prisma.<%= singular(lowercased(name)) %>.update({
       data: { passwordAttempt: 0 },
-      where: { id: <%= singular(lowercased(name)) %>.id },
+      where: { id: user.id },
     })
   }
 
-  private async updatePassword(<%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>, { passwordHash }: IAuthPassword): Promise<boolean> {
-    await this.prisma.<%= singular(lowercased(name)) %>.update({
-      data: { password: passwordHash, passwordAttempt: 0 },
-      where: { id: <%= singular(lowercased(name)) %>.id },
-    })
-    return true
-  }
-
-  async verifyPassword(<%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>, password: string): Promise<boolean> {
+  async verifyPassword(user: T<%= singular(classify(name)) %>, password: string): Promise<boolean> {
     const passwordAttempt = await this.authUtil.getPasswordAttempt()
     const maxPasswordAttempt = await this.authUtil.getMaxPasswordAttempt()
-    if (passwordAttempt && <%= singular(lowercased(name)) %>.passwordAttempt >= maxPasswordAttempt) {
+    if (passwordAttempt && user.passwordAttempt >= maxPasswordAttempt) {
       throw new BadRequestException({
         statusCode: HttpStatus.FORBIDDEN,
         message: 'auth.error.passwordAttemptMax',
       })
     }
 
-    const matchPassword: boolean = await this.authUtil.verify(password, <%= singular(lowercased(name)) %>.password)
+    const matchPassword = await this.authUtil.passwordVerify(password, user.password)
     if (!matchPassword) {
-      await this.increasePasswordAttempt(<%= singular(lowercased(name)) %>)
+      await this.increasePasswordAttempt(user)
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'auth.error.passwordNotMatch',
       })
     }
-    await this.resetPasswordAttempt(<%= singular(lowercased(name)) %>)
+    await this.resetPasswordAttempt(user)
     return true
   }
 
-  async changePassword(<%= singular(lowercased(name)) %>: T<%= singular(classify(name)) %>, dto: <%= singular(classify(name)) %>RequestChangePasswordDto): Promise<boolean> {
+  async changePassword(user: T<%= singular(classify(name)) %>, dto: <%= singular(classify(name)) %>RequestChangePasswordDto): Promise<T<%= singular(classify(name)) %>> {
     const passwordAttempt = await this.authUtil.getPasswordAttempt()
     const maxPasswordAttempt = await this.authUtil.getMaxPasswordAttempt()
-    if (passwordAttempt && <%= singular(lowercased(name)) %>.passwordAttempt >= maxPasswordAttempt) {
+    if (passwordAttempt && user.passwordAttempt >= maxPasswordAttempt) {
       throw new BadRequestException({
         statusCode: HttpStatus.FORBIDDEN,
         message: 'auth.error.passwordAttemptMax',
       })
     }
 
-    const matchPassword: boolean = await this.authUtil.verify(dto.oldPassword, <%= singular(lowercased(name)) %>.password)
+    const matchPassword = await this.authUtil.passwordVerify(dto.oldPassword, user.password)
     if (!matchPassword) {
-      await this.increasePasswordAttempt(<%= singular(lowercased(name)) %>)
+      await this.increasePasswordAttempt(user)
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'auth.error.passwordNotMatch',
       })
     }
 
-    const newMatchPassword: boolean = await this.authUtil.verify(dto.newPassword, <%= singular(lowercased(name)) %>.password)
+    const newMatchPassword = await this.authUtil.passwordVerify(dto.newPassword, user.password)
     if (newMatchPassword) {
       throw new BadRequestException({
         statusCode: HttpStatus.BAD_REQUEST,
@@ -462,23 +361,29 @@ export class { <%= singular(classify(name)) %>Auth implements IAuthValidator<T<%
       })
     }
 
-    const password = await this.authUtil.createPassword(dto.newPassword)
-    return await this.updatePassword(<%= singular(lowercased(name)) %>, password)
+    const { passwordHash } = this.authUtil.passwordCreate(dto.newPassword)
+    return await this.prisma.<%= singular(lowercased(name)) %>.update({
+      data: { password: passwordHash, passwordAttempt: 0 },
+      where: { id: user.id },
+    })
   }
 
   async signUp(dto: <%= singular(classify(name)) %>RequestSignUpDto): Promise<T<%= singular(classify(name)) %>> {
-    if (!!(await this.prisma.<%= singular(lowercased(name)) %>.count({ where: { email: dto.email } }))) {
+    const emailExists = await this.prisma.<%= singular(lowercased(name)) %>.count({ where: { email: dto.email } })
+    if (emailExists) {
       throw new BadRequestException({
         statusCode: HttpStatus.CONFLICT,
         message: 'auth.error.emailExist',
       })
     }
 
-    const { passwordHash } = await this.authUtil.createPassword(dto.password)
+    const { passwordHash } = this.authUtil.passwordCreate(dto.password)
     return await this.prisma.<%= singular(lowercased(name)) %>.create({
       data: {
-        isActive: true,
         ...dto,
+        isPhoneVerified: false,
+        isEmailVerified: false,
+        signUpFrom: EnumAuthSignUpFrom.CMS,
         password: passwordHash,
       },
     })

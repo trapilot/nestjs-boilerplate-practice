@@ -14,12 +14,12 @@ class ResponseDataDetailDto {
   @Expose()
   isActive: boolean
 
-  @ApiProperty({ example: new Date(Date.now - 20000 * 3600) })
+  @ApiProperty({ example: new Date(Date.now() - 20000 * 3600) })
   @ToDate()
   @Expose()
   createdAt: Date
 
-  @ApiProperty({ example: new Date(Date.now - 1000 * 3600) })
+  @ApiProperty({ example: new Date(Date.now() - 1000 * 3600) })
   @ToDate()
   @Expose()
   updatedAt: Date

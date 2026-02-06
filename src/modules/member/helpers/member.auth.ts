@@ -12,7 +12,7 @@ import { EnumVerificationChannel, Prisma } from '@runtime/prisma-client'
 import { plainToInstance } from 'class-transformer'
 import {
   AuthResponseLoginDto,
-  AuthTokenResponseDto,
+  AuthResponseTokenDto,
   AuthTwoFactorUtil,
   AuthUtil,
   IAuthJwtPayload,
@@ -236,7 +236,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
     member: TMember,
     refreshToken: string,
     options: Omit<IAuthLoginOptions, 'userSession'>,
-  ): Promise<AuthTokenResponseDto> {
+  ): Promise<AuthResponseTokenDto> {
     const refreshPayload = this.authUtil.payloadToken<MemberResponsePayloadDto>(refreshToken)
 
     if (!refreshPayload.loginRotate) {

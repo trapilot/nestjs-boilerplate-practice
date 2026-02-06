@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { Expose, Type } from 'class-transformer'
-import { AuthTokenResponseDto } from 'lib/nest-auth'
-import { UserResponseTwoFactorDto } from './user.response.two-factor.dto'
+import { AuthResponseTokenDto, AuthResponseTwoFactorDto } from 'lib/nest-auth'
 
 export class UserResponseLoginDto {
   @ApiProperty({
@@ -14,19 +13,19 @@ export class UserResponseLoginDto {
 
   @ApiProperty({
     required: false,
-    type: AuthTokenResponseDto,
+    type: AuthResponseTokenDto,
     description: 'Provides access and refresh tokens upon successful login',
   })
-  @Type(() => AuthTokenResponseDto)
+  @Type(() => AuthResponseTokenDto)
   @Expose()
-  token?: AuthTokenResponseDto
+  token?: AuthResponseTokenDto
 
   @ApiProperty({
     required: false,
-    type: UserResponseTwoFactorDto,
+    type: AuthResponseTwoFactorDto,
     description: 'Provides details for completing the 2FA verification step',
   })
-  @Type(() => UserResponseTwoFactorDto)
+  @Type(() => AuthResponseTwoFactorDto)
   @Expose()
-  twoFactor?: UserResponseTwoFactorDto
+  twoFactor?: AuthResponseTwoFactorDto
 }

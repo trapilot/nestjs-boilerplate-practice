@@ -1757,7 +1757,7 @@ export interface components {
       /** @example admin123 */
       password: string
     }
-    AuthTokenResponseDto: {
+    AuthResponseTokenDto: {
       /** @example Bearer */
       tokenType: string
       /**
@@ -1810,7 +1810,7 @@ export interface components {
        */
       isTwoFactorEnable: boolean
       /** @description Provides access and refresh tokens upon successful login */
-      token?: components['schemas']['AuthTokenResponseDto']
+      token?: components['schemas']['AuthResponseTokenDto']
       /** @description Provides details for completing the 2FA verification step */
       twoFactor?: components['schemas']['AuthResponseTwoFactorDto']
     }
@@ -4564,7 +4564,7 @@ export interface operations {
         }
         content: {
           'application/json': {
-            data?: components['schemas']['AuthTokenResponseDto']
+            data?: components['schemas']['AuthResponseTokenDto']
           } & components['schemas']['ResponseDataDto']
         }
       }
@@ -4594,7 +4594,7 @@ export interface operations {
         }
         content: {
           'application/json': {
-            data?: components['schemas']['AuthTokenResponseDto']
+            data?: components['schemas']['AuthResponseTokenDto']
           } & components['schemas']['ResponseDataDto']
         }
       }
@@ -4719,7 +4719,7 @@ export interface operations {
         }
         content: {
           'application/json': {
-            data?: components['schemas']['AuthTokenResponseDto']
+            data?: components['schemas']['AuthResponseTokenDto']
           } & components['schemas']['ResponseDataDto']
         }
       }

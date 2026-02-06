@@ -4,9 +4,9 @@ import {
   AuthJwtPayload,
   AuthJwtToken,
   AuthResponseLoginDto,
+  AuthResponseTokenDto,
   AuthSocialAppleProtected,
   AuthSocialGoogleProtected,
-  AuthTokenResponseDto,
   EnumAuthLoginFrom,
   EnumAuthLoginType,
   EnumAuthLoginWith,
@@ -107,7 +107,7 @@ export class UserAuthController {
       medium: { limit: 10, seconds: 60 },
     },
     response: {
-      dto: AuthTokenResponseDto,
+      dto: AuthResponseTokenDto,
     },
   })
   @AuthSocialGoogleProtected()
@@ -144,7 +144,7 @@ export class UserAuthController {
       medium: { limit: 10, seconds: 60 },
     },
     response: {
-      dto: AuthTokenResponseDto,
+      dto: AuthResponseTokenDto,
     },
   })
   @AuthSocialAppleProtected()
@@ -264,7 +264,7 @@ export class UserAuthController {
       medium: { limit: 5, seconds: 60 },
     },
     response: {
-      dto: AuthTokenResponseDto,
+      dto: AuthResponseTokenDto,
       statusCode: HttpStatus.OK,
     },
   })

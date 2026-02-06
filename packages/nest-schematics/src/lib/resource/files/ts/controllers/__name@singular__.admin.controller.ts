@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums'
+import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
 import {
@@ -17,14 +17,11 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { <%= singular(uppercased(name)) %>_DOC_ADMIN_QUERY_LIST, <%= singular(uppercased(name)) %>_DOC_OPERATION } from '../constants'
-import {
-  <%= singular(classify(name)) %>RequestCreateDto,
-  <%= singular(classify(name)) %>RequestUpdateDto,
-  <%= singular(classify(name)) %>ResponseDetailDto,
-  <%= singular(classify(name)) %>ResponseListDto,
-} from '../dtos'
-import { <%= singular(classify(name)) %>Service } from '../services'
+import { <%= singular(uppercased(name)) %>_DOC_ADMIN_QUERY_LIST, <%= singular(uppercased(name)) %>_DOC_OPERATION } from '../constants/<%= singular(lowercased(name)) %>.doc.constant'
+import { <%= singular(classify(name)) %>RequestCreateDto } from '../dtos/<%= singular(lowercased(name)) %>.request.create.dto'
+import { <%= singular(classify(name)) %>RequestUpdateDto } from '../dtos/<%= singular(lowercased(name)) %>.request.update.dto'
+import { <%= singular(classify(name)) %>ResponseDetailDto, <%= singular(classify(name)) %>ResponseListDto } from '../dtos/<%= singular(lowercased(name)) %>.response.detail.dto'
+import { <%= singular(classify(name)) %>Service } from '../services/<%= singular(lowercased(name)) %>.service'
 
 @ApiTags(<%= singular(uppercased(name)) %>_DOC_OPERATION)
 @Controller({ path: '/<%= plural(name) %>' })
@@ -35,6 +32,10 @@ export class <%= singular(classify(name)) %>AdminController {
     summary: <%= singular(uppercased(name)) %>_DOC_OPERATION,
     queries: <%= singular(uppercased(name)) %>_DOC_ADMIN_QUERY_LIST,
     sortable: true,
+    searchable: false,
+    exportable: false,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: EnumAuthScopeType.USER,
       user: {
@@ -75,7 +76,11 @@ export class <%= singular(classify(name)) %>AdminController {
   @ApiRequestList({
     summary: <%= singular(uppercased(name)) %>_DOC_OPERATION,
     queries: <%= singular(uppercased(name)) %>_DOC_ADMIN_QUERY_LIST,
+    sortable: false,
+    searchable: false,
+    exportable: false,
     docExclude: true,
+    docExpansion: false,
     jwtAccessToken: {
       scope: EnumAuthScopeType.USER,
       user: {
@@ -110,6 +115,8 @@ export class <%= singular(classify(name)) %>AdminController {
 
   @ApiRequestData({
     summary: <%= singular(uppercased(name)) %>_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: EnumAuthScopeType.USER,
       user: {
@@ -138,6 +145,8 @@ export class <%= singular(classify(name)) %>AdminController {
 
   @ApiRequestData({
     summary: <%= singular(uppercased(name)) %>_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: EnumAuthScopeType.USER,
       user: {
@@ -167,6 +176,8 @@ export class <%= singular(classify(name)) %>AdminController {
 
   @ApiRequestData({
     summary: <%= singular(uppercased(name)) %>_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: EnumAuthScopeType.USER,
       user: {
@@ -199,6 +210,8 @@ export class <%= singular(classify(name)) %>AdminController {
 
   @ApiRequestData({
     summary: <%= singular(uppercased(name)) %>_DOC_OPERATION,
+    docExclude: false,
+    docExpansion: false,
     jwtAccessToken: {
       scope: EnumAuthScopeType.USER,
       user: {
@@ -219,10 +232,7 @@ export class <%= singular(classify(name)) %>AdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
-    const <%= singular(lowercased(name)) %> = await this.<%= singular(lowercased(name)) %>Service.find(id)
-    if (<%= singular(lowercased(name)) %>) {
-      await this.<%= singular(lowercased(name)) %>Service.delete(<%= singular(lowercased(name)) %>, deletedBy)
-    }
+    await this.<%= singular(lowercased(name)) %>Service.delete(id, deletedBy)
 
     return {
       data: { status: true },

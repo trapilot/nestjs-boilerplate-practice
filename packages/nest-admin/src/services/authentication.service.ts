@@ -1,7 +1,7 @@
 /* AUTO-GENERATED FILE. DO NOT EDIT. */
 
-import { _privateAxios, _publicAxios } from '../lib/httpClient'
-import type { components as _components } from '../types/api'
+import { _privateAxios, _publicAxios } from '../lib/httpClient';
+import type { components as _components } from '../types/api';
 
 type RequestOptions = { query?: Record<string, unknown>; config?: any }
 
@@ -44,7 +44,7 @@ export const authenticationService = {
     const data = await client.post(url, body, config)
     return data as T
   },
-  loginWithGoogle: async <T = _components['schemas']['AuthTokenResponseDto']>(
+  loginWithGoogle: async <T = _components['schemas']['AuthResponseTokenDto']>(
     body?: unknown,
     options?: RequestOptions,
   ): Promise<T> => {
@@ -63,7 +63,7 @@ export const authenticationService = {
     const data = await client.post(url, body, config)
     return data as T
   },
-  loginWithApple: async <T = _components['schemas']['AuthTokenResponseDto']>(
+  loginWithApple: async <T = _components['schemas']['AuthResponseTokenDto']>(
     body?: unknown,
     options?: RequestOptions,
   ): Promise<T> => {
@@ -137,7 +137,7 @@ export const authenticationService = {
     const data = await client.put(url, body, config)
     return data as T
   },
-  refresh: async <T = _components['schemas']['AuthTokenResponseDto']>(
+  refresh: async <T = _components['schemas']['AuthResponseTokenDto']>(
     body?: unknown,
     options?: RequestOptions,
   ): Promise<T> => {

@@ -12,7 +12,7 @@ import { Prisma } from '@runtime/prisma-client'
 import { plainToInstance } from 'class-transformer'
 import {
   AuthResponseLoginDto,
-  AuthTokenResponseDto,
+  AuthResponseTokenDto,
   AuthTwoFactorUtil,
   AuthUtil,
   EnumAuthSignUpFrom,
@@ -247,7 +247,7 @@ export class UserAuth implements IAuthValidator<TUser> {
     user: TUser,
     refreshToken: string,
     options: Omit<IAuthLoginOptions, 'userSession'>,
-  ): Promise<AuthTokenResponseDto> {
+  ): Promise<AuthResponseTokenDto> {
     const refreshPayload = this.authUtil.payloadToken<UserResponsePayloadDto>(refreshToken)
 
     if (!refreshPayload.loginRotate) {

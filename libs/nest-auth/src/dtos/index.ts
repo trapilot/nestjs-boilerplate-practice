@@ -1,6 +1,6 @@
 export * from './auth.response.login.dto'
+export * from './auth.response.token.dto'
 export * from './auth.response.two-factor.dto'
 export * from './auth.social-apple.payload.dto'
 export * from './auth.social-google.payload.dto'
-export * from './auth.token.response.dto'
 export * from './auth.user-agent.request.dto'

@@ -6,9 +6,9 @@ import { CacheService, HelperService, IStringRandomOptions } from 'lib/nest-core
 import { IResult } from 'ua-parser-js'
 import verifyAppleToken from 'verify-apple-id-token'
 import {
+  AuthResponseTokenDto,
   AuthSocialApplePayloadDto,
   AuthSocialGooglePayloadDto,
-  AuthTokenResponseDto,
 } from '../dtos'
 import { EnumAuthScopeType } from '../enums'
 import {
@@ -163,7 +163,7 @@ export class AuthUtil {
       secret: this.jwtRefreshTokenSecretKey,
     })
 
-    const tokens: AuthTokenResponseDto = {
+    const tokens: AuthResponseTokenDto = {
       tokenType: this.jwtPrefix,
       expiresIn: accessIn,
       refreshIn,

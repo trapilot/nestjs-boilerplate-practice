@@ -2,7 +2,7 @@ import { Type } from '@nestjs/common'
 import { ClassConstructor } from 'class-transformer'
 import { EnumLike } from 'lib/nest-core'
 import { IResult } from 'ua-parser-js'
-import { AuthTokenResponseDto } from '../dtos'
+import { AuthResponseTokenDto } from '../dtos'
 import {
   EnumAuthLoginFrom,
   EnumAuthLoginType,
@@ -83,7 +83,7 @@ export interface IAuthVerifyOptions {
 
 export interface IAuthTokenGenerate {
   jti: string
-  tokens: AuthTokenResponseDto
+  tokens: AuthResponseTokenDto
   loginDate: Date
   loginToken: string
 }
