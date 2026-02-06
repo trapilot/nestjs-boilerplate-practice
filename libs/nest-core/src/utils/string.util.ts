@@ -10,6 +10,16 @@ import { AppUtil } from './app.util'
 
 export class StrUtil {
   static format(value: string, options?: IStringFormatOptions): string {
+    if (options?.ascii) {
+      value = value
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D')
+        .replace(/[^a-zA-Z0-9]+/g, '_')
+        .replace(/^_|_$/g, '')
+    }
+
     if (options?.spaceless) {
       value = value.replace(/\s+/g, '')
     }

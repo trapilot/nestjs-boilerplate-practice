@@ -43,6 +43,7 @@ export type IStringParse =
 export interface IStringFormatOptions {
   format?: 'uppercase' | 'lowercase' | 'capitalize'
   length?: number
+  ascii?: boolean
   spaceless?: boolean
   allowDigit?: boolean
   slices?: {
