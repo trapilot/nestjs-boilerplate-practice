@@ -52,25 +52,25 @@ export class InvoiceAppController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @AuthJwtPayload(['user.id', { parseAs: 'id' }]) memberId: number,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.InvoiceWhereInput = {
-      ..._search,
-      memberId,
-    }
-    const _include: Prisma.InvoiceInclude = {
-      order: {
-        include: {
-          items: true,
+    const kwargs: Prisma.InvoiceFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        memberId,
+      },
+      include: {
+        order: {
+          include: {
+            items: true,
+          },
         },
       },
     }
 
-    const pagination = await this.invoiceService.paginate(_where, _params, {
-      include: _include,
-    })
-    return pagination
+    return await this.invoiceService.getPage(kwargs)
   }
 
   @ApiRequestData({

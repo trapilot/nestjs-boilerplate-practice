@@ -25,7 +25,7 @@ export class InvoiceMock extends ScheduleMockupBase {
       orderBy: [{ id: 'desc' }],
     })
 
-    const invoices = await this.invoiceService.findAll({
+    const invoices = await this.invoiceService.getMany({
       where: {
         status: EnumInvoiceStatus.PARTIALLY_PAID,
         id: {

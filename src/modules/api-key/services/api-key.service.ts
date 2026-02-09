@@ -1,10 +1,9 @@
-import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Prisma } from '@runtime/prisma-client'
 import { EnumAppEnvironment, HelperService } from 'lib/nest-core'
 import {
-  IPrismaOptions,
-  IPrismaParams,
+  IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
@@ -24,23 +23,37 @@ export class ApiKeyService {
     this.appEnv = this.config.get<EnumAppEnvironment>('app.env')
   }
 
-  async findOne(kwargs?: Prisma.ApiKeyFindUniqueArgs): Promise<TApiKey> {
+  async getOne(kwargs: Prisma.ApiKeyFindUniqueArgs): Promise<TApiKey> {
     return await this.prisma.apiKey.findUnique(kwargs)
   }
 
-  async findFirst(kwargs: Prisma.ApiKeyFindFirstArgs = {}): Promise<TApiKey> {
+  async getFirst(kwargs?: Prisma.ApiKeyFindFirstArgs): Promise<TApiKey> {
     return await this.prisma.apiKey.findFirst(kwargs)
   }
 
-  async findAll(kwargs: Prisma.ApiKeyFindManyArgs = {}): Promise<TApiKey[]> {
+  async getMany(kwargs?: Prisma.ApiKeyFindManyArgs): Promise<TApiKey[]> {
     return await this.prisma.apiKey.findMany(kwargs)
+  }
+
+  async getList(
+    kwargs: Prisma.ApiKeyFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.apiKey.list(kwargs, options)
+  }
+
+  async getPage(
+    kwargs: Prisma.ApiKeyFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.apiKey.paginate(kwargs, options)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.ApiKeyFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TApiKey> {
-    const apiKey = await this.prisma.apiKey
+    return await this.prisma.apiKey
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -48,68 +61,6 @@ export class ApiKeyService {
           message: 'module.apiKey.notFound',
         })
       })
-    return apiKey
-  }
-
-  async matchOrFail(
-    where: Prisma.ApiKeyWhereInput,
-    kwargs: Omit<Prisma.ApiKeyFindFirstOrThrowArgs, 'where'> = {},
-  ): Promise<TApiKey> {
-    const apiKey = await this.prisma.apiKey
-      .findFirstOrThrow({ ...kwargs, where })
-      .catch((_err: unknown) => {
-        throw new NotFoundException({
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'module.apiKey.notFound',
-        })
-      })
-    return apiKey
-  }
-
-  async differOrFail(
-    where: Prisma.ApiKeyWhereInput,
-    options?: { limit?: number; message?: string },
-  ): Promise<void> {
-    const totalRecords = await this.count(where)
-    const limitRecords = options?.limit ?? 0
-    if (totalRecords > limitRecords) {
-      throw new ConflictException({
-        statusCode: HttpStatus.CONFLICT,
-        message: options?.message ?? 'module.apiKey.conflict',
-      })
-    }
-  }
-
-  async list(
-    where?: Prisma.ApiKeyWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnList> {
-    return await this.prisma.apiKey.list(where, params, options)
-  }
-
-  async paginate(
-    where?: Prisma.ApiKeyWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.apiKey.paginate(where, params, options)
-  }
-
-  async count(where?: Prisma.ApiKeyWhereInput): Promise<number> {
-    return await this.prisma.apiKey.count({
-      where,
-    })
-  }
-
-  async find(
-    id: number,
-    kwargs: Omit<Prisma.ApiKeyFindUniqueArgs, 'where'> = {},
-  ): Promise<TApiKey> {
-    return await this.prisma.apiKey.findUnique({
-      ...kwargs,
-      where: { id },
-    })
   }
 
   async create(data: Omit<Prisma.ApiKeyUncheckedCreateInput, 'key' | 'hash'>): Promise<TApiKey> {
@@ -147,10 +98,10 @@ export class ApiKeyService {
     })
   }
 
-  async delete(apiKey: TApiKey, _deletedBy?: number): Promise<boolean> {
+  async delete(id: number, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async tx => {
-        await tx.apiKey.delete({ where: { id: apiKey.id } })
+        await tx.apiKey.delete({ where: { id } })
       })
       return true
     } catch {

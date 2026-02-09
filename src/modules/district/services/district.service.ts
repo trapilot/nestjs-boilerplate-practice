@@ -1,8 +1,7 @@
-import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
 import {
-  IPrismaOptions,
-  IPrismaParams,
+  IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
@@ -13,23 +12,37 @@ import { TDistrict } from '../interfaces/district.interface'
 export class DistrictService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findOne(kwargs?: Prisma.DistrictFindUniqueArgs): Promise<TDistrict> {
+  async getOne(kwargs: Prisma.DistrictFindUniqueArgs): Promise<TDistrict> {
     return await this.prisma.district.findUnique(kwargs)
   }
 
-  async findFirst(kwargs: Prisma.DistrictFindFirstArgs = {}): Promise<TDistrict> {
+  async getFirst(kwargs?: Prisma.DistrictFindFirstArgs): Promise<TDistrict> {
     return await this.prisma.district.findFirst(kwargs)
   }
 
-  async findAll(kwargs: Prisma.DistrictFindManyArgs = {}): Promise<TDistrict[]> {
+  async getMany(kwargs?: Prisma.DistrictFindManyArgs): Promise<TDistrict[]> {
     return await this.prisma.district.findMany(kwargs)
+  }
+
+  async getList(
+    kwargs: Prisma.DistrictFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.district.list(kwargs, options)
+  }
+
+  async getPage(
+    kwargs: Prisma.DistrictFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.district.paginate(kwargs, options)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.DistrictFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TDistrict> {
-    const district = await this.prisma.district
+    return await this.prisma.district
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -37,68 +50,6 @@ export class DistrictService {
           message: 'module.district.notFound',
         })
       })
-    return district
-  }
-
-  async differOrFail(
-    where: Prisma.DistrictWhereInput,
-    options?: { limit?: number; message?: string },
-  ): Promise<void> {
-    const totalRecords = await this.count(where)
-    const limitRecords = options?.limit ?? 0
-    if (totalRecords > limitRecords) {
-      throw new ConflictException({
-        statusCode: HttpStatus.CONFLICT,
-        message: options?.message ?? 'module.district.conflict',
-      })
-    }
-  }
-
-  async matchOrFail(
-    where: Prisma.DistrictWhereInput,
-    kwargs: Omit<Prisma.DistrictFindFirstOrThrowArgs, 'where'> = {},
-  ): Promise<TDistrict> {
-    const district = await this.prisma.district
-      .findFirstOrThrow({ ...kwargs, where })
-      .catch((_err: unknown) => {
-        throw new NotFoundException({
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'module.district.notFound',
-        })
-      })
-    return district
-  }
-
-  async list(
-    where?: Prisma.DistrictWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnList> {
-    return await this.prisma.district.list(where, params, options)
-  }
-
-  async paginate(
-    where?: Prisma.DistrictWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.district.paginate(where, params, options)
-  }
-
-  async count(where?: Prisma.DistrictWhereInput): Promise<number> {
-    return await this.prisma.district.count({
-      where,
-    })
-  }
-
-  async find(
-    id: number,
-    kwargs: Omit<Prisma.DistrictFindUniqueArgs, 'where'> = {},
-  ): Promise<TDistrict> {
-    return await this.prisma.district.findUnique({
-      ...kwargs,
-      where: { id },
-    })
   }
 
   async create(data: Prisma.DistrictUncheckedCreateInput): Promise<TDistrict> {
@@ -117,10 +68,10 @@ export class DistrictService {
     })
   }
 
-  async delete(district: TDistrict, _deletedBy?: number): Promise<boolean> {
+  async delete(id: number, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async tx => {
-        await tx.district.delete({ where: { id: district.id } })
+        await tx.district.delete({ where: { id } })
       })
       return true
     } catch {

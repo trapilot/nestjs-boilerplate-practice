@@ -66,17 +66,19 @@ export class ProductReviewAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.ProductReviewWhereInput = {
-      ..._search,
+    const kwargs: Prisma.ProductReviewFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+      },
     }
 
-    const pagination = await this.productReviewService.paginate(_where, _params, {
+    return await this.productReviewService.getPage(kwargs, {
       document: bookType,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -104,19 +106,13 @@ export class ProductReviewAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.ProductReviewWhereInput = {
-      ..._search,
-    }
-    const _select: Prisma.ProductReviewSelect = {
-      id: true,
-    }
-
-    const listing = await this.productReviewService.list(_where, _params, {
-      select: _select,
+    return await this.productReviewService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true },
     })
-    return listing
   }
 
   @ApiRequestData({
@@ -238,10 +234,7 @@ export class ProductReviewAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
-    const productReview = await this.productReviewService.find(id)
-    if (productReview) {
-      await this.productReviewService.delete(productReview, deletedBy)
-    }
+    await this.productReviewService.delete(id, deletedBy)
 
     return {
       data: { status: true },

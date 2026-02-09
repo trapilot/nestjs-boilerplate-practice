@@ -47,7 +47,7 @@ export class ProductCategoryAppController {
       defaultOrderBy: 'sorting:desc',
       availableOrderBy: ['sorting'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestQueryFilterSome('brandId', { parseAs: 'number' }) rawBrand: RequestFilterDto,
   ): Promise<IResponseList> {
     const _where: Prisma.ProductCategoryWhereInput = {
@@ -59,9 +59,10 @@ export class ProductCategoryAppController {
       name: true,
     }
 
-    const listing = await this.productCategoryService.list(_where, _params, {
-      select: _select,
+    return await this.productCategoryService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true },
     })
-    return listing
   }
 }

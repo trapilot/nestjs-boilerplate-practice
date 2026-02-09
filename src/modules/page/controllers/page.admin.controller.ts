@@ -60,25 +60,26 @@ export class PageAdminController {
       defaultOrderBy: 'isActive:desc|sorting:desc|id:desc',
       availableOrderBy: ['id', 'sorting', 'isActive'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
     @RequestQueryFilterEqual('type') _type: RequestFilterDto,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.PageWhereInput = {
-      ..._search,
-      ..._type,
-      isVisible: true,
-    }
-    const _include: Prisma.PageInclude = {
-      createdByUser: true,
-      updatedByUser: true,
+    const kwargs: Prisma.PageFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        ..._type,
+        isVisible: true,
+      },
+      include: {
+        createdByUser: true,
+        updatedByUser: true,
+      },
     }
 
-    const pagination = await this.pageService.paginate(_where, _params, {
+    return await this.pageService.getPage(kwargs, {
       document: bookType,
-      include: _include,
     })
-    return pagination
   }
 
   @ApiRequestData({

@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  ConflictException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common'
+import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import {
   EnumMemberType,
   EnumPointAction,
@@ -23,8 +17,7 @@ import {
   ScopeContext,
 } from 'lib/nest-core'
 import {
-  IPrismaOptions,
-  IPrismaParams,
+  IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
@@ -46,16 +39,30 @@ export class MemberService {
     private readonly memberTierService: MemberTierService,
   ) {}
 
-  async findOne(kwargs?: Prisma.MemberFindUniqueArgs): Promise<TMember> {
+  async getOne(kwargs: Prisma.MemberFindUniqueArgs): Promise<TMember> {
     return await this.prisma.member.findUnique(kwargs)
   }
 
-  async findFirst(kwargs: Prisma.MemberFindFirstArgs = {}): Promise<TMember> {
+  async getFirst(kwargs?: Prisma.MemberFindFirstArgs): Promise<TMember> {
     return await this.prisma.member.findFirst(kwargs)
   }
 
-  async findAll(kwargs: Prisma.MemberFindManyArgs = {}): Promise<TMember[]> {
+  async getMany(kwargs?: Prisma.MemberFindManyArgs): Promise<TMember[]> {
     return await this.prisma.member.findMany(kwargs)
+  }
+
+  async getList(
+    kwargs: Prisma.MemberFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.member.list(kwargs, options)
+  }
+
+  async getPage(
+    kwargs: Prisma.MemberFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.member.paginate(kwargs, options)
   }
 
   async findOrFail(
@@ -72,75 +79,10 @@ export class MemberService {
       })
   }
 
-  async differOrFail(
-    where: Prisma.MemberWhereInput,
-    options?: { limit?: number; message?: string },
-  ): Promise<void> {
-    const totalRecords = await this.count(where)
-    const limitRecords = options?.limit ?? 0
-    if (totalRecords > limitRecords) {
-      throw new ConflictException({
-        statusCode: HttpStatus.CONFLICT,
-        message: options?.message ?? 'module.member.conflict',
-      })
-    }
-  }
-
-  async matchOrFail(
-    where: Prisma.MemberWhereInput,
-    kwargs: Omit<Prisma.MemberFindFirstOrThrowArgs, 'where'> = {},
-  ): Promise<TMember> {
-    const member = await this.prisma.member
-      .findFirstOrThrow({ ...kwargs, where })
-      .catch((_err: unknown) => {
-        throw new NotFoundException({
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'module.member.notFound',
-        })
-      })
-    return member
-  }
-
-  async list(
-    where?: Prisma.MemberWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnList> {
-    return await this.prisma.member.list(where, params, options)
-  }
-
-  async paginate(
-    where?: Prisma.MemberWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.member.paginate(where, params, options)
-  }
-
-  async count(where: Prisma.MemberWhereInput = {}): Promise<number> {
-    return await this.prisma.member.count({
-      where,
-    })
-  }
-
-  async find(
-    id: number,
-    kwargs: Omit<Prisma.MemberFindUniqueArgs, 'where'> = {},
-  ): Promise<TMember> {
-    return await this.prisma.member.findUnique({
-      ...kwargs,
-      where: { id },
-    })
-  }
-
   async create(
     data: Prisma.MemberUncheckedCreateInput,
     authPassword: IAuthPassword,
   ): Promise<TMember> {
-    await this.differOrFail({
-      OR: [{ phone: data?.phone }, { email: data?.email }],
-    })
-
     if (data?.birthDate) {
       const dateOfBirth = this.helperService.dateCreateFromGeneric(data.birthDate)
       const extractDate = this.helperService.dateExtract(dateOfBirth)
@@ -176,11 +118,6 @@ export class MemberService {
 
   async update(id: number, data: Prisma.MemberUncheckedUpdateInput): Promise<TMember> {
     const member = await this.findOrFail(id)
-
-    await this.differOrFail({
-      phone: `${data?.phone}`,
-      id: { not: member.id },
-    })
 
     const { region, phone } = this.helperService.parsePhone(`${data?.phone}`)
 
@@ -243,7 +180,7 @@ export class MemberService {
   }
 
   async closeProfile(id: number, reasons?: string[]): Promise<boolean> {
-    const member = await this.find(id)
+    const member = await this.getOne({ where: { id } })
     if (member && member?.isActive) {
       // clear all personal information and associated data
       const nowDate = this.helperService.dateNow()

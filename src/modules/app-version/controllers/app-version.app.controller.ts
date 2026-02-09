@@ -40,7 +40,7 @@ export class AppVersionAppController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
     const _where: Prisma.AppVersionWhereInput = {
       ..._search,
@@ -49,9 +49,10 @@ export class AppVersionAppController {
       id: true,
     }
 
-    const listing = await this.appVersionService.list(_where, _params, {
-      select: _select,
+    return await this.appVersionService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true },
     })
-    return listing
   }
 }

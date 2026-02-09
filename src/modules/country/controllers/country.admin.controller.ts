@@ -66,18 +66,20 @@ export class CountryAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.CountryWhereInput = {
-      ..._search,
-      isVisible: true,
+    const kwargs: Prisma.CountryFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        isVisible: true,
+      },
     }
 
-    const pagination = await this.countryService.paginate(_where, _params, {
+    return await this.countryService.getPage(kwargs, {
       document: bookType,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -105,21 +107,13 @@ export class CountryAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.CountryWhereInput = {
-      ..._search,
-      isVisible: true,
-    }
-    const _select: Prisma.CountrySelect = {
-      id: true,
-      name: true,
-    }
-
-    const listing = await this.countryService.list(_where, _params, {
-      select: _select,
+    return await this.countryService.getList({
+      ..._kwargs,
+      where: { ..._search, isVisible: true },
+      select: { id: true, name: true },
     })
-    return listing
   }
 
   @ApiRequestData({
@@ -241,10 +235,7 @@ export class CountryAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
-    const country = await this.countryService.find(id)
-    if (country) {
-      await this.countryService.delete(country, deletedBy)
-    }
+    await this.countryService.delete(id, deletedBy)
 
     return {
       data: { status: true },

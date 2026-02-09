@@ -11,8 +11,10 @@ import {
   IResponseList,
   RequestBody,
   RequestFilterDto,
+  RequestListDto,
   RequestParamGuard,
   RequestQueryFilterInEnum,
+  RequestQueryList,
   RequestUserAgent,
   RequestUserIp,
 } from 'lib/nest-web'
@@ -118,14 +120,18 @@ export class SettingAdminController {
   })
   @Get('/')
   async list(
+    @RequestQueryList() { _search, _kwargs }: RequestListDto,
     @RequestQueryFilterInEnum('group', EnumSettingGroup) _group: RequestFilterDto,
   ): Promise<IResponseList> {
-    const where: Prisma.SettingWhereInput = {
-      ..._group,
-      isVisible: true,
+    const kwargs: Prisma.SettingFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        ..._group,
+      },
     }
-    const settings = await this.settingService.findAll(where)
-    return { data: settings }
+
+    return await this.settingService.getList(kwargs)
   }
 
   @ApiRequestData({

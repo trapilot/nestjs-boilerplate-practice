@@ -64,17 +64,19 @@ export class PermissionAdminController {
       defaultOrderBy: 'sorting:asc',
       availableOrderBy: ['sorting'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestQueryFilterInBoolean('isActive', true) _enabled: RequestFilterDto,
     @RequestQueryFilterInBoolean('isVisible', true) _visible: RequestFilterDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.PermissionWhereInput = {
-      ..._search,
-      ..._enabled,
-      ..._visible,
+    const kwargs: Prisma.PermissionFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        ..._enabled,
+        ..._visible,
+      },
     }
-    const listing = await this.permissionService.list(_where, _params)
-    return listing
+    return await this.permissionService.getList(kwargs)
   }
 
   @ApiRequestData({

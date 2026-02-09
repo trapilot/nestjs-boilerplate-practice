@@ -40,14 +40,16 @@ export class ProductBrandAppController {
       defaultOrderBy: 'sorting:desc',
       availableOrderBy: ['sorting'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.ProductBrandWhereInput = {
-      ..._search,
-      isActive: true,
+    const kwargs: Prisma.ProductBrandFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        isActive: true,
+      },
     }
 
-    const listing = await this.productBrandService.list(_where, _params)
-    return listing
+    return await this.productBrandService.getList(kwargs)
   }
 }

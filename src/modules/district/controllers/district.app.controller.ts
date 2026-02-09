@@ -28,7 +28,7 @@ export class DistrictAppController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
     const _where: Prisma.DistrictWhereInput = {
       ..._search,
@@ -38,9 +38,10 @@ export class DistrictAppController {
       name: true,
     }
 
-    const listing = await this.districtService.list(_where, _params, {
-      select: _select,
+    return await this.districtService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true },
     })
-    return listing
   }
 }

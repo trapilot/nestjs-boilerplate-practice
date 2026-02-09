@@ -1,8 +1,7 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
 import {
-  IPrismaOptions,
-  IPrismaParams,
+  IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
@@ -13,11 +12,37 @@ import { T<%= singular(classify(name)) %> } from '../interfaces/<%= singular(low
 export class <%= singular(classify(name)) %>Service {
   constructor(private readonly prisma: PrismaService) {}
 
+  async getOne(kwargs: Prisma.<%= singular(classify(name)) %>FindUniqueArgs): Promise<T<%= singular(classify(name)) %>> {
+    return await this.prisma.<%= singular(lowercased(name)) %>.findUnique(kwargs)
+  }
+
+  async getFirst(kwargs?: kwargs?: Prisma.<%= singular(classify(name)) %>FindFirstArgs>): Promise<T<%= singular(classify(name)) %>> {
+    return await this.prisma.<%= singular(lowercased(name)) %>.findFirst(kwargs)
+  }
+
+  async getMany(kwargs?: PPrisma.<%= singular(classify(name)) %>FindManyArgs): Promise<T<%= singular(classify(name)) %>[]> {
+    return await this.prisma.<%= singular(lowercased(name)) %>.findMany(kwargs)
+  }
+
+  async getList(
+    kwargs: Prisma.<%= singular(classify(name)) %>FindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.<%= singular(lowercased(name)) %>.list(kwargs, options)
+  }
+
+  async getPage(
+    kwargs: Prisma.<%= singular(classify(name)) %>FindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.<%= singular(lowercased(name)) %>.paginate(kwargs, options)
+  }
+
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.<%= singular(classify(name)) %>FindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<T<%= singular(classify(name)) %>> {
-    const <%= singular(lowercased(name)) %> = await this.prisma.<%= singular(lowercased(name)) %>
+    return await this.prisma.<%= singular(lowercased(name)) %>
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -25,38 +50,6 @@ export class <%= singular(classify(name)) %>Service {
           message: 'module.<%= singular(lowercased(name)) %>.notFound',
         })
       })
-    return <%= singular(lowercased(name)) %>
-  }
-
-  async matchOrFail(
-    where: Prisma.<%= singular(classify(name)) %>WhereInput,
-    kwargs: Omit<Prisma.<%= singular(classify(name)) %>FindFirstOrThrowArgs, 'where'> = {},
-  ): Promise<T<%= singular(classify(name)) %>> {
-    const <%= singular(lowercased(name)) %> = await this.prisma.<%= singular(lowercased(name)) %>
-      .findFirstOrThrow({ ...kwargs, where })
-      .catch((_err: unknown) => {
-        throw new NotFoundException({
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'module.<%= singular(lowercased(name)) %>.notFound',
-        })
-      })
-    return <%= singular(lowercased(name)) %>
-  }
-
-  async list(
-    where?: Prisma.<%= singular(classify(name)) %>WhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnList> {
-    return await this.prisma.<%= singular(lowercased(name)) %>.list(where, params, options)
-  }
-
-  async paginate(
-    where?: Prisma.<%= singular(classify(name)) %>WhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.<%= singular(lowercased(name)) %>.paginate(where, params, options)
   }
 
   async create(data: Prisma.<%= singular(classify(name)) %>UncheckedCreateInput): Promise<T<%= singular(classify(name)) %>> {

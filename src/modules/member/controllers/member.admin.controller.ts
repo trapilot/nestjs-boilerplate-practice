@@ -48,7 +48,7 @@ export class MemberAdminController {
     queries: MEMBER_DOC_ADMIN_QUERY_LIST,
     sortable: true,
     searchable: false,
-    exportable: false,
+    exportable: true,
     docExclude: false,
     docExpansion: false,
     jwtAccessToken: {
@@ -75,37 +75,35 @@ export class MemberAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
     @RequestQueryFilterContain('phone') _phone: RequestFilterDto,
     @RequestQueryFilterContain('email') _email: RequestFilterDto,
     @RequestQueryFilterContain('name') _name: RequestFilterDto,
     @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.MemberWhereInput = {
-      ..._search,
-      ..._enabled,
-      ..._phone,
-      ..._email,
-      ..._name,
-    }
-    const _include: Prisma.MemberInclude = {
-      createdByUser: true,
-      updatedByUser: true,
-      deletedByUser: true,
-      tier: true,
+    const kwargs: Prisma.MemberFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        ..._enabled,
+        ..._phone,
+        ..._email,
+        ..._name,
+      },
+      include: {
+        createdByUser: true,
+        updatedByUser: true,
+        deletedByUser: true,
+        tier: true,
+      },
     }
 
-    const pagination = await this.memberService.paginate(_where, _params, {
+    return await this.memberService.getPage(kwargs, {
       document: bookType,
-      include: _include,
-    })
-
-    return {
-      ...pagination,
       filePrefix: 'members',
       fileTimestamp: true,
-    }
+    })
   }
 
   @ApiRequestList({
@@ -132,23 +130,13 @@ export class MemberAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.MemberWhereInput = {
-      ..._search,
-    }
-    const _select: Prisma.MemberSelect = {
-      id: true,
-      name: true,
-      phone: true,
-      isActive: true,
-    }
-
-    const listing = await this.memberService.list(_where, _params, {
-      select: _select,
+    return await this.memberService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true },
     })
-
-    return listing
   }
 
   @ApiRequestData({

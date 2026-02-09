@@ -66,24 +66,24 @@ export class MemberTierAdminController {
       defaultOrderBy: 'isActive:desc|id:desc',
       availableOrderBy: ['id', 'isActive'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.MemberTierWhereInput = {
-      ..._search,
+    const kwargs: Prisma.MemberTierFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+      },
+      include: {
+        tier: true,
+        member: true,
+        invoice: true,
+      },
     }
 
-    const _include: Prisma.MemberTierInclude = {
-      tier: true,
-      member: true,
-      invoice: true,
-    }
-
-    const pagination = await this.tierHistoryService.paginate(_where, _params, {
+    return await this.tierHistoryService.getPage(kwargs, {
       document: bookType,
-      include: _include,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -111,19 +111,13 @@ export class MemberTierAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.MemberTierWhereInput = {
-      ..._search,
-    }
-    const _select: Prisma.MemberTierSelect = {
-      id: true,
-    }
-
-    const listing = await this.tierHistoryService.list(_where, _params, {
-      select: _select,
+    return await this.tierHistoryService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true },
     })
-    return listing
   }
 
   @ApiRequestData({
@@ -251,10 +245,7 @@ export class MemberTierAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
-    const tierHistory = await this.tierHistoryService.find(id)
-    if (tierHistory) {
-      await this.tierHistoryService.delete(tierHistory, deletedBy)
-    }
+    await this.tierHistoryService.delete(id, deletedBy)
 
     return {
       data: { status: true },

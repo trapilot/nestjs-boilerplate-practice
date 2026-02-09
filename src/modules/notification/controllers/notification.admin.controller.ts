@@ -67,26 +67,22 @@ export class NotificationAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.NotificationWhereInput = {
-      ..._search,
-    }
-    const _include: Prisma.NotificationInclude = {
-      // pivotGroups: {
-      //   include: {
-      //     group: true,
-      //   },
-      // },
-      pushes: true,
+    const kwargs: Prisma.NotificationFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+      },
+      include: {
+        pushes: true,
+      },
     }
 
-    const pagination = await this.notificationService.paginate(_where, _params, {
+    return await this.notificationService.getPage(kwargs, {
       document: bookType,
-      include: _include,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -114,20 +110,13 @@ export class NotificationAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.NotificationWhereInput = {
-      ..._search,
-    }
-    const _select: Prisma.NotificationSelect = {
-      id: true,
-      title: true,
-    }
-
-    const listing = await this.notificationService.list(_where, _params, {
-      select: _select,
+    return await this.notificationService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true, title: true },
     })
-    return listing
   }
 
   @ApiRequestData({
@@ -342,10 +331,7 @@ export class NotificationAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
-    const notification = await this.notificationService.find(id)
-    if (notification) {
-      await this.notificationService.delete(notification, deletedBy)
-    }
+    await this.notificationService.delete(id, deletedBy)
 
     return {
       data: { status: true },

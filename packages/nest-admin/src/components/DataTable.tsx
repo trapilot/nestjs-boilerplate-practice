@@ -58,7 +58,7 @@ export function DataTable<T>({
   }, [query.page, query.perPage, query.search])
 
   const meta = getLastMetadata()
-  const pagination = meta?.pagination
+  return meta?.pagination
   const availableSearch = meta?.availableSearch ?? []
 
   const totalPage = pagination?.totalPage ?? 1

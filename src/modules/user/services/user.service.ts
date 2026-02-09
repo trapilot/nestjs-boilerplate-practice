@@ -1,10 +1,9 @@
-import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
-import { EnumAuthSignUpFrom, IAuthPassword } from 'lib/nest-auth'
+import { EnumAuthSignUpFrom } from 'lib/nest-auth'
 import { FileUtil, HelperService } from 'lib/nest-core'
 import {
-  IPrismaOptions,
-  IPrismaParams,
+  IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
@@ -20,16 +19,30 @@ export class UserService {
     private readonly roleService: RoleService,
   ) {}
 
-  async findOne(kwargs?: Prisma.UserFindUniqueArgs): Promise<TUser> {
+  async getOne(kwargs: Prisma.UserFindUniqueArgs): Promise<TUser> {
     return await this.prisma.user.findUnique(kwargs)
   }
 
-  async findFirst(kwargs: Prisma.UserFindFirstArgs = {}): Promise<TUser> {
+  async getFirst(kwargs?: Prisma.UserFindFirstArgs): Promise<TUser> {
     return await this.prisma.user.findFirst(kwargs)
   }
 
-  async findAll(kwargs: Prisma.UserFindManyArgs = {}): Promise<TUser[]> {
+  async getMany(kwargs?: Prisma.UserFindManyArgs): Promise<TUser[]> {
     return await this.prisma.user.findMany(kwargs)
+  }
+
+  async getList(
+    kwargs: Prisma.UserFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.user.list(kwargs, options)
+  }
+
+  async getPage(
+    kwargs: Prisma.UserFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.user.paginate(kwargs, options)
   }
 
   async findOrFail(
@@ -46,65 +59,11 @@ export class UserService {
       })
   }
 
-  async differOrFail(
-    where: Prisma.UserWhereInput,
-    options?: { limit?: number; message?: string },
-  ): Promise<void> {
-    const totalRecords = await this.count(where)
-    const limitRecords = options?.limit ?? 0
-    if (totalRecords > limitRecords) {
-      throw new ConflictException({
-        statusCode: HttpStatus.CONFLICT,
-        message: options?.message ?? 'module.user.conflict',
-      })
-    }
-  }
-
-  async matchOrFail(
-    where: Prisma.UserWhereInput,
-    kwargs: Omit<Prisma.UserFindFirstOrThrowArgs, 'where'> = {},
-  ): Promise<TUser> {
-    const user = await this.prisma.user
-      .findFirstOrThrow({ ...kwargs, where })
-      .catch((_err: unknown) => {
-        throw new NotFoundException({
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'module.user.notFound',
-        })
-      })
-    return user
-  }
-
-  async list(
-    where?: Prisma.UserWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnList> {
-    return await this.prisma.user.list(where, params, options)
-  }
-
-  async paginate(
-    where?: Prisma.UserWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.user.paginate(where, params, options)
-  }
-
-  async count(where?: Prisma.UserWhereInput): Promise<number> {
-    return await this.prisma.user.count({
-      where,
-    })
-  }
-
   async create(
     data: Prisma.UserUncheckedCreateInput,
-    { passwordHash }: IAuthPassword,
     options?: IUserCreatedOptions,
   ): Promise<TUser> {
     try {
-      await this.differOrFail({ phone: data.phone })
-
       if (options?.roleId) {
         const role = await this.roleService.findOrFail(options.roleId)
         data.level = role.level
@@ -125,7 +84,6 @@ export class UserService {
           phoneNumber: phone,
           isActive: true,
           signUpFrom: EnumAuthSignUpFrom.CMS,
-          password: passwordHash,
         },
       })
     } catch (err: unknown) {
@@ -140,11 +98,6 @@ export class UserService {
     options?: IUserUpdateOptions,
   ): Promise<TUser> {
     const user = await this.findOrFail(id)
-
-    await this.differOrFail({
-      phone: `${data.phone}`,
-      id: { not: user.id },
-    })
 
     if (options?.roleId) {
       const role = await this.roleService.findOrFail(options.roleId)
@@ -180,10 +133,9 @@ export class UserService {
   }
 
   async getActivities(
-    where?: Prisma.UserActivityWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
+    kwargs?: Prisma.UserActivityFindManyArgs,
+    options?: IPrismaExportOptions,
   ): Promise<IPrismaReturnList> {
-    return await this.prisma.userActivity.list(where, params, options)
+    return await this.prisma.userActivity.list(kwargs, options)
   }
 }

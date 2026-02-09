@@ -1,14 +1,7 @@
-import {
-  BadRequestException,
-  ConflictException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common'
+import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { EnumRedemptionStatus, Prisma } from '@runtime/prisma-client'
 import {
-  IPrismaOptions,
-  IPrismaParams,
+  IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
@@ -19,23 +12,37 @@ import { TMemberRedemption } from '../interfaces/member-redemption.interface'
 export class MemberRedemptionService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findOne(kwargs?: Prisma.MemberRedemptionFindUniqueArgs): Promise<TMemberRedemption> {
+  async getOne(kwargs: Prisma.MemberRedemptionFindUniqueArgs): Promise<TMemberRedemption> {
     return await this.prisma.memberRedemption.findUnique(kwargs)
   }
 
-  async findFirst(kwargs: Prisma.MemberRedemptionFindFirstArgs = {}): Promise<TMemberRedemption> {
+  async getFirst(kwargs?: Prisma.MemberRedemptionFindFirstArgs): Promise<TMemberRedemption> {
     return await this.prisma.memberRedemption.findFirst(kwargs)
   }
 
-  async findAll(kwargs: Prisma.MemberRedemptionFindManyArgs = {}): Promise<TMemberRedemption[]> {
+  async getMany(kwargs?: Prisma.MemberRedemptionFindManyArgs): Promise<TMemberRedemption[]> {
     return await this.prisma.memberRedemption.findMany(kwargs)
+  }
+
+  async getList(
+    kwargs: Prisma.MemberRedemptionFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.memberRedemption.list(kwargs, options)
+  }
+
+  async getPage(
+    kwargs: Prisma.MemberRedemptionFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.memberRedemption.paginate(kwargs, options)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.MemberRedemptionFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TMemberRedemption> {
-    const productHistory = await this.prisma.memberRedemption
+    return await this.prisma.memberRedemption
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -43,68 +50,6 @@ export class MemberRedemptionService {
           message: 'module.memberRedemption.notFound',
         })
       })
-    return productHistory
-  }
-
-  async matchOrFail(
-    where: Prisma.MemberRedemptionWhereInput,
-    kwargs: Omit<Prisma.MemberRedemptionFindFirstOrThrowArgs, 'where'> = {},
-  ): Promise<TMemberRedemption> {
-    const productHistory = await this.prisma.memberRedemption
-      .findFirstOrThrow({ ...kwargs, where })
-      .catch((_err: unknown) => {
-        throw new NotFoundException({
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'module.memberRedemption.notFound',
-        })
-      })
-    return productHistory
-  }
-
-  async differOrFail(
-    where: Prisma.MemberRedemptionWhereInput,
-    options?: { limit?: number; message?: string },
-  ): Promise<void> {
-    const totalRecords = await this.count(where)
-    const limitRecords = options?.limit ?? 0
-    if (totalRecords > limitRecords) {
-      throw new ConflictException({
-        statusCode: HttpStatus.CONFLICT,
-        message: options?.message ?? 'module.memberRedemption.conflict',
-      })
-    }
-  }
-
-  async list(
-    where?: Prisma.MemberRedemptionWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnList> {
-    return await this.prisma.memberRedemption.list(where, params, options)
-  }
-
-  async paginate(
-    where?: Prisma.MemberRedemptionWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.memberRedemption.paginate(where, params, options)
-  }
-
-  async count(where?: Prisma.MemberRedemptionWhereInput): Promise<number> {
-    return await this.prisma.memberRedemption.count({
-      where,
-    })
-  }
-
-  async find(
-    id: number,
-    kwargs: Omit<Prisma.MemberRedemptionFindUniqueArgs, 'where'> = {},
-  ): Promise<TMemberRedemption> {
-    return await this.prisma.memberRedemption.findUnique({
-      ...kwargs,
-      where: { id },
-    })
   }
 
   async create(data: Prisma.MemberRedemptionUncheckedCreateInput): Promise<TMemberRedemption> {
@@ -126,10 +71,10 @@ export class MemberRedemptionService {
     })
   }
 
-  async delete(productHistory: TMemberRedemption, _deletedBy?: number): Promise<boolean> {
+  async delete(id: number, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async tx => {
-        await tx.memberRedemption.delete({ where: { id: productHistory.id } })
+        await tx.memberRedemption.delete({ where: { id } })
       })
       return true
     } catch {

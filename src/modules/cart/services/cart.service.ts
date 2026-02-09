@@ -8,8 +8,7 @@ import {
 import { EnumCartStatus, Prisma, Product } from '@runtime/prisma-client'
 import { AppUtil, HelperService } from 'lib/nest-core'
 import {
-  IPrismaOptions,
-  IPrismaParams,
+  IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
@@ -44,11 +43,25 @@ export class CartService {
     private readonly productService: ProductService,
   ) {}
 
+  async getList(
+    kwargs: Prisma.CartFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.cart.list(kwargs, options)
+  }
+
+  async getPage(
+    kwargs: Prisma.CartFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.cart.paginate(kwargs, options)
+  }
+
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.CartFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TCart> {
-    const cart = await this.prisma.cart
+    return await this.prisma.cart
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -56,23 +69,6 @@ export class CartService {
           message: 'module.cart.notFound',
         })
       })
-    return cart
-  }
-
-  async list(
-    where?: Prisma.CartWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnList> {
-    return await this.prisma.cart.list(where, params, options)
-  }
-
-  async paginate(
-    where?: Prisma.CartWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.cart.paginate(where, params, options)
   }
 
   async abandon(id: number): Promise<TCart> {
@@ -154,7 +150,9 @@ export class CartService {
       include: this.cartRelation,
     })
 
-    if (cart) {return cart}
+    if (cart) {
+      return cart
+    }
 
     return this.prisma.cart.create({
       data: { memberId, status: EnumCartStatus.ACTIVE },

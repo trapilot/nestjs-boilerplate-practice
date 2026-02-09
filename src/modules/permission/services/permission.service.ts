@@ -1,22 +1,29 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
-import { IPrismaOptions, IPrismaParams, IPrismaReturnList, PrismaService } from 'lib/nest-prisma'
+import { IPrismaExportOptions, IPrismaReturnList, PrismaService } from 'lib/nest-prisma'
 import { TPermission } from '../interfaces/permission.interface'
 
 @Injectable()
 export class PermissionService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findOne(kwargs?: Prisma.PermissionFindUniqueArgs): Promise<TPermission> {
+  async getOne(kwargs: Prisma.PermissionFindUniqueArgs): Promise<TPermission> {
     return await this.prisma.permission.findUnique(kwargs)
   }
 
-  async findFirst(kwargs: Prisma.PermissionFindFirstArgs = {}): Promise<TPermission> {
+  async getFirst(kwargs?: Prisma.PermissionFindFirstArgs): Promise<TPermission> {
     return await this.prisma.permission.findFirst(kwargs)
   }
 
-  async findAll(kwargs: Prisma.PermissionFindManyArgs = {}): Promise<TPermission[]> {
+  async getMany(kwargs?: Prisma.PermissionFindManyArgs): Promise<TPermission[]> {
     return await this.prisma.permission.findMany(kwargs)
+  }
+
+  async getList(
+    kwargs: Prisma.PermissionFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.permission.list(kwargs, options)
   }
 
   async findOrFail(
@@ -31,14 +38,6 @@ export class PermissionService {
           message: 'module.permission.notFound',
         })
       })
-  }
-
-  async list(
-    where?: Prisma.PermissionWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnList> {
-    return await this.prisma.permission.list(where, params, options)
   }
 
   async update(

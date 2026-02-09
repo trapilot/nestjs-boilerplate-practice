@@ -1,8 +1,7 @@
-import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
 import {
-  IPrismaOptions,
-  IPrismaParams,
+  IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
@@ -13,23 +12,37 @@ import { TMedia } from '../interfaces/media.interface'
 export class MediaService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findOne(kwargs?: Prisma.MediaFindUniqueArgs): Promise<TMedia> {
+  async getOne(kwargs: Prisma.MediaFindUniqueArgs): Promise<TMedia> {
     return await this.prisma.media.findUnique(kwargs)
   }
 
-  async findFirst(kwargs: Prisma.MediaFindFirstArgs = {}): Promise<TMedia> {
+  async getFirst(kwargs?: Prisma.MediaFindFirstArgs): Promise<TMedia> {
     return await this.prisma.media.findFirst(kwargs)
   }
 
-  async findAll(kwargs: Prisma.MediaFindManyArgs = {}): Promise<TMedia[]> {
+  async getMany(kwargs?: Prisma.MediaFindManyArgs): Promise<TMedia[]> {
     return await this.prisma.media.findMany(kwargs)
+  }
+
+  async getList(
+    kwargs: Prisma.MediaFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.media.list(kwargs, options)
+  }
+
+  async getPage(
+    kwargs: Prisma.MediaFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.media.paginate(kwargs, options)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.MediaFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TMedia> {
-    const media = await this.prisma.media
+    return await this.prisma.media
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -37,65 +50,6 @@ export class MediaService {
           message: 'module.media.notFound',
         })
       })
-    return media
-  }
-
-  async matchOrFail(
-    where: Prisma.MediaWhereInput,
-    kwargs: Omit<Prisma.MediaFindFirstOrThrowArgs, 'where'> = {},
-  ): Promise<TMedia> {
-    const media = await this.prisma.media
-      .findFirstOrThrow({ ...kwargs, where })
-      .catch((_err: unknown) => {
-        throw new NotFoundException({
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'module.media.notFound',
-        })
-      })
-    return media
-  }
-
-  async differOrFail(
-    where: Prisma.MediaWhereInput,
-    options?: { limit?: number; message?: string },
-  ): Promise<void> {
-    const totalRecords = await this.count(where)
-    const limitRecords = options?.limit ?? 0
-    if (totalRecords > limitRecords) {
-      throw new ConflictException({
-        statusCode: HttpStatus.CONFLICT,
-        message: options?.message ?? 'module.media.conflict',
-      })
-    }
-  }
-
-  async list(
-    where?: Prisma.MediaWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnList> {
-    return await this.prisma.media.list(where, params, options)
-  }
-
-  async paginate(
-    where?: Prisma.MediaWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.media.paginate(where, params, options)
-  }
-
-  async count(where?: Prisma.MediaWhereInput): Promise<number> {
-    return await this.prisma.media.count({
-      where,
-    })
-  }
-
-  async find(id: number, kwargs: Omit<Prisma.MediaFindUniqueArgs, 'where'> = {}): Promise<TMedia> {
-    return await this.prisma.media.findUnique({
-      ...kwargs,
-      where: { id },
-    })
   }
 
   async create(data: Prisma.MediaUncheckedCreateInput): Promise<TMedia> {
@@ -114,10 +68,10 @@ export class MediaService {
     })
   }
 
-  async delete(media: TMedia, _deletedBy?: number): Promise<boolean> {
+  async delete(id: number, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async tx => {
-        await tx.media.delete({ where: { id: media.id } })
+        await tx.media.delete({ where: { id } })
       })
       return true
     } catch {

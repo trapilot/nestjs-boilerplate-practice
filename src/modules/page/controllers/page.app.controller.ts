@@ -29,7 +29,7 @@ export class PageAppController {
   })
   @Get('/terms-and-conditions')
   async getTAC(): Promise<IResponseData> {
-    const page = await this.pageService.findFirst({
+    const page = await this.pageService.getFirst({
       where: {
         type: EnumPageType.TERM_AND_CONDITION,
         isActive: true,
@@ -56,7 +56,7 @@ export class PageAppController {
   })
   @Get('/about-us')
   async getAboutUs(): Promise<IResponseData> {
-    const page = await this.pageService.findFirst({
+    const page = await this.pageService.getFirst({
       where: {
         type: EnumPageType.ABOUT_US,
         isActive: true,
@@ -83,7 +83,7 @@ export class PageAppController {
   })
   @Get('/privacy-policy')
   async getPrivatePolicy(): Promise<IResponseData> {
-    const page = await this.pageService.findFirst({
+    const page = await this.pageService.getFirst({
       where: {
         type: EnumPageType.PRIVACY,
         isActive: true,

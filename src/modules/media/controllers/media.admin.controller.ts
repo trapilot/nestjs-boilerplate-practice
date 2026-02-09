@@ -67,17 +67,19 @@ export class MediaAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.MediaWhereInput = {
-      ..._search,
+    const kwargs: Prisma.MediaFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+      },
     }
 
-    const pagination = await this.mediaService.paginate(_where, _params, {
+    return await this.mediaService.getPage(kwargs, {
       document: bookType,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -105,19 +107,13 @@ export class MediaAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.MediaWhereInput = {
-      ..._search,
-    }
-    const _select: Prisma.MediaSelect = {
-      id: true,
-    }
-
-    const listing = await this.mediaService.list(_where, _params, {
-      select: _select,
+    return await this.mediaService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true },
     })
-    return listing
   }
 
   @ApiRequestData({
@@ -260,10 +256,7 @@ export class MediaAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
-    const media = await this.mediaService.find(id)
-    if (media) {
-      await this.mediaService.delete(media, deletedBy)
-    }
+    await this.mediaService.delete(id, deletedBy)
 
     return {
       data: { status: true },

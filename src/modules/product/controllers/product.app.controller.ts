@@ -53,33 +53,33 @@ export class ProductAppController {
       defaultOrderBy: 'createdAt:desc',
       availableOrderBy: ['createdAt', 'salePrice', 'salePoint'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestQuery('brandId', { parseAs: 'id' }) brandId: number,
     @RequestQuery('categoryId', { parseAs: 'id' }) categoryId: number,
     @RequestQuery('isWishlist', { parseAs: 'boolean' }) isWishlist: boolean,
     @AuthJwtPayload(['user.id', { parseAs: 'id' }]) memberId: number,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.ProductWhereInput = {
-      ..._search,
-      brandId,
-      categoryId,
-      wishlist: isWishlist ? { some: { memberId } } : undefined,
-    }
-    const _include: Prisma.ProductInclude = {
-      brand: true,
-      category: true,
-      wishlist: memberId
-        ? {
-            where: { memberId },
-            select: { productId: true },
-          }
-        : undefined,
+    const kwargs: Prisma.ProductFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        brandId,
+        categoryId,
+        wishlist: isWishlist ? { some: { memberId } } : undefined,
+      },
+      include: {
+        brand: true,
+        category: true,
+        wishlist: memberId
+          ? {
+              where: { memberId },
+              select: { productId: true },
+            }
+          : undefined,
+      },
     }
 
-    const pagination = await this.productService.paginate(_where, _params, {
-      include: _include,
-    })
-    return pagination
+    return await this.productService.getPage(kwargs)
   }
 
   @ApiRequestData({

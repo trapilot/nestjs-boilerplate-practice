@@ -61,17 +61,19 @@ export class TierAdminController {
       defaultOrderBy: 'level:asc',
       availableOrderBy: ['level'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.TierWhereInput = {
-      ..._search,
+    const kwargs: Prisma.TierFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+      },
     }
 
-    const pagination = await this.tierService.paginate(_where, _params, {
+    return await this.tierService.getPage(kwargs, {
       document: bookType,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -99,21 +101,13 @@ export class TierAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.TierWhereInput = {
-      ..._search,
-    }
-    const _select: Prisma.TierSelect = {
-      id: true,
-      code: true,
-      name: true,
-    }
-
-    const listing = await this.tierService.list(_where, _params, {
-      select: _select,
+    return await this.tierService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true },
     })
-    return listing
   }
 
   @ApiRequestData({
@@ -256,10 +250,7 @@ export class TierAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
-    const tier = await this.tierService.find(id)
-    if (tier) {
-      await this.tierService.delete(tier, deletedBy)
-    }
+    await this.tierService.delete(id, deletedBy)
 
     return {
       data: { status: true },

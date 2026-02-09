@@ -57,17 +57,19 @@ export class CartAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.CartWhereInput = {
-      ..._search,
+    const kwargs: Prisma.CartFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+      },
     }
 
-    const pagination = await this.cartService.paginate(_where, _params, {
+    return await this.cartService.getPage(kwargs, {
       document: bookType,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -95,19 +97,13 @@ export class CartAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.CartWhereInput = {
-      ..._search,
-    }
-    const _select: Prisma.CartSelect = {
-      id: true,
-    }
-
-    const listing = await this.cartService.list(_where, _params, {
-      select: _select,
+    return await this.cartService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true },
     })
-    return listing
   }
 
   @ApiRequestData({

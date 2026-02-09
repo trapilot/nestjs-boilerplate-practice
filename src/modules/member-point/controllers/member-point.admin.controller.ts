@@ -68,7 +68,7 @@ export class MemberPointAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestQueryFilterContain('memberCode', {
       queryField: 'code',
       raw: true,
@@ -76,23 +76,24 @@ export class MemberPointAdminController {
     rawCode: RequestFilterDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.MemberPointWhereInput = {
-      ..._search,
-      isVisible: true,
-      member: rawCode,
-    }
-    const _include: Prisma.MemberPointInclude = {
-      tier: true,
-      member: true,
-      referee: true,
-      invoice: true,
+    const kwargs: Prisma.MemberPointFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        isVisible: true,
+        member: rawCode,
+      },
+      include: {
+        tier: true,
+        member: true,
+        referee: true,
+        invoice: true,
+      },
     }
 
-    const pagination = await this.pointHistoryService.paginate(_where, _params, {
+    return await this.pointHistoryService.getPage(kwargs, {
       document: bookType,
-      include: _include,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -120,20 +121,13 @@ export class MemberPointAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.MemberPointWhereInput = {
-      ..._search,
-      isVisible: true,
-    }
-    const _select: Prisma.MemberPointSelect = {
-      id: true,
-    }
-
-    const listing = await this.pointHistoryService.list(_where, _params, {
-      select: _select,
+    return await this.pointHistoryService.getList({
+      ..._kwargs,
+      where: { ..._search, isVisible: true },
+      select: { id: true },
     })
-    return listing
   }
 
   @ApiRequestData({
@@ -262,10 +256,7 @@ export class MemberPointAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
-    const pointHistory = await this.pointHistoryService.find(id)
-    if (pointHistory) {
-      await this.pointHistoryService.delete(pointHistory, deletedBy)
-    }
+    await this.pointHistoryService.delete(id, deletedBy)
 
     return {
       data: { status: true },

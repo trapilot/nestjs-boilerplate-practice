@@ -66,18 +66,20 @@ export class DistrictAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.DistrictWhereInput = {
-      ..._search,
-      isVisible: true,
+    const kwargs: Prisma.DistrictFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        isVisible: true,
+      },
     }
 
-    const pagination = await this.districtService.paginate(_where, _params, {
+    return await this.districtService.getPage(kwargs, {
       document: bookType,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -105,21 +107,13 @@ export class DistrictAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.DistrictWhereInput = {
-      ..._search,
-      isVisible: true,
-    }
-    const _select: Prisma.DistrictSelect = {
-      id: true,
-      name: true,
-    }
-
-    const listing = await this.districtService.list(_where, _params, {
-      select: _select,
+    return await this.districtService.getList({
+      ..._kwargs,
+      where: { ..._search, isVisible: true },
+      select: { id: true, name: true },
     })
-    return listing
   }
 
   @ApiRequestData({
@@ -241,10 +235,7 @@ export class DistrictAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
-    const district = await this.districtService.find(id)
-    if (district) {
-      await this.districtService.delete(district, deletedBy)
-    }
+    await this.districtService.delete(id, deletedBy)
 
     return {
       data: { status: true },

@@ -66,17 +66,19 @@ export class ProductBrandAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.ProductBrandWhereInput = {
-      ..._search,
+    const kwargs: Prisma.ProductBrandFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+      },
     }
 
-    const pagination = await this.productBrandService.paginate(_where, _params, {
+    return await this.productBrandService.getPage(kwargs, {
       document: bookType,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -104,20 +106,13 @@ export class ProductBrandAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.ProductBrandWhereInput = {
-      ..._search,
-    }
-    const _select: Prisma.ProductBrandSelect = {
-      id: true,
-      name: true,
-    }
-
-    const listing = await this.productBrandService.list(_where, _params, {
-      select: _select,
+    return await this.productBrandService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true, name: true },
     })
-    return listing
   }
 
   @ApiRequestData({
@@ -239,10 +234,7 @@ export class ProductBrandAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
-    const productBrand = await this.productBrandService.find(id)
-    if (productBrand) {
-      await this.productBrandService.delete(productBrand, deletedBy)
-    }
+    await this.productBrandService.delete(id, deletedBy)
 
     return {
       data: { status: true },

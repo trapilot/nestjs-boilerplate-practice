@@ -28,7 +28,7 @@ export class CountryAppController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
     const _where: Prisma.CountryWhereInput = {
       ..._search,
@@ -38,9 +38,10 @@ export class CountryAppController {
       name: true,
     }
 
-    const listing = await this.countryService.list(_where, _params, {
-      select: _select,
+    return await this.countryService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true },
     })
-    return listing
   }
 }

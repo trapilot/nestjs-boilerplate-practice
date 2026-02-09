@@ -52,22 +52,22 @@ export class MemberPointAppController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @AuthJwtPayload(['user.id', { parseAs: 'id' }]) memberId: number,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.MemberPointWhereInput = {
-      ..._search,
-      memberId,
-      isVisible: true,
-    }
-    const _include: Prisma.MemberPointInclude = {
-      invoice: true,
+    const kwargs: Prisma.MemberPointFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        memberId,
+        isVisible: true,
+      },
+      include: {
+        invoice: true,
+      },
     }
 
-    const pagination = await this.pointHistoryService.paginate(_where, _params, {
-      include: _include,
-    })
-    return pagination
+    return await this.pointHistoryService.getPage(kwargs)
   }
 
   @ApiRequestData({

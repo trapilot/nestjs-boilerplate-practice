@@ -3,10 +3,10 @@ import { IsNumber, IsOptional, IsString } from 'class-validator'
 
 export class RequestListDto {
   _search: Record<string, any>
-  _params: {
+  _kwargs: {
     take: number
     skip: number
-    cursor: Record<string, number>
+    cursor: any
     orderBy: Record<string, 'asc' | 'desc'>[]
   }
   _availableSearch: string[]

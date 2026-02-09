@@ -63,18 +63,20 @@ export class RoleAdminController {
       defaultOrderBy: 'id',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto,
     @RequestRoleLevel() _level: RequestFilterDto,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.RoleWhereInput = {
-      ..._search,
-      ..._enabled,
-      ..._level,
+    const kwargs: Prisma.RoleFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        ..._enabled,
+        ..._level,
+      },
     }
 
-    const pagination = await this.roleService.paginate(_where, _params)
-    return pagination
+    return await this.roleService.getPage(kwargs)
   }
 
   @ApiRequestList({
@@ -101,11 +103,11 @@ export class RoleAdminController {
       defaultOrderBy: 'title:asc',
       availableOrderBy: ['title'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestQueryFilterInBoolean('isActive', true) _enabled: RequestFilterDto,
     @RequestRoleLevel() _level: RequestFilterDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.RoleWhereInput = {
+    const _where: Prisma.RoleFindManyArgs = {
       ..._search,
       ..._enabled,
       ..._level,
@@ -115,10 +117,11 @@ export class RoleAdminController {
       title: true,
     }
 
-    const listing = await this.roleService.list(_where, _params, {
-      select: _select,
+    return await this.roleService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true },
     })
-    return listing
   }
 
   @ApiRequestData({

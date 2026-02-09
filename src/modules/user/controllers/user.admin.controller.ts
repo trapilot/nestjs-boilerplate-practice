@@ -91,35 +91,36 @@ export class UserAdminController {
       defaultOrderBy: 'isActive:desc|id:desc',
       availableOrderBy: ['id', 'isActive'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
     @RequestQueryFilterMany('roleId', { parseAs: 'id' }) rawRole: RequestFilterDto,
     @RequestQueryFilterContain('phone') _phone: RequestFilterDto,
     @RequestQueryFilterContain('name') _name: RequestFilterDto,
     @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.UserWhereInput = {
-      ..._search,
-      ..._enabled,
-      ..._name,
-      ..._phone,
-      pivotRoles: rawRole,
-    }
-    const _include: Prisma.UserInclude = {
-      pivotRoles: {
-        select: {
-          role: {
-            select: { id: true, title: true },
+    const kwargs: Prisma.UserFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        ..._enabled,
+        ..._name,
+        ..._phone,
+        pivotRoles: rawRole,
+      },
+      include: {
+        pivotRoles: {
+          select: {
+            role: {
+              select: { id: true, title: true },
+            },
           },
         },
       },
     }
 
-    const pagination = await this.userService.paginate(_where, _params, {
+    return await this.userService.getPage(kwargs, {
       document: bookType,
-      include: _include,
     })
-    return pagination
   }
 
   @ApiRequestData({
@@ -189,7 +190,7 @@ export class UserAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
     @RequestParam('id') id: number,
     @RequestQuery('month', { pipes: [RequestRequiredMonthPipe] }) month: number,
@@ -199,20 +200,22 @@ export class UserAdminController {
     const reqDate = this.helperService.dateSet(nowDate, { year, month })
     const dateRange = this.helperService.dateRange(reqDate)
 
-    const _where: Prisma.UserActivityWhereInput = {
-      ..._search,
-      userId: id,
-      action: EnumUserActivityAction.USER_LOGIN_CREDENTIAL,
-      createdAt: {
-        gte: dateRange.startOfMonth,
-        lte: dateRange.endOfMonth,
+    const kwargs: Prisma.UserActivityFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        userId: id,
+        action: EnumUserActivityAction.USER_LOGIN_CREDENTIAL,
+        createdAt: {
+          gte: dateRange.startOfMonth,
+          lte: dateRange.endOfMonth,
+        },
       },
     }
 
-    const listing = await this.userService.getActivities(_where, _params, {
+    return await this.userService.getActivities(kwargs, {
       document: bookType,
     })
-    return listing
   }
 
   @ApiRequestData({
@@ -256,11 +259,14 @@ export class UserAdminController {
     )
     file: IFile,
   ): Promise<IResponseData> {
-    const { roleId, ...data } = body
-    const authPassword = this.authUtil.passwordCreate(body.password)
+    const { roleId, password, ...data } = body
+    const { passwordHash } = this.authUtil.passwordCreate(password)
     const created = await this.userService.create(
-      { ...data, avatar: file?.path ?? undefined },
-      authPassword,
+      {
+        ...data,
+        password: passwordHash,
+        avatar: file?.path ?? undefined,
+      },
       { roleId },
     )
 

@@ -1,16 +1,16 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { Prisma, Setting } from '@runtime/prisma-client'
+import { Prisma } from '@runtime/prisma-client'
 import { HelperService } from 'lib/nest-core'
 import {
-  IPrismaOptions,
-  IPrismaParams,
+  IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
 import { EnumSettingType } from '../enums/setting.enum'
 import { SettingUtil } from '../helpers/setting.util'
+import { TSetting } from '../interfaces/setting.interface'
 
 @Injectable()
 export class SettingService {
@@ -29,19 +29,33 @@ export class SettingService {
     this.timezoneOffset = this.helperService.dateGetZoneOffset(nowDate)
   }
 
-  async findOne(where: Prisma.SettingWhereUniqueInput): Promise<Setting> {
-    return this.prisma.setting.findUnique({ where })
+  async getOne(kwargs: Prisma.SettingFindUniqueArgs): Promise<TSetting> {
+    return this.prisma.setting.findUnique(kwargs)
   }
 
-  async findFirst(where: Prisma.SettingWhereInput): Promise<Setting> {
-    return await this.prisma.setting.findFirst({ where })
+  async getFirst(kwargs?: Prisma.SettingFindFirstArgs): Promise<TSetting> {
+    return await this.prisma.setting.findFirst(kwargs)
   }
 
-  async findAll(where?: Prisma.SettingWhereInput): Promise<Setting[]> {
-    return await this.prisma.setting.findMany({ where })
+  async getMany(kwargs?: Prisma.SettingFindManyArgs): Promise<TSetting[]> {
+    return await this.prisma.setting.findMany(kwargs)
   }
 
-  async findOrFail(id: number): Promise<Setting> {
+  async getList(
+    kwargs: Prisma.SettingFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.setting.list(kwargs, options)
+  }
+
+  async getPage(
+    kwargs: Prisma.SettingFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.setting.paginate(kwargs, options)
+  }
+
+  async findOrFail(id: number): Promise<TSetting> {
     return await this.prisma.setting
       .findUniqueOrThrow({ where: { id: id } })
       .catch((_err: unknown) => {
@@ -52,34 +66,7 @@ export class SettingService {
       })
   }
 
-  async list(
-    where?: Prisma.SettingWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnList> {
-    return await this.prisma.setting.list(where, params, options)
-  }
-
-  async paginate(
-    where?: Prisma.SettingWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.setting.paginate(where, params, options)
-  }
-
-  async match(where: Prisma.SettingWhereInput): Promise<Setting> {
-    const setting = await this.prisma.setting.findFirst({ where })
-    return setting
-  }
-
-  async count(where?: Prisma.SettingWhereInput): Promise<number> {
-    return await this.prisma.setting.count({
-      where,
-    })
-  }
-
-  async create(data: Prisma.SettingUncheckedCreateInput): Promise<Setting> {
+  async create(data: Prisma.SettingUncheckedCreateInput): Promise<TSetting> {
     return await this.prisma.setting.create({ data })
   }
 
@@ -99,7 +86,7 @@ export class SettingService {
     return true
   }
 
-  async update(id: number, data: Prisma.SettingUncheckedUpdateInput): Promise<Setting> {
+  async update(id: number, data: Prisma.SettingUncheckedUpdateInput): Promise<TSetting> {
     const setting = await this.findOrFail(id)
     if (setting) {
       const updated = await this.prisma.setting.update({

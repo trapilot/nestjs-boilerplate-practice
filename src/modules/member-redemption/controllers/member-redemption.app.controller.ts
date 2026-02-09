@@ -52,22 +52,22 @@ export class MemberRedemptionAppController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @AuthJwtPayload(['user.id', { parseAs: 'id' }]) memberId: number,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.MemberRedemptionWhereInput = {
-      ..._search,
-      memberId,
-    }
-    const _include: Prisma.MemberRedemptionInclude = {
-      product: true,
-      order: true,
+    const kwargs: Prisma.MemberRedemptionFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        memberId,
+      },
+      include: {
+        product: true,
+        order: true,
+      },
     }
 
-    const pagination = await this.productHistoryService.paginate(_where, _params, {
-      include: _include,
-    })
-    return pagination
+    return await this.productHistoryService.getPage(kwargs)
   }
 
   @ApiRequestData({
@@ -118,9 +118,8 @@ export class MemberRedemptionAppController {
     @RequestParam('id') id: number,
     @AuthJwtPayload(['user.id', { parseAs: 'id' }]) memberId: number,
   ): Promise<IResponseData> {
-    const productHistory = await this.productHistoryService.matchOrFail({
-      id,
-      memberId,
+    const productHistory = await this.productHistoryService.getOne({
+      where: { id, memberId },
     })
 
     const reserved = await this.productHistoryService.reserve(productHistory)

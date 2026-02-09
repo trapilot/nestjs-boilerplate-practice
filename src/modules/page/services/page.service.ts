@@ -1,8 +1,7 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Page, Prisma } from '@runtime/prisma-client'
 import {
-  IPrismaOptions,
-  IPrismaParams,
+  IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
@@ -14,16 +13,30 @@ import { TPage } from '../interfaces/page.interface'
 export class PageService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findOne(kwargs?: Prisma.PageFindUniqueArgs): Promise<Page> {
+  async getOne(kwargs: Prisma.PageFindUniqueArgs): Promise<Page> {
     return this.prisma.page.findUnique(kwargs)
   }
 
-  async findFirst(kwargs: Prisma.PageFindFirstArgs = {}): Promise<Page> {
+  async getFirst(kwargs?: Prisma.PageFindFirstArgs): Promise<Page> {
     return await this.prisma.page.findFirst(kwargs)
   }
 
-  async findAll(kwargs: Prisma.PageFindManyArgs = {}): Promise<TPage[]> {
+  async getMany(kwargs?: Prisma.PageFindManyArgs): Promise<Page[]> {
     return await this.prisma.page.findMany(kwargs)
+  }
+
+  async getList(
+    kwargs: Prisma.PageFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.page.list(kwargs, options)
+  }
+
+  async getPage(
+    kwargs: Prisma.PageFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.page.paginate(kwargs, options)
   }
 
   async findOrFail(
@@ -38,50 +51,6 @@ export class PageService {
           message: 'module.page.notFound',
         })
       })
-  }
-
-  async matchOrFail(
-    where: Prisma.PageWhereInput,
-    kwargs: Omit<Prisma.PageFindFirstOrThrowArgs, 'where'> = {},
-  ): Promise<Page> {
-    const page = await this.prisma.page
-      .findFirstOrThrow({ ...kwargs, where })
-      .catch((_err: unknown) => {
-        throw new NotFoundException({
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'module.page.notFound',
-        })
-      })
-    return page
-  }
-
-  async list(
-    where?: Prisma.PageWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnList> {
-    return await this.prisma.page.list(where, params, options)
-  }
-
-  async paginate(
-    where?: Prisma.PageWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.page.paginate(where, params, options)
-  }
-
-  async count(where?: Prisma.PageWhereInput): Promise<number> {
-    return await this.prisma.page.count({
-      where,
-    })
-  }
-
-  async find(id: number, kwargs: Omit<Prisma.PageFindUniqueArgs, 'where'> = {}): Promise<Page> {
-    return await this.prisma.page.findUnique({
-      ...kwargs,
-      where: { id },
-    })
   }
 
   async create(data: Prisma.PageUncheckedCreateInput): Promise<TPage> {
@@ -100,10 +69,10 @@ export class PageService {
   }
 
   async delete(id: number): Promise<Page> {
-    const page = await this.find(id)
+    const page = await this.getOne({ where: { id } })
     if (page) {
-      const exist = await this.count({ isActive: true, type: page.type })
-      if (exist <= 1) {
+      const exists = await this.prisma.page.exists({ isActive: true, type: page.type })
+      if (exists) {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,
           message: 'module.page.requiredOne',
@@ -114,11 +83,6 @@ export class PageService {
         where: { id: page.id },
         data: { isActive: false },
       })
-
-      // await this.prisma.$transaction(async (tx) => {
-      //   await tx.page.delete({ where: { id: page.id } })
-      //   await FileUtil.removeLink(page.thumbnail)
-      // })
     }
     return page
   }

@@ -26,7 +26,7 @@ export function RequestFilterPagingPipe(defaultPerPage: number = 0): Type<PipeTr
       this.addToRequestInstance(page, perPage)
       return {
         ...value,
-        _params: Object.assign({}, value?._params ?? {}, {
+        _kwargs: Object.assign({}, value?._kwargs ?? {}, {
           take: perPage,
           skip: offset,
         }),

@@ -37,15 +37,17 @@ export class MediaAppController {
       defaultOrderBy: 'sorting:asc',
       availableOrderBy: ['sorting'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.MediaWhereInput = {
-      ..._search,
-      type: EnumMediaType.BANNER,
+    const kwargs: Prisma.MediaFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        type: EnumMediaType.BANNER,
+      },
     }
 
-    const listing = await this.mediaService.list(_where, _params)
-    return listing
+    return await this.mediaService.getList(kwargs)
   }
 
   @ApiRequestList({
@@ -73,14 +75,16 @@ export class MediaAppController {
       defaultOrderBy: 'sorting:asc',
       availableOrderBy: ['sorting'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.MediaWhereInput = {
-      ..._search,
-      type: EnumMediaType.SLIDER,
+    const kwargs: Prisma.MediaFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        type: EnumMediaType.SLIDER,
+      },
     }
 
-    const listing = await this.mediaService.list(_where, _params)
-    return listing
+    return await this.mediaService.getList(kwargs)
   }
 }

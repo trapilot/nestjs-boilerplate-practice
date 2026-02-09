@@ -1,11 +1,5 @@
 import { Prisma } from '@runtime/prisma-client'
-import {
-  IPrismaGenerator,
-  IPrismaOptions,
-  IPrismaParams,
-  IPrismaReturnList,
-  IPrismaReturnPaging,
-} from '../interfaces'
+import { IPrismaExportOptions, IPrismaReturnList, IPrismaReturnPaging } from '../interfaces'
 
 export const useUtilities = Prisma.defineExtension({
   name: 'prisma-utilities',
@@ -24,23 +18,23 @@ export const useUtilities = Prisma.defineExtension({
 
       async *yield<T, R>(
         this: T,
-        where: Prisma.Args<T, 'findMany'>,
-        options?: { cursorField?: string; chunkSize?: number },
+        kwargs: Prisma.Args<T, 'findMany'>,
+        options?: { cursorField?: string; batchSize?: number },
       ): AsyncGenerator<Prisma.Result<T, R, 'findMany'>, void, unknown> {
-        const chunkSize = options?.chunkSize ?? 1000
+        const batchSize = options?.batchSize || 100
         const cursorField = options?.cursorField || 'id'
-        const cursorValue = { [cursorField]: where?.cursor?.[cursorField] }
+        const cursorValue = { [cursorField]: kwargs?.cursor?.[cursorField] }
 
         // Avoid select without cursor field
-        if (where?.select && !Object.keys(where.select).includes(cursorField)) {
-          where.select[cursorField] = true
+        if (kwargs?.select && !Object.keys(kwargs.select).includes(cursorField)) {
+          kwargs.select[cursorField] = true
         }
 
         const context = Prisma.getExtensionContext(this)
         do {
           const records: Prisma.Args<T, 'findMany'> = await context['findMany']({
-            ...where,
-            take: chunkSize,
+            ...kwargs,
+            take: batchSize,
             skip: cursorValue[cursorField] ? 1 : 0,
             cursor: cursorValue[cursorField] ? cursorValue : undefined,
           })
@@ -49,12 +43,14 @@ export const useUtilities = Prisma.defineExtension({
             break // End iteration if no results
           }
 
-          if (where?.take) {
-            where.take -= records.length
-            if (where.take <= 0) {
+          /*
+          if (kwargs?.take) {
+            kwargs.take -= records.length
+            if (kwargs.take <= 0) {
               break
             }
           }
+          */
 
           // Update cursor for the next iteration
           cursorValue[cursorField] = records[records.length - 1][cursorField]
@@ -65,31 +61,21 @@ export const useUtilities = Prisma.defineExtension({
 
       async list<T, R>(
         this: T,
-        where?: Prisma.Args<T, 'findMany'>['where'],
-        params?: IPrismaParams,
-        options?: IPrismaOptions & IPrismaGenerator,
+        kwargs?: Prisma.Args<T, 'findMany'>,
+        options?: IPrismaExportOptions,
       ): Promise<IPrismaReturnList<R>> {
         const context = Prisma.getExtensionContext(this)
 
-        const { skip, take, cursor, distinct, orderBy } = params ?? {}
-        const { select, include } = options ?? {}
-
-        const kwargs = {
-          where,
-          skip,
-          take,
-          cursor,
-          distinct,
-          orderBy,
-          select,
-          include,
-        }
-
         if (options?.document) {
           const generator = context['yield'](kwargs, {
-            cursorField: Object.keys(where?.cursor || {})[0],
+            cursorField: Object.keys(kwargs?.cursor || {})[0],
+            batchSize: options?.batchSize,
           })
-          return { data: generator }
+          return {
+            data: generator,
+            filePrefix: options?.filePrefix,
+            fileTimestamp: options?.fileTimestamp,
+          }
         }
 
         const records: Prisma.Args<T, 'findMany'> = await context['findMany'](kwargs)
@@ -100,35 +86,25 @@ export const useUtilities = Prisma.defineExtension({
 
       async paginate<T, R>(
         this: T,
-        where?: Prisma.Args<T, 'findMany'>['where'],
-        params?: IPrismaParams,
-        options?: IPrismaOptions & IPrismaGenerator,
+        kwargs?: Prisma.Args<T, 'findMany'>,
+        options?: IPrismaExportOptions,
       ): Promise<IPrismaReturnPaging<R>> {
         const context = Prisma.getExtensionContext(this)
 
-        const { skip, take, cursor, distinct, orderBy } = params ?? {}
-        const { select, include } = options ?? {}
-
-        const kwargs = {
-          where,
-          skip,
-          take,
-          cursor,
-          distinct,
-          orderBy,
-          select,
-          include,
-        }
-
         if (options?.document) {
           const generator = context['yield'](kwargs, {
-            cursorField: Object.keys(where?.cursor || {})[0],
+            cursorField: Object.keys(kwargs?.cursor || {})[0],
+            batchSize: options?.batchSize,
           })
-          return { data: generator }
+          return {
+            data: generator,
+            filePrefix: options?.filePrefix,
+            fileTimestamp: options?.fileTimestamp,
+          }
         }
 
         const [totalRecord, records] = await Promise.all([
-          context['count']({ where: kwargs.where }),
+          context['count']({ where: kwargs?.where }),
           context['findMany'](kwargs),
         ])
 
@@ -136,7 +112,7 @@ export const useUtilities = Prisma.defineExtension({
           data: records,
           pagination: {
             totalRecord,
-            totalPage: Math.max(1, Math.ceil(totalRecord / (take || 1))),
+            totalPage: Math.max(1, Math.ceil(totalRecord / (kwargs?.take || 1))),
           },
         }
       },

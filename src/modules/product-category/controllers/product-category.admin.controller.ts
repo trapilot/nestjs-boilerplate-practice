@@ -67,17 +67,19 @@ export class ProductCategoryAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.ProductCategoryWhereInput = {
-      ..._search,
+    const kwargs: Prisma.ProductCategoryFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+      },
     }
 
-    const pagination = await this.productCategoryService.paginate(_where, _params, {
+    return await this.productCategoryService.getPage(kwargs, {
       document: bookType,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -105,20 +107,13 @@ export class ProductCategoryAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.ProductCategoryWhereInput = {
-      ..._search,
-    }
-    const _select: Prisma.ProductCategorySelect = {
-      id: true,
-      name: true,
-    }
-
-    const listing = await this.productCategoryService.list(_where, _params, {
-      select: _select,
+    return await this.productCategoryService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true, name: true },
     })
-    return listing
   }
 
   @ApiRequestData({
@@ -240,10 +235,7 @@ export class ProductCategoryAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
-    const productCategory = await this.productCategoryService.find(id)
-    if (productCategory) {
-      await this.productCategoryService.delete(productCategory, deletedBy)
-    }
+    await this.productCategoryService.delete(id, deletedBy)
 
     return {
       data: { status: true },

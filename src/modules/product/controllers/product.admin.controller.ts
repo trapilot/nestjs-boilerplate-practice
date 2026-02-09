@@ -73,7 +73,7 @@ export class ProductAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
     @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto,
     @RequestQueryFilterBetween('price', {
@@ -82,22 +82,23 @@ export class ProductAdminController {
     })
     _price: RequestFilterDto,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.ProductWhereInput = {
-      ..._search,
-      ..._enabled,
-      ..._price,
-    }
-    const _include: Prisma.ProductInclude = {
-      createdByUser: true,
-      updatedByUser: true,
-      deletedByUser: true,
+    const kwargs: Prisma.ProductFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        ..._enabled,
+        ..._price,
+      },
+      include: {
+        createdByUser: true,
+        updatedByUser: true,
+        deletedByUser: true,
+      },
     }
 
-    const pagination = await this.productService.paginate(_where, _params, {
+    return await this.productService.getPage(kwargs, {
       document: bookType,
-      include: _include,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -124,20 +125,13 @@ export class ProductAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.ProductWhereInput = {
-      ..._search,
-    }
-    const _select: Prisma.ProductSelect = {
-      id: true,
-      name: true,
-    }
-
-    const listing = await this.productService.list(_where, _params, {
-      select: _select,
+    return await this.productService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true, name: true },
     })
-    return listing
   }
 
   @ApiRequestData({

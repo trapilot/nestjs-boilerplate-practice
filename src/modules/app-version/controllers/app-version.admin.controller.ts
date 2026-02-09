@@ -66,17 +66,19 @@ export class AppVersionAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.AppVersionWhereInput = {
-      ..._search,
+    const kwargs: Prisma.AppVersionFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+      },
     }
 
-    const pagination = await this.appVersionService.paginate(_where, _params, {
+    return await this.appVersionService.getPage(kwargs, {
       document: bookType,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -104,19 +106,13 @@ export class AppVersionAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.AppVersionWhereInput = {
-      ..._search,
-    }
-    const _select: Prisma.AppVersionSelect = {
-      id: true,
-    }
-
-    const listing = await this.appVersionService.list(_where, _params, {
-      select: _select,
+    return await this.appVersionService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true },
     })
-    return listing
   }
 
   @ApiRequestData({
@@ -300,10 +296,7 @@ export class AppVersionAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
-    const appVersion = await this.appVersionService.find(id)
-    if (appVersion) {
-      await this.appVersionService.delete(appVersion, deletedBy)
-    }
+    await this.appVersionService.delete(id, deletedBy)
 
     return {
       data: { status: true },

@@ -12,7 +12,7 @@ export class SettingPutToRequestGuard implements CanActivate {
     const { params } = request
     const { id } = params
 
-    const check = await this.settingService.findOne({ id: +id })
+    const check = await this.settingService.getOne({ where: { id: +id } })
     request.__setting = check
 
     return true

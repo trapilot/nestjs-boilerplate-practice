@@ -60,17 +60,19 @@ export class <%= singular(classify(name)) %>AdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.<%= singular(classify(name)) %>WhereInput = {
-      ..._search,
+    const kwargs: Prisma.<%= singular(classify(name)) %>FindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+      }
     }
 
-    const pagination = await this.<%= singular(lowercased(name)) %>Service.paginate(_where, _params, {
+    return await this.<%= singular(lowercased(name)) %>Service.getPage(kwargs, {
       document: bookType,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -98,19 +100,13 @@ export class <%= singular(classify(name)) %>AdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.<%= singular(classify(name)) %>WhereInput = {
-      ..._search,
-    }
-    const _select: Prisma.<%= singular(classify(name)) %>Select = {
-      id: true,
-    }
-
-    const listing = await this.<%= singular(lowercased(name)) %>Service.list(_where, _params, {
-      select: _select,
+    return await this.<%= singular(lowercased(name)) %>Service.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true }
     })
-    return listing
   }
 
   @ApiRequestData({

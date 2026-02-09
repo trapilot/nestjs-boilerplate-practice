@@ -1,4 +1,4 @@
-import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import {
   EnumCartStatus,
   EnumInvoiceStatus,
@@ -12,8 +12,7 @@ import {
 } from '@runtime/prisma-client'
 import { EnumDateFormat, HelperService } from 'lib/nest-core'
 import {
-  IPrismaOptions,
-  IPrismaParams,
+  IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
@@ -33,23 +32,37 @@ export class OrderService {
     private readonly invoiceService: InvoiceService,
   ) {}
 
-  async findOne(kwargs?: Prisma.OrderFindUniqueArgs): Promise<TOrder> {
+  async getOne(kwargs: Prisma.OrderFindUniqueArgs): Promise<TOrder> {
     return await this.prisma.order.findUnique(kwargs)
   }
 
-  async findFirst(kwargs: Prisma.OrderFindFirstArgs = {}): Promise<TOrder> {
+  async getFirst(kwargs?: Prisma.OrderFindFirstArgs): Promise<TOrder> {
     return await this.prisma.order.findFirst(kwargs)
   }
 
-  async findAll(kwargs: Prisma.OrderFindManyArgs = {}): Promise<TOrder[]> {
+  async getMany(kwargs?: Prisma.OrderFindManyArgs): Promise<TOrder[]> {
     return await this.prisma.order.findMany(kwargs)
+  }
+
+  async getList(
+    kwargs: Prisma.OrderFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.order.list(kwargs, options)
+  }
+
+  async getPage(
+    kwargs: Prisma.OrderFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.order.paginate(kwargs, options)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.OrderFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TOrder> {
-    const order = await this.prisma.order
+    return await this.prisma.order
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -57,65 +70,6 @@ export class OrderService {
           message: 'module.order.notFound',
         })
       })
-    return order
-  }
-
-  async matchOrFail(
-    where: Prisma.OrderWhereInput,
-    kwargs: Omit<Prisma.OrderFindFirstOrThrowArgs, 'where'> = {},
-  ): Promise<TOrder> {
-    const order = await this.prisma.order
-      .findFirstOrThrow({ ...kwargs, where })
-      .catch((_err: unknown) => {
-        throw new NotFoundException({
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'module.order.notFound',
-        })
-      })
-    return order
-  }
-
-  async differOrFail(
-    where: Prisma.OrderWhereInput,
-    options?: { limit?: number; message?: string },
-  ): Promise<void> {
-    const totalRecords = await this.count(where)
-    const limitRecords = options?.limit ?? 0
-    if (totalRecords > limitRecords) {
-      throw new ConflictException({
-        statusCode: HttpStatus.CONFLICT,
-        message: options?.message ?? 'module.order.conflict',
-      })
-    }
-  }
-
-  async list(
-    where?: Prisma.OrderWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnList> {
-    return await this.prisma.order.list(where, params, options)
-  }
-
-  async paginate(
-    where?: Prisma.OrderWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.order.paginate(where, params, options)
-  }
-
-  async count(where?: Prisma.OrderWhereInput): Promise<number> {
-    return await this.prisma.order.count({
-      where,
-    })
-  }
-
-  async find(id: number, kwargs: Omit<Prisma.OrderFindUniqueArgs, 'where'> = {}): Promise<TOrder> {
-    return await this.prisma.order.findUnique({
-      ...kwargs,
-      where: { id },
-    })
   }
 
   async create(data: Prisma.OrderUncheckedCreateInput): Promise<TOrder> {
@@ -134,10 +88,10 @@ export class OrderService {
     })
   }
 
-  async delete(order: TOrder, _deletedBy?: number): Promise<boolean> {
+  async delete(id: number, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async tx => {
-        await tx.order.delete({ where: { id: order.id } })
+        await tx.order.delete({ where: { id } })
       })
       return true
     } catch {

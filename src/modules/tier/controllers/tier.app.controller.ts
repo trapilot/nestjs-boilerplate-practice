@@ -37,13 +37,15 @@ export class TierAppController {
       defaultOrderBy: 'level:asc',
       availableOrderBy: ['level'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.TierWhereInput = {
-      ..._search,
+    const kwargs: Prisma.TierFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+      },
     }
 
-    const listing = await this.tierService.list(_where, _params)
-    return listing
+    return await this.tierService.getList(kwargs)
   }
 }

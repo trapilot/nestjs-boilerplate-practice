@@ -67,21 +67,23 @@ export class ApiKeyAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestQueryFilterInBoolean('isActive') _enabled: RequestFilterDto,
     @RequestQueryFilterInEnum('type', EnumApiKeyType) _type: RequestFilterDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.ApiKeyWhereInput = {
-      ..._search,
-      ..._enabled,
-      ..._type,
+    const kwargs: Prisma.ApiKeyFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+        ..._enabled,
+        ..._type,
+      },
     }
 
-    const pagination = await this.apiKeyService.paginate(_where, _params, {
+    return await this.apiKeyService.getPage(kwargs, {
       document: bookType,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -109,19 +111,13 @@ export class ApiKeyAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.ApiKeyWhereInput = {
-      ..._search,
-    }
-    const _select: Prisma.ApiKeySelect = {
-      id: true,
-    }
-
-    const listing = await this.apiKeyService.list(_where, _params, {
-      select: _select,
+    return await this.apiKeyService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true },
     })
-    return listing
   }
 
   @ApiRequestData({
@@ -374,10 +370,7 @@ export class ApiKeyAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
-    const apiKey = await this.apiKeyService.find(id)
-    if (apiKey) {
-      await this.apiKeyService.delete(apiKey, deletedBy)
-    }
+    await this.apiKeyService.delete(id, deletedBy)
 
     return {
       data: { status: true },

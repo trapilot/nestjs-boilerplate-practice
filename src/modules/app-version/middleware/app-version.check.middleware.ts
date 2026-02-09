@@ -26,7 +26,7 @@ export class AppVersionCheckMiddleware implements NestMiddleware {
     let metadata: { app: { version: string; url: string } }
     try {
       const userAgent = JSON.parse(req.headers['x-user-agent'] as string)
-      const appVersion = await this.appVersionService.findFirst({
+      const appVersion = await this.appVersionService.getFirst({
         where: {
           type: userAgent.device.type,
           isActive: true,

@@ -66,22 +66,23 @@ export class InvoiceAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.InvoiceWhereInput = {
-      ..._search,
-    }
-    const _include: Prisma.InvoiceInclude = {
-      order: true,
-      member: true,
+    const kwargs: Prisma.InvoiceFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+      },
+      include: {
+        order: true,
+        member: true,
+      },
     }
 
-    const pagination = await this.invoiceService.paginate(_where, _params, {
+    return await this.invoiceService.getPage(kwargs, {
       document: bookType,
-      include: _include,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -109,19 +110,13 @@ export class InvoiceAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.InvoiceWhereInput = {
-      ..._search,
-    }
-    const _select: Prisma.InvoiceSelect = {
-      id: true,
-    }
-
-    const listing = await this.invoiceService.list(_where, _params, {
-      select: _select,
+    return await this.invoiceService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true },
     })
-    return listing
   }
 
   @ApiRequestData({
@@ -248,10 +243,7 @@ export class InvoiceAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
-    const invoice = await this.invoiceService.find(id)
-    if (invoice) {
-      await this.invoiceService.delete(invoice, deletedBy)
-    }
+    await this.invoiceService.delete(id, deletedBy)
 
     return {
       data: { status: true },

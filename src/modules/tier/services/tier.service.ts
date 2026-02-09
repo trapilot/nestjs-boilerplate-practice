@@ -1,14 +1,7 @@
-import {
-  ConflictException,
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-  OnModuleInit,
-} from '@nestjs/common'
+import { HttpStatus, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
 import {
-  IPrismaOptions,
-  IPrismaParams,
+  IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
@@ -23,7 +16,7 @@ export class TierService implements OnModuleInit {
   constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit(): Promise<void> {
-    const tierCharts = await this.findAll({
+    const tierCharts = await this.prisma.tier.findMany({
       include: { charts: true },
     })
     this.chart = new TierChart(tierCharts)
@@ -33,23 +26,37 @@ export class TierService implements OnModuleInit {
     return this.chart
   }
 
-  async findOne(kwargs?: Prisma.TierFindUniqueArgs): Promise<TTier> {
+  async getOne(kwargs: Prisma.TierFindUniqueArgs): Promise<TTier> {
     return await this.prisma.tier.findUnique(kwargs)
   }
 
-  async findFirst(kwargs: Prisma.TierFindFirstArgs = {}): Promise<TTier> {
+  async getFirst(kwargs?: Prisma.TierFindFirstArgs): Promise<TTier> {
     return await this.prisma.tier.findFirst(kwargs)
   }
 
-  async findAll(kwargs: Prisma.TierFindManyArgs = {}): Promise<TTier[]> {
+  async getMany(kwargs?: Prisma.TierFindManyArgs): Promise<TTier[]> {
     return await this.prisma.tier.findMany(kwargs)
+  }
+
+  async getList(
+    kwargs: Prisma.TierFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.tier.list(kwargs, options)
+  }
+
+  async getPage(
+    kwargs: Prisma.TierFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.tier.paginate(kwargs, options)
   }
 
   async findOrFail(
     id: number,
     kwargs: Omit<Prisma.TierFindUniqueOrThrowArgs, 'where'> = {},
   ): Promise<TTier> {
-    const tier = await this.prisma.tier
+    return await this.prisma.tier
       .findUniqueOrThrow({ ...kwargs, where: { id } })
       .catch((_err: unknown) => {
         throw new NotFoundException({
@@ -57,65 +64,6 @@ export class TierService implements OnModuleInit {
           message: 'module.tier.notFound',
         })
       })
-    return tier
-  }
-
-  async differOrFail(
-    where: Prisma.TierWhereInput,
-    options?: { limit?: number; message?: string },
-  ): Promise<void> {
-    const totalRecords = await this.count(where)
-    const limitRecords = options?.limit ?? 0
-    if (totalRecords > limitRecords) {
-      throw new ConflictException({
-        statusCode: HttpStatus.CONFLICT,
-        message: options?.message ?? 'module.tier.conflict',
-      })
-    }
-  }
-
-  async matchOrFail(
-    where: Prisma.TierWhereInput,
-    kwargs: Omit<Prisma.TierFindFirstOrThrowArgs, 'where'> = {},
-  ): Promise<TTier> {
-    const tier = await this.prisma.tier
-      .findFirstOrThrow({ ...kwargs, where })
-      .catch((_err: unknown) => {
-        throw new NotFoundException({
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'module.tier.notFound',
-        })
-      })
-    return tier
-  }
-
-  async list(
-    where?: Prisma.TierWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnList> {
-    return await this.prisma.tier.list(where, params, options)
-  }
-
-  async paginate(
-    where?: Prisma.TierWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.tier.paginate(where, params, options)
-  }
-
-  async count(where?: Prisma.TierWhereInput): Promise<number> {
-    return await this.prisma.tier.count({
-      where,
-    })
-  }
-
-  async find(id: number, kwargs: Omit<Prisma.TierFindUniqueArgs, 'where'> = {}): Promise<TTier> {
-    return await this.prisma.tier.findUnique({
-      ...kwargs,
-      where: { id },
-    })
   }
 
   async create(data: Prisma.TierUncheckedCreateInput): Promise<TTier> {
@@ -134,10 +82,10 @@ export class TierService implements OnModuleInit {
     })
   }
 
-  async delete(tier: TTier, _?: number): Promise<boolean> {
+  async delete(id: number, _?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async tx => {
-        await tx.tier.delete({ where: { id: tier.id } })
+        await tx.tier.delete({ where: { id } })
       })
       return true
     } catch {

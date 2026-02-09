@@ -60,21 +60,22 @@ export class OrderAdminController {
       defaultOrderBy: 'id:desc',
       availableOrderBy: ['id'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
     @RequestBookType() bookType: EnumFileExtensionDocument,
   ): Promise<IResponsePaging> {
-    const _where: Prisma.OrderWhereInput = {
-      ..._search,
-    }
-    const _include: Prisma.OrderInclude = {
-      member: true,
+    const kwargs: Prisma.OrderFindManyArgs = {
+      ..._kwargs,
+      where: {
+        ..._search,
+      },
+      include: {
+        member: true,
+      },
     }
 
-    const pagination = await this.orderService.paginate(_where, _params, {
+    return await this.orderService.getPage(kwargs, {
       document: bookType,
-      include: _include,
     })
-    return pagination
   }
 
   @ApiRequestList({
@@ -102,19 +103,13 @@ export class OrderAdminController {
       defaultOrderBy: 'name:asc',
       availableOrderBy: ['name'],
     })
-    { _search, _params }: RequestListDto,
+    { _search, _kwargs }: RequestListDto,
   ): Promise<IResponseList> {
-    const _where: Prisma.OrderWhereInput = {
-      ..._search,
-    }
-    const _select: Prisma.OrderSelect = {
-      id: true,
-    }
-
-    const listing = await this.orderService.list(_where, _params, {
-      select: _select,
+    return await this.orderService.getList({
+      ..._kwargs,
+      where: { ..._search },
+      select: { id: true },
     })
-    return listing
   }
 
   @ApiRequestData({
@@ -234,10 +229,7 @@ export class OrderAdminController {
     @RequestParam('id') id: number,
     @AuthJwtPayload('user.id') deletedBy: number,
   ): Promise<IResponseData> {
-    const order = await this.orderService.find(id)
-    if (order) {
-      await this.orderService.delete(order, deletedBy)
-    }
+    await this.orderService.delete(id, deletedBy)
 
     return {
       data: { status: true },

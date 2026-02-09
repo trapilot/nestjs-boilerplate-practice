@@ -1,34 +1,43 @@
-import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
 import { UserAbilityUtil } from 'app/helpers/user.ability.util'
 import {
-  IPrismaOptions,
-  IPrismaParams,
+  IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
 import { TPermission } from 'modules/permission/interfaces/permission.interface'
-import { PermissionService } from 'modules/permission/services/permission.service'
 import { IRoleCreateOptions, IRoleUpdateOptions, TRole } from '../interfaces/role.interface'
 
 @Injectable()
 export class RoleService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly permissionService: PermissionService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-  async findOne(kwargs?: Prisma.RoleFindUniqueArgs): Promise<TRole> {
+  async getOne(kwargs: Prisma.RoleFindUniqueArgs): Promise<TRole> {
     return await this.prisma.role.findUnique(kwargs)
   }
 
-  async findFirst(kwargs: Prisma.RoleFindFirstArgs = {}): Promise<TRole> {
+  async getFirst(kwargs?: Prisma.RoleFindFirstArgs): Promise<TRole> {
     return await this.prisma.role.findFirst(kwargs)
   }
 
-  async findAll(kwargs: Prisma.RoleFindManyArgs = {}): Promise<TRole[]> {
+  async getMany(kwargs?: Prisma.RoleFindManyArgs): Promise<TRole[]> {
     return await this.prisma.role.findMany(kwargs)
+  }
+
+  async getList(
+    kwargs: Prisma.RoleFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.role.list(kwargs, options)
+  }
+
+  async getPage(
+    kwargs: Prisma.RoleFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.role.paginate(kwargs, options)
   }
 
   async findOrFail(
@@ -43,57 +52,6 @@ export class RoleService {
           message: 'module.role.notFound',
         })
       })
-  }
-
-  async differOrFail(
-    where: Prisma.RoleWhereInput,
-    options?: { limit?: number; message?: string },
-  ): Promise<void> {
-    const totalRecords = await this.count(where)
-    const limitRecords = options?.limit ?? 0
-    if (totalRecords > limitRecords) {
-      throw new ConflictException({
-        statusCode: HttpStatus.CONFLICT,
-        message: options?.message ?? 'module.role.conflict',
-      })
-    }
-  }
-
-  async matchOrFail(
-    where: Prisma.RoleWhereInput,
-    kwargs: Omit<Prisma.RoleFindFirstOrThrowArgs, 'where'> = {},
-  ): Promise<TRole> {
-    const role = await this.prisma.role
-      .findFirstOrThrow({ ...kwargs, where })
-      .catch((_err: unknown) => {
-        throw new NotFoundException({
-          statusCode: HttpStatus.NOT_FOUND,
-          message: 'module.role.notFound',
-        })
-      })
-    return role
-  }
-
-  async list(
-    where?: Prisma.RoleWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnList> {
-    return await this.prisma.role.list(where, params, options)
-  }
-
-  async paginate(
-    where?: Prisma.RoleWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.role.paginate(where, params, options)
-  }
-
-  async count(where?: Prisma.RoleWhereInput): Promise<number> {
-    return await this.prisma.role.count({
-      where,
-    })
   }
 
   async create(
@@ -191,7 +149,7 @@ export class RoleService {
   }
 
   async getWithAllPerms(id?: number): Promise<[TRole, TPermission[]]> {
-    const getFulLPermsFn = this.permissionService.findAll({
+    const getFulLPermsFn = this.prisma.permission.findMany({
       where: { isActive: true },
       orderBy: [{ sorting: 'asc' }],
     })

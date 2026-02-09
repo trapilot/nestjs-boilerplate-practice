@@ -1,9 +1,8 @@
-import { ConflictException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
 import { HelperService } from 'lib/nest-core'
 import {
-  IPrismaOptions,
-  IPrismaParams,
+  IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
@@ -17,16 +16,30 @@ export class ProductService {
     private readonly helperService: HelperService,
   ) {}
 
-  async findOne(kwargs?: Prisma.ProductFindUniqueArgs): Promise<TProduct> {
+  async getOne(kwargs: Prisma.ProductFindUniqueArgs): Promise<TProduct> {
     return await this.prisma.product.findUnique(kwargs)
   }
 
-  async findFirst(kwargs: Prisma.ProductFindFirstArgs = {}): Promise<TProduct> {
+  async getFirst(kwargs?: Prisma.ProductFindFirstArgs): Promise<TProduct> {
     return await this.prisma.product.findFirst(kwargs)
   }
 
-  async findAll(kwargs: Prisma.ProductFindManyArgs = {}): Promise<TProduct[]> {
+  async getMany(kwargs?: Prisma.ProductFindManyArgs): Promise<TProduct[]> {
     return await this.prisma.product.findMany(kwargs)
+  }
+
+  async getList(
+    kwargs: Prisma.ProductFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnList> {
+    return await this.prisma.product.list(kwargs, options)
+  }
+
+  async getPage(
+    kwargs: Prisma.ProductFindManyArgs,
+    options?: IPrismaExportOptions,
+  ): Promise<IPrismaReturnPaging> {
+    return await this.prisma.product.paginate(kwargs, options)
   }
 
   async findOrFail(
@@ -41,42 +54,6 @@ export class ProductService {
           message: 'module.product.notFound',
         })
       })
-  }
-
-  async differOrFail(
-    where: Prisma.ProductWhereInput,
-    options?: { limit?: number; message?: string },
-  ): Promise<void> {
-    const totalRecords = await this.count(where)
-    const limitRecords = options?.limit ?? 0
-    if (totalRecords > limitRecords) {
-      throw new ConflictException({
-        statusCode: HttpStatus.CONFLICT,
-        message: options?.message ?? 'module.product.conflict',
-      })
-    }
-  }
-
-  async list(
-    where?: Prisma.ProductWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnList> {
-    return await this.prisma.product.list(where, params, options)
-  }
-
-  async paginate(
-    where?: Prisma.ProductWhereInput,
-    params?: IPrismaParams,
-    options?: IPrismaOptions,
-  ): Promise<IPrismaReturnPaging> {
-    return await this.prisma.product.paginate(where, params, options)
-  }
-
-  async count(where?: Prisma.ProductWhereInput): Promise<number> {
-    return await this.prisma.product.count({
-      where,
-    })
   }
 
   async create(

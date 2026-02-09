@@ -29,23 +29,11 @@ export interface IPrismaLanguageBuildOptions<T> {
   whereField?: T
 }
 
-export interface IPrismaParams {
-  skip?: number
-  take?: number
-  cursor?: Record<string, number>
-  orderBy?: Record<string, 'asc' | 'desc'>[]
-  distinct?: any
-}
-
-export interface IPrismaOptions<T = any> {
-  select?: T
-  include?: T
+export interface IPrismaExportOptions {
   document?: EnumFileExtensionDocument
-}
-
-export interface IPrismaGenerator {
-  chunk?: number
-  generator?: boolean
+  batchSize?: number
+  filePrefix?: string
+  fileTimestamp?: boolean
 }
 
 export type IPrismaReturnList<T = Record<string, any>> = IReturnGenerator<T> | IReturnList<T>

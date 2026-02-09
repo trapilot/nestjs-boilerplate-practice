@@ -23,7 +23,7 @@ export function RequestFilterOrderPipe(
       this.addToRequestInstance(value?.orderBy, availableOrderBy)
       return {
         ...value,
-        _params: Object.assign({}, value?._params ?? {}, {
+        _kwargs: Object.assign({}, value?._kwargs ?? {}, {
           orderBy: orderBy.map(order => {
             const [sortKey, sortDir] = order.split(':')
             return { [sortKey]: sortDir }
