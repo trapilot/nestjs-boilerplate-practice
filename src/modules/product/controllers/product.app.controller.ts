@@ -65,12 +65,12 @@ export class ProductAppController {
         ..._search,
         brandId,
         categoryId,
-        wishlist: isWishlist ? { some: { memberId } } : undefined,
+        favorites: isWishlist ? { some: { memberId } } : undefined,
       },
       include: {
         brand: true,
         category: true,
-        wishlist: memberId
+        favorites: memberId
           ? {
               where: { memberId },
               select: { productId: true },
@@ -108,7 +108,7 @@ export class ProductAppController {
         category: true,
         reviews: true,
         languages: true,
-        wishlist: memberId
+        favorites: memberId
           ? {
               where: { memberId },
               select: { productId: true },

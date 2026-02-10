@@ -23,13 +23,13 @@ import {
 } from 'lib/nest-auth'
 import { HelperService, IRequestApp } from 'lib/nest-core'
 import { PrismaService, PrismaUtil } from 'lib/nest-prisma'
-import { <%= singular(classify(name)) %>RequestChangePasswordDto } from '../dtos/<%= singular(lowercased(name)) %>.request.change-password.dto'
-import { <%= singular(classify(name)) %>RequestSignInDto } from '../dtos/<%= singular(lowercased(name)) %>.request.sign-in.dto'
-import { <%= singular(classify(name)) %>RequestSignUpDto } from '../dtos/<%= singular(lowercased(name)) %>.request.sign-up.dto'
-import { <%= singular(classify(name)) %>ResponsePayloadDto } from '../dtos/<%= singular(lowercased(name)) %>.response.payload.dto'
-import { Enum<%= singular(classify(name)) %>ActivityAction } from '../enums/<%= singular(lowercased(name)) %>.enum'
-import { <%= singular(classify(name)) %>Util } from '../helpers/<%= singular(lowercased(name)) %>.util'
-import { T<%= singular(classify(name)) %> } from '../interfaces/<%= singular(lowercased(name)) %>.interface'
+import { <%= singular(classify(name)) %>RequestChangePasswordDto } from '../dtos/<%= singular(name) %>.request.change-password.dto'
+import { <%= singular(classify(name)) %>RequestSignInDto } from '../dtos/<%= singular(name) %>.request.sign-in.dto'
+import { <%= singular(classify(name)) %>RequestSignUpDto } from '../dtos/<%= singular(name) %>.request.sign-up.dto'
+import { <%= singular(classify(name)) %>ResponsePayloadDto } from '../dtos/<%= singular(name) %>.response.payload.dto'
+import { Enum<%= singular(classify(name)) %>ActivityAction } from '../enums/<%= singular(name) %>.enum'
+import { <%= singular(classify(name)) %>Util } from '../helpers/<%= singular(name) %>.util'
+import { T<%= singular(classify(name)) %> } from '../interfaces/<%= singular(name) %>.interface'
 
 @Injectable()
 export class <%= singular(classify(name)) %>Auth implements IAuthValidator<T<%= singular(classify(name)) %>> {

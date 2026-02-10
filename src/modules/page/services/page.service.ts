@@ -71,7 +71,7 @@ export class PageService {
   async delete(id: number): Promise<Page> {
     const page = await this.getOne({ where: { id } })
     if (page) {
-      const exists = await this.prisma.page.exists({ isActive: true, type: page.type })
+      const exists = await this.prisma.page.exists({ where: { isActive: true, type: page.type } })
       if (exists) {
         throw new NotFoundException({
           statusCode: HttpStatus.NOT_FOUND,

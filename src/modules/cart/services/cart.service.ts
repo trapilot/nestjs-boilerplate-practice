@@ -5,8 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common'
-import { EnumCartStatus, Prisma, Product } from '@runtime/prisma-client'
-import { AppUtil, HelperService } from 'lib/nest-core'
+import { EnumCartStatus, Prisma } from '@runtime/prisma-client'
 import {
   IPrismaExportOptions,
   IPrismaReturnList,
@@ -21,10 +20,7 @@ import {
   ICartItemAddOptions,
   ICartSnapshot,
   TCart,
-  TCartItem,
 } from '../interfaces/cart.interface'
-import { CartItemInStockRule } from '../rules/cart.item-in-stock.rule'
-import { CartItemIsActiveRule } from '../rules/cart.item-is-active.rule'
 
 @Injectable()
 export class CartService {
@@ -38,7 +34,6 @@ export class CartService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly helperService: HelperService,
     private readonly memberService: MemberService,
     private readonly productService: ProductService,
   ) {}
@@ -110,18 +105,42 @@ export class CartService {
       })
     }
 
-    const summary = CartUtil.calculate(cart.items)
-
-    await this.memberService.checkPointBalance(cart.memberId, summary.point, cart.updatedAt)
-
-    const ruler = AppUtil.initializeRuler<TCartItem>([
-      new CartItemIsActiveRule(),
-      new CartItemInStockRule(),
-    ])
-
     for (const item of cart.items) {
-      await ruler.validate(item)
+      const { product } = item
+
+      if (!product.isActive) {
+        throw new BadRequestException({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `${product.sku} is no longer to sale`,
+        })
+      }
+
+      if (product.hasInventory) {
+        const remainQty = product.stockQty - product.paidQty - product.unpaidQty
+        if (item.quantity > remainQty) {
+          throw new BadRequestException({
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: `Not enough stock for ${product.sku}`,
+          })
+        }
+      }
+
+      if (product.hasLimitPerson) {
+        const salePerPerson = await this.productService.getSalePerPerson(product.id, cart.memberId)
+        if (salePerPerson >= product.salePerPerson) {
+          throw new BadRequestException({
+            statusCode: HttpStatus.BAD_REQUEST,
+            message: `You already save ${product.sku} to limited, over ${product.salePerPerson}`,
+          })
+        }
+      }
     }
+
+    const summary = CartUtil.calculate(cart.items)
+    await this.memberService.checkPointBalance(cart.memberId, {
+      pointRequire: summary.point,
+      issuedAt: cart.updatedAt,
+    })
 
     return { cart, summary }
   }
@@ -141,7 +160,7 @@ export class CartService {
       include: this.cartRelation,
     })
 
-    return this.validateCart(cart)
+    return await this.validateCart(cart)
   }
 
   async getOrCreateActiveCart(memberId: number): Promise<TCart> {
@@ -228,14 +247,6 @@ export class CartService {
   async adjustItem(memberId: number, itemId: number, quantity: number): Promise<TCart> {
     const cart = await this.getOrCreateActiveCart(memberId)
     return this.applyQuantity(cart.id, itemId, quantity)
-  }
-
-  async checkSalePerPerson(memberId: number, product: Product): Promise<boolean> {
-    if (product.salePerPerson <= 0) {
-      return true
-    }
-    const salePerPerson = await this.productService.getSalePerPerson(product.id, memberId)
-    return salePerPerson < product.salePerPerson
   }
 
   private async applyQuantity(cartId: number, itemId: number, quantity: number): Promise<TCart> {

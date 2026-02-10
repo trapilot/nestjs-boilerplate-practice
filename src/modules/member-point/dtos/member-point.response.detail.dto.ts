@@ -1,5 +1,5 @@
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
-import { EnumPointAction, EnumPointSource } from '@runtime/prisma-client'
+import { EnumPointAction, EnumPointOrigin, EnumPointReason } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
 import { EnumDateFormat, ToDate, ToDecimal, TransformIf } from 'lib/nest-core'
 import { ResponseUserBelongDto } from 'lib/nest-web'
@@ -38,12 +38,17 @@ class ResponseDataDetailDto {
   @Expose()
   invoiceAmount: number
 
-  @ApiProperty({ example: EnumPointSource.SYSTEM })
+  @ApiProperty({ example: EnumPointOrigin.ADMIN })
   @Type(() => String)
   @Expose()
-  source: string
+  origin: string
 
-  @ApiProperty({ example: EnumPointAction.INITIAL })
+  @ApiProperty({ example: EnumPointReason.ADJUST })
+  @Type(() => String)
+  @Expose()
+  reason: string
+
+  @ApiProperty({ example: EnumPointAction.PLUS })
   @Type(() => String)
   @Expose()
   action: string
@@ -56,17 +61,7 @@ class ResponseDataDetailDto {
   @ApiProperty({ example: 1.6 })
   @Type(() => Number)
   @Expose()
-  multipleRatio: number
-
-  @ApiProperty({ example: false })
-  @Type(() => Boolean)
-  @Expose()
-  isFirst: boolean
-
-  @ApiProperty({ example: false })
-  @Type(() => Boolean)
-  @Expose()
-  isBirth: boolean
+  pointBalance: number
 
   @ApiProperty({ example: false })
   @Type(() => Boolean)
@@ -90,19 +85,9 @@ class ResponseDataDetailDto {
   releaseDate: Date
 
   @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
-  @ToDate({ format: EnumDateFormat.DATE, ref: 'createdAt' })
-  @Expose()
-  createdDate: Date
-
-  @ApiProperty({ example: new Date(Date.now() - 30000 * 3600) })
   @ToDate()
   @Expose()
   createdAt: Date
-
-  @ApiProperty({ example: new Date(Date.now() - 1000 * 3600) })
-  @ToDate()
-  @Expose()
-  updatedAt: Date
 }
 
 class ResponseDataRelationDto extends ResponseUserBelongDto {

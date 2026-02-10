@@ -1,5 +1,5 @@
 import { ConfigService } from '@nestjs/config'
-import { Prisma } from '@runtime/prisma-client'
+import { EnumRateRule, EnumTransitionRule, Prisma } from '@runtime/prisma-client'
 import { CommandMigrateBase, EnumAppLanguage, EnumTierCode } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { Command } from 'nest-commander'
@@ -10,94 +10,32 @@ import { Command } from 'nest-commander'
 })
 export class TierSeed extends CommandMigrateBase {
   private readonly startDate: Date
-  private readonly dtos: Prisma.TierUncheckedCreateInput[] = []
 
   constructor(
     private readonly config: ConfigService,
-    private readonly prisma: PrismaService
+    private readonly prisma: PrismaService,
   ) {
     super()
 
     this.startDate = this.config.get<Date>('app.startDate')
-    this.dtos = [
-      {
-        code: EnumTierCode.NORMAL,
-        name: {
-          [EnumAppLanguage.EN]: 'Normal',
-          [EnumAppLanguage.VI]: 'Normal',
-        },
-        rewardPoint: 0,
-        limitAmount: 0,
-        initialRate: 10,
-        personalRate: 20,
-        referralRate: 20,
-        birthdayRatio: 2,
-      },
-      {
-        code: EnumTierCode.BLUE,
-        name: {
-          [EnumAppLanguage.EN]: 'Blue',
-          [EnumAppLanguage.VI]: 'Blue',
-        },
-        rewardPoint: 100,
-        limitAmount: 18_000,
-        initialRate: 10,
-        personalRate: 20,
-        referralRate: 20,
-        birthdayRatio: 2,
-      },
-      {
-        code: EnumTierCode.GOLD,
-        name: {
-          [EnumAppLanguage.EN]: 'Gold',
-          [EnumAppLanguage.VI]: 'Gold',
-        },
-        rewardPoint: 200,
-        limitAmount: 68_000,
-        initialRate: 10,
-        personalRate: 20,
-        referralRate: 20,
-        birthdayRatio: 2,
-      },
-      {
-        code: EnumTierCode.BLACK,
-        name: {
-          [EnumAppLanguage.EN]: 'Black',
-          [EnumAppLanguage.VI]: 'Black',
-        },
-        rewardPoint: 300,
-        limitAmount: 500_000,
-        initialRate: 10,
-        personalRate: 20,
-        referralRate: 20,
-        birthdayRatio: 3,
-      },
-      {
-        code: EnumTierCode.PLATINUM,
-        name: {
-          [EnumAppLanguage.EN]: 'Platinum',
-          [EnumAppLanguage.VI]: 'Platinum',
-        },
-        rewardPoint: 400,
-        limitAmount: 1_000_000,
-        initialRate: 10,
-        personalRate: 20,
-        referralRate: 20,
-        birthdayRatio: 3,
-      },
-    ]
   }
 
   async up(): Promise<void> {
-    let level = 0
-    const alive = false
+    let level = 10
+    const keepExcess = false
     for (const tier of this.dtos) {
       await this.prisma.tier.upsert({
         where: { code: tier.code },
-        create: { ...tier, level, alive, createdAt: this.startDate, updatedAt: this.startDate },
-        update: { ...tier, level, alive },
+        create: {
+          ...tier,
+          level,
+          keepExcess,
+          createdAt: this.startDate,
+          updatedAt: this.startDate,
+        },
+        update: { ...tier, level, keepExcess },
       })
-      level++
+      level += 10
     }
 
     const dbTiers = await this.prisma.tier.findMany({
@@ -119,27 +57,175 @@ export class TierSeed extends CommandMigrateBase {
           ? nextTier.level - currTier.level >= 1
           : nextTier.level - currTier.level === 1
 
-        await this.prisma.tierChart.upsert({
+        await this.prisma.tierTransition.upsert({
           where: {
-            currId_nextId: {
-              currId: currTier.id,
-              nextId: nextTier.id,
+            prevTierId_nextTierId_rule: {
+              prevTierId: currTier.id,
+              nextTierId: nextTier.id,
+              rule: EnumTransitionRule.AMOUNT,
             },
           },
           create: {
-            isActive,
-            currId: currTier.id,
-            nextId: nextTier.id,
-            requireAmount: nextTier.limitAmount,
+            prevTierId: currTier.id,
+            nextTierId: nextTier.id,
+            rule: EnumTransitionRule.AMOUNT,
+            value: this.amounts[nextTier.code],
           },
           update: {
-            isActive,
-            requireAmount: nextTier.limitAmount,
+            prevTierId: currTier.id,
+            nextTierId: nextTier.id,
+            rule: EnumTransitionRule.AMOUNT,
+            value: this.amounts[nextTier.code],
           },
         })
       }
     }
   }
 
-  async down(): Promise<void> {}
+  async down(): Promise<void> {
+    await this.prisma.tier.deleteMany()
+  }
+
+  private get amounts() {
+    return {
+      [EnumTierCode.NORMAL]: 0,
+      [EnumTierCode.BRONZE]: 20_000,
+      [EnumTierCode.SILVER]: 50_000,
+      [EnumTierCode.GOLD]: 100_000,
+      [EnumTierCode.BLACK]: 500_000,
+      [EnumTierCode.PLATINUM]: 1_000_000,
+      [EnumTierCode.DIAMOND]: 2_000_000,
+    }
+  }
+
+  private get dtos(): Prisma.TierUncheckedCreateInput[] {
+    return [
+      {
+        isActive: true,
+        code: EnumTierCode.NORMAL,
+        name: {
+          [EnumAppLanguage.EN]: 'Normal',
+          [EnumAppLanguage.VI]: 'Normal',
+        },
+        rates: {
+          createMany: {
+            data: [
+              { rule: EnumRateRule.PERSONAL, value: 20, priority: 0 },
+              { rule: EnumRateRule.REFERRAL, value: 20, priority: 0 },
+              { rule: EnumRateRule.FIRST_PURCHASE, value: 10, priority: 0 },
+            ],
+            skipDuplicates: true,
+          },
+        },
+      },
+      {
+        isActive: true,
+        code: EnumTierCode.BRONZE,
+        name: {
+          [EnumAppLanguage.EN]: 'Bronze',
+          [EnumAppLanguage.VI]: 'Bronze',
+        },
+        rates: {
+          createMany: {
+            data: [
+              { rule: EnumRateRule.PERSONAL, value: 20, priority: 0 },
+              { rule: EnumRateRule.REFERRAL, value: 20, priority: 0 },
+              { rule: EnumRateRule.FIRST_PURCHASE, value: 10, priority: 0 },
+            ],
+            skipDuplicates: true,
+          },
+        },
+      },
+      {
+        isActive: true,
+        code: EnumTierCode.SILVER,
+        name: {
+          [EnumAppLanguage.EN]: 'Silver',
+          [EnumAppLanguage.VI]: 'Silver',
+        },
+        rates: {
+          createMany: {
+            data: [
+              { rule: EnumRateRule.PERSONAL, value: 20, priority: 0 },
+              { rule: EnumRateRule.REFERRAL, value: 20, priority: 0 },
+              { rule: EnumRateRule.FIRST_PURCHASE, value: 10, priority: 0 },
+            ],
+            skipDuplicates: true,
+          },
+        },
+      },
+      {
+        isActive: true,
+        code: EnumTierCode.GOLD,
+        name: {
+          [EnumAppLanguage.EN]: 'Gold',
+          [EnumAppLanguage.VI]: 'Gold',
+        },
+        rates: {
+          createMany: {
+            data: [
+              { rule: EnumRateRule.PERSONAL, value: 20, priority: 0 },
+              { rule: EnumRateRule.REFERRAL, value: 20, priority: 0 },
+              { rule: EnumRateRule.FIRST_PURCHASE, value: 10, priority: 0 },
+            ],
+            skipDuplicates: true,
+          },
+        },
+      },
+      {
+        isActive: true,
+        code: EnumTierCode.BLACK,
+        name: {
+          [EnumAppLanguage.EN]: 'Black',
+          [EnumAppLanguage.VI]: 'Black',
+        },
+        rates: {
+          createMany: {
+            data: [
+              { rule: EnumRateRule.PERSONAL, value: 20, priority: 0 },
+              { rule: EnumRateRule.REFERRAL, value: 20, priority: 0 },
+              { rule: EnumRateRule.FIRST_PURCHASE, value: 10, priority: 0 },
+            ],
+            skipDuplicates: true,
+          },
+        },
+      },
+      {
+        isActive: true,
+        code: EnumTierCode.PLATINUM,
+        name: {
+          [EnumAppLanguage.EN]: 'Platinum',
+          [EnumAppLanguage.VI]: 'Platinum',
+        },
+        rates: {
+          createMany: {
+            data: [
+              { rule: EnumRateRule.PERSONAL, value: 20, priority: 0 },
+              { rule: EnumRateRule.REFERRAL, value: 20, priority: 0 },
+              { rule: EnumRateRule.FIRST_PURCHASE, value: 10, priority: 0 },
+            ],
+            skipDuplicates: true,
+          },
+        },
+      },
+      {
+        isActive: true,
+        code: EnumTierCode.DIAMOND,
+        name: {
+          [EnumAppLanguage.EN]: 'Platinum',
+          [EnumAppLanguage.VI]: 'Platinum',
+        },
+        rates: {
+          createMany: {
+            data: [
+              { rule: EnumRateRule.PERSONAL, value: 20, priority: 0 },
+              { rule: EnumRateRule.REFERRAL, value: 20, priority: 0 },
+              { rule: EnumRateRule.FIRST_PURCHASE, value: 10, priority: 0 },
+            ],
+            skipDuplicates: true,
+          },
+        },
+      },
+    ]
+  }
 }

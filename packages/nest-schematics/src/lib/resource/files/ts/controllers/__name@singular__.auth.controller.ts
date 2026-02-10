@@ -21,12 +21,12 @@ import {
   RequestUserToken,
 } from 'lib/nest-web'
 import { IResult } from 'ua-parser-js'
-import { <%= singular(uppercased(name)) %>_DOC_AUTH_OPERATION } from '../constants/<%= singular(lowercased(name)) %>.doc.constant'
-import { <%= singular(classify(name)) %>RequestChangePasswordDto } from '../dtos/<%= singular(lowercased(name)) %>.request.change-password.dto'
-import { <%= singular(classify(name)) %>RequestSignInDto } from '../dtos/<%= singular(lowercased(name)) %>.request.sign-in.dto'
-import { <%= singular(classify(name)) %>RequestSignUpDto } from '../dtos/<%= singular(lowercased(name)) %>.request.sign-up.dto'
-import { <%= singular(classify(name)) %>ResponseProfileDto } from '../dtos/<%= singular(lowercased(name)) %>.response.profile.dto'
-import { <%= singular(classify(name)) %>Auth } from '../helpers/<%= singular(lowercased(name)) %>.auth'
+import { <%= singular(uppercased(name)) %>_DOC_AUTH_OPERATION } from '../constants/<%= singular(name) %>.doc.constant'
+import { <%= singular(classify(name)) %>RequestChangePasswordDto } from '../dtos/<%= singular(name) %>.request.change-password.dto'
+import { <%= singular(classify(name)) %>RequestSignInDto } from '../dtos/<%= singular(name) %>.request.sign-in.dto'
+import { <%= singular(classify(name)) %>RequestSignUpDto } from '../dtos/<%= singular(name) %>.request.sign-up.dto'
+import { <%= singular(classify(name)) %>ResponseProfileDto } from '../dtos/<%= singular(name) %>.response.profile.dto'
+import { <%= singular(classify(name)) %>Auth } from '../helpers/<%= singular(name) %>.auth'
 
 @ApiTags(<%= singular(uppercased(name)) %>_DOC_AUTH_OPERATION)
 @Controller({ version: '1', path: '/auth' })

@@ -101,6 +101,7 @@ export class UserAbilityUtil {
           EnumAuthAbilitySubject.PAGE,
           EnumAuthAbilitySubject.API_KEY,
           EnumAuthAbilitySubject.APP_VERSION,
+          EnumAuthAbilitySubject.POINT_SCHEMA,
         ],
       },
     }
@@ -224,6 +225,10 @@ export class UserAbilityUtil {
         [EnumAppLanguage.EN]: 'Tiers',
         [EnumAppLanguage.VI]: 'Cấp bậc',
       },
+      [EnumAuthAbilitySubject.POINT_SCHEMA]: {
+        [EnumAppLanguage.EN]: 'Point Schemas',
+        [EnumAppLanguage.VI]: 'Sơ đồ điểm',
+      },
     }
   }
 
@@ -235,6 +240,7 @@ export class UserAbilityUtil {
       EnumAuthAbilitySubject.COUNTRY,
       EnumAuthAbilitySubject.DISTRICT,
       EnumAuthAbilitySubject.PUSH,
+      EnumAuthAbilitySubject.POINT_SCHEMA,
     ]
   }
 
@@ -257,6 +263,10 @@ export class UserAbilityUtil {
       [EnumAuthAbilitySubject.CART]: [EnumAuthAbilityAction.READ],
       [EnumAuthAbilitySubject.API_KEY]: [EnumAuthAbilityAction.READ, EnumAuthAbilityAction.UPDATE],
       [EnumAuthAbilitySubject.APP_VERSION]: [
+        EnumAuthAbilityAction.READ,
+        EnumAuthAbilityAction.UPDATE,
+      ],
+      [EnumAuthAbilitySubject.POINT_SCHEMA]: [
         EnumAuthAbilityAction.READ,
         EnumAuthAbilityAction.UPDATE,
       ],

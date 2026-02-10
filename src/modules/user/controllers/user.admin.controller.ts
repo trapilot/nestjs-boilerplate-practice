@@ -205,7 +205,7 @@ export class UserAdminController {
       where: {
         ..._search,
         userId: id,
-        action: EnumUserActivityAction.USER_LOGIN_CREDENTIAL,
+        action: EnumUserActivityAction.LOGIN_CREDENTIAL,
         createdAt: {
           gte: dateRange.startOfMonth,
           lte: dateRange.endOfMonth,

@@ -17,11 +17,11 @@ import {
   RequestParam,
   RequestQueryList,
 } from 'lib/nest-web'
-import { <%= singular(uppercased(name)) %>_DOC_ADMIN_QUERY_LIST, <%= singular(uppercased(name)) %>_DOC_OPERATION } from '../constants/<%= singular(lowercased(name)) %>.doc.constant'
-import { <%= singular(classify(name)) %>RequestCreateDto } from '../dtos/<%= singular(lowercased(name)) %>.request.create.dto'
-import { <%= singular(classify(name)) %>RequestUpdateDto } from '../dtos/<%= singular(lowercased(name)) %>.request.update.dto'
-import { <%= singular(classify(name)) %>ResponseDetailDto, <%= singular(classify(name)) %>ResponseListDto } from '../dtos/<%= singular(lowercased(name)) %>.response.detail.dto'
-import { <%= singular(classify(name)) %>Service } from '../services/<%= singular(lowercased(name)) %>.service'
+import { <%= singular(uppercased(name)) %>_DOC_ADMIN_QUERY_LIST, <%= singular(uppercased(name)) %>_DOC_OPERATION } from '../constants/<%= singular(name) %>.doc.constant'
+import { <%= singular(classify(name)) %>RequestCreateDto } from '../dtos/<%= singular(name) %>.request.create.dto'
+import { <%= singular(classify(name)) %>RequestUpdateDto } from '../dtos/<%= singular(name) %>.request.update.dto'
+import { <%= singular(classify(name)) %>ResponseDetailDto, <%= singular(classify(name)) %>ResponseListDto } from '../dtos/<%= singular(name) %>.response.detail.dto'
+import { <%= singular(classify(name)) %>Service } from '../services/<%= singular(name) %>.service'
 
 @ApiTags(<%= singular(uppercased(name)) %>_DOC_OPERATION)
 @Controller({ path: '/<%= plural(name) %>' })

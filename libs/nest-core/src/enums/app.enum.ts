@@ -93,7 +93,7 @@ export enum EnumLoggerSeverity {
 
 export enum EnumTierCode {
   NORMAL = 'NORMAL',
-  BLUE = 'BLUE',
+  BRONZE = 'BRONZE',
   SILVER = 'SILVER',
   GOLD = 'GOLD',
   BLACK = 'BLACK',

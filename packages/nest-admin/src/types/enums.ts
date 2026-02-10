@@ -64,6 +64,10 @@ export type EnumAuthAbilitySubject =
   | 'PAGE'
   | 'COUNTRY'
   | 'DISTRICT'
+  | 'PUSH'
+  | 'PUSH_GROUP'
+  | 'NOTIFICATION'
+  | 'POINT_SCHEMA'
   | 'MEMBER'
   | 'MEMBER_TIER'
   | 'MEMBER_POINT'
@@ -79,15 +83,37 @@ export type EnumAuthAbilitySubject =
   | 'INVOICE'
   | 'PAYMENT'
   | 'TIER'
-  | 'NOTIFICATION'
-  | 'PUSH'
-  | 'PUSH_GROUP'
 
 export type EnumMemberType =
   | 'VIP'
   | 'STAFF'
   | 'NORMAL'
   | 'PARTNER'
+
+export type EnumTransitionRule =
+  | 'AMOUNT'
+
+export type EnumRateRule =
+  | 'PERSONAL'
+  | 'REFERRAL'
+  | 'FIRST_PURCHASE'
+
+export type EnumPointReason =
+  | 'IMPORT'
+  | 'PURCHASE'
+  | 'REFER'
+  | 'SHARE'
+  | 'REWARD'
+  | 'WELCOME'
+  | 'REGISTER'
+  | 'UPGRADE'
+  | 'RENEWAL'
+  | 'ADJUST'
+  | 'EXPIRE'
+
+export type EnumPointAction =
+  | 'PLUS'
+  | 'DEDUCT'
 
 export type EnumExpiryType =
   | 'STATIC'
@@ -100,7 +126,7 @@ export type EnumPageType =
 
 export type EnumTierCode =
   | 'NORMAL'
-  | 'BLUE'
+  | 'BRONZE'
   | 'SILVER'
   | 'GOLD'
   | 'BLACK'

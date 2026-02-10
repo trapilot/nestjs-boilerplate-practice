@@ -10,7 +10,7 @@ import { Command } from 'nest-commander'
 export class PermissionSeed extends CommandMigrateBase {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
   ) {
     super()
   }

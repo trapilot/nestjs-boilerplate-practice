@@ -11,7 +11,7 @@ export class InvoiceMock extends ScheduleMockupBase {
   constructor(
     private readonly prisma: PrismaService,
     private readonly invoiceService: InvoiceService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
   ) {
     super()
 
@@ -29,8 +29,8 @@ export class InvoiceMock extends ScheduleMockupBase {
       where: {
         status: EnumInvoiceStatus.PARTIALLY_PAID,
         id: {
-          gt: this.helperService.randomNumber({ min: 1, max: lastInvoice.id })
-        }
+          gt: this.helperService.randomNumber({ min: 1, max: lastInvoice.id }),
+        },
       },
       take: 100,
     })

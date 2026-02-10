@@ -59,7 +59,7 @@ export class MemberEarnHighestPurchaseHandler implements IQueueHandler {
     }
 
     // handle job
-    await this.memberService.earnHighestBirthInvoice(extractDate.month, memberIds)
+    // await this.memberService.earnHighestBirthInvoice(extractDate.month, memberIds)
 
     // update cursor
     await this.scanner.commit(this.topic, {

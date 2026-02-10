@@ -71,15 +71,17 @@ export class SettingService {
   }
 
   async deleteMany(where?: Prisma.SettingWhereInput): Promise<boolean> {
-    const settings = await this.prisma.setting.findMany({
+    const settings = await this.getMany({
       where,
       select: { id: true, code: true },
     })
 
     for (const setting of settings) {
       try {
-        await this.prisma.setting.delete({ where: { id: setting.id } })
-        await this.settingUtil.removeCache(setting.code)
+        await Promise.all([
+          this.prisma.setting.delete({ where: { id: setting.id } }),
+          this.settingUtil.removeCache(setting.code),
+        ])
       } catch {}
     }
 
@@ -88,21 +90,17 @@ export class SettingService {
 
   async update(id: number, data: Prisma.SettingUncheckedUpdateInput): Promise<TSetting> {
     const setting = await this.findOrFail(id)
-    if (setting) {
-      const updated = await this.prisma.setting.update({
-        data,
-        where: { id: setting.id },
-      })
 
-      await this.settingUtil.removeCache(setting.code)
+    const [updated] = await Promise.all([
+      this.prisma.setting.update({ data, where: { id: setting.id } }),
+      this.settingUtil.removeCache(setting.code),
+    ])
 
-      return updated
-    }
-    return setting
+    return updated
   }
 
   async clearAllCache(): Promise<boolean> {
-    const settings = await this.prisma.setting.findMany({
+    const settings = await this.getMany({
       select: { id: true, code: true },
     })
 
@@ -116,26 +114,25 @@ export class SettingService {
   }
 
   async getMaintenance(): Promise<boolean> {
-    const code = 'maintenance'
+    const data: Prisma.SettingUncheckedCreateInput = {
+      code: 'maintenance',
+      name: 'Maintenance Mode',
+      description: 'Maintenance Mode',
+      type: EnumSettingType.BOOLEAN,
+      value: 'false',
+      isVisible: false,
+    }
 
-    const cached = await this.settingUtil.getCache(code)
+    const cached = await this.settingUtil.getCache(data.code)
     if (cached) {
       return this.settingUtil.parseCache<boolean>(cached)
     }
 
-    const exists = await this.prisma.setting.exists({ code })
-    const maintenance = exists
-      ? await this.prisma.setting.findFirst({ where: { code } })
-      : await this.prisma.setting.create({
-          data: {
-            code,
-            name: 'Maintenance Mode',
-            description: 'Maintenance Mode',
-            type: EnumSettingType.BOOLEAN,
-            value: 'false',
-            isVisible: false,
-          },
-        })
+    const maintenance = await this.prisma.setting.upsert({
+      where: { code: data.code },
+      create: data,
+      update: data,
+    })
 
     const storedCache = await this.settingUtil.storeCache(maintenance.code, {
       data: { value: maintenance.value, type: maintenance.type },

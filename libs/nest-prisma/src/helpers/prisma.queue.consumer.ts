@@ -1,7 +1,15 @@
-import { Injectable, OnModuleInit } from '@nestjs/common'
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
 import { EnumJobStatus } from '@runtime/prisma-client'
-import { AppUtil, HelperService, IQueueHandler, QueueConsumer, RunnerService } from 'lib/nest-core'
+import {
+  AppUtil,
+  HelperService,
+  IQueueHandler,
+  IQueueWorkerConfig,
+  QUEUE_WORKER_CONFIG,
+  QueueConsumer,
+  RunnerService,
+} from 'lib/nest-core'
 import { PrismaService, PrismaUtil } from 'lib/nest-prisma'
 
 @Injectable()
@@ -10,9 +18,9 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
   private handlers = new Map<string, IQueueHandler>()
 
   // ===== Config =====
-  private readonly maxConcurrentJobs = 5
-  private readonly pollIntervalMs = 5000 // 5s
-  private readonly recoveryIntervalMs = 60_000 // 1m
+  private readonly concurrency: number
+  private readonly pollIntervalMs: number
+  private readonly recoveryIntervalMs: number
   private readonly workerQueue = 'consumer:queue-polling'
 
   // ===== Runtime state =====
@@ -24,8 +32,13 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
     private readonly ref: ModuleRef,
     private readonly runner: RunnerService,
     private readonly helperService: HelperService,
+    @Inject(QUEUE_WORKER_CONFIG) private readonly config: IQueueWorkerConfig,
   ) {
     super()
+
+    this.concurrency = this.config.concurrency || 3
+    this.pollIntervalMs = this.config.concurrency || 5000
+    this.recoveryIntervalMs = this.config.recoveryIntervalMs || 60000
   }
 
   onModuleInit() {
@@ -83,12 +96,12 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
         lockedAt: null,
       },
       orderBy: [{ priority: 'asc' }, { startAt: 'asc' }],
-      take: this.maxConcurrentJobs * 2,
+      take: this.concurrency * 2,
     })
 
     for (const job of jobs) {
       this.runner.run(this.workerQueue, () => this.runJobWithLock(job.id), {
-        concurrency: this.maxConcurrentJobs,
+        concurrency: this.concurrency,
       })
     }
   }
@@ -136,7 +149,7 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
         status: EnumJobStatus.FAILED,
         lockedAt: null,
       },
-      limit: 10,
+      limit: this.concurrency,
     })
   }
 
@@ -197,6 +210,7 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
         data: {
           status: EnumJobStatus.FAILED,
           retryCount: { increment: 1 },
+          lockedAt: null, // for retry
           lastError: AppUtil.catchMessage(error),
           finishedAt: this.helperService.dateNow(),
         },

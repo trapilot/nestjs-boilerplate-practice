@@ -16,8 +16,8 @@ import {
   PushFactory,
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
-import { TPush } from '../interfaces/notification.interface'
 import { NotificationPushDto } from '../dtos/notification.request.create.dto'
+import { TPush } from '../interfaces/notification.interface'
 
 @Injectable()
 export class NotificationUtil {
@@ -118,9 +118,11 @@ export class NotificationUtil {
 
   async isPushFinished(pushId: number): Promise<boolean> {
     return await this.prisma.push.exists({
-      id: pushId,
-      status: {
-        in: [EnumPushStatus.COMPLETED, EnumPushStatus.CANCELED],
+      where: {
+        id: pushId,
+        status: {
+          in: [EnumPushStatus.COMPLETED, EnumPushStatus.CANCELED],
+        },
       },
     })
   }

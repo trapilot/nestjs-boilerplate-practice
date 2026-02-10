@@ -16,7 +16,7 @@ export class CartCheckoutMock extends ScheduleMockupBase {
   async mockup(): Promise<void> {
     const carts = await this.prisma.cart.findMany({
       where: { status: EnumCartStatus.ACTIVE },
-      take: 10
+      take: 10,
     })
 
     for (const cart of carts) {

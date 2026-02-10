@@ -1,5 +1,11 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
-import { Prisma } from '@runtime/prisma-client'
+import {
+  EnumPointAction,
+  EnumPointOrigin,
+  EnumPointReason,
+  EnumSchemaRewardType,
+  Prisma,
+} from '@runtime/prisma-client'
 import { HelperService } from 'lib/nest-core'
 import {
   IPrismaExportOptions,
@@ -7,13 +13,23 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TMemberPoint } from '../interfaces/member-point.interface'
+import { EnumPointSchemaTrigger } from 'modules/point-schema/enums/point-schema.enum'
+import { TPointSchema } from 'modules/point-schema/interfaces/point-schema.interface'
+import { PointSchemaService } from 'modules/point-schema/services/point-schema.service'
+import { TierService } from 'modules/tier/services/tier.service'
+import {
+  IMemberPointApplyTierRewardOptions,
+  IMemberPointHandleTriggerOptions,
+  TMemberPoint,
+} from '../interfaces/member-point.interface'
 
 @Injectable()
 export class MemberPointService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly helperService: HelperService,
+    private readonly tierService: TierService,
+    private readonly pointSchemaService: PointSchemaService,
   ) {}
 
   async getOne(kwargs: Prisma.MemberPointFindUniqueArgs): Promise<TMemberPoint> {
@@ -156,5 +172,84 @@ export class MemberPointService {
     }
 
     return results
+  }
+
+  private async handleTrigger(
+    trigger: EnumPointSchemaTrigger,
+    options: IMemberPointHandleTriggerOptions,
+  ): Promise<void> {
+    const schemas = await this.pointSchemaService.getAllByTrigger(trigger, options.issuedAt)
+
+    for (const schema of schemas) {
+      const canApply = await this.pointSchemaService.check(schema, {
+        memberId: options.memberId,
+        issuedAt: options.issuedAt,
+        compareValue: options.compareValue,
+      })
+
+      if (canApply) {
+        await this.applySchemaRewards(schema, options)
+      }
+    }
+  }
+
+  private async applySchemaRewards(
+    schema: TPointSchema,
+    options: IMemberPointHandleTriggerOptions,
+  ): Promise<void> {
+    const nowDate = this.helperService.dateNow()
+
+    for (const reward of schema.rewards) {
+      const grantPoint =
+        reward.type === EnumSchemaRewardType.MULTIPLIER
+          ? reward.value * options.basePoint
+          : reward.type === EnumSchemaRewardType.GRANT
+            ? reward.value
+            : 0
+
+      if (grantPoint > 0) {
+        await this.prisma.$transaction(async tx => {
+          const member = await tx.member.update({
+            where: { id: options.memberId },
+            data: {
+              pointBalance: { increment: grantPoint },
+              updatedAt: nowDate,
+            },
+            select: {
+              id: true,
+              pointBalance: true,
+            },
+          })
+
+          await tx.memberPoint.create({
+            data: {
+              schemaId: schema.id,
+              memberId: member.id,
+              tierId: options.tierId,
+              reason: options.reason,
+              point: grantPoint,
+              pointBalance: member.pointBalance,
+              origin: EnumPointOrigin.SCHEMA,
+              action: EnumPointAction.PLUS,
+              createdAt: nowDate,
+              updatedAt: nowDate,
+            },
+          })
+        })
+      }
+    }
+  }
+
+  async applyTierReward(options: IMemberPointApplyTierRewardOptions): Promise<void> {
+    const tier = await this.tierService.findOrFail(options.tierId)
+
+    await this.handleTrigger(EnumPointSchemaTrigger.WELCOME_TIER, {
+      memberId: options.memberId,
+      tierId: options.tierId,
+      issuedAt: options.issuedAt,
+      basePoint: 0,
+      reason: EnumPointReason.WELCOME,
+      compareValue: tier.code,
+    })
   }
 }

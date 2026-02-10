@@ -20,6 +20,10 @@ export enum EnumAuthAbilitySubject {
   PAGE = 'PAGE',
   COUNTRY = 'COUNTRY',
   DISTRICT = 'DISTRICT',
+  PUSH = 'PUSH',
+  PUSH_GROUP = 'PUSH_GROUP',
+  NOTIFICATION = 'NOTIFICATION',
+  POINT_SCHEMA = 'POINT_SCHEMA',
   MEMBER = 'MEMBER',
   MEMBER_TIER = 'MEMBER_TIER',
   MEMBER_POINT = 'MEMBER_POINT',
@@ -35,9 +39,6 @@ export enum EnumAuthAbilitySubject {
   INVOICE = 'INVOICE',
   PAYMENT = 'PAYMENT',
   TIER = 'TIER',
-  NOTIFICATION = 'NOTIFICATION',
-  PUSH = 'PUSH',
-  PUSH_GROUP = 'PUSH_GROUP',
 }
 
 export enum EnumAuthAbilityContext {

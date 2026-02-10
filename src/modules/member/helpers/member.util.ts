@@ -1,8 +1,9 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common'
+import { BadRequestException, HttpStatus, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { EnumVerificationChannel } from '@runtime/prisma-client'
 import { EnumAuthLoginType } from 'lib/nest-auth'
-import { HelperService } from 'lib/nest-core'
+import { EventBusService, HelperService } from 'lib/nest-core'
+import { IDomainEvent } from 'lib/nest-core/interfaces/bus.interface'
 import { PrismaService } from 'lib/nest-prisma'
 import { EnumMemberActivityAction } from '../enums/member.enum'
 import {
@@ -16,9 +17,12 @@ import {
 
 @Injectable()
 export class MemberUtil {
+  private readonly _logger = new Logger(MemberUtil.name)
+
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
+    private readonly eventBus: EventBusService,
     private readonly helperService: HelperService,
   ) {}
 
@@ -112,15 +116,17 @@ export class MemberUtil {
     }
 
     return await this.prisma.memberVerification.exists({
-      channel: options.channel,
-      type: options.method,
-      email: options?.email,
-      phone: options?.phone,
-      memberId: options?.memberId,
-      code: token,
-      isActive: true,
-      isVerified: true,
-      isExpired: false,
+      where: {
+        channel: options.channel,
+        type: options.method,
+        email: options?.email,
+        phone: options?.phone,
+        memberId: options?.memberId,
+        code: token,
+        isActive: true,
+        isVerified: true,
+        isExpired: false,
+      },
     })
   }
 
@@ -209,15 +215,25 @@ export class MemberUtil {
     let action: EnumMemberActivityAction = undefined
     switch (loginType) {
       case EnumAuthLoginType.CREDENTIAL:
-        action = EnumMemberActivityAction.USER_LOGIN_CREDENTIAL
+        action = EnumMemberActivityAction.LOGIN_CREDENTIAL
         break
       case EnumAuthLoginType.SOCIAL_GOOGLE:
-        action = EnumMemberActivityAction.USER_LOGIN_GOOGLE
+        action = EnumMemberActivityAction.LOGIN_GOOGLE
         break
       case EnumAuthLoginType.SOCIAL_APPLE:
-        action = EnumMemberActivityAction.USER_LOGIN_APPLE
+        action = EnumMemberActivityAction.LOGIN_APPLE
         break
     }
     return action
+  }
+
+  async publishEvent(event: IDomainEvent): Promise<void> {
+    try {
+      this.eventBus.publish(event)
+      this._logger.log(`Registed event: ${event.topic}`)
+    } catch (err: unknown) {
+      this._logger.log(`Registed event ${event.topic} failed`)
+      console.log({ err })
+    }
   }
 }

@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsNotEmpty, IsNumber } from 'class-validator'
-import { ToNumber } from 'lib/nest-core'
+import { EnumPointAction, EnumPointReason } from '@runtime/prisma-client'
+import { IsEnum, IsNotEmpty, IsNumber } from 'class-validator'
+import { ToNumber, ToString } from 'lib/nest-core'
 
 export class MemberPointRequestCreateDto {
   @IsNotEmpty()
@@ -14,4 +15,26 @@ export class MemberPointRequestCreateDto {
   @ToNumber()
   @ApiProperty({ required: true, example: 1 })
   point: number
+
+  @IsNotEmpty()
+  @IsEnum(EnumPointReason)
+  @ToString()
+  @ApiProperty({
+    required: true,
+    enum: EnumPointReason,
+    enumName: 'EnumPointReason',
+    example: EnumPointReason.ADJUST,
+  })
+  reason: EnumPointReason
+
+  @IsNotEmpty()
+  @IsEnum(EnumPointAction)
+  @ToString()
+  @ApiProperty({
+    required: true,
+    enum: EnumPointAction,
+    enumName: 'EnumPointAction',
+    example: EnumPointAction.PLUS,
+  })
+  action: EnumPointAction
 }

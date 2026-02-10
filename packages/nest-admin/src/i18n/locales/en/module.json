@@ -79,12 +79,10 @@
       "refereeId": "Referee ID",
       "invoiceId": "Invoice ID",
       "invoiceAmount": "Invoice Amount",
-      "action": "Type",
+      "reason": "Type",
       "point": "Point",
       "pointBalance": "Point Balance",
       "multipleRatio": "Multiple Ratio",
-      "isFirst": "First",
-      "isBirth": "Birth",
       "isPending": "Pending",
       "isActive": "Active",
       "expiryDate": "Expiry Date",
@@ -126,7 +124,7 @@
       "tierId": "Tier ID",
       "code": "Code",
       "type": "Type",
-      "cardId": "Card ID",
+      "citizenId": "Citizen ID",
       "email": "Email",
       "name": "Name",
       "phone": "Phone",
@@ -151,11 +149,10 @@
       "memberId": "Member ID",
       "tierId": "Tier ID",
       "invoiceId": "Invoice ID",
-      "action": "Type",
       "personalAmount": "Personal Amount",
       "referralAmount": "Referral Amount",
+      "qualifiedAmount": "Qualified Amount",
       "expiryDate": "Expiry Date",
-      "isActive": "Active",
       "createdAt": "Created At",
       "updatedAt": "Updated At"
     }
@@ -280,13 +277,7 @@
     "fields": {
       "id": "ID",
       "code": "Code",
-      "name": "Name",
-      "rewardPoint": "Reward Point",
-      "limitAmount": "Limit Amount",
-      "personalRate": "Personal Convention Rate",
-      "referralRate": "Referral Convention Rate",
-      "initialRate": "Initial Convention Rate",
-      "birthdayRatio": "Highest Birthday Ratio"
+      "name": "Name"
     }
   },
   "user": {

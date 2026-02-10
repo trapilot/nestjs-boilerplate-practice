@@ -173,8 +173,8 @@ model Notification {
   createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
   updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
 
-  pushes       Push[]
-  pivotMembers MemberNotification[]
+  pushes              Push[]
+  memberNotifications MemberNotification[]
 
   @@map("notifications")
 }
@@ -208,9 +208,10 @@ model Push {
   createdByUser User? @relation("createdByUser", fields: [createdBy], references: [id])
   updatedByUser User? @relation("updatedByUser", fields: [updatedBy], references: [id])
 
-  notification  Notification         @relation(fields: [notificationId], references: [id])
-  logs          MemberPush[]
-  notifications MemberNotification[]
+  notification Notification @relation(fields: [notificationId], references: [id])
+
+  pushMembers       MemberPush[]
+  pushNotifications MemberNotification[]
 
   @@index([status, retryCount])
   @@map("pushes")
@@ -318,7 +319,6 @@ model User {
   updatedProducts        Product[]          @relation("updatedByUser")
   deletedProducts        Product[]          @relation("deletedByUser")
   createdPoints          MemberPoint[]      @relation("createdByUser")
-  updatedPoints          MemberPoint[]      @relation("updatedByUser")
   createdRedemptions     MemberRedemption[] @relation("createdByUser")
   updatedRedemptions     MemberRedemption[] @relation("updatedByUser")
   createdPromotions      Promotion[]        @relation("createdByUser")
@@ -509,15 +509,15 @@ model Member {
   devices       MemberDevice[]
   verifications MemberVerification[]
   notifications MemberNotification[]
-  pushes        MemberPush[]
   redemptions   MemberRedemption[]
+  favorites     MemberFavorite[]
+  pushes        MemberPush[]
   tiers         MemberTier[]
   points        MemberPoint[]        @relation(name: "member")
   rewardPoints  MemberPoint[]        @relation(name: "referee")
   carts         Cart[]
   orders        Order[]
   invoices      Invoice[]
-  wishlist      Wishlist[]
 
   @@index([isActive, email])
   @@index([isActive, phone])
@@ -682,7 +682,7 @@ model MemberPush {
 
   @@index([memberId, createdAt])
   @@index([memberId, pushId])
-  @@map("member_push_logs")
+  @@map("member_pushes")
 }
 
 model MemberTier {
@@ -691,7 +691,7 @@ model MemberTier {
   tierId          Int
   invoiceId       Int?
   source          EnumTierSource @default(SYSTEM)
-  action          EnumTierAction @default(INITIAL)
+  action          EnumTierAction @default(IMPORT)
   personalAmount  Float?         @default(0)
   referralAmount  Float?         @default(0)
   qualifiedAmount Float?         @default(0)
@@ -710,40 +710,39 @@ model MemberTier {
 }
 
 model MemberPoint {
-  id            Int             @id @default(autoincrement())
-  memberId      Int
-  refereeId     Int?
-  tierId        Int?
-  invoiceId     Int?
-  invoiceAmount Float?
-  source        EnumPointSource @default(SYSTEM)
-  action        EnumPointAction @default(INITIAL)
-  multipleRatio Float?
-  ratioNote     Json?
-  point         Int?            @default(0)
-  remark        String?
-  isBirth       Boolean?        @default(false)
-  isFirst       Boolean?        @default(false)
-  isActive      Boolean?        @default(true)
-  isVisible     Boolean?        @default(true)
-  isPending     Boolean?        @default(false)
-  isDeleted     Boolean?        @default(false)
-  expiryDate    DateTime?
-  releaseDate   DateTime?
-  createdAt     DateTime?       @default(now())
-  updatedAt     DateTime        @updatedAt
-  createdBy     Int?
-  updatedBy     Int?
+  id           Int             @id @default(autoincrement())
+  memberId     Int
+  schemaId     Int?
+  tierId       Int?
+  invoiceId    Int?
+  refereeId    Int?
+  origin       EnumPointOrigin
+  reason       EnumPointReason
+  action       EnumPointAction
+  point        Int?            @default(0)
+  pointBalance Int?            @default(0)
+  note         String?
+  isActive     Boolean?        @default(true)
+  isVisible    Boolean?        @default(true)
+  isPending    Boolean?        @default(false)
+  isDeleted    Boolean?        @default(false)
+  expiryDate   DateTime?
+  releaseDate  DateTime?
+  createdAt    DateTime?       @default(now())
+  updatedAt    DateTime        @updatedAt
+  createdBy    Int?
 
   createdByUser User? @relation(name: "createdByUser", fields: [createdBy], references: [id])
-  updatedByUser User? @relation(name: "updatedByUser", fields: [updatedBy], references: [id])
 
-  member  Member   @relation(fields: [memberId], references: [id], name: "member")
-  referee Member?  @relation(fields: [refereeId], references: [id], name: "referee")
-  tier    Tier?    @relation(fields: [tierId], references: [id])
-  invoice Invoice? @relation(fields: [invoiceId], references: [id])
+  member  Member       @relation(fields: [memberId], references: [id], name: "member")
+  referee Member?      @relation(fields: [refereeId], references: [id], name: "referee")
+  schema  PointSchema? @relation(fields: [schemaId], references: [id])
+  tier    Tier?        @relation(fields: [tierId], references: [id])
+  invoice Invoice?     @relation(fields: [invoiceId], references: [id])
 
   @@index([memberId])
+  @@index([reason])
+  @@index([action])
   @@map("member_points")
 }
 
@@ -780,32 +779,41 @@ model MemberRedemption {
   @@map("member_redemptions")
 }
 
-model Tier {
-  id            Int       @id @default(autoincrement())
-  name          Json?
-  code          String?   @unique
-  level         Int?      @unique
-  alive         Boolean?  @default(true)
-  rewardPoint   Int?      @default(0)
-  limitAmount   Float?    @default(0)
-  initialRate   Float?    @default(0)
-  personalRate  Float?    @default(0)
-  referralRate  Float?    @default(0)
-  birthdayRatio Float?    @default(0)
-  cardIcon      String?
-  cardImage     String?
-  cardCover     String?
-  startDate     DateTime?
-  untilDate     DateTime?
-  createdAt     DateTime? @default(now())
-  updatedAt     DateTime  @updatedAt
+model MemberFavorite {
+  id        Int      @id @default(autoincrement())
+  memberId  Int
+  productId Int
+  isActive  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  members     Member[]
-  languages   TierLanguage[]
-  charts      TierChart[]    @relation(name: "currTier")
-  nexts       TierChart[]    @relation(name: "nextTier")
-  memberTiers MemberTier[]
-  points      MemberPoint[]
+  member  Member  @relation(fields: [memberId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@unique([memberId, isActive])
+  @@map("member_favorites")
+}
+
+model Tier {
+  id         Int       @id @default(autoincrement())
+  name       Json?
+  code       String?   @unique
+  level      Int?      @unique
+  cardIcon   String?
+  cardImage  String?
+  cardCover  String?
+  keepExcess Boolean?  @default(true)
+  isActive   Boolean   @default(true)
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  languages  TierLanguage[]
+  rates      TierRate[]
+  prevs      TierTransition[] @relation(name: "prevTier")
+  nexts      TierTransition[] @relation(name: "nextTier")
+  members    Member[]
+  points     MemberPoint[]
+  tierMinins MemberTier[]
 
   @@map("tiers")
 }
@@ -822,18 +830,100 @@ model TierLanguage {
   @@map("tier_languages")
 }
 
-model TierChart {
-  id            Int      @id @default(autoincrement())
-  currId        Int
-  nextId        Int
-  requireAmount Float?   @default(0)
-  isActive      Boolean? @default(false)
+model TierTransition {
+  id         Int @id @default(autoincrement())
+  prevTierId Int
+  nextTierId Int
 
-  currTier Tier @relation(name: "currTier", fields: [currId], references: [id], onDelete: Cascade)
-  nextTier Tier @relation(name: "nextTier", fields: [nextId], references: [id], onDelete: Cascade)
+  rule      EnumTransitionRule
+  value     Float
+  priority  Int                @default(0)
+  isEnabled Boolean            @default(true)
 
-  @@unique([currId, nextId])
-  @@map("tier_charts")
+  prevTier Tier @relation("prevTier", fields: [prevTierId], references: [id])
+  nextTier Tier @relation("nextTier", fields: [nextTierId], references: [id])
+
+  @@unique([prevTierId, nextTierId, rule])
+  @@map("tier_transitions")
+}
+
+model TierRate {
+  id       Int          @id @default(autoincrement())
+  tierId   Int
+  rule     EnumRateRule
+  value    Float        @default(0)
+  priority Int          @default(0)
+
+  tier Tier @relation(fields: [tierId], references: [id])
+
+  @@unique([tierId, rule])
+  @@map("tier_rates")
+}
+
+model PointSchema {
+  id        Int       @id @default(autoincrement())
+  trigger   String
+  name      String?
+  sinceDate DateTime?
+  untilDate DateTime?
+  priority  Int       @default(0)
+  version   Int       @default(1)
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  createdBy Int?
+  updatedBy Int?
+
+  conditions   PointSchemaCondition[]
+  rewards      PointSchemaReward[]
+  limits       PointSchemaLimit[]
+  memberPoints MemberPoint[]
+
+  @@index([trigger])
+  @@map("point_schemas")
+}
+
+model PointSchemaCondition {
+  id          Int                         @id @default(autoincrement())
+  schemaId    Int
+  type        EnumSchemaConditionType
+  operator    EnumSchemaConditionOperator
+  intValue    Int?
+  floatValue  Float?
+  stringValue String?
+  dateValue   DateTime?
+  createdAt   DateTime                    @default(now())
+
+  schema PointSchema @relation(fields: [schemaId], references: [id])
+
+  @@index([schemaId])
+  @@map("point_schema_conditions")
+}
+
+model PointSchemaReward {
+  id        Int                  @id @default(autoincrement())
+  schemaId  Int
+  type      EnumSchemaRewardType
+  value     Float?
+  createdAt DateTime             @default(now())
+
+  schema PointSchema @relation(fields: [schemaId], references: [id])
+
+  @@index([schemaId])
+  @@map("point_schema_rewards")
+}
+
+model PointSchemaLimit {
+  id        Int                 @id @default(autoincrement())
+  schemaId  Int
+  type      EnumSchemaLimitType
+  maxTimes  Int?
+  createdAt DateTime            @default(now())
+
+  schema PointSchema @relation(fields: [schemaId], references: [id])
+
+  @@index([schemaId])
+  @@map("point_schema_limits")
 }
 
 model Cart {
@@ -1111,7 +1201,7 @@ model Product {
   cartItems   CartItem[]
   orderItems  OrderItem[]
   redemptions MemberRedemption[]
-  wishlist    Wishlist[]
+  favorites   MemberFavorite[]
 
   @@map("products")
 }
@@ -1182,19 +1272,6 @@ model ProductReview {
   product Product @relation(fields: [productId], references: [id])
 
   @@map("product_reviews")
-}
-
-model Wishlist {
-  id        Int      @id @default(autoincrement())
-  memberId  Int
-  productId Int
-  addedAt   DateTime @default(now())
-
-  member  Member  @relation(fields: [memberId], references: [id])
-  product Product @relation(fields: [productId], references: [id])
-
-  @@unique([memberId, productId])
-  @@map("wishlist")
 }
 
 model SlipCounter {
@@ -1314,17 +1391,26 @@ enum EnumMemberType {
 }
 
 enum EnumTierSource {
-  IMPORT
   SYSTEM
   REFER
   PURCHASE
 }
 
 enum EnumTierAction {
-  INITIAL
+  IMPORT
   EARN
   ADJUST
   EXPIRE
+}
+
+enum EnumTransitionRule {
+  AMOUNT
+}
+
+enum EnumRateRule {
+  PERSONAL
+  REFERRAL
+  FIRST_PURCHASE
 }
 
 enum EnumRedemptionSource {
@@ -1344,8 +1430,43 @@ enum EnumRedemptionStatus {
   FAILED
 }
 
-enum EnumPointSource {
+enum EnumSchemaLimitType {
+  ONCE_PER_DAY
+  ONCE_PER_MONTH
+  ONCE_PER_YEAR
+  ONCE_PER_LIFE
+  MAX_TIMES
+}
+
+enum EnumSchemaRewardType {
+  GRANT
+  MULTIPLIER
+}
+
+enum EnumSchemaConditionType {
+  AMOUNT
+  COUNT
+  VALUE
+  DATE_MATCH
+  TIME_RANGE
+}
+
+enum EnumSchemaConditionOperator {
+  EQ
+  GTE
+  LTE
+  GT
+  LT
+}
+
+enum EnumPointOrigin {
+  SCHEMA
+  ADMIN
+  MEMBER
   SYSTEM
+}
+
+enum EnumPointReason {
   IMPORT
   PURCHASE
   REFER
@@ -1355,14 +1476,13 @@ enum EnumPointSource {
   REGISTER
   UPGRADE
   RENEWAL
+  ADJUST
+  EXPIRE
 }
 
 enum EnumPointAction {
-  INITIAL
-  EARN
+  PLUS
   DEDUCT
-  EXPIRE
-  ADJUST
 }
 
 enum EnumProductType {
@@ -1379,7 +1499,7 @@ enum EnumExpiryType {
   DYNAMIC
 }
 
-enum EnumPromotionRule {
+enum EnumPromotionOperator {
   GTE
   GT
   LT
@@ -1392,18 +1512,6 @@ enum EnumPromotionMethod {
   FIXED_AMOUNT_FOR_WHOLE_CART
   BUY_X_FIXED_AMOUNT_Y
   BUY_X_PERCENT_Y
-}
-
-enum EnumSchemaType {
-  BRAND
-  SHOP
-  PRODUCT
-  PAYMENT
-  INVOICE
-  MONTHLY
-  WEEKLY
-  TIMESLOT
-  BIRTH_MONTH
 }
 
 enum EnumPaymentProvider {

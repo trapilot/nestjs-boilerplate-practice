@@ -33,7 +33,7 @@ export class MemberRequestCreateDto {
   @IsOptional()
   @IsString()
   @ToString()
-  @ApiProperty({ required: false, example: process.env.MOCK_MEMBER_CARD })
+  @ApiProperty({ required: false, example: process.env.MOCK_MEMBER_CID })
   citizenId: string
 
   @IsOptional()

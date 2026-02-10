@@ -107,7 +107,7 @@ export interface IDateCheckOptions {
 export interface IDateCompareOptions {
   startOfDay?: boolean
   endOfDay?: boolean
-  sinceDate?: Date
+  baseDate: Date
 }
 
 export interface IDateCreateOptions {

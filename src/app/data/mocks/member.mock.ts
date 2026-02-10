@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { EnumMemberType, EnumPointAction, EnumPointSource } from '@runtime/prisma-client'
+import { EnumMemberType } from '@runtime/prisma-client'
 import { AuthUtil } from 'lib/nest-auth'
 import {
   APP_COUNTRY_LIST,
@@ -8,25 +8,24 @@ import {
   EnumUserType,
   HelperService,
   ScheduleMockupBase,
-  StrUtil
+  StrUtil,
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
-import { MemberUtil } from 'modules/member/helpers/member.util'
+import { MemberService } from 'modules/member/services/member.service'
 import { TierService } from 'modules/tier/services/tier.service'
 
 @Injectable()
 export class MemberMock extends ScheduleMockupBase {
   private readonly startDate: Date
-  private readonly mockupNumbers: number = 1000
-  private remainNumbers: number = null
+  private readonly mockupNumbers: number = 100
 
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly tierService: TierService,
     private readonly helperService: HelperService,
+    private readonly tierService: TierService,
+    private readonly memberService: MemberService,
     private readonly authUtil: AuthUtil,
-    private readonly memberUtil: MemberUtil
   ) {
     super()
 
@@ -37,37 +36,71 @@ export class MemberMock extends ScheduleMockupBase {
     const remainNumbers = await this.getRemainNumbers()
     const mockupNumbers = Math.min(this.mockupNumbers, remainNumbers)
 
-    if (mockupNumbers <= 0) {return}
+    if (mockupNumbers <= 0) {
+      return
+    }
 
     const lastMember = await this.prisma.member.findFirst({
       orderBy: [{ id: 'desc' }],
       select: { id: true, createdAt: true },
     })
 
-    const deviceModels = ['iPhone', 'Samsung Galaxy', 'Samsung Note', 'Xiaomi']
-    const deviceVersions = ['5', '6', '7', '8', '9', '10', '11', '12']
-    const firstNames = ['John', 'Jane', 'Alex', 'Emily', 'Michael', 'Sarah', 'Andy', 'Mihawk', 'Lix', 'Lisa', 'Shark']
-    const lastNames = ['Smith', 'Johnson', 'Brown', 'Taylor', 'Anderson', 'Ed', 'Parker', 'Anna', 'Wex', 'Yay', 'Kyn']
+    // const deviceModels = ['iPhone', 'Samsung Galaxy', 'Samsung Note', 'Xiaomi']
+    // const deviceVersions = ['5', '6', '7', '8', '9', '10', '11', '12']
+    const firstNames = [
+      'John',
+      'Jane',
+      'Alex',
+      'Emily',
+      'Michael',
+      'Sarah',
+      'Andy',
+      'Mihawk',
+      'Lix',
+      'Lisa',
+      'Shark',
+    ]
+    const lastNames = [
+      'Smith',
+      'Johnson',
+      'Brown',
+      'Taylor',
+      'Anderson',
+      'Ed',
+      'Parker',
+      'Anna',
+      'Wex',
+      'Yay',
+      'Kyn',
+    ]
     const streetNames = ['Main St', 'Oak Ave', 'Pine Rd', 'Maple Dr', 'Cedar Ln']
-    const cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Seul', 'Tokyo', 'Shanghai']
+    const cities = [
+      'New York',
+      'Los Angeles',
+      'Chicago',
+      'Houston',
+      'Phoenix',
+      'Seul',
+      'Tokyo',
+      'Shanghai',
+    ]
     const states = ['NY', 'CA', 'IL', 'TX', 'AZ', 'AX', 'YY', 'TW', 'AT', 'IG']
 
     const dateCheck = lastMember ? lastMember.createdAt : this.startDate
     const dateExecute = this.helperService.dateForward(dateCheck, {
       days: this.helperService.randomNumber({ min: 0, max: 2 }),
     })
-    const tierChart = this.tierService.getChart()
+    const tierNormal = await this.tierService.getNormalTier()
+    const tierStaff = await this.tierService.getStaffTier()
     const dateRange = this.helperService.dateRange(dateExecute)
     const staffDate = this.helperService.dateForward(this.startDate, { years: 100 })
-    const { passwordHash } = this.authUtil.passwordCreate(process.env.MOCK_MEMBER_PASS)
+    const authPassword = this.authUtil.passwordCreate(process.env.MOCK_MEMBER_PASS)
 
     const referralCodes = []
-    const startNumber = lastMember?.id ?? 0
     for (let i = 0; i < mockupNumbers; i++) {
-      const nextNumber = startNumber + i
       const isStaff = this.helperService.randomBoolean(5)
       const isFemale = !this.helperService.randomNumber({ min: 0, max: 1 })
-      const memberTier = isStaff ? tierChart.getStaffTier() : tierChart.getNormalTier()
+      const memberTier = isStaff ? tierStaff : tierNormal
 
       const randCountry = this.helperService.arrayRandom(APP_COUNTRY_LIST)
       const fullPhone = this.helperService.randomDigits(10 - randCountry.length, {
@@ -75,7 +108,7 @@ export class MemberMock extends ScheduleMockupBase {
       })
       const { region, phone } = this.helperService.parsePhone(fullPhone)
 
-      const memberCode = this.memberUtil.generateCode(nextNumber)
+      const memberCode = this.helperService.randomString(20)
       const friendCode = referralCodes[Math.floor(Math.random() * referralCodes.length)]
       const hasReferrer = this.helperService.randomBoolean(10)
 
@@ -90,11 +123,9 @@ export class MemberMock extends ScheduleMockupBase {
       const extractDate = this.helperService.dateExtract(dateOfBirth)
       const expiryDate = this.helperService.dateCreate(memberDate, { endOfDay: true })
 
-      const randomPoint = this.helperService.randomNumber({min: 50_000, max: 500_000, step: 10_000 })
-
-      await this.prisma.member.create({
-        data: {
-          code: memberCode,
+      await this.memberService.create(
+        {
+          // code: memberCode,
           tierId: memberTier.id,
           minTierId: memberTier.id,
           referralCode,
@@ -115,11 +146,10 @@ export class MemberMock extends ScheduleMockupBase {
                 delimiter: '.',
                 format: 'lowercase',
                 prefix: '@',
-              }
+              },
             ),
           name: this.helperService.mixinString([firstNames, lastNames], { delimiter: ' ' }),
           phone: i === 0 ? process.env.MOCK_MEMBER_PHONE : fullPhone,
-          password: passwordHash,
           phoneRegion: region,
           phoneNumber: phone,
           address: this.helperService.mixinString([streetNames, cities, states], {
@@ -135,6 +165,7 @@ export class MemberMock extends ScheduleMockupBase {
           birthMonth: extractDate.month,
           birthYear: extractDate.year,
           isActive: true,
+          isPushable: true,
           isNotifiable: false,
           isPromotable: false,
           isEmailVerified: true,
@@ -144,31 +175,13 @@ export class MemberMock extends ScheduleMockupBase {
           hasBirthPurchased: false,
           personalAmount: 0,
           referralAmount: 0,
-          pointBalance: randomPoint,
+          pointBalance: 0,
           startedAt: dateExecute,
           createdAt: dateExecute,
           updatedAt: dateExecute,
-          points: {
-            create: {
-              source: EnumPointSource.SYSTEM,
-              action: EnumPointAction.INITIAL,
-              point: randomPoint,
-              expiryDate: this.memberUtil.getPointExpirationDate(dateExecute),
-              createdAt: dateExecute,
-              updatedAt: dateExecute,
-            }
-          },
-          devices: {
-            create:{
-              type: 'mobile',
-              model: this.helperService.mixinString([deviceModels,deviceVersions], {delimiter: ' '}),
-              version: this.helperService.arrayRandom(deviceVersions),
-              token: this.helperService.randomString(16),
-              isActive: this.helperService.randomBoolean(5)
-            }
-          }
         },
-      })
+        authPassword,
+      )
     }
   }
 
@@ -178,13 +191,12 @@ export class MemberMock extends ScheduleMockupBase {
   }
 
   async getRemainNumbers(): Promise<number> {
-    if (this.remainNumbers === null) {
-      const limitMembers = StrUtil.numeric(process.env.AUTO_GEN_MEMBER_NUMB, 0)
-      if (limitMembers <= 0) {return 0}
-
-      const totalMembers = await this.prisma.member.count()
-      this.remainNumbers = Math.max(0, limitMembers - totalMembers)
+    const limitMembers = StrUtil.numeric(process.env.AUTO_GEN_MEMBER_NUMB, 0)
+    if (limitMembers <= 0) {
+      return 0
     }
-    return this.remainNumbers
+
+    const totalMembers = await this.prisma.member.count()
+    return Math.max(0, limitMembers - totalMembers)
   }
 }

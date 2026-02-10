@@ -4,7 +4,8 @@ import {
   EnumInvoiceStatus,
   EnumOrderStatus,
   EnumPointAction,
-  EnumPointSource,
+  EnumPointOrigin,
+  EnumPointReason,
   EnumRedemptionSource,
   EnumRedemptionStatus,
   EnumSlipType,
@@ -108,10 +109,6 @@ export class OrderService {
 
     const orderNumber = await this.generateOrderNumber(issuedAt)
     const invoiceNumber = await this.invoiceService.generateInvoiceNumber(issuedAt)
-    const recentPoints = await this.memberService.getPointRecents(cart.memberId, {
-      pointRequire: summary.point,
-      untilDate: issuedAt,
-    })
 
     const hasShipment = !!cart.items.find(item => item.product.hasShipment)
     const duePaidDays = cart.items
@@ -157,20 +154,15 @@ export class OrderService {
               createdAt: issuedAt,
               updatedAt: issuedAt,
               points: {
-                createMany: {
-                  data: recentPoints.map(recentPoint => {
-                    return {
-                      memberId: cart.memberId,
-                      tierId: cart.member.tierId,
-                      invoiceAmount: summary.price,
-                      source: EnumPointSource.PURCHASE,
-                      action: EnumPointAction.DEDUCT,
-                      point: recentPoint.point * -1,
-                      expiryDate: recentPoint.date,
-                      createdAt: issuedAt,
-                      updatedAt: issuedAt,
-                    }
-                  }),
+                create: {
+                  memberId: cart.memberId,
+                  tierId: cart.member.tierId,
+                  origin: EnumPointOrigin.MEMBER,
+                  reason: EnumPointReason.PURCHASE,
+                  action: EnumPointAction.DEDUCT,
+                  point: summary.point * -1,
+                  createdAt: issuedAt,
+                  updatedAt: issuedAt,
                 },
               },
             },

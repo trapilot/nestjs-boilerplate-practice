@@ -7,7 +7,14 @@ import { PrismaService } from './services'
 
 @Module({})
 export class NestPrismaModule {
+  private static initialized: boolean = false
+
   static forRoot(options: IPrismaModuleOptions): DynamicModule {
+    if (this.initialized) {
+      throw new Error('NestPrismaModule called multiple times')
+    }
+    this.initialized = true
+
     return {
       global: true,
       module: NestPrismaModule,

@@ -23,7 +23,7 @@ const schema: FormSchema = {
       "placeholder": "",
       "required": false
     },
-    "cardId": {
+    "citizenId": {
       "type": "string",
       "format": "string",
       "placeholder": "",

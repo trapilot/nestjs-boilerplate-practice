@@ -10,7 +10,7 @@ import { Command } from 'nest-commander'
 export class UserSeed extends CommandMigrateBase {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly authUtil: AuthUtil
+    private readonly authUtil: AuthUtil,
   ) {
     super()
   }
@@ -47,7 +47,13 @@ export class UserSeed extends CommandMigrateBase {
 
   async down(): Promise<void> {}
 
-  private get users(): {email: string, password: string, type: string, level: number, phone?: string}[] {
+  private get users(): {
+    email: string
+    password: string
+    type: string
+    level: number
+    phone?: string
+  }[] {
     return [
       {
         email: process.env.MOCK_SADMIN_EMAIL,

@@ -24,10 +24,15 @@ import { InvoiceModule } from 'modules/invoice/invoice.module'
 import { InvoiceScheduler } from 'modules/invoice/schedulers/invoice.scheduler'
 import { MemberEarnHighestPurchaseHandler } from 'modules/member/handlers/member.earn-highest-purchase-in-birth.handler'
 import { MemberEarnPointFromPurchaseHandler } from 'modules/member/handlers/member.earn-point-from-purchases.handler'
+import { MemberGenerateCodeHandler } from 'modules/member/handlers/member.generate-code.handler'
+import { MemberGrantWelcomeRewardHandler } from 'modules/member/handlers/member.grant-welcome-reward.handler'
+import { MemberProcessExpiredHandler } from 'modules/member/handlers/member.process-expired.handler'
 import { MemberReleaseExpiryPointHandler } from 'modules/member/handlers/member.release-expiry-points.handler'
 import { MemberResetBirthPurchaseHandler } from 'modules/member/handlers/member.reset-birth-puchase.handler'
 import { MemberResetExpiryPointHandler } from 'modules/member/handlers/member.reset-expiry-point.handler'
-import { MemberResetExpiryTierHandler } from 'modules/member/handlers/member.reset-expiry-tiers.handler'
+import { MemberScanExpiredHandler } from 'modules/member/handlers/member.scan-expired.handler'
+import { MemberTriggerWelcomeEmailHandler } from 'modules/member/handlers/member.trigger-welcome-email.handler'
+import { MemberListener } from 'modules/member/listeners/member.listener'
 import { MemberModule } from 'modules/member/member.module'
 import { MemberScheduler } from 'modules/member/schedulers/member.scheduler'
 import { NotificationDispatchPushHandler } from 'modules/notification/handlers/notification.dispatch-push.handler'
@@ -123,6 +128,11 @@ import { RoutesWebModule } from './routes/routes.web.module'
       },
       worker: {
         enabled: StrUtil.isTrue(process.env.APP_WORKER),
+        config: {
+          concurrency: 50,
+          pollIntervalMs: 1000,
+          recoveryIntervalMs: 10000,
+        },
         producer: PrismaQueueProducer,
         consumer: PrismaQueueConsumer,
         scanner: PrismaQueueScanner,
@@ -132,12 +142,17 @@ import { RoutesWebModule } from './routes/routes.web.module'
           MemberReleaseExpiryPointHandler,
           MemberResetBirthPurchaseHandler,
           MemberResetExpiryPointHandler,
-          MemberResetExpiryTierHandler,
+          MemberScanExpiredHandler,
+          MemberProcessExpiredHandler,
+          MemberGenerateCodeHandler,
+          MemberGrantWelcomeRewardHandler,
+          MemberTriggerWelcomeEmailHandler,
           NotificationDispatchPushHandler,
           NotificationSendPushHandler,
           InvoiceRejectOverDueHandler,
         ],
         schedulers: [NotificationScheduler, MemberScheduler, InvoiceScheduler],
+        listeners: [MemberListener],
         imports: [MemberModule, NotificationModule, InvoiceModule],
       },
       imports: [],

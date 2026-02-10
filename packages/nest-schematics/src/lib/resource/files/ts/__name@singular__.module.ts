@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { <%= singular(classify(name)) %>Service } from './services/<%= singular(lowercased(name)) %>.service'
+import { <%= singular(classify(name)) %>Service } from './services/<%= singular(name) %>.service'
 
 @Module({
   providers: [<%= singular(classify(name)) %>Service],

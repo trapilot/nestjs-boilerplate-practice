@@ -6,6 +6,10 @@ import { AppUtil, IDatabaseProvider, IMessageAttributes } from 'lib/nest-core'
 import { IPrismaAdapterCreateOptions, IPrismaLanguageBuildOptions } from '../interfaces'
 
 export class PrismaUtil {
+  static toAlias<T, N>(data: T): N {
+    return structuredClone(data as unknown) as N
+  }
+
   static toPlainObject<T, N = Prisma.JsonObject>(data: T): N {
     return structuredClone(data as unknown) as N
   }

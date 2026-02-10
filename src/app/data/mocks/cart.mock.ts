@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common'
-import { EnumCartStatus, EnumPointAction, EnumPointSource } from '@runtime/prisma-client'
+import { EnumCartStatus } from '@runtime/prisma-client'
 import { HelperService, ScheduleMockupBase } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { CartService } from 'modules/cart/services/cart.service'
-import { MemberUtil } from 'modules/member/helpers/member.util'
 
 @Injectable()
 export class CartMock extends ScheduleMockupBase {
@@ -11,7 +10,6 @@ export class CartMock extends ScheduleMockupBase {
     private readonly prisma: PrismaService,
     private readonly helperService: HelperService,
     private readonly cartService: CartService,
-    private readonly memberUtil: MemberUtil,
   ) {
     super()
   }
@@ -24,8 +22,9 @@ export class CartMock extends ScheduleMockupBase {
     })
     const members = await this.prisma.member.findMany({
       where: {
-        points: { some: { point: { gt: 0 }, expiryDate: { gte: nowDate } } },
-        carts: { none: { status: { in: [EnumCartStatus.ACTIVE, EnumCartStatus.SAVED] } } }
+        pointBalance: { gt: 0 },
+        points: { some: { point: { gt: 0 }, expiryDate: { gt: nowDate } } },
+        carts: { none: { status: { in: [EnumCartStatus.ACTIVE, EnumCartStatus.SAVED] } } },
       },
       select: { id: true, birthMonth: true, phone: true, updatedAt: true },
       take: 500,
@@ -33,40 +32,12 @@ export class CartMock extends ScheduleMockupBase {
     })
 
     for (const member of members) {
-      const issuedAt = this.helperService.dateForward(member.updatedAt, {
-        days: this.helperService.randomNumber({ min: 1, max: 2 }),
-      })
-
-      // hard update issue date
-      member.updatedAt = issuedAt
-
-      const randomPoint = this.helperService.randomNumber({ min: 50_000, max: 500_000, step: 10_000 })
-      await this.prisma.member.update({
-        where: { id: member.id },
-        data: {
-          pointBalance: { increment: randomPoint},
-          updatedAt: issuedAt,
-          points: {
-            create: {
-              source: EnumPointSource.SYSTEM,
-              action: EnumPointAction.ADJUST,
-              point: randomPoint,
-              expiryDate: this.memberUtil.getPointExpirationDate(issuedAt),
-              createdAt: issuedAt,
-              updatedAt: issuedAt,
-            },
-          },
-        },
-      })
-    }
-
-    for (const member of members) {
       try {
         const cart = await this.cartService.getOrCreateActiveCart(member.id)
 
         const productList = this.pickProducts(products)
         for (const product of productList) {
-          const quantity = this.helperService.randomNumber({ min: 1, max: 2})
+          const quantity = this.helperService.randomNumber({ min: 1, max: 2 })
 
           await this.cartService.addItem(cart.memberId, {
             productId: product.id,

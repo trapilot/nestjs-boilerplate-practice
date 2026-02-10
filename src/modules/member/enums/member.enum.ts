@@ -4,12 +4,22 @@ export enum EnumMemberQueue {
   RELEASE_EXPIRY_POINTS = 'member:release_expiry_points',
   RESET_BIRTH_PURCHASE = 'member:reset_birth_purchase',
   RESET_EXPIRY_POINTS = 'member:reset_expiry_points',
-  RESET_EXPIRY_TIERS = 'member:reset_expiry_tiers',
+  SCAN_EXPIRED = 'member:scan_expired',
+  PROCESS_EXPIRED = 'member:process_expired',
+  GRANT_WELCOME_REWARD = 'member:grant_welcome_reward',
+  TRIGGER_WELCOME_EMAIL = 'member:trigger_welcome_email',
+  GENERATE_CODE = 'member:generate_code',
+}
+
+export enum EnumMemberEvent {
+  CREATED = 'member:created',
+  DOWNGRADE = 'member:downgrade',
+  RENEWAL = 'member:renewal',
 }
 
 export enum EnumMemberActivityAction {
-  USER_LOGIN_CREDENTIAL = 'USER_LOGIN_CREDENTIAL',
-  USER_LOGIN_GOOGLE = 'USER_LOGIN_GOOGLE',
-  USER_LOGIN_APPLE = 'USER_LOGIN_APPLE',
-  USER_REFRESH_TOKEN = 'USER_REFRESH_TOKEN',
+  LOGIN_CREDENTIAL = 'LOGIN_CREDENTIAL',
+  LOGIN_GOOGLE = 'LOGIN_GOOGLE',
+  LOGIN_APPLE = 'LOGIN_APPLE',
+  REFRESH_TOKEN = 'REFRESH_TOKEN',
 }

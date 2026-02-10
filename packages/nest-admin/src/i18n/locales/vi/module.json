@@ -62,7 +62,7 @@
       "id": "ID"
     }
   },
-  "member_notification": {
+  "member-notification": {
     "title": "Thông báo thành viên",
     "fields": {
       "id": "ID",
@@ -70,7 +70,7 @@
       "updatedAt": "Ngày cập nhật"
     }
   },
-  "member_point": {
+  "member-point": {
     "title": "Điểm thành viên",
     "fields": {
       "id": "ID",
@@ -79,12 +79,10 @@
       "refereeId": "ID người giới thiệu",
       "invoiceId": "ID hóa đơn",
       "invoiceAmount": "Số tiền hóa đơn",
-      "action": "Loại",
+      "reason": "Loại",
       "point": "Điểm",
       "pointBalance": "Số dư điểm",
       "multipleRatio": "Hệ số nhân",
-      "isFirst": "Lần đầu",
-      "isBirth": "Sinh nhật",
       "isPending": "Chờ xử lý",
       "isActive": "Kích hoạt",
       "expiryDate": "Ngày hết hạn",
@@ -96,7 +94,7 @@
       "updatedBy": "Người chỉnh sửa"
     }
   },
-  "member_redemption": {
+  "member-redemption": {
     "title": "Đổi thưởng thành viên",
     "fields": {
       "id": "ID",
@@ -126,7 +124,7 @@
       "tierId": "ID hạng",
       "code": "Mã",
       "type": "Loại",
-      "cardId": "ID thẻ",
+      "citizenId": "ID thẻ",
       "email": "Email",
       "name": "Tên",
       "phone": "Số điện thoại",
@@ -144,7 +142,7 @@
       "updatedAt": "Ngày cập nhật"
     }
   },
-  "member_tier": {
+  "member-tier": {
     "title": "Hạng thành viên",
     "fields": {
       "id": "ID",
@@ -154,8 +152,8 @@
       "action": "Loại",
       "personalAmount": "Chi tiêu cá nhân",
       "referralAmount": "Chi tiêu giới thiệu",
+      "qualifiedAmount": "Chi tiêu đủ điều kiện",
       "expiryDate": "Ngày hết hạn",
-      "isActive": "Kích hoạt",
       "createdAt": "Ngày tạo",
       "updatedAt": "Ngày cập nhật"
     }
@@ -280,13 +278,7 @@
     "fields": {
       "id": "ID",
       "code": "Mã",
-      "name": "Tên",
-      "rewardPoint": "Điểm thưởng",
-      "limitAmount": "Giới hạn chi tiêu",
-      "personalRate": "Tỷ lệ quy đổi cá nhân",
-      "referralRate": "Tỷ lệ quy đổi giới thiệu",
-      "initialRate": "Tỷ lệ quy đổi lần đầu",
-      "birthdayRatio": "Tỷ lệ sinh nhật cao nhất"
+      "name": "Tên"
     }
   },
   "user": {

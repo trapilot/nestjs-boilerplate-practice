@@ -67,7 +67,6 @@
     ".husky/**",
     ".github/**",
     "dist/**",
-    "data/**",
     "packages/**",
     "prisma/**",
     "private/**",

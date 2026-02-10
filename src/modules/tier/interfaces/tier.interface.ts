@@ -1,8 +1,9 @@
-import { Tier, TierChart, TierLanguage } from '@runtime/prisma-client'
+import { Tier, TierLanguage, TierRate, TierTransition } from '@runtime/prisma-client'
 
-export type TTierChart = TierChart
+export type TTierTransition = TierTransition
 
 export type TTier = Tier & {
-  charts?: TTierChart[]
   languages?: TierLanguage[]
+  transitions?: TierTransition[]
+  rates?: TierRate[]
 }

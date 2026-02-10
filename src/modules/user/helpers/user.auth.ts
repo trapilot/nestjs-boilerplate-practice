@@ -299,7 +299,7 @@ export class UserAuth implements IAuthValidator<TUser> {
             },
             activities: {
               create: {
-                action: EnumUserActivityAction.USER_REFRESH_TOKEN,
+                action: EnumUserActivityAction.REFRESH_TOKEN,
                 ipAddress: options.userIp,
                 userAgent: PrismaUtil.toPlainObject(options.userAgent),
               },

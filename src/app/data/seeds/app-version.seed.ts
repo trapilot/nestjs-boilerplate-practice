@@ -39,8 +39,8 @@ export class AppVersionSeed extends CommandMigrateBase {
           },
           create: dto,
           update: {},
-        })
-      )
+        }),
+      ),
     )
   }
 

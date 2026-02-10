@@ -10,12 +10,11 @@ import { TProductCategory } from 'modules/product-category/interfaces/product-ca
 export class ProductMock extends ScheduleMockupBase {
   private readonly dateStarted: Date
   private readonly mockupNumbers: number = 100
-  private remainNumbers: number = null
 
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
   ) {
     super()
 
@@ -26,7 +25,9 @@ export class ProductMock extends ScheduleMockupBase {
     const remainNumbers = await this.getRemainNumbers()
     const mockupNumbers = Math.min(this.mockupNumbers, remainNumbers)
 
-    if (mockupNumbers <= 0) {return}
+    if (mockupNumbers <= 0) {
+      return
+    }
 
     const lastProduct = await this.prisma.product.findFirst({
       orderBy: { createdAt: 'desc' },
@@ -43,7 +44,7 @@ export class ProductMock extends ScheduleMockupBase {
 
     for (let i = 0; i < mockupNumbers; i++) {
       const costPrice = this.helperService.randomNumber({ min: 0, max: 1000 })
-      const salePoint = this.helperService.randomNumber({ min: 0, max: 500 })
+      const salePoint = this.helperService.randomNumber({ min: 0, max: 5 })
       const stockQty = this.helperService.randomNumber({ min: 100, max: 999 })
       const duePaidDays = this.helperService.randomNumber({ min: 7, max: 90 })
       const code = this.helperService.padZero(i + 1, { length: 8, prefix: 'P' })
@@ -128,14 +129,13 @@ export class ProductMock extends ScheduleMockupBase {
   }
 
   async getRemainNumbers(): Promise<number> {
-    if (this.remainNumbers === null) {
-      const limitProducts = StrUtil.numeric(process.env.AUTO_GEN_PRODUCT_NUMB, 0)
-      if (limitProducts <= 0) {return 0}
-
-      const totalProducts = await this.prisma.product.count()
-      this.remainNumbers = Math.max(0, limitProducts - totalProducts)
+    const limitProducts = StrUtil.numeric(process.env.AUTO_GEN_PRODUCT_NUMB, 0)
+    if (limitProducts <= 0) {
+      return 0
     }
-    return this.remainNumbers
+
+    const totalProducts = await this.prisma.product.count()
+    return Math.max(0, limitProducts - totalProducts)
   }
 
   private async getOrCreateCategories(): Promise<TProductCategory[]> {

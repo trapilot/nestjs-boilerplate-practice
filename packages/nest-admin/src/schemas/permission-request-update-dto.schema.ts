@@ -39,6 +39,10 @@ const schema: FormSchema = {
         "PAGE",
         "COUNTRY",
         "DISTRICT",
+        "PUSH",
+        "PUSH_GROUP",
+        "NOTIFICATION",
+        "POINT_SCHEMA",
         "MEMBER",
         "MEMBER_TIER",
         "MEMBER_POINT",
@@ -53,10 +57,7 @@ const schema: FormSchema = {
         "ORDER",
         "INVOICE",
         "PAYMENT",
-        "TIER",
-        "NOTIFICATION",
-        "PUSH",
-        "PUSH_GROUP"
+        "TIER"
       ]
     },
     "actions": {

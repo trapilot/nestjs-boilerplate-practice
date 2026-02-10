@@ -10,7 +10,7 @@ export class MemberScheduler {
     private readonly helperService: HelperService,
   ) {}
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_MINUTE)
   async handleEarnHighestPurchaseInBirth(): Promise<void> {
     await this.producer.publish(EnumMemberQueue.EARN_HIGHEST_PURCHASE_IN_BIRTH, {
       version: 1,
@@ -21,7 +21,7 @@ export class MemberScheduler {
     })
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_MINUTE)
   async handleEarnPointFromPurchase(): Promise<void> {
     await this.producer.publish(EnumMemberQueue.EARN_POINT_FROM_PURCHASE, {
       version: 1,
@@ -32,7 +32,7 @@ export class MemberScheduler {
     })
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_MINUTE)
   async handleReleaseMemberPoints(): Promise<void> {
     await this.producer.publish(EnumMemberQueue.RELEASE_EXPIRY_POINTS, {
       version: 1,
@@ -43,7 +43,7 @@ export class MemberScheduler {
     })
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_MINUTE)
   async handleResetPoints(): Promise<void> {
     await this.producer.publish(EnumMemberQueue.RESET_EXPIRY_POINTS, {
       version: 1,
@@ -54,9 +54,9 @@ export class MemberScheduler {
     })
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
-  async handleResetTiers(): Promise<void> {
-    await this.producer.publish(EnumMemberQueue.RESET_EXPIRY_TIERS, {
+  @Cron(CronExpression.EVERY_MINUTE)
+  async scanExpiredMembers(): Promise<void> {
+    await this.producer.publish(EnumMemberQueue.SCAN_EXPIRED, {
       version: 1,
       exclusive: true,
       autoDelete: true,
@@ -65,7 +65,7 @@ export class MemberScheduler {
     })
   }
 
-  @Cron(CronExpression.EVERY_10_MINUTES)
+  @Cron(CronExpression.EVERY_MINUTE)
   async handleResetBirthPurchseEveryYear(): Promise<void> {
     await this.producer.publish(EnumMemberQueue.RESET_BIRTH_PURCHASE, {
       version: 1,

@@ -58,11 +58,10 @@ export function DataTable<T>({
   }, [query.page, query.perPage, query.search])
 
   const meta = getLastMetadata()
-  return meta?.pagination
-  const availableSearch = meta?.availableSearch ?? []
 
-  const totalPage = pagination?.totalPage ?? 1
-  const perPage = pagination?.perPage ?? query.perPage
+  const availableSearch = meta?.availableSearch ?? []
+  const totalPage = meta?.pagination?.totalPage ?? 1
+  const perPage =  meta?.pagination?.perPage ?? query.perPage
   const showPagination = totalPage > 1 || perPage !== perPageOptions[0]
 
   const onSearch = (e: React.FormEvent<HTMLFormElement>) => {

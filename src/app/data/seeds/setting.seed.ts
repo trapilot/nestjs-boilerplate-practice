@@ -14,7 +14,7 @@ export class SettingSeed extends CommandMigrateBase {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly settingService: SettingService
+    private readonly settingService: SettingService,
   ) {
     super()
 
@@ -38,8 +38,8 @@ export class SettingSeed extends CommandMigrateBase {
           where: { code: dto.code },
           create: dto,
           update: {},
-        })
-      )
+        }),
+      ),
     )
   }
 

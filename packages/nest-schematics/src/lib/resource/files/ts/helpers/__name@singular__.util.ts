@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { EnumAuthLoginType } from 'lib/nest-auth'
-import { Enum<%= singular(classify(name)) %>ActivityAction } from '../enums/<%= singular(lowercased(name)) %>.enum'
+import { Enum<%= singular(classify(name)) %>ActivityAction } from '../enums/<%= singular(name) %>.enum'
 
 @Injectable()
 export class <%= singular(classify(name)) %>Util {

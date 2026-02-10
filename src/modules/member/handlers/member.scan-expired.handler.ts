@@ -12,11 +12,10 @@ import {
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { EnumMemberQueue } from '../enums/member.enum'
-import { MemberService } from '../services/member.service'
 
 @Injectable()
-export class MemberResetExpiryTierHandler implements IQueueHandler {
-  topic: string = EnumMemberQueue.RESET_EXPIRY_TIERS
+export class MemberScanExpiredHandler implements IQueueHandler {
+  topic: string = EnumMemberQueue.SCAN_EXPIRED
   version: number = 1
 
   constructor(
@@ -25,28 +24,24 @@ export class MemberResetExpiryTierHandler implements IQueueHandler {
     private readonly scanner: QueueScanner,
     private readonly producer: QueueProducer,
     private readonly helperService: HelperService,
-    private readonly memberService: MemberService,
   ) {}
 
-  @OnScope(EnumScopeType.QUEUE, { context: EnumMemberQueue.RESET_EXPIRY_TIERS, async: true })
+  @OnScope(EnumScopeType.QUEUE, { context: EnumMemberQueue.SCAN_EXPIRED, async: true })
   async handle(): Promise<void> {
     this.logger.log(`${this.topic}:v${this.version} is handling...`)
 
     const state = await this.scanner.scan<QueueCursor>(this.topic, this.version)
     const nowDate = this.helperService.dateNow()
 
-    const memberTiers = await this.prisma.memberTier.findMany({
-      where: {
-        isActive: true,
-        expiryDate: { lte: nowDate },
-      },
+    const expiryMembers = await this.prisma.member.findMany({
+      where: { expiryDate: { lte: nowDate } },
       cursor: state.lastId ? { id: state.lastId } : undefined,
-      select: { id: true },
+      select: { id: true, personalAmount: true, referralAmount: true, expiryDate: true },
       take: 500,
     })
 
-    const mtIds = memberTiers.map(i => i.id)
-    if (!mtIds.length) {
+    const memberIds = expiryMembers.map(i => i.id)
+    if (!memberIds.length) {
       // reset cursor to start over next time.
       this.logger.log(`${this.topic}:v${this.version} completed`)
       await this.scanner.reset(this.topic, this.version)
@@ -54,14 +49,24 @@ export class MemberResetExpiryTierHandler implements IQueueHandler {
     }
 
     // handle job
-    // TODO
-    // await this.memberService.resetMemberTiers(mtIds)
+    for (const member of expiryMembers) {
+      await this.producer.publish(EnumMemberQueue.PROCESS_EXPIRED, {
+        version: this.version,
+        exclusive: false,
+        autoDelete: true,
+        priority: EnumQueuePriority.HIGH,
+        startDate: nowDate,
+        message: {
+          memberId: member.id,
+        },
+      })
+    }
 
     // update cursor
     await this.scanner.commit(this.topic, {
       version: this.version,
       batchId: state.batchId + 1,
-      lastId: mtIds[mtIds.length - 1],
+      lastId: memberIds[memberIds.length - 1],
     })
 
     // republish queue job

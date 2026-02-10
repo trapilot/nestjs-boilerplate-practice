@@ -29,7 +29,9 @@ export class RoleSeed extends CommandMigrateBase {
 
   async down(): Promise<void> {}
 
-  private get userRoles(): {[role: string]: {level: number, title: string, description: string}} {
+  private get userRoles(): {
+    [role: string]: { level: number; title: string; description: string }
+  } {
     return {
       SUPER_ADMIN: {
         level: 0,

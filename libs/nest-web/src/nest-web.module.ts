@@ -35,7 +35,9 @@ import {
   IQueueHandler,
   IQueueProducer,
   IQueueScanner,
+  IQueueWorkerConfig,
   LoggerFactory,
+  QUEUE_WORKER_CONFIG,
   QueueConsumer,
   QueueProducer,
   QueueScanner,
@@ -80,7 +82,7 @@ export class NestWebModule
   private readonly logger = new Logger('NestApplication')
 
   constructor(
-    private readonly moduleRef: ModuleRef,
+    private readonly ref: ModuleRef,
     private readonly loggerFactory: LoggerFactory,
     @Optional()
     @Inject(REQUEST_LOGGER_OPTIONS)
@@ -105,9 +107,11 @@ export class NestWebModule
     }
     worker?: {
       enabled: boolean
+      config: IQueueWorkerConfig
       producer?: Type<IQueueProducer>
       consumer?: Type<IQueueConsumer>
       scanner?: Type<IQueueScanner>
+      listeners: IModuleProvider[]
       schedulers: IModuleProvider[]
       handlers: Type<IQueueHandler>[]
       imports: Type<any>[]
@@ -115,7 +119,7 @@ export class NestWebModule
     imports: Type<any>[]
   }): DynamicModule {
     if (this.initialized) {
-      throw new Error('NestWebModule.forRoot() called multiple times')
+      throw new Error('NestWebModule called multiple times')
     }
     this.initialized = true
 
@@ -216,8 +220,14 @@ export class NestWebModule
         exports.push(QueueScanner)
       }
 
+      providers.push({
+        provide: QUEUE_WORKER_CONFIG,
+        useValue: options.worker.config,
+      })
+
       this.workerHandlers = options.worker.handlers
       providers.push(...options.worker.handlers)
+      providers.push(...options.worker.listeners)
       providers.push(...options.worker.schedulers)
       imports.push(...options.worker.imports)
     }
@@ -308,13 +318,11 @@ export class NestWebModule
     }
 
     for (const handler of NestWebModule.workerHandlers) {
-      const instance = this.moduleRef.get(handler, {
-        strict: false,
-      })
+      const instance = this.ref.get(handler, { strict: false })
 
       this.consumer.register(instance)
 
-      this.logger.log(`Nest application registered topic: ${instance.topic} -> ${handler.name}`)
+      this.logger.log(`Registered topic: ${instance.topic} -> ${handler.name}`)
     }
 
     await this.consumer.start()

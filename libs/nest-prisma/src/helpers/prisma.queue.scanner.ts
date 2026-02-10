@@ -17,7 +17,7 @@ export class PrismaQueueScanner extends QueueScanner {
   }
 
   async scans<T>(name: string): Promise<T[]> {
-    const exists = await this.prisma.queueCursor.exists({ name })
+    const exists = await this.prisma.queueCursor.exists({ where: { name } })
     if (exists) {
       const items = this.prisma.queueCursor.findMany({
         where: { name },

@@ -96,23 +96,7 @@ export class ProductService {
     }
   }
 
-  async addWishlist(id: number, memberId: number): Promise<boolean> {
-    const product = await this.findOrFail(id)
-
-    const _where: Prisma.WishlistWhereUniqueInput = {
-      memberId_productId: {
-        memberId,
-        productId: product.id,
-      },
-    }
-
-    const wishList = await this.prisma.wishlist.findUnique({ where: _where })
-    if (wishList) {
-      await this.prisma.wishlist.delete({ where: _where })
-      return false
-    }
-
-    await this.prisma.wishlist.create({ data: { memberId, productId: product.id } })
+  async addWishlist(_id: number, _memberId: number): Promise<boolean> {
     return true
   }
 

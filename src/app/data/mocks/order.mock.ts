@@ -15,7 +15,7 @@ export class OrderMock extends ScheduleMockupBase {
 
   async mockup(): Promise<void> {
     const carts = await this.prisma.cart.findMany({
-      where: {  status: EnumCartStatus.SAVED  },
+      where: { status: EnumCartStatus.SAVED },
       select: {
         id: true,
         version: true,
@@ -25,8 +25,8 @@ export class OrderMock extends ScheduleMockupBase {
             id: true,
             phone: true,
             address: true,
-          }
-        }
+          },
+        },
       },
       take: 100,
     })

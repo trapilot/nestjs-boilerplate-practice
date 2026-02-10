@@ -288,7 +288,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
             },
             activities: {
               create: {
-                action: EnumMemberActivityAction.USER_REFRESH_TOKEN,
+                action: EnumMemberActivityAction.REFRESH_TOKEN,
                 ipAddress: options.userIp,
                 userAgent: PrismaUtil.toPlainObject(options.userAgent),
               },

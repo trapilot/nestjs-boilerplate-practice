@@ -1,4 +1,5 @@
 import { ApiProperty, IntersectionType, OmitType, PickType } from '@nestjs/swagger'
+import { EnumRateRule, EnumTransitionRule } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
 import { EnumTierCode, ToDate, ToLocaleField } from 'lib/nest-core'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
@@ -23,36 +24,6 @@ class ResponseDataDetailDto {
   @ToLocaleField({ type: ResponseLocaleDto })
   @Expose()
   description: ResponseLocaleDto
-
-  @ApiProperty({ example: 0 })
-  @Type(() => Number)
-  @Expose()
-  rewardPoint: number
-
-  @ApiProperty({ example: 0 })
-  @Type(() => Number)
-  @Expose()
-  limitAmount: number
-
-  @ApiProperty({ example: 0 })
-  @Type(() => Number)
-  @Expose()
-  personalRate: number
-
-  @ApiProperty({ example: 0 })
-  @Type(() => Number)
-  @Expose()
-  referralRate: number
-
-  @ApiProperty({ example: 0 })
-  @Type(() => Number)
-  @Expose()
-  initialRate: number
-
-  @ApiProperty({ example: 0 })
-  @Type(() => Number)
-  @Expose()
-  birthdayRatio: number
 
   @ApiProperty({ example: null })
   @Type(() => String)
@@ -80,7 +51,43 @@ class ResponseDataDetailDto {
   updatedAt: Date
 }
 
-class ResponseDataChartDto {
+class ResponseDataTransitionDto {
+  @ApiProperty({ example: 1 })
+  @Type(() => Number)
+  @Expose()
+  id: number
+
+  @ApiProperty({
+    enum: EnumTransitionRule,
+    enumName: 'EnumTransitionRule',
+    example: EnumTransitionRule.AMOUNT,
+  })
+  @Type(() => String)
+  @Expose()
+  rule: EnumTransitionRule
+
+  @ApiProperty({ example: 0 })
+  @Type(() => Number)
+  @Expose()
+  value: number
+
+  @ApiProperty({ example: true })
+  @Type(() => Boolean)
+  @Expose()
+  isEnabled: boolean
+
+  @ApiProperty({ example: 1 })
+  @Type(() => Number)
+  @Expose()
+  prevTierId: number
+
+  @ApiProperty({ example: 1 })
+  @Type(() => Number)
+  @Expose()
+  nextTierId: number
+}
+
+class ResponseDataRateDto {
   @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
@@ -89,29 +96,33 @@ class ResponseDataChartDto {
   @ApiProperty({ example: 1 })
   @Type(() => Number)
   @Expose()
-  currId: number
+  tierId: number
 
-  @ApiProperty({ example: 1 })
+  @ApiProperty({
+    enum: EnumRateRule,
+    enumName: 'EnumRateRule',
+    example: EnumRateRule.PERSONAL,
+  })
+  @Type(() => String)
+  @Expose()
+  rule: EnumRateRule
+
+  @ApiProperty({ example: 0 })
   @Type(() => Number)
   @Expose()
-  nextId: number
-
-  @ApiProperty({ example: 1 })
-  @Type(() => Number)
-  @Expose()
-  requireAmount: number
-
-  @ApiProperty({ example: true })
-  @Type(() => Boolean)
-  @Expose()
-  isActive: boolean
+  value: number
 }
 
 class ResponseDataRelationDto extends ResponseUserBelongDto {
-  @ApiProperty({ type: () => ResponseDataChartDto })
-  @Type(() => ResponseDataChartDto)
+  @ApiProperty({ type: () => ResponseDataTransitionDto })
+  @Type(() => ResponseDataTransitionDto)
   @Expose()
-  charts: ResponseDataChartDto[]
+  transitions: ResponseDataTransitionDto[]
+
+  @ApiProperty({ type: () => ResponseDataRateDto })
+  @Type(() => ResponseDataRateDto)
+  @Expose()
+  rates: ResponseDataRateDto[]
 }
 
 export class TierResponseDetailDto extends IntersectionType(

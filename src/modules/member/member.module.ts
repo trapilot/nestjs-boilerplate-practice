@@ -16,7 +16,7 @@ import { MemberService } from './services/member.service'
     MemberService,
     MemberUtil,
   ],
-  exports: [MEMBER_AUTH_TOKEN, MemberService, MemberUtil],
+  exports: [MEMBER_AUTH_TOKEN, MemberService],
   imports: [TierModule, MemberPointModule, MemberTierModule],
 })
 export class MemberModule {}

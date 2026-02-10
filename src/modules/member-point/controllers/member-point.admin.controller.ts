@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Post, Put } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { Prisma } from '@runtime/prisma-client'
+import { EnumPointOrigin, Prisma } from '@runtime/prisma-client'
 import { EnumAuthAbilityAction, EnumAuthAbilitySubject } from 'app/enums/user.enum'
 import { AuthJwtPayload, EnumAuthScopeType } from 'lib/nest-auth'
 import { EnumFileExtensionDocument } from 'lib/nest-core'
@@ -191,7 +191,13 @@ export class MemberPointAdminController {
   })
   @Post('/')
   async create(@RequestBody() body: MemberPointRequestCreateDto): Promise<IResponseData> {
-    const pointHistory = await this.pointHistoryService.create(body)
+    const pointHistory = await this.pointHistoryService.create({
+      memberId: body.memberId,
+      point: Math.abs(body.point),
+      action: body.action,
+      reason: body.reason,
+      origin: EnumPointOrigin.ADMIN,
+    })
 
     return {
       data: pointHistory,

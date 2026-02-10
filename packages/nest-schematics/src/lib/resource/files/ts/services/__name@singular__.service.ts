@@ -6,7 +6,7 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { T<%= singular(classify(name)) %> } from '../interfaces/<%= singular(lowercased(name)) %>.interface'
+import { T<%= singular(classify(name)) %> } from '../interfaces/<%= singular(name) %>.interface'
 
 @Injectable()
 export class <%= singular(classify(name)) %>Service {
@@ -16,11 +16,11 @@ export class <%= singular(classify(name)) %>Service {
     return await this.prisma.<%= singular(lowercased(name)) %>.findUnique(kwargs)
   }
 
-  async getFirst(kwargs?: kwargs?: Prisma.<%= singular(classify(name)) %>FindFirstArgs>): Promise<T<%= singular(classify(name)) %>> {
+  async getFirst(kwargs?: Prisma.<%= singular(classify(name)) %>FindFirstArgs): Promise<T<%= singular(classify(name)) %>> {
     return await this.prisma.<%= singular(lowercased(name)) %>.findFirst(kwargs)
   }
 
-  async getMany(kwargs?: PPrisma.<%= singular(classify(name)) %>FindManyArgs): Promise<T<%= singular(classify(name)) %>[]> {
+  async getMany(kwargs?: Prisma.<%= singular(classify(name)) %>FindManyArgs): Promise<T<%= singular(classify(name)) %>[]> {
     return await this.prisma.<%= singular(lowercased(name)) %>.findMany(kwargs)
   }
 
@@ -68,7 +68,7 @@ export class <%= singular(classify(name)) %>Service {
     })
   }
 
-  async delete(id: number, deletedBy?: number): Promise<boolean> {
+  async delete(id: number, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.<%= singular(lowercased(name)) %>.delete({ where: { id } })

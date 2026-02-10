@@ -17,7 +17,7 @@ export class UserUtil {
     let action: EnumUserActivityAction = undefined
     switch (loginType) {
       case EnumAuthLoginType.CREDENTIAL:
-        action = EnumUserActivityAction.USER_LOGIN_CREDENTIAL
+        action = EnumUserActivityAction.LOGIN_CREDENTIAL
         break
     }
     return action

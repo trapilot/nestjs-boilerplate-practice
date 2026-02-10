@@ -33,7 +33,7 @@ class ResponseDataDetailDto {
   @Expose()
   source: string
 
-  @ApiProperty({ example: EnumTierAction.INITIAL })
+  @ApiProperty({ example: EnumTierAction.IMPORT })
   @Type(() => String)
   @Expose()
   action: string

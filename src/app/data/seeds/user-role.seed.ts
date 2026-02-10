@@ -9,7 +9,7 @@ import { Command, Option } from 'nest-commander'
 export class UserRoleSeed extends CommandMigrateBase {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly helperService: HelperService
+    private readonly helperService: HelperService,
   ) {
     super()
   }

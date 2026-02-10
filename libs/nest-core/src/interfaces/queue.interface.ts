@@ -18,6 +18,12 @@ type IQueuePublishStartDateOption = {
   delayMs?: never
 }
 
+export interface IQueueWorkerConfig {
+  concurrency: number
+  pollIntervalMs: number
+  recoveryIntervalMs?: number
+}
+
 export type IQueuePublishOptions<T = unknown> =
   | (IQueuePublishBase<T> & IQueuePublishDelayOption)
   | (IQueuePublishBase<T> & IQueuePublishStartDateOption)

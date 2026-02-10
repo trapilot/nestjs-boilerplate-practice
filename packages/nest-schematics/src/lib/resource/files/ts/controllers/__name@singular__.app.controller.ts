@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { <%= singular(uppercased(name)) %>_DOC_OPERATION } from '../constants/<%= singular(lowercased(name)) %>.doc.constant'
-import { <%= singular(classify(name)) %>Service } from '../services/<%= singular(lowercased(name)) %>.service'
+import { <%= singular(uppercased(name)) %>_DOC_OPERATION } from '../constants/<%= singular(name) %>.doc.constant'
+import { <%= singular(classify(name)) %>Service } from '../services/<%= singular(name) %>.service'
 
 @ApiTags(<%= singular(uppercased(name)) %>_DOC_OPERATION)
 @Controller({ version: '1', path: '/<%= plural(name) %>' })

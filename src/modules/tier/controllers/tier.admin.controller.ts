@@ -136,7 +136,6 @@ export class TierAdminController {
     const tier = await this.tierService.findOrFail(id, {
       include: {
         languages: true,
-        charts: true,
       },
     })
 

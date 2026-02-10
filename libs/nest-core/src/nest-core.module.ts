@@ -15,6 +15,7 @@ import { AppExceptionFilter } from './filters'
 import { LoggerFactory, PushFactory, SmsFactory, TransportFactory } from './helpers'
 import {
   CacheService,
+  EventBusService,
   HelperService,
   LoggerService,
   MailerService,
@@ -25,11 +26,18 @@ import { FileUtil } from './utils'
 
 @Module({})
 export class NestCoreModule {
+  private static initialized: boolean = false
+
   static forRoot(options: {
     configs: Array<ConfigFactory | Promise<ConfigFactory>>
     cache: boolean
     envFilePath: string[]
   }): DynamicModule {
+    if (this.initialized) {
+      throw new Error('NestCoreModule called multiple times')
+    }
+    this.initialized = true
+
     return {
       global: true,
       module: NestCoreModule,
@@ -40,6 +48,7 @@ export class NestCoreModule {
         RunnerService,
         HelperService,
         CacheService,
+        EventBusService,
         LoggerFactory,
         SmsFactory,
         PushFactory,
@@ -50,6 +59,7 @@ export class NestCoreModule {
         MailerService,
         RunnerService,
         HelperService,
+        EventBusService,
         LoggerFactory,
         SmsFactory,
         PushFactory,
@@ -171,8 +181,16 @@ export class NestCoreModule {
             },
           }),
         }),
-        EventEmitterModule.forRoot({ ignoreErrors: true }),
         ScheduleModule.forRoot(),
+        EventEmitterModule.forRoot({
+          wildcard: true,
+          delimiter: ':',
+          newListener: false,
+          removeListener: false,
+          maxListeners: 10, // the maximum amount of listeners that can be assigned to an event
+          verboseMemoryLeak: true, // show event name in memory leak message when more than maximum amount of listeners is assigned
+          ignoreErrors: false,
+        }),
       ],
     }
   }

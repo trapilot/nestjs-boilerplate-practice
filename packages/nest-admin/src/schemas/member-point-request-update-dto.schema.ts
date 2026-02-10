@@ -16,6 +16,35 @@ const schema: FormSchema = {
       "format": "number",
       "placeholder": "",
       "required": true
+    },
+    "reason": {
+      "type": "string",
+      "format": "enum",
+      "placeholder": "",
+      "required": true,
+      "options": [
+        "IMPORT",
+        "PURCHASE",
+        "REFER",
+        "SHARE",
+        "REWARD",
+        "WELCOME",
+        "REGISTER",
+        "UPGRADE",
+        "RENEWAL",
+        "ADJUST",
+        "EXPIRE"
+      ]
+    },
+    "action": {
+      "type": "string",
+      "format": "enum",
+      "placeholder": "",
+      "required": true,
+      "options": [
+        "PLUS",
+        "DEDUCT"
+      ]
     }
   }
 }

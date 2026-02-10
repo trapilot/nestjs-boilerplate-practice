@@ -1,30 +1,17 @@
-import { HttpStatus, Injectable, NotFoundException, OnModuleInit } from '@nestjs/common'
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { Prisma } from '@runtime/prisma-client'
+import { EnumTierCode } from 'lib/nest-core'
 import {
   IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { TierChart } from '../helpers/tier.chart'
-import { TTier } from '../interfaces/tier.interface'
+import { TTier, TTierTransition } from '../interfaces/tier.interface'
 
 @Injectable()
-export class TierService implements OnModuleInit {
-  private chart: TierChart
-
+export class TierService {
   constructor(private readonly prisma: PrismaService) {}
-
-  async onModuleInit(): Promise<void> {
-    const tierCharts = await this.prisma.tier.findMany({
-      include: { charts: true },
-    })
-    this.chart = new TierChart(tierCharts)
-  }
-
-  getChart(): TierChart {
-    return this.chart
-  }
 
   async getOne(kwargs: Prisma.TierFindUniqueArgs): Promise<TTier> {
     return await this.prisma.tier.findUnique(kwargs)
@@ -82,7 +69,7 @@ export class TierService implements OnModuleInit {
     })
   }
 
-  async delete(id: number, _?: number): Promise<boolean> {
+  async delete(id: number, _deletedBy?: number): Promise<boolean> {
     try {
       await this.prisma.$transaction(async tx => {
         await tx.tier.delete({ where: { id } })
@@ -91,5 +78,24 @@ export class TierService implements OnModuleInit {
     } catch {
       return false
     }
+  }
+
+  async getNormalTier(): Promise<TTier> {
+    return await this.getOne({
+      where: { code: EnumTierCode.NORMAL },
+    })
+  }
+
+  async getStaffTier(): Promise<TTier> {
+    return await this.getOne({
+      where: { code: EnumTierCode.BRONZE },
+    })
+  }
+
+  async getTransitions(tierId: number, reverse: boolean = false): Promise<TTierTransition[]> {
+    const transitions = await this.prisma.tierTransition.findMany({
+      where: { prevTierId: tierId },
+    })
+    return reverse ? transitions.reverse() : transitions
   }
 }

@@ -5,14 +5,13 @@ export const useUtilities = Prisma.defineExtension({
   name: 'prisma-utilities',
   model: {
     $allModels: {
-      async exists<T>(this: T, where?: Prisma.Args<T, 'findFirst'>['where']): Promise<boolean> {
+      async exists<T>(this: T, kwargs?: Prisma.Args<T, 'count'>): Promise<boolean> {
         const context = Prisma.getExtensionContext(this)
 
         const count: Prisma.Args<T, 'count'> = await context['count']({
-          where,
+          where: kwargs?.where,
           take: 1,
         })
-
         return count > 0
       },
 

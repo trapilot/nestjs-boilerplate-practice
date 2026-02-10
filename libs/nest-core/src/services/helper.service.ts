@@ -412,22 +412,22 @@ export class HelperService {
       .toJSDate()
   }
 
-  dateIsAfter(dateOne: Date, options?: IDateCompareOptions): boolean {
+  dateIsAfter(dateOne: Date, options: IDateCompareOptions): boolean {
     const dtDateOne = DateUtil.create(dateOne)
-    const dtDateTwo = DateUtil.create(options?.sinceDate, {
+    const dtDateTwo = DateUtil.create(options.baseDate, {
       ...options,
       timezone: this.dateGetZone(dtDateOne.toJSDate()),
     })
-    return dtDateTwo > dtDateOne
+    return dtDateOne > dtDateTwo
   }
 
   dateIsBefore(dateOne: Date, options?: IDateCompareOptions): boolean {
     const dtDateOne = DateUtil.create(dateOne)
-    const dtDateTwo = DateUtil.create(options?.sinceDate, {
+    const dtDateTwo = DateUtil.create(options.baseDate, {
       ...options,
       timezone: this.dateGetZone(dtDateOne.toJSDate()),
     })
-    return dtDateTwo < dtDateOne
+    return dtDateOne < dtDateTwo
   }
 
   dateIsSet(date: Date, options: Partial<Omit<IDateExtractData, 'date'>>): boolean {
