@@ -5,24 +5,24 @@ import { EnumSmsDriver } from '../enums'
 import { SmsDriver } from '../interfaces'
 
 @Injectable()
-export class SmsFactory {
+export class SmsRegistry {
   private readonly drivers = new Map<EnumSmsDriver, SmsDriver>()
 
   constructor(private readonly config: ConfigService) {}
 
-  getDriver(name: EnumSmsDriver): SmsDriver {
-    if (this.drivers.has(name)) {
-      return this.drivers.get(name)!
+  resolve(driver: EnumSmsDriver): SmsDriver {
+    if (this.drivers.has(driver)) {
+      return this.drivers.get(driver)!
     }
 
-    const driver = this.createDriver(name)
-    this.drivers.set(name, driver)
+    const instance = this.create(driver)
+    this.drivers.set(driver, instance)
 
-    return driver
+    return instance
   }
 
-  private createDriver(name: EnumSmsDriver): SmsDriver {
-    switch (name) {
+  private create(driver: EnumSmsDriver): SmsDriver {
+    switch (driver) {
       case EnumSmsDriver.TWILIO:
         return new SmsTwilioDriver(this.config)
 
@@ -30,7 +30,7 @@ export class SmsFactory {
       //   return new SmsNexmoDriver(this.config)
 
       default:
-        throw new Error(`Unsupported SMS driver: ${name}`)
+        throw new Error(`Unsupported SMS driver: ${driver}`)
     }
   }
 }

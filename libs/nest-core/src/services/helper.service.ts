@@ -9,6 +9,7 @@ import {
   createSign,
   createVerify,
   randomBytes,
+  randomUUID,
 } from 'crypto'
 import { DateObjectUnits, DateTime, Duration, DurationLikeObject } from 'luxon'
 import RandExp from 'randexp'
@@ -46,6 +47,10 @@ export class HelperService {
 
   createId(): string {
     return ObjectID().toHexString()
+  }
+
+  createUuid(): string {
+    return randomUUID()
   }
 
   arrayReverse<T>(array: T[]): T[] {
@@ -440,6 +445,10 @@ export class HelperService {
     if (options?.minute && extractDate.minute != options.minute) return false
     if (options?.second && extractDate.second != options.second) return false
     return true
+  }
+
+  dateCheckFormat(text: string, dateFormat: EnumDateFormat): boolean {
+    return DateTime.fromFormat(text, dateFormat).isValid
   }
 
   dateCheckIso(date: string): boolean {

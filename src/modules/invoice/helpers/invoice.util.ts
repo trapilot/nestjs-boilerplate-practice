@@ -56,12 +56,12 @@ export class InvoiceUtil {
     })
   }
 
-  async getEarnInvoices(issuedAt: Date): Promise<IInvoiceGroup> {
+  async getEarnInvoices(issuedAt: Date): Promise<TInvoice[]> {
     const firstTransactionDays = this.config.getOrThrow<number>('module.member.firstTransaction')
     const startOfDay = this.helperService.dateCreate(issuedAt, { startOfDay: true })
     const cutOffDay = this.helperService.dateBackward(startOfDay, { days: firstTransactionDays })
 
-    const invoices = await this.prisma.invoice.findMany({
+    return await this.prisma.invoice.findMany({
       orderBy: [{ issuedAt: 'asc' }, { createdAt: 'asc' }],
       where: {
         isEarned: false,
@@ -101,9 +101,14 @@ export class InvoiceUtil {
         },
       },
     })
+  }
+
+  async getEarnGroupInvoices(issuedAt: Date): Promise<IInvoiceGroup> {
+    const invoices = await this.getEarnInvoices(issuedAt)
 
     const formatDate = EnumDateFormat.DATE_REFERENCE
     const groupInvoices: IInvoiceGroup = {}
+
     for (const inv of invoices) {
       const _cDate = this.helperService.dateFormat(inv.createdAt, formatDate)
       const _iDate = this.helperService.dateFormat(inv.issuedAt, formatDate)

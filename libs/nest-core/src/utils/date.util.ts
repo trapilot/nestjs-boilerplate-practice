@@ -45,6 +45,10 @@ export class DateUtil {
     return this.current().toJSDate()
   }
 
+  static isDate(date: string, format: string): boolean {
+    return DateTime.fromFormat(date, format).isValid
+  }
+
   static asDate(date: Date | number | string, options?: IDateCreateOptions): Date {
     if (typeof date === 'string') {
       return this.createFromIso(date, options).toJSDate()
@@ -56,10 +60,7 @@ export class DateUtil {
   }
 
   static mergeDate(date: Date | string, duration: string): Date {
-    if (typeof date === 'string') {
-      const [day, month, year] = date.split('/')
-      date = new Date(`${year}-${month}-${day}`)
-    }
+    date = this.asDate(date)
     const [hour, minute, second, millisecond] = duration.split(':').map(Number)
 
     return this.create(date, {

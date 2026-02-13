@@ -289,7 +289,7 @@ export class AuthUtil {
       const payload: TokenInfo = await this.googleClient.getTokenInfo(idToken)
 
       return { email: payload.email }
-    } catch (err) {
+    } catch (err: unknown) {
       throw err
     }
   }

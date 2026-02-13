@@ -39,7 +39,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const profile = await authenticationService.me<UserProfile>()
       setUser(profile)
       setError(null)
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Failed to fetch profile:', err)
       setError('Failed to fetch profile')
       removeTokens()

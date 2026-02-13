@@ -23,11 +23,16 @@ export class CartMock extends ScheduleMockupBase {
     const members = await this.prisma.member.findMany({
       where: {
         pointBalance: { gt: 0 },
-        points: { some: { point: { gt: 0 }, expiryDate: { gt: nowDate } } },
+        points: {
+          some: {
+            point: { gt: 0 },
+            OR: [{ expiryDate: null }, { expiryDate: { gte: nowDate } }],
+          },
+        },
         carts: { none: { status: { in: [EnumCartStatus.ACTIVE, EnumCartStatus.SAVED] } } },
       },
       select: { id: true, birthMonth: true, phone: true, updatedAt: true },
-      take: 500,
+      take: 100,
       orderBy: [{ updatedAt: 'asc' }],
     })
 
@@ -44,7 +49,9 @@ export class CartMock extends ScheduleMockupBase {
             quantity: quantity,
           })
         }
-      } catch {}
+      } catch (err: unknown) {
+        console.log({ err })
+      }
     }
 
     return

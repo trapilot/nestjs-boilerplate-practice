@@ -1,13 +1,8 @@
 import OpossumCircuitBreaker, { Options } from 'opossum'
+import { AppUtil } from '../utils'
 
 const events = new Map<string, Map<string, Map<string, string>>>()
 const breakerInstances = new Map<string, OpossumCircuitBreaker>()
-
-const ERROR_THRESHOLD_PERCENTAGE = 20 // The circuit opens when 20% of requests fail.
-const VOLUME_THRESHOLD = 5 // It requires at least 5 requests to open the circuit.
-const ROLLING_COUNT_TIMEOUT = 5000 // Counting the failures for 5 seconds
-const RESET_TIMEOUT = 2500 // Circuit reset time (2.5 seconds)
-const ALLOW_WARM_UP = true // Allows for faults without opening the circuit during warm-up.
 
 export type CircuitBreakerInput = {
   /**
@@ -81,14 +76,17 @@ export function CircuitBreaker(input: CircuitBreakerInput = {}) {
       const group = input.circuitGroup ?? 'default'
       const circuitKey = input.resolveKey ? `${group}:${input.resolveKey(args, this)}` : group
 
+      const defaultOptions: Options = {
+        errorThresholdPercentage: 20, // The circuit opens when 20% of requests fail
+        volumeThreshold: 5, // It requires at least 5 requests to open the circuit
+        rollingCountTimeout: 5000, // Counting the failures for 5 seconds
+        resetTimeout: 2500, // Circuit reset time (2.5 seconds)
+        allowWarmUp: true, // Allows for faults without opening the circuit during warm-up
+      }
+
       const opts: Options = {
-        errorThresholdPercentage:
-          input.options?.errorThresholdPercentage ?? ERROR_THRESHOLD_PERCENTAGE,
-        volumeThreshold: input.options?.volumeThreshold ?? VOLUME_THRESHOLD,
-        rollingCountTimeout: input.options?.rollingCountTimeout ?? ROLLING_COUNT_TIMEOUT,
-        resetTimeout: input.options?.resetTimeout ?? RESET_TIMEOUT,
-        allowWarmUp: input.options?.allowWarmUp ?? ALLOW_WARM_UP,
-        timeout: input.options?.timeout,
+        ...defaultOptions,
+        ...input.options,
         group: circuitKey,
       }
 
@@ -119,7 +117,8 @@ export function CircuitBreaker(input: CircuitBreakerInput = {}) {
 
       try {
         return await breakerInstances.get(instanceKey)!.fire(...args)
-      } catch (error) {
+      } catch (error: unknown) {
+        AppUtil.captureException(error)
         throw error
       }
     }
@@ -128,9 +127,9 @@ export function CircuitBreaker(input: CircuitBreakerInput = {}) {
 
 /**
  * Decorator for recording events in the circuit.
- * Events are stored and used by `CircuitBreaker` when it is instantiated.
+ * Events are stored and used by `OnCircuitEvent` when it is instantiated.
  */
-export function CircuitCatch({ eventName, circuitGroup = 'default' }: OnEventInput) {
+export function OnCircuitEvent({ eventName, circuitGroup = 'default' }: OnEventInput) {
   return function (target: object, propertyKey: string | symbol): void {
     const className = target.constructor.name
 

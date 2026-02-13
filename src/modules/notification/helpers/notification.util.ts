@@ -8,16 +8,21 @@ import {
   Prisma,
 } from '@runtime/prisma-client'
 import {
+  APP_LANGUAGE,
   AppUtil,
   DateUtil,
   EnumPushDriver,
+  EnumQueuePriority,
   HelperService,
   LoggerService,
-  PushFactory,
+  PushDispatcher,
+  QueueProducer,
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { NotificationPushDto } from '../dtos/notification.request.create.dto'
+import { EnumNotificationQueue } from '../enums/notification.enum'
 import { TPush } from '../interfaces/notification.interface'
+import { INotificationDispatchPushPayload } from '../interfaces/notification.queue.interface'
 
 @Injectable()
 export class NotificationUtil {
@@ -27,22 +32,11 @@ export class NotificationUtil {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
     private readonly logger: LoggerService,
+    private readonly producer: QueueProducer,
     private readonly helperService: HelperService,
-    private readonly pushFactory: PushFactory,
+    private readonly pushDispatcher: PushDispatcher,
   ) {
-    const _drivers = this.config.getOrThrow('push.drivers')
-    this.drivers = Object.keys(_drivers)
-  }
-
-  async getPendingPushes(limit?: number): Promise<TPush[]> {
-    return await this.prisma.push.findMany({
-      where: {
-        isActive: true,
-        status: EnumPushStatus.PENDING,
-        retryCount: { lt: this.prisma.push.fields.maxRetries },
-      },
-      take: limit,
-    })
+    this.drivers = Object.keys(this.config.getOrThrow('push.drivers'))
   }
 
   async getPush(pushId: number, include: Prisma.PushInclude = undefined): Promise<TPush> {
@@ -127,13 +121,41 @@ export class NotificationUtil {
     })
   }
 
+  async dispatchPush(pushId: number) {
+    // try {
+    //   await this.validatePushCanRun(pushId)
+    // } catch (error: unknown) {
+    //   await this.cancelPush(pushId)
+    // }
+
+    try {
+      await this.validatePushCanRun(pushId)
+
+      await this.producer.publish<INotificationDispatchPushPayload>(
+        EnumNotificationQueue.PUSH_DISPATCH,
+        {
+          version: 1,
+          priority: EnumQueuePriority.LOW,
+          startDate: this.helperService.dateNow(),
+          message: {
+            pushId,
+          },
+        },
+      )
+
+      await this.lockPush(pushId)
+    } catch (error: unknown) {
+      await this.handlePushFailure(pushId, error)
+    }
+  }
+
   async dispatchPushData(
     history: MemberNotification,
     options: { token: string; drivers: EnumPushDriver[] },
   ): Promise<void> {
     for (const driver of options.drivers) {
       try {
-        await this.pushFactory.getDriver(driver).send({
+        await this.pushDispatcher.dispatchAsync(driver, {
           token: options.token,
           title: history.title,
           body: history.body,
@@ -165,7 +187,7 @@ export class NotificationUtil {
     for (const deviceToken of deviceTokens) {
       const nowDate = this.helperService.dateNow()
       if (payload?.pushId) {
-        const [history] = await this.prisma.$transaction([
+        const [inbox] = await this.prisma.$transaction([
           this.prisma.memberNotification.create({
             data: { ...payload, pushedAt: nowDate },
           }),
@@ -180,13 +202,13 @@ export class NotificationUtil {
           }),
         ])
 
-        await this.dispatchPushData(history, { token: deviceToken, drivers })
+        await this.dispatchPushData(inbox, { token: deviceToken, drivers })
       } else {
-        const history = await this.prisma.memberNotification.create({
+        const inbox = await this.prisma.memberNotification.create({
           data: { ...payload, pushedAt: nowDate },
         })
 
-        await this.dispatchPushData(history, { token: deviceToken, drivers })
+        await this.dispatchPushData(inbox, { token: deviceToken, drivers })
       }
     }
   }
@@ -212,10 +234,17 @@ export class NotificationUtil {
       select: { id: true, locale: true },
     })
 
-    const pushTitle = push.notification.title[member.locale]
-    const pushContent = push.notification.description[member.locale]
-    if (!pushTitle || !pushContent) {
-      throw new Error(`Push content is invalid`)
+    const title = push.notification.title
+    const description = push.notification.description
+
+    const pushTitle = title[member.locale] || title[APP_LANGUAGE]
+    if (!pushTitle) {
+      throw new Error(`[${member.locale}] Push title is invalid`)
+    }
+
+    const pushContent = description[member.locale] || description[APP_LANGUAGE]
+    if (!pushContent) {
+      throw new Error(`[${member.locale}] Push content is invalid`)
     }
 
     return {
@@ -237,9 +266,9 @@ export class NotificationUtil {
       where: {
         isActive: true,
         isPhoneVerified: true,
-        devices: {
-          some: { isActive: true },
-        },
+        // devices: {
+        //   some: { isActive: true },
+        // },
         pushes: {
           none: { pushId },
         },
@@ -283,19 +312,17 @@ export class NotificationUtil {
     )
   }
 
-  private static getScheduledDate(dto: NotificationPushDto): Date {
-    if (dto.type === EnumPushType.ONCE) {
-      return DateUtil.mergeDate(dto.executeDate, dto.executeTime)
-    }
-    return DateUtil.mergeDate(dto.startDate, dto.executeTime)
-  }
-
   static makeDto(dto: NotificationPushDto): Prisma.PushCreateManyNotificationInput {
-    const dateSchedule = this.getScheduledDate(dto)
+    const { executeDate, executeTime, sinceDate, ...data } = dto
+    const dateSchedule =
+      dto.type === EnumPushType.ONCE
+        ? DateUtil.mergeDate(executeDate, executeTime)
+        : DateUtil.mergeDate(sinceDate, executeTime)
     const dateExtract = DateUtil.extractDate(dateSchedule)
 
     return {
-      ...dto,
+      ...data,
+      sinceDate,
       hour: dateExtract.hour,
       minute: dateExtract.minute,
       second: dateExtract.second,
@@ -305,5 +332,15 @@ export class NotificationUtil {
 
   static makeDtos(dtos: NotificationPushDto[]): Prisma.PushCreateManyNotificationInput[] {
     return dtos.map(dto => this.makeDto(dto))
+  }
+
+  async handlePushFailure(pushId: number, error: unknown) {
+    const push = await this.getPush(pushId)
+
+    if (push.retryCount < push.maxRetries) {
+      await this.retryPush(pushId)
+    } else {
+      await this.cancelPush(pushId, error)
+    }
   }
 }

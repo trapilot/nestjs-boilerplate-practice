@@ -1,5 +1,4 @@
 export * from './cache.service'
-export * from './event-bus.service'
 export * from './helper.service'
 export * from './logger.service'
 export * from './mailer.service'

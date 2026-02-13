@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { EnumInvoiceStatus, EnumPaymentMethod } from '@runtime/prisma-client'
+import { EnumInvoiceStatus, EnumPaymentMethod, EnumPaymentProvider } from '@runtime/prisma-client'
 import { HelperService, ScheduleMockupBase } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { InvoiceService } from 'modules/invoice/services/invoice.service'
@@ -42,6 +42,7 @@ export class InvoiceMock extends ScheduleMockupBase {
         method: methods[Math.floor(Math.random() * methods.length)],
         amount: amountRemaining <= 1_000 ? amountRemaining : amountRandom,
         issuedAt: this.helperService.dateBackward(this.nowDate, { days: 2 }),
+        provider: this.helperService.arrayRandom(Object.values(EnumPaymentProvider)),
       })
     }
   }

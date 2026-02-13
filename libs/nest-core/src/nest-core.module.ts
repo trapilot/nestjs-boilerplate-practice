@@ -8,14 +8,14 @@ import { APP_FILTER } from '@nestjs/core'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ScheduleModule } from '@nestjs/schedule'
 import { HeaderResolver, I18nJsonLoader, I18nModule } from 'nestjs-i18n'
+import { EventBus, SchedulerBus } from './bus'
 import { QUEUE_CONFIG_KEY, QUEUE_PROCESSOR_CONFIG_KEY } from './constants'
 import { PushDispatcher, SmsDispatcher } from './dispatchers'
 import { EnumAppEnvironment, EnumAppLanguage, EnumFileExtensionTemplate } from './enums'
 import { AppExceptionFilter } from './filters'
-import { LoggerFactory, PushFactory, SmsFactory, TransportFactory } from './helpers'
+import { LoggerFactory, PushRegistry, SmsRegistry, TransportRegistry } from './helpers'
 import {
   CacheService,
-  EventBusService,
   HelperService,
   LoggerService,
   MailerService,
@@ -48,10 +48,11 @@ export class NestCoreModule {
         RunnerService,
         HelperService,
         CacheService,
-        EventBusService,
+        EventBus,
+        SchedulerBus,
         LoggerFactory,
-        SmsFactory,
-        PushFactory,
+        SmsDispatcher,
+        PushDispatcher,
       ],
       providers: [
         MessageService,
@@ -59,11 +60,12 @@ export class NestCoreModule {
         MailerService,
         RunnerService,
         HelperService,
-        EventBusService,
+        EventBus,
+        SchedulerBus,
         LoggerFactory,
-        SmsFactory,
-        PushFactory,
-        TransportFactory,
+        SmsRegistry,
+        PushRegistry,
+        TransportRegistry,
         SmsDispatcher,
         PushDispatcher,
         {

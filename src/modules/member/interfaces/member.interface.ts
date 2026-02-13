@@ -89,9 +89,33 @@ export interface IMemberVerifySendOptions {
 }
 
 export interface IMemberVerifySendPOTPOptions extends IMemberVerifySendOptions {
-  dispatchers: EnumSmsDriver[]
+  drivers: EnumSmsDriver[]
 }
 
 export interface IMemberVerifySendEOTPOptions extends IMemberVerifySendOptions {
   language?: string
+}
+
+export interface IMemberGrantTierRewardOptions {
+  tierId: number
+  issuedAt: Date
+}
+
+export interface IMemberGrantTierRewardPayload extends IMemberGrantTierRewardOptions {
+  memberId: number
+}
+
+export interface IMemberGenerateCodePayload {
+  memberId: number
+  issuedAt: Date
+}
+
+export interface IMemberTriggerWelcomeEmailPayload {
+  memberId: number
+  memberEmail: string
+}
+
+export interface IMemberEarnPurchasePayload {
+  invoiceIds: number[]
+  issuedAt: Date
 }

@@ -16,7 +16,7 @@ export default function Login() {
     try {
       await login(email, password)
       navigate('/dashboard')
-    } catch (err) {
+    } catch (err: unknown) {
       const apiErr = ApiError.fromUnknown(err)
       setFieldErrors(apiErr.getErrors())
       apiErr.showError()

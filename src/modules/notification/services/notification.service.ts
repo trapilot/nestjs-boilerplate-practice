@@ -1,5 +1,5 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
-import { Prisma } from '@runtime/prisma-client'
+import { EnumPushStatus, Prisma } from '@runtime/prisma-client'
 import {
   IPrismaExportOptions,
   IPrismaReturnList,
@@ -99,7 +99,23 @@ export class NotificationService {
     })
   }
 
-  async getPendingPushes(): Promise<TPush[]> {
-    return await this.notificationUtil.getPendingPushes()
+  async getPendingPushes(limit: number = 1): Promise<TPush[]> {
+    return await this.prisma.push.findMany({
+      where: {
+        isActive: true,
+        status: EnumPushStatus.PENDING,
+        retryCount: { lt: this.prisma.push.fields.maxRetries },
+      },
+      take: limit,
+      orderBy: [{ startAt: 'asc' }],
+    })
+  }
+
+  async dispatchPendingPushes(): Promise<void> {
+    const pushes = await this.getPendingPushes(2)
+
+    for (const push of pushes) {
+      await this.notificationUtil.dispatchPush(push.id)
+    }
   }
 }

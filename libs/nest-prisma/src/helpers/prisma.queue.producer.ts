@@ -20,7 +20,6 @@ export class PrismaQueueProducer extends QueueProducer {
     super()
   }
 
-  // @OnScope(EnumScopeType.QUEUE, { context: 'producer', async: true })
   async publish<T>(topic: string, options: IQueuePublishOptions<T>): Promise<void> {
     const nowDate = this.helperService.dateNow(true)
     const runDate = this.helperService.dateForward(nowDate, {
@@ -31,61 +30,52 @@ export class PrismaQueueProducer extends QueueProducer {
     })
 
     const exclusive = options.exclusive === true
-    const hashName = exclusive ? this.buildJobHash(topic, options.version) : null
+    const hashName = exclusive ? this.buildJobHash(topic, options.version, options.message) : null
 
     await this.runner.retry(
-      async () => {
-        try {
-          await this.prisma.queueJob.create({
-            data: {
-              jobName: topic,
-              jobHash: hashName,
-              version: options.version,
-              priority: options.priority,
-              startAt: options?.startDate ?? runDate,
-              thresholdAt: thresholdDate,
-              payload: options?.message as Prisma.JsonValue,
-              retryCount: 0,
-              autoDelete: options?.autoDelete,
-              maxRetries: options?.attempts,
-              status: EnumJobStatus.PENDING,
-            },
-          })
-        } catch (err) {
-          // exclusive job already exists → ignore
-          if (exclusive && PrismaUtil.isUniqueError(err)) {
-            return
-          }
-          throw err
-        }
-      },
+      () =>
+        this.prisma.queueJob.create({
+          data: {
+            jobName: topic,
+            jobHash: hashName,
+            version: options.version,
+            priority: options.priority,
+            startAt: options?.startDate ?? runDate,
+            thresholdAt: thresholdDate,
+            payload: options?.message as Prisma.JsonValue,
+            retryCount: 0,
+            persistent: options?.persistent,
+            maxRetries: options?.attempts,
+            status: EnumJobStatus.PENDING,
+          },
+        }),
       {
         retries: 5,
         minDelayMs: 100,
         maxDelayMs: 2000,
-        shouldRetry: err => this.isRetryable(err),
-        onFailedRetry: context => console.log({ context }),
+        shouldRetry: err => {
+          if (PrismaUtil.isDeadlockError(err)) return true
+          if (PrismaUtil.isTimeoutError(err)) return true
+          return false
+        },
+        shouldThrow: err => {
+          if (PrismaUtil.isUniqueError(err)) return !exclusive
+          return true
+        },
       },
     )
   }
 
   async republish<T>(topic: string, options: IQueueRepublishOptions<T>): Promise<void> {
     return await this.publish<T>(topic, {
-      autoDelete: true,
       ...options,
       delayMs: options?.delayMs ?? 1000, // default delay 1s
       exclusive: false,
     })
   }
 
-  private isRetryable(err: unknown): boolean {
-    if (PrismaUtil.isDeadlockError(err)) return true
-    if (PrismaUtil.isTimeoutError(err)) return true
-    return false
-  }
-
-  private buildJobHash<T>(jobName: string, version: number): string {
-    return this.helperService.hashCreate(JSON.stringify({ jobName, version }), {
+  private buildJobHash<T>(jobName: string, version: number, payload?: T): string {
+    return this.helperService.hashCreate(JSON.stringify({ jobName, version, payload }), {
       algorithm: 'sha256',
     })
   }

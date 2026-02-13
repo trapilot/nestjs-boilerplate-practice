@@ -130,7 +130,7 @@ export class CartService {
         if (salePerPerson >= product.salePerPerson) {
           throw new BadRequestException({
             statusCode: HttpStatus.BAD_REQUEST,
-            message: `You already save ${product.sku} to limited, over ${product.salePerPerson}`,
+            message: `You already buy ${product.sku} to limited, over ${product.salePerPerson}`,
           })
         }
       }

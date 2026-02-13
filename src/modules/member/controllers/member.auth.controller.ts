@@ -271,7 +271,7 @@ export class MemberAuthController {
       template: {
         fileName: 'sign-up.phone.html',
       },
-      dispatchers: [],
+      drivers: [],
     })
     return { data: { code } }
   }
@@ -362,7 +362,7 @@ export class MemberAuthController {
       template: {
         fileName: 'reset-password.phone.html',
       },
-      dispatchers: [],
+      drivers: [],
     })
     return { data: { code } }
   }

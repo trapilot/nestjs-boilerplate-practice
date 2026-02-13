@@ -5,24 +5,25 @@ import { EnumPushDriver } from '../enums'
 import { PushDriver } from '../interfaces'
 
 @Injectable()
-export class PushFactory {
+export class PushRegistry {
   private readonly drivers = new Map<EnumPushDriver, PushDriver>()
 
   constructor(private readonly config: ConfigService) {}
 
-  getDriver(name: EnumPushDriver): PushDriver {
-    if (this.drivers.has(name)) {
-      return this.drivers.get(name)!
+  resolve(driver: EnumPushDriver): PushDriver {
+    if (this.drivers.has(driver)) {
+      return this.drivers.get(driver)!
     }
 
-    const driver = this.createDriver(name)
-    this.drivers.set(name, driver)
+    const instance = this.create(driver)
 
-    return driver
+    this.drivers.set(driver, instance)
+
+    return instance
   }
 
-  private createDriver(name: EnumPushDriver): PushDriver {
-    switch (name) {
+  private create(driver: EnumPushDriver): PushDriver {
+    switch (driver) {
       case EnumPushDriver.FCM:
         return new PushFcmDriver(this.config)
 
@@ -30,7 +31,7 @@ export class PushFactory {
         return new PushOneSignalDriver(this.config)
 
       default:
-        throw new Error(`Unsupported Push driver: ${name}`)
+        throw new Error(`Unsupported Push driver: ${driver}`)
     }
   }
 }

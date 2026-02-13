@@ -43,7 +43,7 @@ class JwtKeysGenerator {
 
     try {
       fs.chmodSync(privateKeyPath, 0o600)
-    } catch (err) {
+    } catch (err: unknown) {
       console.warn(`Could not set permissions for ${privateKeyPath}`)
     }
   }
@@ -79,7 +79,7 @@ class JwtKeysGenerator {
       y?: string
       crv?: string
     },
-    kid: string
+    kid: string,
   ): {
     kty: string
     crv?: string

@@ -143,7 +143,7 @@ privateAxios.interceptors.response.use(
           ;(originalRequest as any).headers['Authorization'] = 'Bearer ' + accessToken
         }
         return privateAxios(originalRequest as any)
-      } catch (err) {
+      } catch (err: unknown) {
         processQueue(err, null)
         // Clear tokens and redirect to login on refresh failure
         setAccessToken('')

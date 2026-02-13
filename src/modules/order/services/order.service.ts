@@ -106,6 +106,7 @@ export class OrderService {
 
     // 1. Validate & Lock the Cart
     const { cart, summary } = await this.cartService.getValidatedCart(cartId)
+    const member = await this.memberService.findOrFail(cart.memberId)
 
     const orderNumber = await this.generateOrderNumber(issuedAt)
     const invoiceNumber = await this.invoiceService.generateInvoiceNumber(issuedAt)
@@ -122,7 +123,7 @@ export class OrderService {
     const [order] = await this.prisma.$transaction([
       this.prisma.order.create({
         data: {
-          memberId: cart.memberId,
+          memberId: member.id,
           finalPrice: summary.price,
           finalPoint: summary.point,
           code: orderNumber,
@@ -143,7 +144,7 @@ export class OrderService {
           invoice: {
             create: {
               code: invoiceNumber,
-              memberId: cart.memberId,
+              memberId: member.id,
               paidPrice: 0,
               paidPoint: summary.point,
               finalPrice: summary.price,
@@ -155,8 +156,8 @@ export class OrderService {
               updatedAt: issuedAt,
               points: {
                 create: {
-                  memberId: cart.memberId,
-                  tierId: cart.member.tierId,
+                  memberId: member.id,
+                  tierId: member.tierId,
                   origin: EnumPointOrigin.MEMBER,
                   reason: EnumPointReason.PURCHASE,
                   action: EnumPointAction.DEDUCT,

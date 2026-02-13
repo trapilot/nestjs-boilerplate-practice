@@ -315,7 +315,7 @@ export class UploadDiskDriver implements StorageEngine {
         info = await this.handleFileNormal(file, destination, filename)
       }
       cb(null, info)
-    } catch (err) {
+    } catch (err: unknown) {
       cb(err)
     }
   }
@@ -333,7 +333,7 @@ export class UploadDiskDriver implements StorageEngine {
     try {
       await unlink(filePath)
       cb(null)
-    } catch (err) {
+    } catch (err: unknown) {
       cb(err)
     }
   }

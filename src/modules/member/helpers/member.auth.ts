@@ -29,7 +29,7 @@ import {
   MailerService,
   MessageService,
   ScopeContext,
-  SmsFactory,
+  SmsDispatcher,
 } from 'lib/nest-core'
 import { PrismaService, PrismaUtil } from 'lib/nest-prisma'
 import { MemberChangePasswordRequestDto } from '../dtos/member.request.change-password.dto'
@@ -58,7 +58,7 @@ export class MemberAuth implements IAuthValidator<TMember> {
     private readonly mailer: MailerService,
     private readonly message: MessageService,
     private readonly helperService: HelperService,
-    private readonly smsFactory: SmsFactory,
+    private readonly smsDispatcher: SmsDispatcher,
     private readonly authUtil: AuthUtil,
     private readonly authTwoFactorUtil: AuthTwoFactorUtil,
     private readonly memberUtil: MemberUtil,
@@ -382,9 +382,12 @@ export class MemberAuth implements IAuthValidator<TMember> {
       },
     })
 
-    options.dispatchers.forEach(driver =>
-      this.smsFactory.getDriver(driver).send({ phone, message: phoneMessage }),
-    )
+    options.drivers.forEach(driver => {
+      this.smsDispatcher.dispatchAsync(driver, {
+        phone,
+        message: phoneMessage,
+      })
+    })
 
     return verifyData.code
   }

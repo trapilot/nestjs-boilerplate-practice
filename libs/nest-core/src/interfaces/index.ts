@@ -1,4 +1,5 @@
 export * from './app.interface'
+export * from './bus.interface'
 export * from './command.interface'
 export * from './config.interface'
 export * from './file.interface'

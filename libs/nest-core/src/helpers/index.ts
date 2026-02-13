@@ -1,4 +1,4 @@
 export * from './logger.factory'
-export * from './push.factory'
-export * from './sms.factory'
-export * from './transport.factory'
+export * from './push.registry'
+export * from './sms.registry'
+export * from './transport.registry'

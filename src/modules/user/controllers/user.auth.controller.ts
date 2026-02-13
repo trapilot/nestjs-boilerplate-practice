@@ -44,7 +44,7 @@ export class UserAuthController {
 
   @ApiRequestData({
     summary: USER_DOC_AUTH_OPERATION,
-    docExclude: false,
+    docExclude: true,
     docExpansion: false,
     rateLimit: {
       short: { limit: 3, seconds: 1 },

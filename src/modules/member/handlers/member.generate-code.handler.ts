@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { EnumScopeType, IQueueHandler, LoggerService, OnScope } from 'lib/nest-core'
 import { EnumMemberQueue } from '../enums/member.enum'
-import { TMember } from '../interfaces/member.interface'
+import { IMemberGenerateCodePayload, TMember } from '../interfaces/member.interface'
 import { MemberService } from '../services/member.service'
 
 @Injectable()
@@ -18,10 +18,10 @@ export class MemberGenerateCodeHandler implements IQueueHandler {
     context: EnumMemberQueue.GENERATE_CODE,
     async: true,
   })
-  async handle(member: TMember): Promise<void> {
+  async handle(payload: IMemberGenerateCodePayload): Promise<void> {
     this.logger.log(`${this.topic}:v${this.version} is handling...`)
 
     // handle job
-    await this.memberService.generateMembershipCode(member)
+    await this.memberService.generateMembershipCode(payload.memberId, payload.issuedAt)
   }
 }

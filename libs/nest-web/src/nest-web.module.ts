@@ -26,6 +26,7 @@ import {
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler'
 import {
+  EventBus,
   FileUtil,
   IModuleController,
   IModuleExport,
@@ -41,7 +42,9 @@ import {
   QueueConsumer,
   QueueProducer,
   QueueScanner,
+  SchedulerBus,
 } from 'lib/nest-core'
+import { IEventListener, IScheduler } from 'lib/nest-core/interfaces/bus.interface'
 import { collectDefaultMetrics, Registry } from 'prom-client'
 import { REQUEST_LOGGER_OPTIONS, REQUEST_METRICS_OPTIONS } from './constants'
 import { HealthController, MetricsController } from './controllers'
@@ -62,7 +65,7 @@ import {
   DateGreaterThanEqualConstraint,
   DateLessThanConstraint,
   DateLessThanEqualConstraint,
-  IsDurationConstraint,
+  IsDateFormatConstraint,
   IsEmailConstraint,
   IsPasswordConstraint,
   IsPhoneConstraint,
@@ -83,6 +86,8 @@ export class NestWebModule
 
   constructor(
     private readonly ref: ModuleRef,
+    private readonly eventBus: EventBus,
+    private readonly schedulerBus: SchedulerBus,
     private readonly loggerFactory: LoggerFactory,
     @Optional()
     @Inject(REQUEST_LOGGER_OPTIONS)
@@ -93,6 +98,8 @@ export class NestWebModule
   private static initialized: boolean = false
   private static routerMiddleware: (consumer: MiddlewareConsumer) => void
   private static workerHandlers: Type<IQueueHandler>[] = []
+  private static workerListeners: Type<IEventListener>[] = []
+  private static workerSchedulers: Type<IScheduler>[] = []
 
   static forRoot(options: {
     metrics: IRequestMetricsOptions
@@ -108,12 +115,12 @@ export class NestWebModule
     worker?: {
       enabled: boolean
       config: IQueueWorkerConfig
-      producer?: Type<IQueueProducer>
-      consumer?: Type<IQueueConsumer>
-      scanner?: Type<IQueueScanner>
-      listeners: IModuleProvider[]
-      schedulers: IModuleProvider[]
+      producer: Type<IQueueProducer>
+      consumer: Type<IQueueConsumer>
+      scanner: Type<IQueueScanner>
       handlers: Type<IQueueHandler>[]
+      listeners: Type<IEventListener>[]
+      schedulers: Type<IScheduler>[]
       imports: Type<any>[]
     }
     imports: Type<any>[]
@@ -226,9 +233,13 @@ export class NestWebModule
       })
 
       this.workerHandlers = options.worker.handlers
+      this.workerListeners = options.worker.listeners
+      this.workerSchedulers = options.worker.schedulers
+
       providers.push(...options.worker.handlers)
       providers.push(...options.worker.listeners)
       providers.push(...options.worker.schedulers)
+
       imports.push(...options.worker.imports)
     }
 
@@ -242,7 +253,7 @@ export class NestWebModule
         { provide: APP_GUARD, useClass: ThrottlerGuard },
 
         // constraints
-        IsDurationConstraint,
+        IsDateFormatConstraint,
         IsPasswordConstraint,
         IsRatioConstraint,
         IsEmailConstraint,
@@ -313,24 +324,49 @@ export class NestWebModule
 
   // This hook runs after all modules have been initialized and all providers are ready
   async onApplicationBootstrap() {
-    if (!this.consumer || NestWebModule.workerHandlers.length === 0) {
-      return
+    // ===== Queue handlers =====
+    if (this.consumer && NestWebModule.workerHandlers.length > 0) {
+      for (const handler of NestWebModule.workerHandlers) {
+        const instance = this.ref.get(handler, { strict: false })
+
+        this.consumer.register(instance)
+
+        this.logger.log(`Registered topic: ${instance.topic} -> ${handler.name}`)
+      }
+
+      await this.consumer.start()
     }
 
-    for (const handler of NestWebModule.workerHandlers) {
-      const instance = this.ref.get(handler, { strict: false })
+    // ===== Event listeners =====
+    if (this.eventBus && NestWebModule.workerListeners.length > 0) {
+      for (const listener of NestWebModule.workerListeners) {
+        const instance = this.ref.get(listener, { strict: false })
 
-      this.consumer.register(instance)
+        instance.register(this.eventBus)
+      }
 
-      this.logger.log(`Registered topic: ${instance.topic} -> ${handler.name}`)
+      this.logger.log(`Listeners: [${NestWebModule.workerListeners.map(i => i.name).join(', ')}]`)
     }
 
-    await this.consumer.start()
+    // ===== Schedulers =====
+    if (this.schedulerBus && NestWebModule.workerSchedulers.length > 0) {
+      for (const scheduler of NestWebModule.workerSchedulers) {
+        const instance = this.ref.get(scheduler, { strict: false })
+
+        instance.register(this.schedulerBus)
+      }
+
+      this.logger.log(`Schedulers: [${NestWebModule.workerSchedulers.map(i => i.name).join(', ')}]`)
+    }
   }
 
   async beforeApplicationShutdown(_signal: string) {
     if (this.consumer) {
       await this.consumer.stop()
+    }
+
+    if (this.schedulerBus) {
+      await this.schedulerBus.shutdown()
     }
   }
 }

@@ -14,6 +14,7 @@ import {
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
+import { InvoiceUtil } from '../helpers/invoice.util'
 import { IInvoiceAddPaymentOptions, TInvoice } from '../interfaces/invoice.interface'
 
 @Injectable()
@@ -22,6 +23,7 @@ export class InvoiceService {
     private readonly logger: LoggerService,
     private readonly prisma: PrismaService,
     private readonly helperService: HelperService,
+    private readonly invoiceUtil: InvoiceUtil,
   ) {}
 
   async getOne(kwargs: Prisma.InvoiceFindUniqueArgs): Promise<TInvoice> {
@@ -130,7 +132,7 @@ export class InvoiceService {
           create: {
             status: EnumPaymentStatus.PAID,
             method: options.method,
-            provider: options.provider,
+            provider: options?.provider,
             amount: options.amount,
             issuedAt: issuedAt,
             createdAt: issuedAt,
@@ -216,5 +218,9 @@ export class InvoiceService {
       format: 'uppercase',
       slices: { delimiter: '-', parts: [4, 4, 4, 4] },
     })
+  }
+
+  async getEarnInvoices(issuedAt: Date): Promise<TInvoice[]> {
+    return await this.invoiceUtil.getEarnInvoices(issuedAt)
   }
 }

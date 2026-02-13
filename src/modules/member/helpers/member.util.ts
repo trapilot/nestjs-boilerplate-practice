@@ -2,7 +2,7 @@ import { BadRequestException, HttpStatus, Injectable, Logger } from '@nestjs/com
 import { ConfigService } from '@nestjs/config'
 import { EnumVerificationChannel } from '@runtime/prisma-client'
 import { EnumAuthLoginType } from 'lib/nest-auth'
-import { EventBusService, HelperService } from 'lib/nest-core'
+import { EventBus, HelperService } from 'lib/nest-core'
 import { IDomainEvent } from 'lib/nest-core/interfaces/bus.interface'
 import { PrismaService } from 'lib/nest-prisma'
 import { EnumMemberActivityAction } from '../enums/member.enum'
@@ -22,8 +22,8 @@ export class MemberUtil {
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
-    private readonly eventBus: EventBusService,
     private readonly helperService: HelperService,
+    private readonly eventBus: EventBus,
   ) {}
 
   generateCode(memberId: number): string {
@@ -230,7 +230,7 @@ export class MemberUtil {
   async publishEvent(event: IDomainEvent): Promise<void> {
     try {
       this.eventBus.publish(event)
-      this._logger.log(`Registed event: ${event.topic}`)
+      this._logger.log(`Registed event: ${event.topic} -> v${event.version}`)
     } catch (err: unknown) {
       this._logger.log(`Registed event ${event.topic} failed`)
       console.log({ err })

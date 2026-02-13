@@ -84,6 +84,10 @@ export class PointSchemaService {
     }
   }
 
+  async check(schema: TPointSchema, context: IPointSchemaContext): Promise<boolean> {
+    return await this.pointSchemaUtil.canApply(schema, context)
+  }
+
   async getAllByTrigger(trigger: EnumPointSchemaTrigger, issuedAt: Date): Promise<TPointSchema[]> {
     return this.prisma.pointSchema.findMany({
       where: {
@@ -99,9 +103,5 @@ export class PointSchemaService {
       },
       orderBy: { priority: 'desc' },
     })
-  }
-
-  async check(schema: TPointSchema, context: IPointSchemaContext) {
-    return await this.pointSchemaUtil.canApply(schema, context)
   }
 }

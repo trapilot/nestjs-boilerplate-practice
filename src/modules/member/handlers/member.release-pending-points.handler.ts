@@ -1,31 +1,30 @@
 import { Injectable } from '@nestjs/common'
 import {
-  EnumQueuePriority,
   EnumScopeType,
   HelperService,
   IQueueHandler,
   LoggerService,
   OnScope,
-  QueueProducer,
   QueueScanner,
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { EnumMemberQueue } from '../enums/member.enum'
+import { MemberService } from '../services/member.service'
 
 @Injectable()
-export class MemberScanExpiredHandler implements IQueueHandler {
-  topic: string = EnumMemberQueue.SCAN_EXPIRED
+export class MemberReleasePendingPointHandler implements IQueueHandler {
+  topic: string = EnumMemberQueue.RELEASE_PENDING_POINTS
   version: number = 1
 
   constructor(
     private readonly logger: LoggerService,
     private readonly prisma: PrismaService,
     private readonly scanner: QueueScanner,
-    private readonly producer: QueueProducer,
     private readonly helperService: HelperService,
+    private readonly memberService: MemberService,
   ) {}
 
-  @OnScope(EnumScopeType.QUEUE, { context: EnumMemberQueue.SCAN_EXPIRED, async: true })
+  @OnScope(EnumScopeType.QUEUE, { context: EnumMemberQueue.RELEASE_PENDING_POINTS, async: true })
   async handle(): Promise<void> {
     this.logger.log(`${this.topic}:v${this.version} is handling...`)
 
@@ -36,25 +35,23 @@ export class MemberScanExpiredHandler implements IQueueHandler {
       version: this.version,
 
       retrieve: async state => {
-        return await this.prisma.member.findMany({
-          where: { expiryDate: { lte: nowDate } },
+        return await this.prisma.memberPoint.findMany({
+          where: {
+            isPending: true,
+            isDeleted: false,
+            releaseDate: { lte: nowDate, not: null },
+            member: { isActive: true },
+          },
           cursor: state.lastId ? { id: state.lastId } : undefined,
-          select: { id: true, personalAmount: true, referralAmount: true, expiryDate: true },
-          take: 500,
+          orderBy: [{ releaseDate: 'asc' }],
+          select: { id: true },
+          take: 50,
         })
       },
 
-      process: async expiryMembers => {
-        for (const member of expiryMembers) {
-          await this.producer.publish(EnumMemberQueue.PROCESS_EXPIRED, {
-            version: this.version,
-            priority: EnumQueuePriority.HIGH,
-            startDate: nowDate,
-            message: {
-              memberId: member.id,
-            },
-          })
-        }
+      process: async memberPoints => {
+        const ids = memberPoints.map(i => i.id)
+        await this.memberService.releasePendingPoints(ids)
       },
 
       getLastId: items => items[items.length - 1]?.id,

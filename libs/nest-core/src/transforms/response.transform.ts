@@ -20,33 +20,6 @@ export function ToDate(
   })
 }
 
-export function ToDuration(transform?: {
-  ref?: string
-  parts?: number
-}): (target: any, key: string) => void {
-  return Transform(({ value, obj }: any) => {
-    if (transform?.ref) value = obj[transform.ref] ?? undefined
-
-    if (!value || typeof value !== 'string') return undefined
-
-    const parts = value.split(':').map((v: string) => v.padStart(2, '0'))
-    const [h = '00', m = '00', s = '00', ms = '000'] = (() => {
-      switch (parts.length) {
-        case 2:
-          return [parts[0], parts[1], '00', '000']
-        case 3:
-          return [parts[0], parts[1], parts[2], '000']
-        case 4:
-          return parts
-        default:
-          return ['00', '00', '00', '000']
-      }
-    })()
-    const duration = `${h}:${m}:${s}:${ms.padEnd(3, '0').slice(0, 3)}`
-    return transform?.parts ? duration.split(':').splice(0, transform.parts).join(':') : duration
-  })
-}
-
 export function ToEnum(
   enums: any,
   transform?: { path?: string; default?: any; locale?: boolean },

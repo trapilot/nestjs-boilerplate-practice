@@ -15,15 +15,11 @@ export class NotificationSendPushHandler implements IQueueHandler {
   ) {}
 
   async handle(payload: INotificationSendPushPayload): Promise<void> {
-    if (await this.notificationUtil.isPushFinished(payload.pushId)) {
-      return
-    }
-
     try {
       await this.notificationUtil.dispatchPushToMember(payload.memberId, payload.pushId)
     } catch (err: unknown) {
-      await this.notificationUtil.cancelPush(payload.pushId, err)
       this.logger.log(err)
+      throw err
     }
   }
 }

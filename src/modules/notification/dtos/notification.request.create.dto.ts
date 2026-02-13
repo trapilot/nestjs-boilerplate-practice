@@ -19,14 +19,13 @@ import {
   ToArray,
   ToBoolean,
   ToDate,
-  ToDuration,
   ToNumber,
   ToObject,
   ToString,
   TransformIf,
 } from 'lib/nest-core'
 import {
-  IsDuration,
+  IsDateFormat,
   RequestContentDto,
   RequestParagraphDto,
   RequestSentenceDto,
@@ -47,17 +46,17 @@ export class NotificationPushDto {
   type: EnumPushType
 
   @IsNotEmpty()
-  @IsDuration()
-  @ToDuration()
-  @TransformIf((obj: NotificationPushDto) => !NotificationUtil.isOnce(obj.type))
-  @ApiProperty({ required: true, example: '' })
+  @IsDateFormat(EnumDateFormat.DURATION_SHORT)
+  @ToDate({ format: EnumDateFormat.DURATION_SHORT })
+  @TransformIf((obj: NotificationPushDto) => NotificationUtil.isOnce(obj.type))
+  @ApiProperty({ required: true, example: new Date() })
   executeTime: string
 
   @IsNotEmpty()
-  @IsDate()
+  @IsDateFormat(EnumDateFormat.DB_DATE)
   @ToDate({ format: EnumDateFormat.DB_DATE })
   @TransformIf((obj: NotificationPushDto) => NotificationUtil.isOnce(obj.type))
-  @ApiProperty({ required: true, example: new Date(Date.now() - 30000 * 3600) })
+  @ApiProperty({ required: true, example: new Date() })
   executeDate: string
 
   @IsOptional()
@@ -86,7 +85,7 @@ export class NotificationPushDto {
   @ToDate({ startOfDay: true })
   @TransformIf((obj: NotificationPushDto) => NotificationUtil.isLoop(obj.type))
   @ApiProperty({ required: false, example: new Date(Date.now() + 30000 * 3600) })
-  startDate: Date
+  sinceDate: Date
 
   @IsOptional()
   @IsDate()

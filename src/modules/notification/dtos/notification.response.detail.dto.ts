@@ -6,7 +6,7 @@ import {
   EnumPushType,
 } from '@runtime/prisma-client'
 import { Expose, Type } from 'class-transformer'
-import { EnumDateFormat, ToDate, ToDuration, ToNestedArray } from 'lib/nest-core'
+import { EnumDateFormat, ToDate, ToNestedArray } from 'lib/nest-core'
 import { ResponseLocaleDto, ResponseUserBelongDto } from 'lib/nest-web'
 import { EnumNotificationRefType } from '../enums/notification.enum'
 
@@ -32,7 +32,7 @@ class ResponsePushDetailDto {
   status: string
 
   @ApiProperty({ example: '08:30' })
-  @ToDuration({ parts: 2 })
+  @ToDate({ format: EnumDateFormat.DURATION_SHORT })
   @Expose()
   executeTime: string
 

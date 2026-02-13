@@ -47,6 +47,7 @@ export function ToArray(
         value = parsed
       } catch {}
     }
+
     if (type) {
       if (EnumUtil.isEnum(type)) {
         const enumValues = StrUtil.split(value, { delimiter: ',' })

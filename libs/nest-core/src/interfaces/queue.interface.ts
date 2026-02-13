@@ -1,8 +1,8 @@
 interface IQueuePublishBase<T = unknown> {
   version: number
   priority: number
-  exclusive: boolean
-  autoDelete: boolean // remove on completed
+  exclusive?: boolean
+  persistent?: boolean // remove when completed
   attempts?: number // retry
   threshold?: number
   message?: T
@@ -18,10 +18,18 @@ type IQueuePublishStartDateOption = {
   delayMs?: never
 }
 
+export interface IQueueCursor {
+  lastId: number
+  batchId: number
+  [key: string]: unknown
+}
+
 export interface IQueueWorkerConfig {
   concurrency: number
   pollIntervalMs: number
+  archiveIntervalMs?: number
   recoveryIntervalMs?: number
+  heartbeatIntervalMs?: number
 }
 
 export type IQueuePublishOptions<T = unknown> =
@@ -30,8 +38,8 @@ export type IQueuePublishOptions<T = unknown> =
 
 export type IQueueRepublishOptions<T = unknown> = Omit<
   IQueuePublishOptions<T>,
-  'exclusive' | 'startDate' | 'autoDelete'
-> & { autoDelete?: boolean }
+  'exclusive' | 'startDate'
+>
 
 export interface IQueueProducer {
   publish<T = unknown>(topic: string, options?: IQueuePublishOptions<T>): Promise<void>
@@ -56,6 +64,25 @@ export interface IQueueScanner {
       lastId: number | null
     },
   ): Promise<number | null>
+  runWithCursor<T>({
+    topic,
+    version,
+    context,
+    retrieve,
+    process,
+    getLastId,
+    beforeReset,
+    shouldRepublish,
+  }: {
+    topic: string
+    version: number
+    context?: { message: object; childKey: string | number }
+    retrieve: (state: IQueueCursor) => Promise<T[]>
+    process: (items: T[]) => Promise<void>
+    getLastId: (items: T[]) => number | null
+    beforeReset?: (state: IQueueCursor) => Promise<void>
+    shouldRepublish?: (items: T[], state: IQueueCursor) => Promise<boolean>
+  }): Promise<void>
 }
 
 export interface IQueueHandler<T = unknown> {

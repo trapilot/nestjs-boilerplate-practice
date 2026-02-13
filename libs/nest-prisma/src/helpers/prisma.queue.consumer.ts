@@ -1,6 +1,6 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common'
 import { ModuleRef } from '@nestjs/core'
-import { EnumJobStatus } from '@runtime/prisma-client'
+import { EnumJobStatus, QueueJob } from '@runtime/prisma-client'
 import {
   AppUtil,
   HelperService,
@@ -10,23 +10,31 @@ import {
   QueueConsumer,
   RunnerService,
 } from 'lib/nest-core'
-import { PrismaService, PrismaUtil } from 'lib/nest-prisma'
+import { PrismaService } from 'lib/nest-prisma'
 
 @Injectable()
 export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
   private prisma!: PrismaService
   private handlers = new Map<string, IQueueHandler>()
+  private runningJobIds = new Set<number>()
 
   // ===== Config =====
   private readonly concurrency: number
   private readonly pollIntervalMs: number
+  private readonly archiveIntervalMs: number
   private readonly recoveryIntervalMs: number
-  private readonly workerQueue = 'consumer:queue-polling'
+  private readonly heartbeatIntervalMs: number
+  private readonly heartbeatTimeoutMs: number
+  private readonly workerId = `worker-${process.pid}`
+  private readonly workerQueue = 'queue:consumer-polling'
 
   // ===== Runtime state =====
   private isPolling = false
+  private isArchiveInProgress = false
   private isRecoveryInProgress = false
+  private archiveInterval?: NodeJS.Timeout
   private recoveryInterval?: NodeJS.Timeout
+  private heartbeatInterval?: NodeJS.Timeout
 
   constructor(
     private readonly ref: ModuleRef,
@@ -37,8 +45,13 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
     super()
 
     this.concurrency = this.config.concurrency || 3
-    this.pollIntervalMs = this.config.concurrency || 5000
+    this.pollIntervalMs = this.config.pollIntervalMs || 5000
+    this.archiveIntervalMs = this.config.archiveIntervalMs || 60000
     this.recoveryIntervalMs = this.config.recoveryIntervalMs || 60000
+    this.heartbeatIntervalMs = this.config.heartbeatIntervalMs || 5000
+
+    // Adaptive timeout = 3 × heartbeatInterval
+    this.heartbeatTimeoutMs = this.heartbeatIntervalMs * 3
   }
 
   onModuleInit() {
@@ -49,21 +62,25 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
     this.handlers.set(handler.topic, handler)
   }
 
-  // @OnScope(EnumScopeType.QUEUE, { context: 'consumer', async: true })
   async start(): Promise<void> {
     if (this.isPolling) return
 
     this.isPolling = true
 
     this.startJobRecoveryLoop()
+    this.startJobArchiveLoop()
+    this.startHeartbeatLoop()
     this.startPollingLoop()
   }
 
-  // @OnScope(EnumScopeType.QUEUE, { context: 'consumer', async: true })
   async stop(): Promise<void> {
     if (!this.isPolling) return
 
     this.stopJobRecoveryLoop()
+    this.stopJobArchiveLoop()
+    this.stopHeartbeatLoop()
+    this.stopPollingLoop()
+
     this.isPolling = false
   }
 
@@ -76,34 +93,100 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
 
       try {
         await this.pollAndRunJobs()
-      } catch {}
+      } catch (err: unknown) {
+        console.log({ startPollingLoop: err })
+      }
 
       const elapsed = Date.now() - start
-      const delayMs = Math.max(0, this.pollIntervalMs - elapsed)
+      const delayMs = Math.max(100, this.pollIntervalMs - elapsed)
 
       await new Promise(resolve => setTimeout(resolve, delayMs))
     }
   }
 
-  private async pollAndRunJobs() {
-    const nowDate = this.helperService.dateNow()
+  private async stopPollingLoop() {
+    await this.runner.waitForIdle(this.workerQueue)
+  }
 
-    const jobs = await this.prisma.queueJob.findMany({
-      where: {
-        status: { in: [EnumJobStatus.PENDING, EnumJobStatus.FAILED] },
-        retryCount: { lt: this.prisma.queueJob.fields.maxRetries },
-        startAt: { lte: nowDate },
-        lockedAt: null,
-      },
-      orderBy: [{ priority: 'asc' }, { startAt: 'asc' }],
-      take: this.concurrency * 2,
-    })
+  private async pollAndRunJobs(skipLocked: boolean = false) {
+    const jobIds = skipLocked ? await this.safePollAndLockBatch() : await this.pollAndLockBatch()
 
-    for (const job of jobs) {
-      this.runner.run(this.workerQueue, () => this.runJobWithLock(job.id), {
+    for (const jobId of jobIds) {
+      this.runner.run(this.workerQueue, () => this.processJob(jobId), {
         concurrency: this.concurrency,
       })
     }
+  }
+
+  private async pollAndLockBatch() {
+    const nowDate = this.helperService.dateNow()
+
+    return this.prisma.$transaction(async tx => {
+      const jobs = await tx.queueJob.findMany({
+        where: {
+          status: EnumJobStatus.PENDING,
+          retryCount: { lt: tx.queueJob.fields.maxRetries },
+          startAt: { lte: nowDate },
+          lockedAt: null,
+        },
+        orderBy: [{ priority: 'asc' }, { startAt: 'asc' }],
+        take: this.concurrency,
+        select: { id: true },
+      })
+
+      if (!jobs.length) return []
+
+      const jobIds = jobs.map(j => j.id)
+
+      const result = await tx.queueJob.updateMany({
+        where: {
+          id: { in: jobIds },
+          lockedAt: null,
+        },
+        data: {
+          status: EnumJobStatus.RUNNING,
+          heartbeatAt: nowDate,
+          lockedAt: nowDate,
+          lockedBy: this.workerId,
+        },
+      })
+
+      if (result.count !== jobIds.length) {
+        return []
+      }
+
+      return jobIds
+    })
+  }
+
+  async safePollAndLockBatch() {
+    const nowDate = this.helperService.dateNow()
+
+    const jobs = await this.prisma.$queryRaw<{ id: number }[]>`
+      SELECT id
+      FROM queue_jobs
+      WHERE status = "${EnumJobStatus.PENDING}"
+        AND "startAt" <= ${nowDate}
+        AND "retryCount" < "maxRetries"
+        AND "lockedAt" IS NULL
+      ORDER BY priority ASC, "startAt" ASC
+      FOR UPDATE SKIP LOCKED
+      LIMIT ${this.concurrency}`
+
+    if (!jobs.length) return []
+
+    const jobIds = jobs.map(j => j.id)
+
+    await this.prisma.queueJob.updateMany({
+      where: { id: { in: jobIds } },
+      data: {
+        status: EnumJobStatus.RUNNING,
+        lockedAt: nowDate,
+        lockedBy: this.workerId,
+      },
+    })
+
+    return jobIds
   }
 
   // =========================
@@ -121,6 +204,7 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
       this.isRecoveryInProgress = true
       try {
         await this.failTimedOutRunningJobs()
+        await this.recoverStaleRunningJobs()
       } finally {
         this.isRecoveryInProgress = false
       }
@@ -134,22 +218,138 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
     }
   }
 
+  // =========================
+  // Heartbeat loop
+  // =========================
+
+  private startHeartbeatLoop() {
+    if (this.heartbeatInterval) return
+
+    this.heartbeatInterval = setInterval(async () => {
+      if (!this.runningJobIds.size) return
+
+      await this.prisma.queueJob.updateMany({
+        where: {
+          id: { in: [...this.runningJobIds] },
+          lockedBy: this.workerId,
+          status: EnumJobStatus.RUNNING,
+        },
+        data: {
+          heartbeatAt: this.helperService.dateNow(),
+        },
+      })
+    }, this.heartbeatIntervalMs)
+  }
+
+  private stopHeartbeatLoop() {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval)
+      this.heartbeatInterval = undefined
+    }
+  }
+
+  // =========================
+  // Archive loop
+  // =========================
+  private startJobArchiveLoop() {
+    if (this.archiveInterval) return
+
+    const jitter = Math.floor(Math.random() * 10_000)
+
+    this.archiveInterval = setInterval(async () => {
+      if (!this.isPolling) return
+      if (this.isArchiveInProgress) return
+
+      this.isArchiveInProgress = true
+      try {
+        await this.archiveFailedJobs()
+      } finally {
+        this.isArchiveInProgress = false
+      }
+    }, this.archiveIntervalMs + jitter)
+  }
+
+  private stopJobArchiveLoop() {
+    if (this.archiveInterval) {
+      clearInterval(this.archiveInterval)
+      this.archiveInterval = undefined
+    }
+  }
+
   /**
    * Mark RUNNING jobs that exceeded threshold as FAILED
    */
   private async failTimedOutRunningJobs() {
+    const nowDate = this.helperService.dateNow()
+
     await this.prisma.queueJob.updateMany({
       where: {
         status: EnumJobStatus.RUNNING,
-        lockedAt: {
-          lt: this.prisma.queueJob.fields.thresholdAt,
-        },
+        thresholdAt: { lt: nowDate },
+        lockedBy: { not: null },
       },
       data: {
         status: EnumJobStatus.FAILED,
         lockedAt: null,
+        lockedBy: null,
+        heartbeatAt: null,
+        lastError: 'Job exceeded threshold time',
       },
-      limit: this.concurrency,
+    })
+  }
+
+  /**
+   * Mark RUNNING jobs that exceeded staleTime as PENDING
+   */
+  private async recoverStaleRunningJobs() {
+    const nowDate = this.helperService.dateNow()
+    const staleTime = this.helperService.dateBackward(nowDate, {
+      millisecond: this.heartbeatTimeoutMs,
+    })
+
+    await this.prisma.queueJob.updateMany({
+      where: {
+        status: EnumJobStatus.RUNNING,
+        heartbeatAt: { lt: staleTime },
+        lockedBy: { not: this.workerId },
+      },
+      data: {
+        status: EnumJobStatus.PENDING,
+        lockedAt: null,
+        lockedBy: null,
+        heartbeatAt: null,
+      },
+    })
+  }
+
+  /**
+   * Archive FAILED jobs
+   */
+  private async archiveFailedJobs(batchSize: number = 200) {
+    await this.prisma.$transaction(async tx => {
+      const jobs = await tx.queueJob.findMany({
+        where: {
+          status: EnumJobStatus.FAILED,
+        },
+        take: batchSize,
+        orderBy: { id: 'asc' },
+      })
+
+      if (!jobs.length) return
+
+      await tx.queueJobFailure.createMany({
+        data: jobs.map(job => ({
+          originalId: job.id,
+          jobName: job.jobName,
+          payload: job.payload,
+          retryCount: job.retryCount,
+          lastError: job.lastError,
+        })),
+      })
+
+      await tx.queueJob.deleteMany({
+        where: { id: { in: jobs.map(j => j.id) } },
+      })
     })
   }
 
@@ -157,64 +357,27 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
   // Job execution
   // =========================
 
-  private async runJobWithLock(jobId: number) {
-    const lockResult = await this.prisma.queueJob.updateMany({
+  private async processJob(jobId: number) {
+    const job = await this.prisma.queueJob.findUnique({
       where: {
         id: jobId,
-        status: { in: [EnumJobStatus.PENDING, EnumJobStatus.FAILED] },
-      },
-      data: {
-        status: EnumJobStatus.RUNNING,
-        lockedAt: this.helperService.dateNow(),
+        lockedBy: this.workerId,
       },
     })
 
-    if (lockResult.count === 0) {
+    if (!job) {
+      this.runningJobIds.delete(jobId)
       return
     }
-
-    const job = await this.prisma.queueJob.findUnique({
-      where: { id: jobId },
-      select: {
-        id: true,
-        jobName: true,
-        payload: true,
-        autoDelete: true,
-      },
-    })
-    if (!job) return
 
     try {
       await this.executeHandler(job.jobName, job.payload)
 
-      if (job.autoDelete) {
-        await this.prisma.queueJob.delete({ where: { id: job.id } })
-      } else {
-        await this.prisma.queueJob.update({
-          where: { id: jobId },
-          data: {
-            status: EnumJobStatus.SUCCESS,
-            jobHash: null,
-            lastError: null,
-            finishedAt: this.helperService.dateNow(),
-          },
-        })
-      }
+      await this.completeJob(job)
     } catch (error: unknown) {
-      if (PrismaUtil.isNoRequiredRecord(error)) {
-        return
-      }
-
-      await this.prisma.queueJob.update({
-        where: { id: jobId },
-        data: {
-          status: EnumJobStatus.FAILED,
-          retryCount: { increment: 1 },
-          lockedAt: null, // for retry
-          lastError: AppUtil.catchMessage(error),
-          finishedAt: this.helperService.dateNow(),
-        },
-      })
+      await this.failJob(job, error)
+    } finally {
+      this.runningJobIds.delete(jobId)
     }
   }
 
@@ -225,5 +388,63 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
     }
 
     await handler.handle(payload)
+  }
+
+  private async completeJob(job: QueueJob) {
+    await this.prisma.$transaction(async tx => {
+      if (job.persistent) {
+        await tx.queueJobArchive.create({
+          data: {
+            originalId: job.id,
+            jobName: job.jobName,
+            payload: job.payload,
+            retryCount: job.retryCount,
+          },
+        })
+      }
+
+      await tx.queueJob.delete({
+        where: { id: job.id },
+      })
+    })
+  }
+
+  private async failJob(job: QueueJob, error: unknown) {
+    if (job.retryCount + 1 >= job.maxRetries) {
+      await this.prisma.$transaction(async tx => {
+        await tx.queueJobFailure.create({
+          data: {
+            originalId: job.id,
+            jobName: job.jobName,
+            payload: job.payload,
+            retryCount: job.retryCount + 1,
+            lastError: AppUtil.catchMessage(error),
+          },
+        })
+
+        await tx.queueJob.delete({
+          where: { id: job.id },
+        })
+      })
+
+      return
+    }
+
+    const nowDate = this.helperService.dateNow()
+    const runDate = this.helperService.dateForward(nowDate, {
+      second: 5,
+    })
+
+    await this.prisma.queueJob.update({
+      where: { id: job.id },
+      data: {
+        status: EnumJobStatus.PENDING,
+        retryCount: { increment: 1 },
+        lockedAt: null,
+        lockedBy: null,
+        lastError: AppUtil.catchMessage(error),
+        startAt: runDate,
+      },
+    })
   }
 }

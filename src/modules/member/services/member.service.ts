@@ -31,7 +31,12 @@ import { MemberCreatedEvent } from '../events/member.created.event'
 import { MemberDowngradeEvent } from '../events/member.downgrade.event'
 import { MemberRenewalEvent } from '../events/member.renewal.event'
 import { MemberUtil } from '../helpers/member.util'
-import { ISlipCounterOptions, TMember, TMemberMetadata } from '../interfaces/member.interface'
+import {
+  IMemberGrantTierRewardOptions,
+  ISlipCounterOptions,
+  TMember,
+  TMemberMetadata,
+} from '../interfaces/member.interface'
 
 @Injectable()
 export class MemberService {
@@ -373,47 +378,37 @@ export class MemberService {
     return nowDate
   }
 
-  async releaseMemberPoints(_memberPointIds: number[]): Promise<Date> {
+  async releasePendingPoints(memberPointIds: number[]): Promise<Date> {
     const nowDate = this.helperService.dateNow()
+
+    const pendingPoints = await this.prisma.memberPoint.findMany({
+      where: { id: { in: memberPointIds } },
+      orderBy: [{ releaseDate: 'asc' }],
+    })
+
+    for (const pp of pendingPoints) {
+      const { id: _id, ...data } = pp
+      await this.prisma.$transaction(async tx => {
+        const member = await tx.member.update({
+          where: { id: data.memberId },
+          data: {
+            pointBalance: { increment: pp.point },
+          },
+        })
+        await tx.memberPoint.create({
+          data: {
+            ...data,
+            pointBalance: member.pointBalance,
+            isActive: true,
+            isVisible: true,
+            isPending: false,
+            createdAt: nowDate,
+            updatedAt: nowDate,
+          },
+        })
+      })
+    }
     return nowDate
-    // const releasePoints = await this.prisma.memberPoint.findMany({
-    //   where: { id: { in: memberPointIds } },
-    //   orderBy: [{ releaseDate: 'asc' }],
-    // })
-
-    // for (const pointHistory of releasePoints) {
-    //   const { id: _id, memberId, ...data } = pointHistory
-    //   const aggregate = await this.prisma.memberPoint.aggregate({
-    //     _sum: { point: true },
-    //     where: { memberId, isActive: true, isDeleted: false },
-    //   })
-
-    //   await this.prisma.member.update({
-    //     where: { id: memberId },
-    //     data: {
-    //       pointBalance: { increment: pointHistory.point },
-    //       updatedAt: nowDate,
-    //       points: {
-    //         createMany: {
-    //           data: [
-    //             {
-    //               ...data,
-    //               isActive: true,
-    //               isVisible: true,
-    //               isPending: false,
-    //               pointBalance: pointHistory.point + aggregate._sum.point,
-    //               expiryDate: this.memberUtil.getPointExpirationDate(nowDate),
-    //               createdAt: nowDate,
-    //               updatedAt: nowDate,
-    //             },
-    //           ],
-    //           skipDuplicates: true,
-    //         },
-    //       },
-    //     },
-    //   })
-    // }
-    // return nowDate
   }
 
   async resetMemberPoints(issuedAt: Date, memberIds: number[]): Promise<Date> {
@@ -597,66 +592,6 @@ export class MemberService {
   //   return MemberData.make(member, newMemberTier)
   // }
 
-  // async earnHighestBirthInvoice(month: number, memberIds: number[]): Promise<Date> {
-  //   const nowDate = this.helperService.dateNow()
-  //   const dateRange = this.helperService.dateRange(nowDate)
-  //   const startOfDay = this.helperService.dateCreate(nowDate, { startOfDay: true })
-
-  //   const members = await this.prisma.member.findMany({
-  //     where: {
-  //       isActive: true,
-  //       hasBirthPurchased: false,
-  //       birthMonth: month,
-  //       id: { in: memberIds },
-  //     },
-  //   })
-
-  //   for (const member of members) {
-  //     const birthPoint = await this.prisma.memberPoint.findFirst({
-  //       where: {
-  //         memberId: member.id,
-  //         isBirth: true,
-  //         isFirst: false,
-  //         createdAt: {
-  //           gte: dateRange.startOfMonth,
-  //           lte: dateRange.endOfMonth,
-  //         },
-  //       },
-  //       orderBy: [{ invoiceAmount: 'desc' }],
-  //     })
-
-  //     if (birthPoint) {
-  //       const tierChart = this.tierService.getChart()
-  //       const memberTier = tierChart.getInfo(member.tierId)
-  //       const newPoint = TierUtil.round(birthPoint.point * (memberTier.birthdayRatio - 1))
-
-  //       await this.prisma.member.update({
-  //         where: { id: member.id },
-  //         data: {
-  //           hasBirthPurchased: true,
-  //           hasBirthPurchasedAt: startOfDay,
-  //           updatedAt: startOfDay,
-  //           points: {
-  //             create: {
-  //               invoiceId: birthPoint.invoiceId,
-  //               invoiceAmount: birthPoint.invoiceAmount,
-  //               source: EnumPointSource.SYSTEM,
-  //               action: EnumPointAction.EARN,
-  //               isBirth: true,
-  //               tierId: memberTier.id,
-  //               multipleRatio: memberTier.birthdayRatio,
-  //               point: newPoint,
-  //               createdAt: startOfDay,
-  //               updatedAt: startOfDay,
-  //             },
-  //           },
-  //         },
-  //       })
-  //     }
-  //   }
-  //   return nowDate
-  // }
-
   // async earnPointFromInvoices(issuedAt: Date | string): Promise<Date> {
   //   issuedAt = this.helperService.dateCreateFromGeneric(issuedAt)
   //   const sinceInvoice = await this.invoiceUtil.getFirstInvoice(issuedAt)
@@ -670,7 +605,7 @@ export class MemberService {
   //   const untilDate = this.helperService.dateCreate(issuedAt, { startOfDay: true })
 
   //   while (sinceDate <= untilDate) {
-  //     const grpInvoices = await this.invoiceUtil.getEarnInvoices(sinceDate)
+  //     const grpInvoices = await this.invoiceUtil.getEarnGroupInvoices(sinceDate)
 
   //     for (const [key, dateInvoices] of Object.entries(grpInvoices)) {
   //       let usedInvoiceIds = []
@@ -911,18 +846,18 @@ export class MemberService {
   //   return issuedAt
   // }
 
-  async generateMembershipCode(member: TMember): Promise<void> {
-    await this.update(member.id, {
-      code: this.memberUtil.generateCode(member.id),
-      updatedAt: member.updatedAt, // keep last updated
+  async generateMembershipCode(memberId: number, issuedAt: Date): Promise<void> {
+    await this.update(memberId, {
+      code: this.memberUtil.generateCode(memberId),
+      updatedAt: issuedAt,
     })
   }
 
-  async grantWelcomeReward(member: TMember): Promise<void> {
+  async grantTierReward(memberId: number, options: IMemberGrantTierRewardOptions): Promise<void> {
     await this.memberPointService.applyTierReward({
-      memberId: member.id,
-      tierId: member.tierId,
-      issuedAt: member.createdAt,
+      memberId,
+      tierId: options.tierId,
+      issuedAt: options.issuedAt,
     })
   }
 }

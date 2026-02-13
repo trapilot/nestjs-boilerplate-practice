@@ -51,17 +51,48 @@ model QueueJob {
   retryCount  Int           @default(0)
   maxRetries  Int           @default(3)
   priority    Int           @default(5)
-  autoDelete  Boolean       @default(true)
+  persistent  Boolean       @default(false)
   lastError   String?
+  heartbeatAt DateTime?
   lockedAt    DateTime?
-  finishedAt  DateTime?
+  lockedBy    String?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
   @@unique([jobHash])
-  @@index([priority, jobName, startAt])
-  @@index([status, retryCount])
+  @@index([status, id])
+  @@index([status, heartbeatAt])
+  @@index([status, thresholdAt])
+  @@index([status, startAt, priority])
   @@map("queue_jobs")
+}
+
+model QueueJobArchive {
+  id         Int      @id @default(autoincrement())
+  originalId Int
+  jobName    String
+  payload    Json?
+  result     Json?
+  retryCount Int
+  finishedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  @@index([jobName])
+  @@map("queue_job_archives")
+}
+
+model QueueJobFailure {
+  id         Int      @id @default(autoincrement())
+  originalId Int
+  jobName    String
+  payload    Json?
+  retryCount Int
+  lastError  String?
+  failedAt   DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  @@index([jobName])
+  @@map("queue_job_failures")
 }
 
 model Media {

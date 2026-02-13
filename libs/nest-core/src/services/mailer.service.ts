@@ -1,9 +1,9 @@
 import { HttpStatus, Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import Mail from 'nodemailer/lib/mailer'
-import { CircuitBreaker, CircuitCatch, OnFallbackInput } from '../decorators'
+import { CircuitBreaker, OnCircuitEvent, OnFallbackInput } from '../decorators'
 import { AppException } from '../exceptions'
-import { TransportFactory } from '../helpers'
+import { TransportRegistry } from '../helpers'
 import { IMailerSendResult } from '../interfaces'
 import { AppUtil } from '../utils'
 
@@ -13,7 +13,7 @@ export class MailerService {
 
   constructor(
     private readonly config: ConfigService,
-    private readonly transportFactory: TransportFactory,
+    private readonly transportRegistry: TransportRegistry,
   ) {
     this.dryRun = this.config.get<boolean>('helper.mailer.dryRun')
   }
@@ -58,7 +58,7 @@ export class MailerService {
       }
     }
 
-    const transporter = await this.transportFactory.getTransporter(transport)
+    const transporter = await this.transportRegistry.resolve(transport)
     await transporter.sendMail(payload)
 
     return {
@@ -67,38 +67,38 @@ export class MailerService {
     }
   }
 
-  @CircuitCatch({ eventName: 'open', circuitGroup: 'mailer:smtp' })
+  @OnCircuitEvent({ eventName: 'open', circuitGroup: 'mailer:smtp' })
   onCircuitOpen() {
     console.error('[SMTP] Circuit OPEN')
   }
 
-  @CircuitCatch({ eventName: 'halfOpen', circuitGroup: 'mailer:smtp' })
+  @OnCircuitEvent({ eventName: 'halfOpen', circuitGroup: 'mailer:smtp' })
   onCircuitHalfOpen() {
     console.warn('[SMTP] Circuit HALF_OPEN')
   }
 
-  @CircuitCatch({ eventName: 'close', circuitGroup: 'mailer:smtp' })
+  @OnCircuitEvent({ eventName: 'close', circuitGroup: 'mailer:smtp' })
   onCircuitClose() {
     console.log('[SMTP] Circuit CLOSED')
   }
 
-  @CircuitCatch({ eventName: 'failure', circuitGroup: 'mailer:smtp' })
+  @OnCircuitEvent({ eventName: 'failure', circuitGroup: 'mailer:smtp' })
   onFailure({ err, latencyMs }: { err: Error; latencyMs: number }) {
     console.error('[SMTP] Failure', err.message, latencyMs)
   }
 
-  @CircuitCatch({ eventName: 'success', circuitGroup: 'mailer:smtp' })
+  @OnCircuitEvent({ eventName: 'success', circuitGroup: 'mailer:smtp' })
   onSuccess({ latencyMs }: { latencyMs: number }) {
     console.log('[SMTP] Success', latencyMs)
   }
 
-  @CircuitCatch({ eventName: 'fallback', circuitGroup: 'mailer:smtp' })
+  @OnCircuitEvent({ eventName: 'fallback', circuitGroup: 'mailer:smtp' })
   async fallback({ input, err }: OnFallbackInput): Promise<IMailerSendResult> {
     console.error('[SMTP] Fallback triggered', err.message)
 
     try {
       const [payload] = input as [Mail.Options]
-      const transporter = await this.transportFactory.getTransporter('failover')
+      const transporter = await this.transportRegistry.resolve('failover')
 
       await transporter.sendMail(payload)
 

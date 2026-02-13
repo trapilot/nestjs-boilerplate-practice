@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import { EnumPushStatus, QueueCursor } from '@runtime/prisma-client'
+import { EnumPushStatus } from '@runtime/prisma-client'
 import {
   EnumQueuePriority,
   HelperService,
@@ -29,6 +29,8 @@ export class NotificationDispatchPushHandler implements IQueueHandler {
   ) {}
 
   async handle(payload: INotificationDispatchPushPayload): Promise<void> {
+    this.logger.log(`${this.topic}:v${this.version} is handling...`)
+
     if (await this.notificationUtil.isPushFinished(payload.pushId)) {
       return
     }
@@ -38,49 +40,43 @@ export class NotificationDispatchPushHandler implements IQueueHandler {
       await this.notificationUtil.lockPush(push.id)
     }
 
-    const dispatchTopic = `${this.topic}:${this.version}:${push.id}`
-    const state = await this.scanner.scan<QueueCursor>(dispatchTopic, this.version)
-
-    const memberIds = await this.notificationUtil.getUnsentPushMembers(push.id, {
-      lastId: state.lastId,
-      size: 100,
-    })
-
-    if (!memberIds.length) {
-      await this.notificationUtil.deliveredPush(push.id)
-      return
-    }
-
-    for (const memberId of memberIds) {
-      await this.producer.publish<INotificationSendPushPayload>(EnumNotificationQueue.SEND_PUSH, {
-        version: 1,
-        exclusive: false,
-        autoDelete: true,
-        priority: EnumQueuePriority.MEDIUM,
-        startDate: this.helperService.dateNow(),
-        message: {
-          pushId: push.id,
-          memberId,
-        },
-      })
-    }
-
-    await this.scanner.commit(dispatchTopic, {
+    await this.scanner.runWithCursor({
+      topic: this.topic,
       version: this.version,
-      batchId: state.batchId + 1,
-      lastId: memberIds[memberIds.length - 1],
-    })
-
-    // republish queue job if push is still running
-    if (await this.notificationUtil.isPushRunning(push.id)) {
-      this.logger.log(
-        `${this.topic}:v${this.version}:p${payload.pushId}:${state.batchId} republish`,
-      )
-      await this.producer.republish<INotificationDispatchPushPayload>(this.topic, {
-        version: this.version,
-        priority: EnumQueuePriority.HIGH,
+      context: {
         message: payload,
-      })
-    }
+        childKey: push.id,
+      },
+
+      retrieve: async state => {
+        return await this.notificationUtil.getUnsentPushMembers(push.id, {
+          lastId: state.lastId,
+          size: 100,
+        })
+      },
+
+      process: async memberIds => {
+        for (const memberId of memberIds) {
+          await this.producer.publish<INotificationSendPushPayload>(
+            EnumNotificationQueue.SEND_PUSH,
+            {
+              version: 1,
+              priority: EnumQueuePriority.MEDIUM,
+              startDate: this.helperService.dateNow(),
+              message: {
+                pushId: push.id,
+                memberId,
+              },
+            },
+          )
+        }
+      },
+
+      getLastId: memberIds => memberIds[memberIds.length - 1],
+
+      shouldRepublish: async () => {
+        return await this.notificationUtil.isPushRunning(push.id)
+      },
+    })
   }
 }

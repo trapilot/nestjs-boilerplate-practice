@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common'
-import { QueueScanner } from 'lib/nest-core'
+import { QueueCursor } from '@runtime/prisma-client'
+import { EnumQueuePriority, IQueueCursor, QueueProducer, QueueScanner } from 'lib/nest-core'
 import { PrismaService } from '../services'
 
 @Injectable()
 export class PrismaQueueScanner extends QueueScanner {
-  constructor(private readonly prisma: PrismaService) {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly producer: QueueProducer,
+  ) {
     super()
   }
 
@@ -44,5 +48,55 @@ export class PrismaQueueScanner extends QueueScanner {
       select: { lastId: true, batchId: true },
     })
     return updated?.lastId
+  }
+
+  async runWithCursor<T>({
+    topic,
+    version,
+    context,
+    retrieve,
+    process,
+    getLastId,
+    beforeReset,
+    shouldRepublish,
+  }: {
+    topic: string
+    version: number
+    context?: { message: object; childKey: string | number }
+    retrieve: (state: IQueueCursor) => Promise<T[]>
+    process: (items: T[]) => Promise<void>
+    getLastId: (items: T[]) => number | null
+    beforeReset?: (state: IQueueCursor) => Promise<void>
+    shouldRepublish?: (items: T[], state: QueueCursor) => Promise<boolean>
+  }): Promise<void> {
+    const childTopic = context?.childKey ? `${topic}:child:${context?.childKey}` : topic
+    const state = await this.scan<QueueCursor>(childTopic, version)
+
+    const items = await retrieve(state)
+
+    if (!items.length) {
+      if (beforeReset) {
+        await beforeReset(state)
+      }
+
+      await this.reset(childTopic, version)
+      return
+    }
+
+    await process(items)
+
+    await this.commit(childTopic, {
+      version,
+      batchId: (state.batchId || 0) + 1,
+      lastId: getLastId(items),
+    })
+
+    if ((await shouldRepublish?.(items, state)) ?? true) {
+      await this.producer.republish(topic, {
+        version,
+        message: context?.message,
+        priority: EnumQueuePriority.HIGH,
+      })
+    }
   }
 }

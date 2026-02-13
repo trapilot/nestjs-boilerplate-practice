@@ -40,7 +40,7 @@ export class AppUtil {
   }
 
   static captureException(exception: any, isConsole: boolean = false): void {
-    if (isConsole) {
+    if (isConsole || this.isLocal()) {
       console.error(exception)
     }
   }

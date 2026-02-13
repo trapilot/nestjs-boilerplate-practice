@@ -109,8 +109,8 @@ export class MemberPointService {
         isActive: true,
         isDeleted: false,
         isPending: false,
-        expiryDate: { gte: untilDate },
         createdAt: { lte: untilDate },
+        OR: [{ expiryDate: null }, { expiryDate: { gte: untilDate } }],
       },
     })
     return aggregate._sum.point || 0

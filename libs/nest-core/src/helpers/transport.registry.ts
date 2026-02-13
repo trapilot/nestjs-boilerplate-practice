@@ -4,12 +4,12 @@ import { createTransport, Transporter } from 'nodemailer'
 import { ITransportConfig } from '../interfaces'
 
 @Injectable()
-export class TransportFactory {
+export class TransportRegistry {
   private readonly transporters = new Map<string, Transporter>()
 
   constructor(private readonly config: ConfigService) {}
 
-  async getTransporter(name?: string): Promise<Transporter> {
+  async resolve(name?: string): Promise<Transporter> {
     const transportName = name || this.config.get<string>('helper.mailer.defaultTransport')
 
     if (!transportName) {

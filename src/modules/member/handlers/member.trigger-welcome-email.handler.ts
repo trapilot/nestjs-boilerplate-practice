@@ -16,6 +16,7 @@ export class MemberTriggerWelcomeEmailHandler implements IQueueHandler {
   })
   async handle(member: TMember): Promise<void> {
     this.logger.log(`${this.topic}:v${this.version} is handling...`)
+
     this.logger.log(`Sending email to member: ${member.id}`)
   }
 }

@@ -8,7 +8,7 @@ export function LangSwitcher() {
       localStorage.setItem('language', lng)
       await i18n.changeLanguage(lng)
       window.location.reload()
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Failed to change language', err)
     }
   }
