@@ -1,19 +1,22 @@
 import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common'
 import { EnumPushStatus, Prisma } from '@runtime/prisma-client'
+import { EnumPushDriver } from 'lib/nest-core'
 import {
   IPrismaExportOptions,
   IPrismaReturnList,
   IPrismaReturnPaging,
   PrismaService,
 } from 'lib/nest-prisma'
-import { NotificationUtil } from '../helpers/notification.util'
 import { TNotification, TPush } from '../interfaces/notification.interface'
+import { NotificationDispatchPushWorkflow } from '../workflows/notification.dispatch-push.workflow'
+import { NotificationSendPushWorkflow } from '../workflows/notification.send-push.workflow'
 
 @Injectable()
 export class NotificationService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly notificationUtil: NotificationUtil,
+    private readonly dispathPushWorkflow: NotificationDispatchPushWorkflow,
+    private readonly sendPushWorkflow: NotificationSendPushWorkflow,
   ) {}
 
   async getOne(kwargs: Prisma.NotificationFindUniqueArgs): Promise<TNotification> {
@@ -99,6 +102,29 @@ export class NotificationService {
     })
   }
 
+  async getUnsentPushMembers(
+    pushId: number,
+    cursor: { lastId: number; size: number },
+  ): Promise<number[]> {
+    const members = await this.prisma.member.findMany({
+      where: {
+        isActive: true,
+        isPhoneVerified: true,
+        // devices: {
+        //   some: { isActive: true },
+        // },
+        pushes: {
+          none: { pushId },
+        },
+      },
+      cursor: cursor.lastId ? { id: cursor.lastId } : undefined,
+      skip: cursor.lastId ? 1 : 0,
+      select: { id: true },
+      take: cursor.size,
+    })
+    return members.map(i => i.id)
+  }
+
   async getPendingPushes(limit: number = 1): Promise<TPush[]> {
     return await this.prisma.push.findMany({
       where: {
@@ -111,11 +137,33 @@ export class NotificationService {
     })
   }
 
-  async dispatchPendingPushes(): Promise<void> {
-    const pushes = await this.getPendingPushes(2)
+  async isPushRunning(pushId: number): Promise<boolean> {
+    const push = await this.prisma.push.findUnique({
+      where: { id: pushId },
+      select: { status: true },
+    })
+    return push?.status !== EnumPushStatus.PENDING
+  }
 
-    for (const push of pushes) {
-      await this.notificationUtil.dispatchPush(push.id)
-    }
+  async isPushFinished(pushId: number): Promise<boolean> {
+    return await this.prisma.push.exists({
+      where: {
+        id: pushId,
+        status: {
+          in: [EnumPushStatus.COMPLETED, EnumPushStatus.CANCELED],
+        },
+      },
+    })
+  }
+
+  async dispatchPushToMember(memberId: number, pushId: number): Promise<void> {
+    await this.sendPushWorkflow.execute(pushId, {
+      memberId,
+      drivers: [EnumPushDriver.ONESIGNAL],
+    })
+  }
+
+  async dispatchPendingPushes(): Promise<void> {
+    await this.dispathPushWorkflow.execute()
   }
 }

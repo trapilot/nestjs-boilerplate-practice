@@ -37,6 +37,8 @@ export class EventBus implements IEventBus {
         minDelayMs: 200,
       },
     })
+
+    this.logger.log(`Registed event: ${event.topic}`)
   }
 
   subscribe<T>(topic: string, handler: (event: IDomainEvent<T>) => Promise<void> | void): void {
@@ -51,6 +53,7 @@ export class EventBus implements IEventBus {
         throw err
       }
     })
+    this.logger.log(`Subscribed event: ${topic}`)
   }
 
   // =====================================================

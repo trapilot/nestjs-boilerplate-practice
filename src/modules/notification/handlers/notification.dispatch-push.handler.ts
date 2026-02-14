@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import { EnumPushStatus } from '@runtime/prisma-client'
 import {
   EnumQueuePriority,
   HelperService,
@@ -9,11 +8,11 @@ import {
   QueueScanner,
 } from 'lib/nest-core'
 import { EnumNotificationQueue } from '../enums/notification.enum'
-import { NotificationUtil } from '../helpers/notification.util'
 import {
   INotificationDispatchPushPayload,
   INotificationSendPushPayload,
 } from '../interfaces/notification.queue.interface'
+import { NotificationService } from '../services/notification.service'
 
 @Injectable()
 export class NotificationDispatchPushHandler implements IQueueHandler {
@@ -25,19 +24,14 @@ export class NotificationDispatchPushHandler implements IQueueHandler {
     private readonly scanner: QueueScanner,
     private readonly producer: QueueProducer,
     private readonly helperService: HelperService,
-    private readonly notificationUtil: NotificationUtil,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async handle(payload: INotificationDispatchPushPayload): Promise<void> {
     this.logger.log(`${this.topic}:v${this.version} is handling...`)
 
-    if (await this.notificationUtil.isPushFinished(payload.pushId)) {
+    if (await this.notificationService.isPushFinished(payload.pushId)) {
       return
-    }
-
-    const push = await this.notificationUtil.getPush(payload.pushId)
-    if (push.status === EnumPushStatus.PENDING) {
-      await this.notificationUtil.lockPush(push.id)
     }
 
     await this.scanner.runWithCursor({
@@ -45,11 +39,11 @@ export class NotificationDispatchPushHandler implements IQueueHandler {
       version: this.version,
       context: {
         message: payload,
-        childKey: push.id,
+        childKey: payload.pushId,
       },
 
       retrieve: async state => {
-        return await this.notificationUtil.getUnsentPushMembers(push.id, {
+        return await this.notificationService.getUnsentPushMembers(payload.pushId, {
           lastId: state.lastId,
           size: 100,
         })
@@ -64,7 +58,7 @@ export class NotificationDispatchPushHandler implements IQueueHandler {
               priority: EnumQueuePriority.MEDIUM,
               startDate: this.helperService.dateNow(),
               message: {
-                pushId: push.id,
+                pushId: payload.pushId,
                 memberId,
               },
             },
@@ -75,7 +69,7 @@ export class NotificationDispatchPushHandler implements IQueueHandler {
       getLastId: memberIds => memberIds[memberIds.length - 1],
 
       shouldRepublish: async () => {
-        return await this.notificationUtil.isPushRunning(push.id)
+        return await this.notificationService.isPushRunning(payload.pushId)
       },
     })
   }

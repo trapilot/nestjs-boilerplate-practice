@@ -13,6 +13,7 @@ import { IAuthPassword } from 'lib/nest-auth'
 import {
   APP_LANGUAGE,
   EnumDateFormat,
+  EventBus,
   HelperService,
   MessageService,
   NumberUtil,
@@ -48,6 +49,7 @@ export class MemberService {
     private readonly memberPointService: MemberPointService,
     private readonly memberTierService: MemberTierService,
     private readonly memberUtil: MemberUtil,
+    private readonly eventBus: EventBus,
   ) {}
 
   async getOne(kwargs: Prisma.MemberFindUniqueArgs): Promise<TMember> {
@@ -126,7 +128,7 @@ export class MemberService {
       },
     })
 
-    await this.memberUtil.publishEvent(new MemberCreatedEvent(member))
+    this.eventBus.publish(new MemberCreatedEvent(member))
 
     return member
   }
@@ -511,7 +513,7 @@ export class MemberService {
       },
     })
 
-    await this.memberUtil.publishEvent(new MemberRenewalEvent(updated))
+    this.eventBus.publish(new MemberRenewalEvent(updated))
   }
 
   private async downgrade(member: TMember): Promise<void> {
@@ -542,7 +544,7 @@ export class MemberService {
       },
     })
 
-    await this.memberUtil.publishEvent(new MemberDowngradeEvent(updated))
+    this.eventBus.publish(new MemberDowngradeEvent(updated))
   }
 
   // private async getReferrerData(

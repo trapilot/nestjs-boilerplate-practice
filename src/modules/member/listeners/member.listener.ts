@@ -86,8 +86,6 @@ export class MemberListener implements IEventListener {
     })
 
     bus.subscribe(EnumMemberEvent.DOWNGRADE, async (event: IDomainEvent<TMember>) => {
-      const member = event.payload
-
       await this.producer.publish<IMemberGrantTierRewardPayload>(
         EnumMemberQueue.GRANT_TIER_REWARD,
         {
@@ -95,9 +93,9 @@ export class MemberListener implements IEventListener {
           priority: EnumQueuePriority.HIGH,
           startDate: this.helperService.dateNow(),
           message: {
-            memberId: member.id,
-            tierId: member.tierId,
-            issuedAt: member.updatedAt,
+            memberId: event.payload.id,
+            tierId: event.payload.tierId,
+            issuedAt: event.payload.updatedAt,
           },
         },
       )

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { IQueueHandler, LoggerService } from 'lib/nest-core'
 import { EnumNotificationQueue } from '../enums/notification.enum'
-import { NotificationUtil } from '../helpers/notification.util'
 import { INotificationSendPushPayload } from '../interfaces/notification.queue.interface'
+import { NotificationService } from '../services/notification.service'
 
 @Injectable()
 export class NotificationSendPushHandler implements IQueueHandler {
@@ -11,12 +11,12 @@ export class NotificationSendPushHandler implements IQueueHandler {
 
   constructor(
     private readonly logger: LoggerService,
-    private readonly notificationUtil: NotificationUtil,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async handle(payload: INotificationSendPushPayload): Promise<void> {
     try {
-      await this.notificationUtil.dispatchPushToMember(payload.memberId, payload.pushId)
+      await this.notificationService.dispatchPushToMember(payload.memberId, payload.pushId)
     } catch (err: unknown) {
       this.logger.log(err)
       throw err

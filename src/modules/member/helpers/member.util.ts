@@ -3,7 +3,6 @@ import { ConfigService } from '@nestjs/config'
 import { EnumVerificationChannel } from '@runtime/prisma-client'
 import { EnumAuthLoginType } from 'lib/nest-auth'
 import { EventBus, HelperService } from 'lib/nest-core'
-import { IDomainEvent } from 'lib/nest-core/interfaces/bus.interface'
 import { PrismaService } from 'lib/nest-prisma'
 import { EnumMemberActivityAction } from '../enums/member.enum'
 import {
@@ -225,15 +224,5 @@ export class MemberUtil {
         break
     }
     return action
-  }
-
-  async publishEvent(event: IDomainEvent): Promise<void> {
-    try {
-      this.eventBus.publish(event)
-      this._logger.log(`Registed event: ${event.topic} -> v${event.version}`)
-    } catch (err: unknown) {
-      this._logger.log(`Registed event ${event.topic} failed`)
-      console.log({ err })
-    }
   }
 }
