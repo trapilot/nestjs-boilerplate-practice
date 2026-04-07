@@ -1,8 +1,8 @@
-import { IQueueCursor, IQueueScanner } from '../interfaces'
+import { IWorkerCursor, IWorkerScanner } from '../interfaces'
 
-export abstract class QueueScanner implements IQueueScanner {
-  abstract scan<IQueueCursor>(name: string, version: number): Promise<IQueueCursor>
-  abstract scans<IQueueCursor>(name: string): Promise<IQueueCursor[]>
+export abstract class WorkerScanner implements IWorkerScanner {
+  abstract scan<IWorkerCursor>(name: string, version: number): Promise<IWorkerCursor>
+  abstract scans<IWorkerCursor>(name: string): Promise<IWorkerCursor[]>
   abstract reset(name: string, version: number): Promise<void>
   abstract commit(
     name: string,
@@ -11,20 +11,20 @@ export abstract class QueueScanner implements IQueueScanner {
   abstract runWithCursor<T>({
     topic,
     version,
+    chunking,
     context,
     retrieve,
     process,
-    getLastId,
     beforeReset,
     shouldRepublish,
   }: {
     topic: string
     version: number
+    chunking?: number
     context?: { message: object; childKey: string | number }
-    retrieve: (state: IQueueCursor) => Promise<T[]>
-    process: (items: T[]) => Promise<void>
-    getLastId: (items: T[]) => number | null
-    beforeReset?: (state: IQueueCursor) => Promise<void>
-    shouldRepublish?: (items: T[], state: IQueueCursor) => Promise<boolean>
+    retrieve: (state: IWorkerCursor) => Promise<T[]>
+    process: (items: T[]) => Promise<number | null>
+    beforeReset?: (state: IWorkerCursor) => Promise<void>
+    shouldRepublish?: (items: T[], state: IWorkerCursor) => Promise<boolean>
   }): Promise<void>
 }

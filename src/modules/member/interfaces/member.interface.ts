@@ -110,7 +110,7 @@ export interface IMemberGenerateCodePayload {
   issuedAt: Date
 }
 
-export interface IMemberTriggerWelcomeEmailPayload {
+export interface IMemberEmailWelcomePayload {
   memberId: number
   memberEmail: string
 }

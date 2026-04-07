@@ -1,8 +1,7 @@
-import { IDomainEvent } from 'lib/nest-core/interfaces/bus.interface'
 import { EnumMemberEvent } from '../enums/member.enum'
 import { TMember } from '../interfaces/member.interface'
 
-export class MemberRenewalEvent implements IDomainEvent<TMember> {
+export class MemberRenewalEvent {
   topic: string = EnumMemberEvent.RENEWAL
   version: number = 1
 

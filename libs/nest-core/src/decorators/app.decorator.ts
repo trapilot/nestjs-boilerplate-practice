@@ -8,11 +8,7 @@ import { IScopeContextData } from '../interfaces'
 export function AppEnvProtected(...envs: EnumAppEnvironment[]): MethodDecorator {
   return applyDecorators(UseGuards(AppEnvGuard), SetMetadata(APP_ENV_META_KEY, envs))
 }
-
-export function OnScope(
-  scope: EnumScopeType,
-  options: { async?: boolean; raw?: boolean; context: string },
-) {
+export function OnScope(scope: EnumScopeType, options: { raw?: boolean; context: string }) {
   return function (_target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value
     const ctxData: IScopeContextData = {
@@ -23,16 +19,7 @@ export function OnScope(
     }
 
     descriptor.value = function (...args: any[]) {
-      if (options.async === true) {
-        // If scope run in an async function, preserve the context using createAsync
-        return ScopeContext.createAsync(ctxData, () => {
-          return originalMethod.apply(this, args)
-        })
-      }
-
-      return ScopeContext.create(ctxData, () => {
-        return originalMethod.apply(this, args)
-      })
+      return ScopeContext.create(ctxData, () => originalMethod.apply(this, args))
     }
 
     return descriptor

@@ -1,38 +1,26 @@
 import { Injectable } from '@nestjs/common'
-import { CronExpression } from '@nestjs/schedule'
-import {
-  EnumQueuePriority,
-  HelperService,
-  IScheduler,
-  ISchedulerBus,
-  QueueProducer,
-} from 'lib/nest-core'
-import { EnumMemberQueue } from '../enums/member.enum'
+import { Cron, CronExpression } from '@nestjs/schedule'
+import { HelperService } from 'lib/nest-core'
+import { MemberService } from '../services/member.service'
 
 @Injectable()
-export class MemberScheduler implements IScheduler {
+export class MemberScheduler {
   constructor(
-    private readonly producer: QueueProducer,
+    private readonly memberService: MemberService,
     private readonly helperService: HelperService,
   ) {}
 
-  register(bus: ISchedulerBus): void {
-    bus.cron(CronExpression.EVERY_MINUTE, async () => {
-      await this.producer.publish(EnumMemberQueue.RELEASE_PENDING_POINTS, {
-        version: 1,
-        priority: EnumQueuePriority.HIGH,
-        startDate: this.helperService.dateEnd(),
-        exclusive: true,
-      })
+  @Cron(CronExpression.EVERY_MINUTE)
+  async releasePendingPoints(): Promise<void> {
+    await this.memberService.enqueueScanExpiredMembers({
+      startDate: this.helperService.dateEnd(),
     })
+  }
 
-    bus.cron(CronExpression.EVERY_MINUTE, async () => {
-      await this.producer.publish(EnumMemberQueue.SCAN_EXPIRED, {
-        version: 1,
-        priority: EnumQueuePriority.HIGH,
-        startDate: this.helperService.dateEnd(),
-        exclusive: true,
-      })
+  @Cron(CronExpression.EVERY_MINUTE)
+  async scanExpiredMembers(): Promise<void> {
+    await this.memberService.enqueueScanPendingPoints({
+      startDate: this.helperService.dateEnd(),
     })
   }
 }

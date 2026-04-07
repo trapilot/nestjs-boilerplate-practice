@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { QueueCursor } from '@runtime/prisma-client'
-import { EnumQueuePriority, IQueueCursor, QueueProducer, QueueScanner } from 'lib/nest-core'
+import { EnumQueuePriority, IWorkerCursor, WorkerProducer, WorkerScanner } from 'lib/nest-core'
 import { PrismaService } from '../services'
 
 @Injectable()
-export class PrismaQueueScanner extends QueueScanner {
+export class PrismaWorkerScanner extends WorkerScanner {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly producer: QueueProducer,
+    private readonly producer: WorkerProducer,
   ) {
     super()
   }
@@ -53,20 +53,20 @@ export class PrismaQueueScanner extends QueueScanner {
   async runWithCursor<T>({
     topic,
     version,
+    chunking,
     context,
     retrieve,
     process,
-    getLastId,
     beforeReset,
     shouldRepublish,
   }: {
     topic: string
     version: number
+    chunking?: number
     context?: { message: object; childKey: string | number }
-    retrieve: (state: IQueueCursor) => Promise<T[]>
-    process: (items: T[]) => Promise<void>
-    getLastId: (items: T[]) => number | null
-    beforeReset?: (state: IQueueCursor) => Promise<void>
+    retrieve: (state: IWorkerCursor) => Promise<T[]>
+    process: (items: T[]) => Promise<number | null>
+    beforeReset?: (state: IWorkerCursor) => Promise<void>
     shouldRepublish?: (items: T[], state: QueueCursor) => Promise<boolean>
   }): Promise<void> {
     const childTopic = context?.childKey ? `${topic}:child:${context?.childKey}` : topic
@@ -83,12 +83,30 @@ export class PrismaQueueScanner extends QueueScanner {
       return
     }
 
-    await process(items)
+    let lastId = null
+    if (chunking && chunking > 0) {
+      let _items = []
+      for (const item of items) {
+        _items.push(item)
+
+        if (_items.length === chunking) {
+          lastId = await process(_items)
+          _items = []
+        }
+      }
+
+      if (_items.length) {
+        lastId = await process(_items)
+        _items = []
+      }
+    } else {
+      lastId = await process(items)
+    }
 
     await this.commit(childTopic, {
       version,
+      lastId,
       batchId: (state.batchId || 0) + 1,
-      lastId: getLastId(items),
     })
 
     if ((await shouldRepublish?.(items, state)) ?? true) {

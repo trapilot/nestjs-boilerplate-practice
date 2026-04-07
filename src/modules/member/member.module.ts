@@ -5,6 +5,8 @@ import { TierModule } from 'modules/tier/tier.module'
 import { MEMBER_AUTH_TOKEN } from './constants/member.constant'
 import { MemberAuth } from './helpers/member.auth'
 import { MemberUtil } from './helpers/member.util'
+import { MemberListener } from './listeners/member.listener'
+import { MemberScheduler } from './schedulers/member.scheduler'
 import { MemberService } from './services/member.service'
 
 @Module({
@@ -15,6 +17,8 @@ import { MemberService } from './services/member.service'
     },
     MemberService,
     MemberUtil,
+    MemberScheduler,
+    MemberListener,
   ],
   exports: [MEMBER_AUTH_TOKEN, MemberService],
   imports: [TierModule, MemberPointModule, MemberTierModule],

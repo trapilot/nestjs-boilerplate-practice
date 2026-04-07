@@ -13,11 +13,12 @@ import { IAuthPassword } from 'lib/nest-auth'
 import {
   APP_LANGUAGE,
   EnumDateFormat,
-  EventBus,
+  EnumQueuePriority,
   HelperService,
   MessageService,
   NumberUtil,
   ScopeContext,
+  WorkerProducer,
 } from 'lib/nest-core'
 import {
   IPrismaExportOptions,
@@ -26,14 +27,13 @@ import {
   PrismaService,
 } from 'lib/nest-prisma'
 import { MemberPointService } from 'modules/member-point/services/member-point.service'
-import { MemberTierService } from 'modules/member-tier/services/member-tier.service'
 import { TierService } from 'modules/tier/services/tier.service'
-import { MemberCreatedEvent } from '../events/member.created.event'
-import { MemberDowngradeEvent } from '../events/member.downgrade.event'
-import { MemberRenewalEvent } from '../events/member.renewal.event'
+import { MEMBER_QUEUE_PROC_VERSION, MEMBER_QUEUE_SCAN_VERSION } from '../constants/member.constant'
+import { EnumMemberQueue } from '../enums/member.enum'
 import { MemberUtil } from '../helpers/member.util'
 import {
   IMemberGrantTierRewardOptions,
+  IMemberGrantTierRewardPayload,
   ISlipCounterOptions,
   TMember,
   TMemberMetadata,
@@ -44,12 +44,11 @@ export class MemberService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly message: MessageService,
+    private readonly producer: WorkerProducer,
     private readonly helperService: HelperService,
     private readonly tierService: TierService,
     private readonly memberPointService: MemberPointService,
-    private readonly memberTierService: MemberTierService,
     private readonly memberUtil: MemberUtil,
-    private readonly eventBus: EventBus,
   ) {}
 
   async getOne(kwargs: Prisma.MemberFindUniqueArgs): Promise<TMember> {
@@ -127,8 +126,6 @@ export class MemberService {
         ...data,
       },
     })
-
-    this.eventBus.publish(new MemberCreatedEvent(member))
 
     return member
   }
@@ -461,18 +458,6 @@ export class MemberService {
     return nowDate
   }
 
-  async processExpiredMember(memberId: number): Promise<void> {
-    const member = await this.findOrFail(memberId)
-
-    if (await this.isExpired(member)) {
-      if (await this.canRenew(member)) {
-        await this.renewal(member)
-      } else {
-        await this.downgrade(member)
-      }
-    }
-  }
-
   private async isExpired(member: TMember): Promise<boolean> {
     const nowDate = this.helperService.dateNow()
 
@@ -513,7 +498,19 @@ export class MemberService {
       },
     })
 
-    this.eventBus.publish(new MemberRenewalEvent(updated))
+    await this.producer.publish<IMemberGrantTierRewardPayload>(
+      EnumMemberQueue.PROC_GRANT_TIER_REWARD,
+      {
+        version: MEMBER_QUEUE_PROC_VERSION[EnumMemberQueue.PROC_GRANT_TIER_REWARD],
+        priority: EnumQueuePriority.HIGH,
+        startDate: this.helperService.dateNow(),
+        message: {
+          memberId: updated.id,
+          tierId: updated.tierId,
+          issuedAt: updated.updatedAt,
+        },
+      },
+    )
   }
 
   private async downgrade(member: TMember): Promise<void> {
@@ -544,7 +541,19 @@ export class MemberService {
       },
     })
 
-    this.eventBus.publish(new MemberDowngradeEvent(updated))
+    await this.producer.publish<IMemberGrantTierRewardPayload>(
+      EnumMemberQueue.PROC_GRANT_TIER_REWARD,
+      {
+        version: MEMBER_QUEUE_PROC_VERSION[EnumMemberQueue.PROC_GRANT_TIER_REWARD],
+        priority: EnumQueuePriority.HIGH,
+        startDate: this.helperService.dateNow(),
+        message: {
+          memberId: updated.id,
+          tierId: updated.tierId,
+          issuedAt: updated.updatedAt,
+        },
+      },
+    )
   }
 
   // private async getReferrerData(
@@ -861,5 +870,63 @@ export class MemberService {
       tierId: options.tierId,
       issuedAt: options.issuedAt,
     })
+  }
+
+  async enqueueScanExpiredMembers(options: { startDate: Date }): Promise<void> {
+    await this.producer.publish(EnumMemberQueue.SCAN_EXPIRED, {
+      version: MEMBER_QUEUE_SCAN_VERSION[EnumMemberQueue.SCAN_EXPIRED],
+      priority: EnumQueuePriority.HIGH,
+      startDate: options.startDate,
+      exclusive: true,
+    })
+  }
+
+  async scanExpiredMembers(lastId: number, expiryDate: Date): Promise<number[]> {
+    const members = await this.prisma.member.findMany({
+      select: { id: true },
+      where: { expiryDate: { lte: expiryDate } },
+      cursor: lastId ? { id: lastId } : undefined,
+      skip: lastId ? 1 : 0,
+      take: 500,
+      orderBy: { id: 'asc' },
+    })
+
+    return members.map(m => m.id)
+  }
+
+  async processExpiredMember(memberId: number): Promise<void> {
+    const member = await this.findOrFail(memberId)
+
+    const isExpired = await this.isExpired(member)
+    if (isExpired) {
+      const isRenewal = await this.canRenew(member)
+      isRenewal ? await this.renewal(member) : await this.downgrade(member)
+    }
+  }
+
+  async enqueueScanPendingPoints(options: { startDate: Date }): Promise<void> {
+    await this.producer.publish(EnumMemberQueue.SCAN_PENDING_POINTS, {
+      version: MEMBER_QUEUE_SCAN_VERSION[EnumMemberQueue.SCAN_PENDING_POINTS],
+      priority: EnumQueuePriority.HIGH,
+      startDate: options.startDate,
+      exclusive: true,
+    })
+  }
+
+  async scanPendingPoints(lastId: number, releaseDate: Date): Promise<number[]> {
+    const memberPoints = await this.prisma.memberPoint.findMany({
+      where: {
+        isPending: true,
+        isDeleted: false,
+        releaseDate: { lte: releaseDate, not: null },
+        member: { isActive: true },
+      },
+      cursor: lastId ? { id: lastId } : undefined,
+      orderBy: [{ releaseDate: 'asc' }],
+      select: { id: true },
+      take: 500,
+    })
+
+    return memberPoints.map(mp => mp.id)
   }
 }

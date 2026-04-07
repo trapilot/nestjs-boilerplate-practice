@@ -8,7 +8,6 @@ import { APP_FILTER } from '@nestjs/core'
 import { EventEmitterModule } from '@nestjs/event-emitter'
 import { ScheduleModule } from '@nestjs/schedule'
 import { HeaderResolver, I18nJsonLoader, I18nModule } from 'nestjs-i18n'
-import { EventBus, SchedulerBus } from './bus'
 import { QUEUE_CONFIG_KEY, QUEUE_PROCESSOR_CONFIG_KEY } from './constants'
 import { PushDispatcher, SmsDispatcher } from './dispatchers'
 import { EnumAppEnvironment, EnumAppLanguage, EnumFileExtensionTemplate } from './enums'
@@ -48,8 +47,6 @@ export class NestCoreModule {
         RunnerService,
         HelperService,
         CacheService,
-        EventBus,
-        SchedulerBus,
         LoggerFactory,
         SmsDispatcher,
         PushDispatcher,
@@ -60,8 +57,6 @@ export class NestCoreModule {
         MailerService,
         RunnerService,
         HelperService,
-        EventBus,
-        SchedulerBus,
         LoggerFactory,
         SmsRegistry,
         PushRegistry,

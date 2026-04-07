@@ -1,4 +1,4 @@
-import { HttpStatus, MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common'
+import { HttpStatus, Module, RequestMethod } from '@nestjs/common'
 import { ValidationError } from 'class-validator'
 import { NestAuthModule } from 'lib/nest-auth'
 import {
@@ -12,30 +12,30 @@ import {
 } from 'lib/nest-core'
 import {
   NestPrismaModule,
-  PrismaQueueConsumer,
-  PrismaQueueProducer,
-  PrismaQueueScanner,
+  PrismaWorkerConsumer,
+  PrismaWorkerProducer,
+  PrismaWorkerScanner,
 } from 'lib/nest-prisma'
 import { NestWebModule, ValidateException } from 'lib/nest-web'
 import { AppVersionModule } from 'modules/app-version/app-version.module'
 import { AppVersionCheckMiddleware } from 'modules/app-version/middleware/app-version.check.middleware'
-import { InvoiceRejectOverDueHandler } from 'modules/invoice/handlers/invoice.handler'
+import { InvoiceProcEarnPointsHandler } from 'modules/invoice/handlers/invoice.proc-earn-points'
+import { InvoiceProcOverDueHandler } from 'modules/invoice/handlers/invoice.proc-over-due'
+import { InvoiceScanEarnPointsHandler } from 'modules/invoice/handlers/invoice.scan-earn-points.handler'
+import { InvoiceScanOverDueHandler } from 'modules/invoice/handlers/invoice.scan-over-due.handler'
 import { InvoiceModule } from 'modules/invoice/invoice.module'
-import { InvoiceScheduler } from 'modules/invoice/schedulers/invoice.scheduler'
 import { MemberEarnPointFromPurchaseHandler } from 'modules/member/handlers/member.earn-point-from-purchases.handler'
+import { MemberEmailWelcomeHandler } from 'modules/member/handlers/member.email-welcome.handler'
 import { MemberGenerateCodeHandler } from 'modules/member/handlers/member.generate-code.handler'
 import { MemberGrantTierRewardHandler } from 'modules/member/handlers/member.grant-tier-reward.handler'
 import { MemberProcessExpiredHandler } from 'modules/member/handlers/member.process-expired.handler'
-import { MemberReleasePendingPointHandler } from 'modules/member/handlers/member.release-pending-points.handler'
+import { MemberProcessReleasePointsHandler } from 'modules/member/handlers/member.process-release-points.handler'
 import { MemberScanExpiredHandler } from 'modules/member/handlers/member.scan-expired.handler'
-import { MemberTriggerWelcomeEmailHandler } from 'modules/member/handlers/member.trigger-welcome-email.handler'
-import { MemberListener } from 'modules/member/listeners/member.listener'
+import { MemberScanPendingPointHandler } from 'modules/member/handlers/member.scan-pending-points.handler'
 import { MemberModule } from 'modules/member/member.module'
-import { MemberScheduler } from 'modules/member/schedulers/member.scheduler'
 import { NotificationDispatchPushHandler } from 'modules/notification/handlers/notification.dispatch-push.handler'
 import { NotificationSendPushHandler } from 'modules/notification/handlers/notification.send-notification.handler'
 import { NotificationModule } from 'modules/notification/notification.module'
-import { NotificationScheduler } from 'modules/notification/schedulers/notification.scheduler'
 import { SettingCheckMaintenanceMiddleware } from 'modules/setting/middleware/setting.check-maintenance.middleware'
 import { SettingModule } from 'modules/setting/setting.module'
 import configs from '../configs'
@@ -95,33 +95,34 @@ import { RoutesWebModule } from './routes/routes.web.module'
             { path: 'v:version/audit/*spat', method: RequestMethod.ALL },
           ],
         },
-        middleware: (consumer: MiddlewareConsumer) => {
-          consumer
-            .apply(SettingCheckMaintenanceMiddleware)
-            .exclude(
+        middlewares: [
+          {
+            middleware: SettingCheckMaintenanceMiddleware,
+            module: SettingModule,
+            excludeRoutes: [
               { path: 'admin/auth/login', method: RequestMethod.POST },
               { path: 'admin/auth/refresh', method: RequestMethod.POST },
               { path: 'admin/settings', method: RequestMethod.ALL },
               { path: 'admin/settings/:splat', method: RequestMethod.ALL },
-            )
-            .forRoutes('*')
-
-          consumer
-            .apply(AppVersionCheckMiddleware)
-            .forRoutes(
+            ],
+          },
+          {
+            middleware: AppVersionCheckMiddleware,
+            module: AppVersionModule,
+            applyRoutes: [
               { path: 'app/*spat', method: RequestMethod.ALL },
               { path: 'v:version/app/*spat', method: RequestMethod.ALL },
               { path: 'web/*spat', method: RequestMethod.ALL },
               { path: 'v:version/web/*spat', method: RequestMethod.ALL },
-            )
-        },
+            ],
+          },
+        ],
         routes: [
           { path: EnumRoutePath.CMS, module: RoutesAdminModule },
           { path: EnumRoutePath.APP, module: RoutesAppModule },
           { path: EnumRoutePath.WEB, module: RoutesWebModule },
           { path: EnumRoutePath.PUB, module: RoutesPublicModule },
         ],
-        imports: [SettingModule, AppVersionModule],
       },
       worker: {
         enabled: StrUtil.isTrue(process.env.APP_WORKER),
@@ -131,26 +132,38 @@ import { RoutesWebModule } from './routes/routes.web.module'
           archiveIntervalMs: 10000,
           recoveryIntervalMs: 10000,
         },
-        producer: PrismaQueueProducer,
-        consumer: PrismaQueueConsumer,
-        scanner: PrismaQueueScanner,
-        handlers: [
-          MemberEarnPointFromPurchaseHandler,
-          MemberReleasePendingPointHandler,
-          MemberScanExpiredHandler,
-          MemberProcessExpiredHandler,
-          MemberGenerateCodeHandler,
-          MemberGrantTierRewardHandler,
-          MemberTriggerWelcomeEmailHandler,
-          NotificationDispatchPushHandler,
-          NotificationSendPushHandler,
-          InvoiceRejectOverDueHandler,
+        producer: PrismaWorkerProducer,
+        consumer: PrismaWorkerConsumer,
+        scanner: PrismaWorkerScanner,
+        modules: [
+          {
+            module: MemberModule,
+            handlers: [
+              MemberScanExpiredHandler,
+              MemberScanPendingPointHandler,
+              MemberProcessReleasePointsHandler,
+              MemberProcessExpiredHandler,
+              MemberEarnPointFromPurchaseHandler,
+              MemberGenerateCodeHandler,
+              MemberGrantTierRewardHandler,
+              MemberEmailWelcomeHandler,
+            ],
+          },
+          {
+            module: NotificationModule,
+            handlers: [NotificationDispatchPushHandler, NotificationSendPushHandler],
+          },
+          {
+            module: InvoiceModule,
+            handlers: [
+              InvoiceScanEarnPointsHandler,
+              InvoiceScanOverDueHandler,
+              InvoiceProcEarnPointsHandler,
+              InvoiceProcOverDueHandler,
+            ],
+          },
         ],
-        schedulers: [NotificationScheduler, MemberScheduler, InvoiceScheduler],
-        listeners: [MemberListener],
-        imports: [NotificationModule, MemberModule, InvoiceModule],
       },
-      imports: [],
     }),
 
     DataMockModule, // NOTE: remove before make a new build, it's used to fake user's behavior

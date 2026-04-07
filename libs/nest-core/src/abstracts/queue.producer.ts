@@ -1,7 +1,7 @@
-import { IQueueProducer, IQueuePublishOptions, IQueueRepublishOptions } from '../interfaces'
+import { IWorkerProducer, IWorkerPublishOptions, IWorkerRepublishOptions } from '../interfaces'
 
-export abstract class QueueProducer implements IQueueProducer {
-  abstract publish<T = unknown>(topic: string, options?: IQueuePublishOptions<T>): Promise<void>
+export abstract class WorkerProducer implements IWorkerProducer {
+  abstract publish<T = unknown>(topic: string, options?: IWorkerPublishOptions<T>): Promise<void>
 
-  abstract republish<T>(topic: string, options?: IQueueRepublishOptions<T>): Promise<void>
+  abstract republish<T>(topic: string, options?: IWorkerRepublishOptions<T>): Promise<void>
 }

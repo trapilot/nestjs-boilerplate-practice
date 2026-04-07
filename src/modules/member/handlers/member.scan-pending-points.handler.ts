@@ -14,20 +14,20 @@ import { EnumMemberQueue } from '../enums/member.enum'
 import { MemberService } from '../services/member.service'
 
 @Injectable()
-export class MemberScanExpiredHandler implements IWorkerHandler {
-  topic: string = EnumMemberQueue.SCAN_EXPIRED
-  version: number = MEMBER_QUEUE_SCAN_VERSION[EnumMemberQueue.SCAN_EXPIRED]
+export class MemberScanPendingPointHandler implements IWorkerHandler {
+  topic: string = EnumMemberQueue.SCAN_PENDING_POINTS
+  version: number = MEMBER_QUEUE_SCAN_VERSION[EnumMemberQueue.SCAN_PENDING_POINTS]
 
   constructor(
     private readonly logger: LoggerService,
     private readonly scanner: WorkerScanner,
     private readonly producer: WorkerProducer,
-    private readonly memberService: MemberService,
     private readonly helperService: HelperService,
+    private readonly memberService: MemberService,
   ) {}
 
   @OnScope(EnumScopeType.QUEUE, {
-    context: EnumMemberQueue.SCAN_EXPIRED,
+    context: EnumMemberQueue.SCAN_PENDING_POINTS,
   })
   async handle(version: number): Promise<void> {
     this.logger.log(`${this.topic}:v${version} is handling...`)
@@ -39,19 +39,19 @@ export class MemberScanExpiredHandler implements IWorkerHandler {
       version: this.version,
       chunking: 50,
 
-      retrieve: async state => await this.memberService.scanExpiredMembers(state.lastId, nowDate),
+      retrieve: async state => await this.memberService.scanPendingPoints(state.lastId, nowDate),
 
-      process: async memberIds => {
-        await this.producer.publish(EnumMemberQueue.PROC_EXPIRED, {
-          version: MEMBER_QUEUE_PROC_VERSION[EnumMemberQueue.PROC_EXPIRED],
+      process: async memberPointIds => {
+        await this.producer.publish(EnumMemberQueue.PROC_PENDING_POINTS, {
+          version: MEMBER_QUEUE_PROC_VERSION[EnumMemberQueue.PROC_PENDING_POINTS],
           priority: EnumQueuePriority.HIGH,
           startDate: nowDate,
           message: {
-            memberIds,
+            ids: memberPointIds,
           },
         })
 
-        return memberIds[memberIds.length - 1]
+        return memberPointIds[memberPointIds.length - 1]
       },
     })
   }

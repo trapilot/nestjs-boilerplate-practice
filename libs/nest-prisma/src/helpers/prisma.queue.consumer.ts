@@ -4,18 +4,18 @@ import { EnumJobStatus, QueueJob } from '@runtime/prisma-client'
 import {
   AppUtil,
   HelperService,
-  IQueueHandler,
-  IQueueWorkerConfig,
-  QUEUE_WORKER_CONFIG,
-  QueueConsumer,
+  IWorkerConfig,
+  IWorkerHandler,
   RunnerService,
+  WORKER_CONFIG,
+  WorkerConsumer,
 } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 
 @Injectable()
-export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
+export class PrismaWorkerConsumer extends WorkerConsumer implements OnModuleInit {
   private prisma!: PrismaService
-  private handlers = new Map<string, IQueueHandler>()
+  private handlers = new Map<string, IWorkerHandler>()
   private runningJobIds = new Set<number>()
 
   // ===== Config =====
@@ -40,7 +40,7 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
     private readonly ref: ModuleRef,
     private readonly runner: RunnerService,
     private readonly helperService: HelperService,
-    @Inject(QUEUE_WORKER_CONFIG) private readonly config: IQueueWorkerConfig,
+    @Inject(WORKER_CONFIG) private readonly config: IWorkerConfig,
   ) {
     super()
 
@@ -58,7 +58,7 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
     this.prisma = this.ref.get(PrismaService, { strict: false }) // trigger
   }
 
-  register(handler: IQueueHandler): void {
+  register(handler: IWorkerHandler): void {
     this.handlers.set(handler.topic, handler)
   }
 
@@ -371,7 +371,7 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
     }
 
     try {
-      await this.executeHandler(job.jobName, job.payload)
+      await this.executeHandler(job.version, job.jobName, job.payload)
 
       await this.completeJob(job)
     } catch (error: unknown) {
@@ -381,13 +381,13 @@ export class PrismaQueueConsumer extends QueueConsumer implements OnModuleInit {
     }
   }
 
-  private async executeHandler(topic: string, payload: unknown): Promise<void> {
+  private async executeHandler(version: number, topic: string, payload: unknown): Promise<void> {
     const handler = this.handlers.get(topic)
     if (!handler) {
       throw new Error(`No QueueHandler registered for topic: ${topic}`)
     }
 
-    await handler.handle(payload)
+    await handler.handle(version, payload)
   }
 
   private async completeJob(job: QueueJob) {

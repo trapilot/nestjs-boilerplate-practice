@@ -1,5 +1,6 @@
 import { PipeTransform, Type, ValidationPipeOptions } from '@nestjs/common'
-import { MiddlewareConsumer, RouteInfo } from '@nestjs/common/interfaces'
+import { RouteInfo } from '@nestjs/common/interfaces'
+import { RouteTree } from '@nestjs/core'
 import {
   ApiBodyOptions,
   ApiHeaderOptions,
@@ -15,6 +16,11 @@ import {
   IFileUploadMultipleFieldOptions,
   IFileUploadSingle,
   IStringParse,
+  IWorkerConfig,
+  IWorkerConsumer,
+  IWorkerHandler,
+  IWorkerProducer,
+  IWorkerScanner,
 } from 'lib/nest-core'
 import { EnumRequestBodyType } from '../enums'
 import {
@@ -56,6 +62,29 @@ export interface IRequestFilterEnumOptions extends IRequestFilterOptions {
   defaultValue?: any
 }
 
+export interface IWebModuleOptions {
+  metrics: IRequestMetricsOptions
+  router?: {
+    enabled: boolean
+    admin: boolean
+    logger: IRequestLoggerOptions
+    validator: IRequestValidatorOptions
+    middlewares: IRequestMiddlewareOptions[]
+    routes: IRequestRouteOptions[]
+  }
+  worker?: {
+    enabled: boolean
+    config: IWorkerConfig
+    producer: Type<IWorkerProducer>
+    consumer: Type<IWorkerConsumer>
+    scanner: Type<IWorkerScanner>
+    modules: {
+      module: Type<any>
+      handlers: Type<IWorkerHandler>[]
+    }[]
+  }
+}
+
 export interface IRequestMetricsOptions {
   defaultLabels: Record<string, string>
   defaultMetricsEnabled: boolean
@@ -71,18 +100,22 @@ export interface IRequestMetricsOptions {
   }
 }
 
-export interface IRequestHttpOptions {
-  routes: { path: string; module: Type<any> }[]
-  logger: IRequestLoggerOptions
-  validator: ValidationPipeOptions
-  middleware?: (consumer: MiddlewareConsumer) => void
-}
-
 export interface IRequestLoggerOptions {
   autoLogging: boolean
   applyRoutes?: RouteInfo[]
   excludeRoutes?: RouteInfo[]
 }
+
+export interface IRequestMiddlewareOptions {
+  middleware: Type<any>
+  module?: Type<any>
+  applyRoutes?: RouteInfo[]
+  excludeRoutes?: RouteInfo[]
+}
+
+export interface IRequestValidatorOptions extends ValidationPipeOptions {}
+
+export interface IRequestRouteOptions extends RouteTree {}
 
 export interface IRequestAuthOptions {
   apiKey?: boolean

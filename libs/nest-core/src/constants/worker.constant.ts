@@ -1,0 +1,1 @@
+export const WORKER_CONFIG = 'WORKER_CONFIG'

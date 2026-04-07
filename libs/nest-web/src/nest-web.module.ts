@@ -1,17 +1,14 @@
 import {
   BeforeApplicationShutdown,
   DynamicModule,
-  Inject,
   Logger,
   MiddlewareConsumer,
   Module,
   NestModule,
   OnApplicationBootstrap,
-  Optional,
   RequestMethod,
   Type,
   ValidationPipe,
-  ValidationPipeOptions,
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import {
@@ -21,36 +18,27 @@ import {
   APP_PIPE,
   ModuleRef,
   RouterModule,
-  Routes,
 } from '@nestjs/core'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { ThrottlerGuard, ThrottlerModule, ThrottlerModuleOptions } from '@nestjs/throttler'
 import {
-  EventBus,
   FileUtil,
   IModuleController,
   IModuleExport,
   IModuleImport,
   IModuleProvider,
-  IQueueConsumer,
-  IQueueHandler,
-  IQueueProducer,
-  IQueueScanner,
-  IQueueWorkerConfig,
   LoggerFactory,
-  QUEUE_WORKER_CONFIG,
-  QueueConsumer,
-  QueueProducer,
-  QueueScanner,
-  SchedulerBus,
+  WORKER_CONFIG,
+  WorkerConsumer,
+  WorkerProducer,
+  WorkerScanner,
 } from 'lib/nest-core'
-import { IEventListener, IScheduler } from 'lib/nest-core/interfaces/bus.interface'
 import { collectDefaultMetrics, Registry } from 'prom-client'
 import { REQUEST_LOGGER_OPTIONS, REQUEST_METRICS_OPTIONS } from './constants'
 import { HealthController, MetricsController } from './controllers'
 import { HttpExceptionFilter } from './filters'
 import { RequestContextInterceptor } from './interceptors'
-import { IRequestLoggerOptions, IRequestMetricsOptions } from './interfaces'
+import { IWebModuleOptions } from './interfaces'
 import {
   RequestBodyParserMiddleware,
   RequestContextMiddleware,
@@ -86,51 +74,20 @@ export class NestWebModule
 
   constructor(
     private readonly ref: ModuleRef,
-    private readonly eventBus: EventBus,
-    private readonly schedulerBus: SchedulerBus,
     private readonly loggerFactory: LoggerFactory,
-    @Optional()
-    @Inject(REQUEST_LOGGER_OPTIONS)
-    private readonly loggerOptions?: IRequestLoggerOptions,
-    @Optional() private readonly consumer?: QueueConsumer,
   ) {}
 
   private static initialized: boolean = false
-  private static routerMiddleware: (consumer: MiddlewareConsumer) => void
-  private static workerHandlers: Type<IQueueHandler>[] = []
-  private static workerListeners: Type<IEventListener>[] = []
-  private static workerSchedulers: Type<IScheduler>[] = []
+  private static options: IWebModuleOptions
 
-  static forRoot(options: {
-    metrics: IRequestMetricsOptions
-    router?: {
-      enabled: boolean
-      admin: boolean
-      logger: IRequestLoggerOptions
-      validator: ValidationPipeOptions
-      middleware: (consumer: MiddlewareConsumer) => void
-      routes: Routes
-      imports: Type<any>[]
-    }
-    worker?: {
-      enabled: boolean
-      config: IQueueWorkerConfig
-      producer: Type<IQueueProducer>
-      consumer: Type<IQueueConsumer>
-      scanner: Type<IQueueScanner>
-      handlers: Type<IQueueHandler>[]
-      listeners: Type<IEventListener>[]
-      schedulers: Type<IScheduler>[]
-      imports: Type<any>[]
-    }
-    imports: Type<any>[]
-  }): DynamicModule {
+  static forRoot(options: IWebModuleOptions): DynamicModule {
     if (this.initialized) {
       throw new Error('NestWebModule called multiple times')
     }
     this.initialized = true
+    NestWebModule.options = options
 
-    const imports: IModuleImport[] = options.imports
+    const imports: IModuleImport[] = []
     const exports: IModuleExport[] = []
     const providers: IModuleProvider[] = []
     const controllers: IModuleController[] = [HealthController]
@@ -173,8 +130,6 @@ export class NestWebModule
     }
 
     if (options.router && options.router.enabled) {
-      NestWebModule.routerMiddleware = options.router.middleware
-
       providers.push(
         {
           provide: APP_PIPE,
@@ -196,8 +151,8 @@ export class NestWebModule
       }
 
       imports.push(
-        ...options.router.imports,
-        ...options.router.routes.map(route => route.module),
+        ...options.router.routes.filter(r => r?.module).map(r => r.module),
+        ...options.router.middlewares.filter(m => m?.module).map(m => m.module),
         RouterModule.register(options.router.routes),
       )
     }
@@ -205,42 +160,33 @@ export class NestWebModule
     if (options.worker && options.worker.enabled) {
       if (options.worker?.producer) {
         providers.push({
-          provide: QueueProducer,
+          provide: WorkerProducer,
           useClass: options.worker.producer,
         })
-        exports.push(QueueProducer)
+        exports.push(WorkerProducer)
       }
 
       if (options.worker?.consumer) {
         providers.push({
-          provide: QueueConsumer,
+          provide: WorkerConsumer,
           useClass: options.worker.consumer,
         })
-        exports.push(QueueConsumer)
+        exports.push(WorkerConsumer)
       }
 
       if (options.worker?.scanner) {
         providers.push({
-          provide: QueueScanner,
+          provide: WorkerScanner,
           useClass: options.worker.scanner,
         })
-        exports.push(QueueScanner)
+        exports.push(WorkerScanner)
       }
 
-      providers.push({
-        provide: QUEUE_WORKER_CONFIG,
-        useValue: options.worker.config,
-      })
-
-      this.workerHandlers = options.worker.handlers
-      this.workerListeners = options.worker.listeners
-      this.workerSchedulers = options.worker.schedulers
-
-      providers.push(...options.worker.handlers)
-      providers.push(...options.worker.listeners)
-      providers.push(...options.worker.schedulers)
-
-      imports.push(...options.worker.imports)
+      providers.push(
+        { provide: WORKER_CONFIG, useValue: options.worker.config },
+        ...options.worker.modules.flatMap(w => w.handlers),
+      )
+      imports.push(...options.worker.modules.map(w => w.module))
     }
 
     return {
@@ -288,13 +234,14 @@ export class NestWebModule
   }
 
   configure(consumer: MiddlewareConsumer): void {
+    const allRoutes = [{ path: '*', method: RequestMethod.ALL }]
     consumer.apply(RequestContextMiddleware).forRoutes('*')
 
     // Middleware add logger
-    if (this.loggerOptions?.autoLogging) {
-      const excludeRoutes = this.loggerOptions.excludeRoutes
-      const applyRoutes = this.loggerOptions.applyRoutes
-      const allRoutes = [{ path: '*', method: RequestMethod.ALL }]
+    const routerLogger = NestWebModule.options.router.logger
+    if (routerLogger?.autoLogging) {
+      const excludeRoutes = routerLogger.excludeRoutes
+      const applyRoutes = routerLogger.applyRoutes
 
       excludeRoutes
         ? consumer
@@ -317,56 +264,46 @@ export class NestWebModule
       .forRoutes('*')
 
     // Custom middleware (user-defined)
-    if (NestWebModule.routerMiddleware) {
-      NestWebModule.routerMiddleware(consumer)
+    const routerMiddlewares = NestWebModule.options.router.middlewares
+    if (routerMiddlewares.length) {
+      routerMiddlewares.forEach(config => {
+        const excludeRoutes = config.excludeRoutes
+        const applyRoutes = config.applyRoutes
+
+        excludeRoutes
+          ? consumer
+              .apply(config.middleware)
+              .exclude(...excludeRoutes)
+              .forRoutes(...(applyRoutes || allRoutes))
+          : consumer.apply(config.middleware).forRoutes(...(applyRoutes || allRoutes))
+      })
     }
   }
 
   // This hook runs after all modules have been initialized and all providers are ready
   async onApplicationBootstrap() {
-    // ===== Queue handlers =====
-    if (this.consumer && NestWebModule.workerHandlers.length > 0) {
-      for (const handler of NestWebModule.workerHandlers) {
+    if (NestWebModule.options?.worker?.enabled) {
+      const workerConsumer = this.ref.get(WorkerConsumer, { strict: false })
+      const workerHandlers = NestWebModule.options.worker.modules.flatMap(w => w.handlers)
+
+      for (const handler of workerHandlers) {
         const instance = this.ref.get(handler, { strict: false })
 
-        this.consumer.register(instance)
+        workerConsumer.register(instance)
 
-        this.logger.log(`Registered topic: ${instance.topic} -> ${handler.name}`)
+        this.logger.log(`Queue Worker registered topic: ${instance.topic}`)
+        // this.logger.log(`Registered topic: ${instance.topic} -> ${handler.name}`)
       }
 
-      await this.consumer.start()
-    }
-
-    // ===== Event listeners =====
-    if (this.eventBus && NestWebModule.workerListeners.length > 0) {
-      for (const listener of NestWebModule.workerListeners) {
-        const instance = this.ref.get(listener, { strict: false })
-
-        instance.register(this.eventBus)
-      }
-
-      this.logger.log(`Listeners: [${NestWebModule.workerListeners.map(i => i.name).join(', ')}]`)
-    }
-
-    // ===== Schedulers =====
-    if (this.schedulerBus && NestWebModule.workerSchedulers.length > 0) {
-      for (const scheduler of NestWebModule.workerSchedulers) {
-        const instance = this.ref.get(scheduler, { strict: false })
-
-        instance.register(this.schedulerBus)
-      }
-
-      this.logger.log(`Schedulers: [${NestWebModule.workerSchedulers.map(i => i.name).join(', ')}]`)
+      await workerConsumer.start()
     }
   }
 
   async beforeApplicationShutdown(_signal: string) {
-    if (this.consumer) {
-      await this.consumer.stop()
-    }
+    if (NestWebModule.options?.worker?.enabled) {
+      const workerConsumer = this.ref.get(WorkerConsumer, { strict: false })
 
-    if (this.schedulerBus) {
-      await this.schedulerBus.shutdown()
+      await workerConsumer.stop()
     }
   }
 }

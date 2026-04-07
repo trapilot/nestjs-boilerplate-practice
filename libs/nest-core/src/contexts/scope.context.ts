@@ -6,14 +6,14 @@ import { IScopeContextData } from '../interfaces'
 export class ScopeContext {
   private static readonly storage = new AsyncLocalStorage<IScopeContextData>()
 
-  static create<T>(data: IScopeContextData, next: (...args: any[]) => T): T {
-    return this.storage.run(data, next)
-  }
-
-  static async createAsync<T>(
+  static create<T>(
     data: IScopeContextData,
-    next: (...args: any[]) => Promise<T>,
-  ): Promise<T> {
+    next: (...args: any[]) => T | Promise<T>,
+  ): T | Promise<T> {
+    const existing = this.current()
+    if (existing) {
+      return next()
+    }
     return this.storage.run(data, next)
   }
 

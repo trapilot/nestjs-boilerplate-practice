@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common'
-import { EnumScopeType, IQueueHandler, LoggerService, OnScope } from 'lib/nest-core'
+import { EnumScopeType, IWorkerHandler, LoggerService, OnScope } from 'lib/nest-core'
 import { EnumMemberQueue } from '../enums/member.enum'
 import { IMemberGrantTierRewardPayload } from '../interfaces/member.interface'
 import { MemberService } from '../services/member.service'
 
 @Injectable()
-export class MemberGrantTierRewardHandler implements IQueueHandler {
-  topic: string = EnumMemberQueue.GRANT_TIER_REWARD
+export class MemberGrantTierRewardHandler implements IWorkerHandler {
+  topic: string = EnumMemberQueue.PROC_GRANT_TIER_REWARD
   version: number = 1
 
   constructor(
@@ -15,11 +15,10 @@ export class MemberGrantTierRewardHandler implements IQueueHandler {
   ) {}
 
   @OnScope(EnumScopeType.QUEUE, {
-    context: EnumMemberQueue.GRANT_TIER_REWARD,
-    async: true,
+    context: EnumMemberQueue.PROC_GRANT_TIER_REWARD,
   })
-  async handle(payload: IMemberGrantTierRewardPayload): Promise<void> {
-    this.logger.log(`${this.topic}:v${this.version} is handling...`)
+  async handle(version: number, payload: IMemberGrantTierRewardPayload): Promise<void> {
+    this.logger.log(`${this.topic}:v${version} is handling...`)
 
     // handle job
     await this.memberService.grantTierReward(payload.memberId, {

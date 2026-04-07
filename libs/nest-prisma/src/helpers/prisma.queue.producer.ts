@@ -2,16 +2,16 @@ import { Injectable } from '@nestjs/common'
 import { EnumJobStatus, Prisma } from '@runtime/prisma-client'
 import {
   HelperService,
-  IQueuePublishOptions,
-  IQueueRepublishOptions,
-  QueueProducer,
+  IWorkerPublishOptions,
+  IWorkerRepublishOptions,
   RunnerService,
+  WorkerProducer,
 } from 'lib/nest-core'
 import { PrismaService } from '../services'
 import { PrismaUtil } from '../utils'
 
 @Injectable()
-export class PrismaQueueProducer extends QueueProducer {
+export class PrismaWorkerProducer extends WorkerProducer {
   constructor(
     private readonly prisma: PrismaService,
     private readonly runner: RunnerService,
@@ -20,7 +20,7 @@ export class PrismaQueueProducer extends QueueProducer {
     super()
   }
 
-  async publish<T>(topic: string, options: IQueuePublishOptions<T>): Promise<void> {
+  async publish<T>(topic: string, options: IWorkerPublishOptions<T>): Promise<void> {
     const nowDate = this.helperService.dateNow(true)
     const runDate = this.helperService.dateForward(nowDate, {
       milliseconds: Math.abs(options?.delayMs ?? 0),
@@ -66,7 +66,7 @@ export class PrismaQueueProducer extends QueueProducer {
     )
   }
 
-  async republish<T>(topic: string, options: IQueueRepublishOptions<T>): Promise<void> {
+  async republish<T>(topic: string, options: IWorkerRepublishOptions<T>): Promise<void> {
     return await this.publish<T>(topic, {
       ...options,
       delayMs: options?.delayMs ?? 1000, // default delay 1s

@@ -1,11 +1,14 @@
 export enum EnumMemberQueue {
-  EARN_POINT_FROM_PURCHASE = 'member:earn_point_from_purchase',
-  RELEASE_PENDING_POINTS = 'member:release_pending_points',
-  SCAN_EXPIRED = 'member:scan_expired',
-  PROCESS_EXPIRED = 'member:process_expired',
-  GRANT_TIER_REWARD = 'member:grant_tier_reward',
-  TRIGGER_WELCOME_EMAIL = 'member:trigger_welcome_email',
-  GENERATE_CODE = 'member:generate_code',
+  SCAN_EXPIRED = 'member:scan:expired',
+  SCAN_PENDING_POINTS = 'member:scan:pending_points',
+  SCAN_EARN_POINTS = 'member:scan:earn_points',
+  SCAN_OVER_DUE_INVOICES = 'member:scan:over_due_invoices',
+  PROC_EXPIRED = 'member:proc:expired',
+  PROC_PENDING_POINTS = 'member:proc:pending_points',
+  PROC_EARN_POINTS = 'member:proc:earn_points',
+  PROC_GRANT_TIER_REWARD = 'member:proc:grant_tier_reward',
+  PROC_EMAIL_WELCOME = 'member:proc:email_welcome',
+  PROC_GENERATE_CODE = 'member:proc:generate_code',
 }
 
 export enum EnumMemberEvent {

@@ -2,7 +2,7 @@ import { BadRequestException, HttpStatus, Injectable, Logger } from '@nestjs/com
 import { ConfigService } from '@nestjs/config'
 import { EnumVerificationChannel } from '@runtime/prisma-client'
 import { EnumAuthLoginType } from 'lib/nest-auth'
-import { EventBus, HelperService } from 'lib/nest-core'
+import { HelperService } from 'lib/nest-core'
 import { PrismaService } from 'lib/nest-prisma'
 import { EnumMemberActivityAction } from '../enums/member.enum'
 import {
@@ -22,7 +22,6 @@ export class MemberUtil {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
     private readonly helperService: HelperService,
-    private readonly eventBus: EventBus,
   ) {}
 
   generateCode(memberId: number): string {

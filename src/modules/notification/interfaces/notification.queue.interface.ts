@@ -4,5 +4,5 @@ export interface INotificationDispatchPushPayload {
 
 export interface INotificationSendPushPayload {
   pushId: number
-  memberId: number
+  memberIds: number[]
 }
